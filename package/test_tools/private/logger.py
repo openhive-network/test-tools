@@ -3,45 +3,45 @@ from pathlib import Path
 
 
 class Logger:
+    default_formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s (%(name)s, %(filename)s:%(lineno)s)')
+
     def __init__(self):
         self.__directory = Path('logs/')
         self.__stream_handler = None
         self.__file_handler = None
 
     def __ensure_initialization(self):
-        formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s (%(name)s, %(filename)s:%(lineno)s)')
-
         if not self.__is_initialized():
-            self.__initialize(formatter)
+            self.__initialize()
             return
 
         if self.__file_handler is None:
-            self.__initialize_file_handler(formatter)
+            self.__initialize_file_handler()
 
     def __is_initialized(self):
         return self.__stream_handler is not None
 
-    def __initialize(self, formatter):
+    def __initialize(self):
         self.__remove_old_log_if_exists()
 
         logging.root.setLevel(logging.DEBUG)
 
-        self.__initialize_file_handler(formatter)
+        self.__initialize_file_handler()
 
         # Configure stream handler
         from sys import stdout
         self.__stream_handler = logging.StreamHandler(stdout)
-        self.__stream_handler.setFormatter(formatter)
+        self.__stream_handler.setFormatter(self.default_formatter)
         self.__stream_handler.setLevel(logging.INFO)
         logging.root.addHandler(self.__stream_handler)
 
         # Suppress debug logs from selected built-in python libraries
         logging.getLogger('urllib3.connectionpool').setLevel(logging.INFO)
 
-    def __initialize_file_handler(self, formatter):
+    def __initialize_file_handler(self):
         self.__get_log_path().parent.mkdir(exist_ok=True, parents=True)
         self.__file_handler = logging.FileHandler(self.__get_log_path(), mode='w')
-        self.__file_handler.setFormatter(formatter)
+        self.__file_handler.setFormatter(self.default_formatter)
         self.__file_handler.setLevel(logging.DEBUG)
         logging.root.addHandler(self.__file_handler)
 
