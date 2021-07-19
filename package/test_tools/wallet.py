@@ -503,6 +503,13 @@ class Wallet(ScopedObject):
                                block_signing_key=block_signing_key, props=props, broadcast=broadcast,
                                only_result=only_result)
 
+        def use_authority(self, authority_type, account_name, only_result: bool = True):
+            return self.__send('use_authority', authority_type=authority_type, account_name=account_name,
+                               only_result=only_result)
+
+        def use_automatic_authority(self, only_result: bool = True):
+            return self.__send('use_automatic_authority', only_result=only_result)
+
         def vote(self, voter, author, permlink, weight, broadcast=None, only_result: bool = True):
             return self.__send('vote', voter=voter, author=author, permlink=permlink, weight=weight,
                                broadcast=broadcast, only_result=only_result)
