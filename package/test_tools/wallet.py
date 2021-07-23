@@ -1,4 +1,6 @@
+import logging
 from pathlib import Path
+import pprint
 import subprocess
 import time
 
@@ -445,7 +447,14 @@ class Wallet:
         self.stdout_file = None
         self.stderr_file = None
         self.process = None
+
+        self.__configurate_loggers()
+
+    def __configurate_loggers(self):
         self.logger = logger.getLogger(f'{__name__}.{self.creator}.{self.name}')
+
+        self.__communication_logger = logger.getLogger(f'{self.logger.name}.communication')
+        self.__communication_logger.propagate = False
 
     def __str__(self):
         return f'{self.creator}::{self.name}'
@@ -486,6 +495,14 @@ class Wallet:
         import shutil
         shutil.rmtree(self.directory, ignore_errors=True)
         self.directory.mkdir(parents=True)
+
+        self.__file_handler = logging.FileHandler(self.directory.joinpath('messages.log'), mode='w')
+        self.__file_handler.setFormatter(logging.Formatter(
+            f'{80 * "="}\n'
+            f'%(asctime)s %(message)s\n'
+        ))
+        self.__file_handler.setLevel(logging.DEBUG)
+        self.__communication_logger.addHandler(self.__file_handler)
 
         self.stdout_file = open(self.get_stdout_file_path(), 'w')
         self.stderr_file = open(self.get_stderr_file_path(), 'w')
@@ -582,7 +599,11 @@ class Wallet:
 
         self.__prepare_message(message)
 
-        return communication.request(endpoint, message)
+        self.__communication_logger.info(f'Sent:\n{80 * "="}\n{pprint.pformat(message, indent=4)}')
+        response = communication.request(endpoint, message)
+        self.__communication_logger.info(f'Received:\n{80 * "="}\n{pprint.pformat(response, indent=4)}')
+
+        return response
 
     @staticmethod
     def __prepare_message(message: dict):
