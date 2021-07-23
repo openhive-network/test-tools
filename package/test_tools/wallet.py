@@ -1,3 +1,4 @@
+import inspect
 import logging
 from pathlib import Path
 import pprint
@@ -599,11 +600,18 @@ class Wallet:
 
         self.__prepare_message(message)
 
-        self.__communication_logger.info(f'Sent:\n{80 * "="}\n{pprint.pformat(message, indent=4)}')
+        file_name, line_number = self.__where_function_was_called()
+        self.__communication_logger.info(f'Sent:\n[{file_name}, line {line_number}]\n{80 * "="}\n{pprint.pformat(message, indent=4)}')
         response = communication.request(endpoint, message)
         self.__communication_logger.info(f'Received:\n{80 * "="}\n{pprint.pformat(response, indent=4)}')
 
         return response
+
+    def __where_function_was_called(self):
+        '''Returns file name and line number where most external TestTools function was called'''
+        for frame_info in inspect.stack():
+            if 'test_tools/package/test_tools' not in frame_info.filename:
+                return Path(frame_info.filename).name, frame_info.lineno
 
     @staticmethod
     def __prepare_message(message: dict):
