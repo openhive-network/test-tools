@@ -1,6 +1,7 @@
 from pathlib import Path
 import subprocess
 import time
+import json
 
 from test_tools import Account, communication, logger, paths_to_executables
 from test_tools.exceptions import CommunicationError
@@ -571,7 +572,7 @@ class Wallet:
     def set_http_server_port(self, port):
         self.http_server_port = port
 
-    def send(self, method, *params, jsonrpc='2.0', id=0):
+    def send(self, method, *params, jsonrpc='2.0', id=0, max_attempts=3, seconds_between_attempts=0.2):
         endpoint = f'http://127.0.0.1:{self.http_server_port}'
         message = {
             'jsonrpc': jsonrpc,
@@ -580,7 +581,16 @@ class Wallet:
             'params': list(params)
         }
 
-        return communication.request(endpoint, message)
+        assert max_attempts > 0
+        attempts_left = max_attempts
+        while attempts_left > 0:
+            text = communication.request(endpoint, message)
+            if 'error' in json.loads(text) and attempts_left > 1:
+                import time
+                time.sleep(seconds_between_attempts)
+                attempts_left -= 1
+                continue
+            return text
 
     def in_single_transaction(self, *, broadcast=None):
         return SingleTransactionContext(self, broadcast=broadcast)
