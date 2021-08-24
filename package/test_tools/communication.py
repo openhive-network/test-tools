@@ -21,7 +21,7 @@ def request(url: str, message: dict, max_attempts=3, seconds_between_attempts=0.
     attempts_left = max_attempts
     while attempts_left > 0:
         result = requests.post(url, data=message)
-        if result.status_code != 200:
+        if result.status_code != 200 or 'error' in json.loads(result.text):
             if attempts_left > 0:
                 import time
                 time.sleep(seconds_between_attempts)
