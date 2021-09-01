@@ -20,8 +20,11 @@ class Node:
     __DEFAULT_WAIT_FOR_LIVE_TIMEOUT = 20
 
     class __Executable:
+        def __init__(self, other_path : str = None):
+            self.user_defined_path = other_path
+
         def get_path(self):
-            return paths_to_executables.get_path_of('hived')
+            return paths_to_executables.get_path_of('hived') if self.user_defined_path is None else self.user_defined_path
 
         def get_build_version(self):
             if self.is_test_net_build():
@@ -67,7 +70,8 @@ class Node:
             self.__directory.mkdir(exist_ok=True)
             self.__prepare_files_for_streams()
 
-            command = [str(self.__executable.get_path()), '-d', '.', *with_arguments]
+            command = []
+            command.extend([str(self.__executable.get_path()), '-d', '.', *with_arguments])
             self.__logger.debug(' '.join(item for item in command))
 
             run_subprocess = subprocess.run if blocking else subprocess.Popen
@@ -138,6 +142,7 @@ class Node:
         self.__executable = self.__Executable()
         self.__process = self.__Process(self, self.directory, self.__executable, self.__logger)
         self.__clean_up_policy = None
+        self.__requests_logging_policy = constants.LoggingOutgoingRequestPolicy.DO_NOT_LOG
 
         self.config = create_default_config()
 
@@ -247,7 +252,7 @@ class Node:
         self.__wait_for_http_listening()
 
         from test_tools import communication
-        response = communication.request(endpoint, message)
+        response = communication.request(endpoint, message, logging_policy=self.__requests_logging_policy)
 
         if 'error' in response:
             raise CommunicationError(f'Error detected in response from node {self}', message, response)
@@ -334,7 +339,7 @@ class Node:
             stop_at_block=None,
             exit_before_synchronization=False,
             wait_for_live=None,
-            timeout=__DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
+            timeout=__DEFAULT_WAIT_FOR_LIVE_TIMEOUT
     ):
         """
         :param wait_for_live: Stops execution until node will generate or receive blocks.
@@ -514,8 +519,12 @@ class Node:
     def __remove_all_files(self):
         self.__remove(self.directory)
 
-    def set_executable_file_path(self, executable_file_path):
+    def set_executable_file_path(self, executable_file_path : str):
         self.__executable_file_path = executable_file_path
+        self.__executable = Node.__Executable(executable_file_path)
 
     def set_clean_up_policy(self, policy: constants.NodeCleanUpPolicy):
         self.__clean_up_policy = policy
+
+    def set_requests_logging_policy(self, policy : constants.LoggingOutgoingRequestPolicy):
+        self.__requests_logging_policy = policy

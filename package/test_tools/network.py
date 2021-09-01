@@ -2,6 +2,7 @@ from pathlib import Path
 from shutil import rmtree
 
 from test_tools import constants, logger
+from test_tools.paths_to_executables import get_path_of
 from test_tools.wallet import Wallet
 from test_tools.private.children_names import ChildrenNames
 from test_tools.private.node import Node
@@ -43,6 +44,7 @@ class Network(NodesCreator):
 
         for node in nodes_connecting_to_seed:
             node.config.p2p_seed_node.append(endpoint)
+            node : Node = node
             node.run(wait_for_live=wait_for_live)
 
         self.is_running = True

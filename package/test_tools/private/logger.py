@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 
+from test_tools.constants import LoggingOutgoingRequestPolicy
 
 class Logger:
     def __init__(self):
@@ -97,3 +98,15 @@ class Logger:
     def getLogger(self, name):
         self.__ensure_initialization()
         return logging.getLogger(name)
+
+def log_request( policy : LoggingOutgoingRequestPolicy, endpoint : str, data : str = None, method : str = "GET"):
+  if LoggingOutgoingRequestPolicy.BASIC_LOGGING == policy:
+    message = f"{method} {data} {endpoint}"
+  elif LoggingOutgoingRequestPolicy.LOGGING_AS_CURL_REQUEST == policy:
+    message = f"curl -X {method} "
+    if data is not None:
+      message += f"-d '{data}' "
+    message += endpoint
+
+  if LoggingOutgoingRequestPolicy.DO_NOT_LOG != policy:
+    print(message, flush=True)

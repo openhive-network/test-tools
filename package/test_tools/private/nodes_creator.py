@@ -25,7 +25,7 @@ class NodesCreator:
         node.config.required_participation = 0
         return node
 
-    def create_witness_node(self, name=None, *, witnesses=None):
+    def __create_witness_node(self, name=None, *, witnesses=None):
         node = self.__create_node_preconfigured_for_tests(name, default_name='WitnessNode')
         assert 'witness' in node.config.plugin
 
@@ -42,10 +42,14 @@ class NodesCreator:
             )
             witnesses = []
 
-        for witness in witnesses:
-            self.__register_witness(node, witness)
+        witnesses = [ self.__register_witness(node, witness) for witness in witnesses ]
+        return (node, witnesses)
 
-        return node
+    def create_witness_node(self, name=None, *, witnesses=None):
+      return self.__create_witness_node(name, witnesses=witnesses)[0]
+
+    def create_witness_node_and_return_accounts(self, name=None, *, witnesses=None):
+      return self.__create_witness_node(name, witnesses=witnesses)
 
     def create_api_node(self, name=None):
         node = self.__create_node_preconfigured_for_tests(name, default_name='ApiNode')
@@ -83,6 +87,7 @@ class NodesCreator:
         witness = Account(witness_name)
         node.config.witness.append(witness.name)
         node.config.private_key.append(witness.private_key)
+        return witness
 
     @staticmethod
     def __enable_all_api_plugins(node):
