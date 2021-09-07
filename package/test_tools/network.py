@@ -35,7 +35,7 @@ class Network(NodesCreator):
         for node in self._nodes[1:]:
             node.add_seed_node(seed_node)
 
-    def run(self, wait_for_live=True):
+    def run(self, wait_for_live=True, replay_from=None):
         if self._directory.exists():
             rmtree(self._directory)
 
@@ -43,7 +43,7 @@ class Network(NodesCreator):
 
         self.connect_nodes()
         for node in self._nodes:
-            node.run(wait_for_live=False)
+            node.run(wait_for_live=False, replay_from=replay_from)
             node._wait_for_p2p_plugin_start()
 
         self.is_running = True
