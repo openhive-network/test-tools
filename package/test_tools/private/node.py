@@ -251,8 +251,7 @@ class Node:
         if self.config.webserver_http_endpoint is None:
             raise Exception('Webserver http endpoint is unknown')
 
-        from urllib.parse import urlparse
-        endpoint = f'http://{urlparse(self.config.webserver_http_endpoint, "http").path}'
+        endpoint = f'http://{self.config.webserver_http_endpoint}'
 
         if '0.0.0.0' in endpoint:
             endpoint = endpoint.replace('0.0.0.0', '127.0.0.1')
