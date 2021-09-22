@@ -104,6 +104,7 @@ class World(NodesCreator):
 
         wallet = Wallet(name, self, node.directory.parent)
         wallet.connect_to(node)
+        wallet.http_server_port = 30000
         wallet.run(timeout)
 
         self.__wallets.append(wallet)

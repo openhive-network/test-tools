@@ -467,11 +467,12 @@ class Node:
 
     def _get_ws_endpoint(self):
         self.__wait_for_http_listening()
-        with open(self.__process.get_stderr_file_path()) as output:
-            for line in output:
-                if 'start listening for ws requests' in line:
-                    endpoint = re.match(r'^.*start listening for ws requests on ([\d\.]+\:\d+)\s*$', line)[1]
-                    return endpoint.replace('0.0.0.0', '127.0.0.1')
+        return '127.0.0.1:12345'
+        # with open(self.__process.get_stderr_file_path()) as output:
+        #     for line in output:
+        #         if 'start listening for ws requests' in line:
+        #             endpoint = re.match(r'^.*start listening for ws requests on ([\d\.]+\:\d+)\s*$', line)[1]
+        #             return endpoint.replace('0.0.0.0', '127.0.0.1')
 
     def close(self):
         self.__process.close()
