@@ -1,7 +1,9 @@
 from pathlib import Path
 import shutil
 import warnings
+import subprocess
 
+from test_tools import paths_to_executables
 
 class BlockLog:
     def __init__(self, owner, path, *, include_index=True):
@@ -25,6 +27,18 @@ class BlockLog:
                 shutil.copy(block_log_index_path, destination)
             else:
                 self.__warn_about_missing_index(block_log_index_path)
+
+    def truncate(self, output_block_log_path: str, block_number: int):
+        executable_file_path = paths_to_executables.get_path_of('truncate_block_log')
+        self.process = subprocess.run(
+            [
+                str(executable_file_path),
+                self.__path,
+                output_block_log_path,
+                str(block_number),
+            ]
+        )
+        return BlockLog(None, output_block_log_path)
 
     def __warn_about_missing_index(self, block_log_index_path):
         if self.__owner is not None:
