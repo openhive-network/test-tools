@@ -77,6 +77,7 @@ class Network(NodesCreator):
 
         network.allow_for_connections_with_anyone()
         network.disconnected_networks.remove(self)
+        self.logger.info(f'Network {self} connected with {network}')
 
     def disconnect_from(self, network):
         if len(self._nodes) == 0 or len(network.nodes()) == 0:
@@ -87,6 +88,7 @@ class Network(NodesCreator):
 
         self.allow_for_connections_only_between_nodes_in_network()
         network.allow_for_connections_only_between_nodes_in_network()
+        self.logger.info(f'Network {self} disconnected from {network}')
 
     def allow_for_connections_only_between_nodes_in_network(self):
         for node_number in range(len(self._nodes)):
