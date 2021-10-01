@@ -13,6 +13,7 @@ from test_tools.node_api.node_apis import Apis
 from test_tools.node_configs.default import create_default_config
 from test_tools.private.block_log import BlockLog
 from test_tools.private.logger.logger_internal_interface import logger
+from test_tools.private.node_http_server import NodeHttpServer
 from test_tools.private.node_message import NodeMessage
 from test_tools.private.snapshot import Snapshot
 from test_tools.private.wait_for import wait_for
@@ -167,6 +168,22 @@ class Node:
             stderr_file = self.__files['stderr']
             return Path(stderr_file.name) if stderr_file is not None else None
 
+    class __NotificationsServer:
+        def __init__(self, node: 'Node', logger):
+            self.node: 'Node' = node
+            self.server = NodeHttpServer(self)
+            self.__logger = logger
+
+        def listen(self):
+            self.node.config.notifications_endpoint = f'127.0.0.1:{self.server.port}'
+            self.server.run()
+
+        def notify(self, message):
+            self.__logger.info(f'Received message: {message}')
+
+        def close(self):
+            self.server.close()
+
     def __init__(self, creator, name, directory):
         self.api = Apis(self)
 
@@ -178,6 +195,7 @@ class Node:
 
         self.__executable = self.__Executable()
         self.__process = self.__Process(self, self.directory, self.__executable, self.__logger)
+        self.__notifications = self.__NotificationsServer(self, self.__logger)
         self.__clean_up_policy = None
 
         self.config = create_default_config()
@@ -333,10 +351,15 @@ class Node:
                  timeout_error_message=f'Waiting too long for {self} to dump snapshot')
 
     def __run_process(self, *, blocking, write_config_before_run=True, with_arguments=(), with_time_offset=None):
+        self.__notifications.listen()
+
         if write_config_before_run:
             self.config.write_to_file(self.__get_config_file_path())
 
         self.__process.run(blocking=blocking, with_arguments=with_arguments, with_time_offset=with_time_offset)
+
+        if blocking:
+            self.__notifications.close()
 
     def run(
             self,
@@ -504,6 +527,7 @@ class Node:
 
     def close(self):
         self.__process.close()
+        self.__notifications.close()
 
     def handle_final_cleanup(self, *, default_policy: constants.NodeCleanUpPolicy):
         self.close()
