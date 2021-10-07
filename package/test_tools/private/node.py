@@ -7,6 +7,7 @@ import shutil
 import signal
 import subprocess
 import weakref
+from datetime import datetime
 
 from test_tools import communication, constants, network, paths_to_executables
 from test_tools.node_api.node_apis import Apis
@@ -76,7 +77,7 @@ class Node:
                 'stderr': None,
             }
 
-        def run(self, *, blocking, with_arguments=(), with_time_offset=None):
+        def run(self, *, blocking, with_arguments=(), with_faketime=None):
             self.__directory.mkdir(exist_ok=True)
             self.__prepare_files_for_streams()
 
@@ -84,8 +85,8 @@ class Node:
             self.__logger.debug(' '.join(item for item in command))
 
             env = dict(os.environ)
-            if with_time_offset is not None:
-                self.__configure_fake_time(env, with_time_offset)
+            if with_faketime is not None:
+                self.__configure_fake_time(env, with_faketime)
 
             if blocking:
                 subprocess.run(
@@ -108,13 +109,13 @@ class Node:
         def get_id(self):
             return self.__process.pid
 
-        def __configure_fake_time(self, env, time_offset):
+        def __configure_fake_time(self, env, faketime):
             libfaketime_path = os.getenv('LIBFAKETIME_PATH') or '/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1'
             if not Path(libfaketime_path).is_file():
                 raise RuntimeError(f'libfaketime was not found at {libfaketime_path}')
-            self.__logger.info(f"using time_offset {time_offset}")
+            self.__logger.info(f"using faketime {faketime}")
             env['LD_PRELOAD'] = libfaketime_path
-            env['FAKETIME'] = time_offset
+            env['FAKETIME'] = faketime
             env['FAKETIME_DONT_RESET'] = '1'
             env['TZ'] = 'UTC'
 
@@ -179,6 +180,7 @@ class Node:
         self.__executable = self.__Executable()
         self.__process = self.__Process(self, self.directory, self.__executable, self.__logger)
         self.__clean_up_policy = None
+        self.__speedup = 1
 
         self.config = create_default_config()
 
@@ -241,7 +243,7 @@ class Node:
             lambda: self.__is_block_with_number_reached(number),
             timeout=timeout,
             timeout_error_message=f'Waiting too long for block {number}',
-            poll_time=2.0
+            poll_time=2.0/self.__speedup
         )
 
     def __is_block_with_number_reached(self, number):
@@ -332,11 +334,11 @@ class Node:
         wait_for(self.__is_snapshot_dumped, timeout=timeout,
                  timeout_error_message=f'Waiting too long for {self} to dump snapshot')
 
-    def __run_process(self, *, blocking, write_config_before_run=True, with_arguments=(), with_time_offset=None):
+    def __run_process(self, *, blocking, write_config_before_run=True, with_arguments=(), with_faketime=None):
         if write_config_before_run:
             self.config.write_to_file(self.__get_config_file_path())
 
-        self.__process.run(blocking=blocking, with_arguments=with_arguments, with_time_offset=with_time_offset)
+        self.__process.run(blocking=blocking, with_arguments=with_arguments, with_faketime=with_faketime)
 
     def run(
             self,
@@ -347,7 +349,7 @@ class Node:
             exit_before_synchronization=False,
             wait_for_live=None,
             timeout=__DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
-            time_offset=None
+            faketime=None
     ):
         """
         :param wait_for_live: Stops execution until node will generate or receive blocks.
@@ -378,8 +380,9 @@ class Node:
         # ------------------------- End of workaround -------------------------
 
         log_message = f'Running {self}'
-        if time_offset is not None:
-            log_message += f' with time offset {time_offset}'
+        if faketime is not None:
+            self.__set_speedup(faketime)
+            log_message += f' with time faketime {faketime}'
 
         additional_arguments = []
         if load_snapshot_from is not None:
@@ -407,9 +410,8 @@ class Node:
         self.__run_process(
             blocking=exit_before_synchronization,
             with_arguments=additional_arguments,
-            with_time_offset=time_offset
+            with_faketime=faketime
         )
-
         self.__produced_files = True
         if wait_for_live:
             self.wait_for_live(timeout)
@@ -549,3 +551,8 @@ class Node:
 
     def set_clean_up_policy(self, policy: constants.NodeCleanUpPolicy):
         self.__clean_up_policy = policy
+
+    def __set_speedup(self, faketime):
+        if 'x' in faketime:
+            speedup = faketime.split('x')[1]
+            self.__speedup = float(speedup)

@@ -1,6 +1,7 @@
+from datetime import datetime, timezone
 from pathlib import Path
 
-from test_tools import constants
+from test_tools import constants, BlockLog, logger
 from test_tools.network import Network
 from test_tools.private.nodes_creator import NodesCreator
 
@@ -18,6 +19,9 @@ class World(NodesCreator):
             self._directory = Path() / f'GeneratedIn{self}'
         else:
             self._directory = directory
+        self.__start_time = None
+        self.__speedup = None
+        self.__timestamp = None
 
     def __str__(self):
         return self.__name
@@ -98,6 +102,40 @@ class World(NodesCreator):
         for network in self.__networks:
             nodes += network.nodes()
         return nodes
+
+    def __recalculate_faketime(self):
+        if not self.__timestamp:
+            return None
+        initial_delta = self.__timestamp - self.__start_time
+        cumulated_delta = datetime.utcnow().replace(tzinfo=timezone.utc) - self.__start_time
+        result_delta = initial_delta + cumulated_delta * (self.__speedup-1)
+        total_seconds = result_delta.total_seconds() - 10*self.__speedup # modify faketime by 5 seconds needed to start nodes
+        faketime = str(total_seconds) + 's'
+        if faketime[0] != '-':
+            faketime = '+' + faketime
+        faketime += ' x' + str(self.__speedup)
+        return faketime
+
+    def run_all_nodes(self, block_log=None, timestamp=None, speedup=1, wait_for_live=True, nodes=None):
+        if timestamp:
+            self.__start_time = datetime.utcnow().replace(tzinfo=timezone.utc)
+            self.__speedup = speedup
+            self.__timestamp = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S').replace(tzinfo=timezone.utc)
+
+        if not nodes:
+            nodes = self.nodes()
+        nodes[0].run(wait_for_live=False, replay_from=block_log, faketime=self.__recalculate_faketime())
+        endpoint = nodes[0].get_p2p_endpoint()
+        for node in nodes[1:]:
+            node.config.p2p_seed_node.append(endpoint)
+            node.run(wait_for_live=False, replay_from=block_log, faketime=self.__recalculate_faketime())
+
+        for network in self.networks():
+            network.is_running = True
+
+        if wait_for_live:
+            for node in nodes:
+                node.wait_for_live()
 
     def set_directory(self, directory):
         self._directory = Path(directory)
