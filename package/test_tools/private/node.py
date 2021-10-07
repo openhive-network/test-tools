@@ -163,6 +163,8 @@ class Node:
             self.http_listening_event = Event()
             self.http_endpoint: Optional[str] = None
 
+            self.replay_finished_event = Event()
+
         def listen(self):
             self.node.config.notifications_endpoint = f'127.0.0.1:{self.server.port}'
             self.server.run()
@@ -174,12 +176,18 @@ class Node:
                     endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
                     self.http_endpoint = Url(endpoint, protocol='http').as_string(with_protocol=False)
                     self.http_listening_event.set()
+            elif message['name'] == 'hived_status':
+                details = message['value']
+                if details['current_status'] == 'finished replaying':
+                    self.replay_finished_event.set()
 
             self.__logger.info(f'Received message: {message}')
 
         def close(self):
             self.server.close()
+
             self.http_listening_event.clear()
+            self.replay_finished_event.clear()
 
     def __init__(self, creator, name, directory):
         self.api = Apis(self)
@@ -418,6 +426,9 @@ class Node:
             self.__logger.info(f'{log_message} and NOT waiting for live...')
 
         self.__run_process(blocking=exit_before_synchronization, with_arguments=additional_arguments)
+
+        if replay_from is not None and not exit_before_synchronization:
+            self.__notifications.replay_finished_event.wait()
 
         self.__produced_files = True
         if wait_for_live:
