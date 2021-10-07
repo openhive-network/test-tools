@@ -1,6 +1,5 @@
 import math
 import json
-import re
 from pathlib import Path
 import shutil
 import signal
@@ -163,6 +162,9 @@ class Node:
             self.http_listening_event = Event()
             self.http_endpoint: Optional[str] = None
 
+            self.ws_listening_event = Event()
+            self.ws_endpoint: Optional[str] = None
+
             self.p2p_plugin_started_event = Event()
             self.p2p_endpoint: Optional[str] = None
 
@@ -181,6 +183,10 @@ class Node:
                     endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
                     self.http_endpoint = Url(endpoint, protocol='http').as_string(with_protocol=False)
                     self.http_listening_event.set()
+                elif details['type'] == 'WS':
+                    endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
+                    self.ws_endpoint = Url(endpoint, protocol='ws').as_string(with_protocol=False)
+                    self.ws_listening_event.set()
             elif message['name'] == 'hived_status':
                 details = message['value']
                 if details['current_status'] == 'finished replaying':
@@ -199,6 +205,7 @@ class Node:
             self.server.close()
 
             self.http_listening_event.clear()
+            self.ws_listening_event.clear()
             self.p2p_plugin_started_event.clear()
             self.replay_finished_event.clear()
             self.snapshot_dumped_event.clear()
@@ -301,6 +308,10 @@ class Node:
     def __wait_for_http_listening(self, timeout=10):
         if not self.__notifications.http_listening_event.wait(timeout):
             raise TimeoutError(f'Waiting too long for {self} to start listening on http port')
+
+    def __wait_for_ws_listening(self, timeout=10):
+        if not self.__notifications.ws_listening_event.wait(timeout):
+            raise TimeoutError(f'Waiting too long for {self} to start listening on ws port')
 
     def get_id(self):
         response = self.api.network_node.get_info()
@@ -505,13 +516,8 @@ class Node:
         return self.__notifications.http_endpoint
 
     def get_ws_endpoint(self):
-        self.__wait_for_http_listening()
-        with open(self.__process.get_stderr_file_path()) as output:
-            for line in output:
-                if 'start listening for ws requests' in line:
-                    endpoint = re.match(r'^.*start listening for ws requests on ([\d\.]+\:\d+)\s*$', line)[1]
-                    return endpoint.replace('0.0.0.0', '127.0.0.1')
-        return None
+        self.__wait_for_ws_listening()
+        return self.__notifications.ws_endpoint
 
     def close(self):
         self.__process.close()
