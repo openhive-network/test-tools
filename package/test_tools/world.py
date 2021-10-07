@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import datetime, timezone
 
 from test_tools import constants
 from test_tools.network import Network
@@ -18,6 +19,19 @@ class World(NodesCreator):
             self._directory = Path() / f'GeneratedIn{self}'
         else:
             self._directory = directory
+
+    @staticmethod
+    def get_offset_from_timestamp(timestamp):
+        current_time = datetime.now(timezone.utc)
+        new_time = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
+        difference = round(new_time.timestamp()-current_time.timestamp())
+        time_offset = str(difference) + 's'
+        return time_offset
+
+    def set_timestamp(self, timestamp):
+        time_offset = self.get_offset_from_timestamp(timestamp)
+        self._time_offset = time_offset
+        super().set_time_offset(time_offset)
 
     def __str__(self):
         return self.__name
@@ -40,6 +54,7 @@ class World(NodesCreator):
         if not self.__is_monitoring_resources:
             raise RuntimeError('World was already closed. Can be closed only once.')
 
+        # TODO cleanup semaphores used by faketime
         nodes_creator_policy = self.__get_corresponding_nodes_creator_policy(self.__clean_up_policy)
         self._handle_final_cleanup(default_policy=nodes_creator_policy)
 
@@ -75,6 +90,8 @@ class World(NodesCreator):
             name = self._children_names.create_name('Network')
 
         network = Network(name, self._directory)
+        if self._time_offset is not None:
+            network.set_time_offset(self._time_offset)
         self.__networks.append(network)
         return network
 
