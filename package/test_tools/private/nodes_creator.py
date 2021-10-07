@@ -18,6 +18,10 @@ class NodesCreator:
         self._children_names = ChildrenNames()
         self._directory: Path = None  # Should be overriden by derived class
         self._nodes = []
+        self._time_offset = None
+
+    def set_time_offset(self, time_offset):
+        self._time_offset = time_offset
 
     def create_init_node(self, name='InitNode') -> Node:
         """Creates node which is ready to produce blocks"""
@@ -65,7 +69,7 @@ class NodesCreator:
         else:
             name = self._children_names.create_name(default_name)
 
-        node = Node(self, name, self._directory)
+        node = Node(self, name, self._directory, time_offset=self._time_offset)
         self._nodes.append(node)
         return node
 

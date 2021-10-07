@@ -6,6 +6,7 @@ import shutil
 import signal
 import subprocess
 import weakref
+import os
 
 from test_tools import communication, constants, network, paths_to_executables
 from test_tools.exceptions import CommunicationError
@@ -65,7 +66,7 @@ class Node:
             return json.loads(f'{{{output}}}')['version']['hive_git_revision']
 
     class __Process:
-        def __init__(self, owner, directory, executable, logger):
+        def __init__(self, owner, directory, executable, logger, time_offset=None):
             self.__owner = owner
             self.__process = None
             self.__directory = Path(directory).absolute()
@@ -75,6 +76,7 @@ class Node:
                 'stdout': None,
                 'stderr': None,
             }
+            self.__time_offset = time_offset
 
         def run(self, *, blocking, with_arguments=()):
             self.__directory.mkdir(exist_ok=True)
@@ -83,11 +85,20 @@ class Node:
             command = [str(self.__executable.get_path()), '-d', '.', *with_arguments]
             self.__logger.debug(' '.join(item for item in command))
 
+            env = dict(os.environ)
+            if self.__time_offset is not None:
+                logger.info(f"USINNG time_offset {self.__time_offset}")
+                env['LD_PRELOAD'] = '/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1'
+                env['FAKETIME'] = self.__time_offset
+                env['FAKETIME_DONT_RESET'] = '1'
+                env['TZ'] = 'UTC'
+
             if blocking:
                 subprocess.run(
                     command,
                     cwd=self.__directory,
                     **self.__files,
+                    env=env,
                     check=True,
                 )
             else:
@@ -96,6 +107,7 @@ class Node:
                 self.__process = subprocess.Popen(
                     command,
                     cwd=self.__directory,
+                    env=env,
                     **self.__files,
                 )
 
@@ -151,7 +163,7 @@ class Node:
             stderr_file = self.__files['stderr']
             return Path(stderr_file.name) if stderr_file is not None else None
 
-    def __init__(self, creator, name, directory):
+    def __init__(self, creator, name, directory, time_offset=None):
         self.api = Apis(self)
 
         self.__creator = weakref.proxy(creator)
@@ -161,8 +173,9 @@ class Node:
         self.__logger = logger.create_child_logger(f'{self.__creator}.{self.__name}')
 
         self.__executable = self.__Executable()
-        self.__process = self.__Process(self, self.directory, self.__executable, self.__logger)
+        self.__process = self.__Process(self, self.directory, self.__executable, self.__logger, time_offset=time_offset)
         self.__clean_up_policy = None
+        self.__time_offset = time_offset
 
         self.config = create_default_config()
 
@@ -220,10 +233,11 @@ class Node:
         assert blocks_to_wait > 0
         self.wait_for_block_with_number(self.get_last_block_number() + blocks_to_wait, timeout=timeout)
 
-    def wait_for_block_with_number(self, number, *, timeout=math.inf):
+    def wait_for_block_with_number(self, number, *, log_info_callback=None, timeout=math.inf):
         wait_for(
             lambda: self.__is_block_with_number_reached(number),
             timeout=timeout,
+            log_info_callback = log_info_callback,
             timeout_error_message=f'Waiting too long for block {number}',
             poll_time=2.0
         )
@@ -364,6 +378,9 @@ class Node:
         # ------------------------- End of workaround -------------------------
 
         log_message = f'Running {self}'
+        if self.__time_offset is not None:
+            log_message += f' with time offset {self.__time_offset}'
+
         additional_arguments = []
         if load_snapshot_from is not None:
             self.__handle_loading_snapshot(load_snapshot_from, additional_arguments)
