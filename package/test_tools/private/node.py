@@ -6,6 +6,7 @@ import shutil
 import signal
 import subprocess
 import weakref
+import os
 
 from test_tools import communication, constants, network, paths_to_executables
 from test_tools.exceptions import CommunicationError
@@ -75,6 +76,7 @@ class Node:
                 'stdout': None,
                 'stderr': None,
             }
+            self.__time_offset = None
 
         def run(self, *, blocking, with_arguments=()):
             self.__directory.mkdir(exist_ok=True)
@@ -83,11 +85,20 @@ class Node:
             command = [str(self.__executable.get_path()), '-d', '.', *with_arguments]
             self.__logger.debug(' '.join(item for item in command))
 
+            env = dict(os.environ)
+            if self.__time_offset is not None:
+                self.__logger.info(f"using time_offset {self.__time_offset}")
+                env['LD_PRELOAD'] = '/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1'
+                env['FAKETIME'] = self.__time_offset
+                env['FAKETIME_DONT_RESET'] = '1'
+                env['TZ'] = 'UTC'
+
             if blocking:
                 subprocess.run(
                     command,
                     cwd=self.__directory,
                     **self.__files,
+                    env=env,
                     check=True,
                 )
             else:
@@ -96,8 +107,14 @@ class Node:
                 self.__process = subprocess.Popen(
                     command,
                     cwd=self.__directory,
+                    env=env,
                     **self.__files,
                 )
+
+
+        def set_time_offset(self, time_offset):
+            self.__time_offset = time_offset
+
 
         def get_id(self):
             return self.__process.pid
@@ -220,10 +237,11 @@ class Node:
         assert blocks_to_wait > 0
         self.wait_for_block_with_number(self.get_last_block_number() + blocks_to_wait, timeout=timeout)
 
-    def wait_for_block_with_number(self, number, *, timeout=math.inf):
+    def wait_for_block_with_number(self, number, *, log_info_callback=None, timeout=math.inf):
         wait_for(
             lambda: self.__is_block_with_number_reached(number),
             timeout=timeout,
+            log_info_callback = log_info_callback,
             timeout_error_message=f'Waiting too long for block {number}',
             poll_time=2.0
         )
@@ -334,6 +352,7 @@ class Node:
             exit_before_synchronization=False,
             wait_for_live=None,
             timeout=__DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
+            time_offset=None
     ):
         """
         :param wait_for_live: Stops execution until node will generate or receive blocks.
@@ -364,6 +383,10 @@ class Node:
         # ------------------------- End of workaround -------------------------
 
         log_message = f'Running {self}'
+        if time_offset is not None:
+            self.__process.set_time_offset(time_offset)
+            log_message += f' with time offset {time_offset}'
+
         additional_arguments = []
         if load_snapshot_from is not None:
             self.__handle_loading_snapshot(load_snapshot_from, additional_arguments)

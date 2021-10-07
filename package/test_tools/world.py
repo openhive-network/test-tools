@@ -40,6 +40,7 @@ class World(NodesCreator):
         if not self.__is_monitoring_resources:
             raise RuntimeError('World was already closed. Can be closed only once.')
 
+        # TODO cleanup semaphores used by faketime
         nodes_creator_policy = self.__get_corresponding_nodes_creator_policy(self.__clean_up_policy)
         self._handle_final_cleanup(default_policy=nodes_creator_policy)
 
