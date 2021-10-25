@@ -169,6 +169,9 @@ class Wallet(ScopedObject):
         def decrypt_memo(self, memo):
             return self.__send('decrypt_memo', memo=memo)
 
+        def debug_set_witness_schedule(self, witnesses, broadcast=None):
+            return self.__send('debug_set_witness_schedule', witnesses=witnesses, broadcast=broadcast)
+
         def delegate_vesting_shares(self, delegator, delegatee, vesting_shares, broadcast=None):
             return self.__send('delegate_vesting_shares', delegator=delegator, delegatee=delegatee,
                                vesting_shares=vesting_shares, broadcast=broadcast)
