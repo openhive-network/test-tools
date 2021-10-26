@@ -1,7 +1,7 @@
 import pytest
 import time
 
-from test_tools import Account, Wallet
+from test_tools import Account, logger, Wallet
 
 
 def test_init_node_startup(world):
@@ -130,6 +130,7 @@ def assert_that_transaction_for_test_has_effect(node):
 
 
 def generate_blocks(node, number_of_blocks):
+    logger.info(f'Generation of {number_of_blocks} blocks started...')
     node.api.debug_node.debug_generate_blocks(
         debug_key=Account('initminer').private_key,
         count=number_of_blocks,
@@ -137,3 +138,4 @@ def generate_blocks(node, number_of_blocks):
         miss_blocks=0,
         edit_if_needed=True
     )
+    logger.info('Blocks generation finished.')
