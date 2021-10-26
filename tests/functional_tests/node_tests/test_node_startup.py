@@ -1,4 +1,5 @@
 import pytest
+import time
 
 from test_tools import Account, Wallet
 
@@ -59,6 +60,10 @@ def test_replay_from_other_node_block_log(world):
     init_node = world.create_init_node()
     init_node.run()
 
+    # ATTENTION! TEMPORARY WORKAROUND!
+    # This sleep makes sure that block generation is separated from applying hardforks at start.
+    time.sleep(5)
+
     make_transaction_for_test(init_node)
     generate_blocks(init_node, 100)  # To make sure, that block with test operation will be stored in block log
     init_node.close()
@@ -71,6 +76,11 @@ def test_replay_from_other_node_block_log(world):
 def test_replay_until_specified_block(world):
     init_node = world.create_init_node()
     init_node.run()
+
+    # ATTENTION! TEMPORARY WORKAROUND!
+    # This sleep makes sure that block generation is separated from applying hardforks at start.
+    time.sleep(5)
+
     generate_blocks(init_node, 100)
     init_node.close()
 
@@ -82,6 +92,11 @@ def test_replay_until_specified_block(world):
 def test_replay_from_external_block_log(world):
     init_node = world.create_init_node()
     init_node.run()
+
+    # ATTENTION! TEMPORARY WORKAROUND!
+    # This sleep makes sure that block generation is separated from applying hardforks at start.
+    time.sleep(5)
+
     generate_blocks(init_node, 100)
     init_node.close()
 
