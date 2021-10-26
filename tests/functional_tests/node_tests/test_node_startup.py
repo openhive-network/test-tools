@@ -77,9 +77,7 @@ def test_replay_until_specified_block(world):
     init_node = world.create_init_node()
     init_node.run()
 
-    # ATTENTION! TEMPORARY WORKAROUND!
-    # This sleep makes sure that block generation is separated from applying hardforks at start.
-    time.sleep(5)
+    time.sleep(2)
 
     generate_blocks(init_node, 100)
     init_node.close()
