@@ -37,5 +37,8 @@ def create_default_config():
     config.enable_stale_production = False
     config.required_participation = 33
     config.witness_skip_enforce_bandwidth = '1'
+    config.psql_index_threshold = 1000000
+    config.psql_operations_threads_number = 5
+    config.psql_transactions_threads_number = 2
 
     return config
