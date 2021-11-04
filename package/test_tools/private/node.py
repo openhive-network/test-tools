@@ -5,6 +5,7 @@ import shutil
 import signal
 import subprocess
 from threading import Event
+import time
 from typing import Optional
 import weakref
 
@@ -17,7 +18,7 @@ from test_tools.private.node_http_server import NodeHttpServer
 from test_tools.private.node_message import NodeMessage
 from test_tools.private.snapshot import Snapshot
 from test_tools.private.url import Url
-from test_tools.private.wait_for import wait_for
+from test_tools.private.wait_for import wait_for, wait_for_event
 
 
 class Node:
@@ -377,6 +378,9 @@ class Node:
         :param timeout: If wait_for_live is set to True, this parameter sets how long waiting can take. When
                         timeout is reached, TimeoutError exception is thrown.
         """
+        assert timeout >= 0
+        deadline = time.time() + timeout
+
         if not self.__executable.is_test_net_build():
             raise NotImplementedError(
                 f'You have configured path to non-testnet hived build.\n'
@@ -430,6 +434,13 @@ class Node:
             self.__notifications.replay_finished_event.wait()
 
         self.__produced_files = True
+
+        if not exit_before_synchronization:
+            wait_for_event(self.__notifications.http_listening_event, deadline=deadline,
+                           exception=TimeoutError('HTTP server didn\'t start listening on time.'))
+
+            wait_for_event(self.__notifications.ws_listening_event, deadline=deadline,
+                           exception=TimeoutError('WS server didn\'t start listening on time.'))
 
         self.__log_run_summary()
 
