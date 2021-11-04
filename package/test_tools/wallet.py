@@ -2,7 +2,7 @@ import re
 import shutil
 import signal
 import subprocess
-from typing import Iterable, Union
+from typing import Iterable, Optional, Union
 import warnings
 
 from test_tools import communication, paths_to_executables
@@ -42,8 +42,8 @@ class Wallet(ScopedObject):
             def get_transaction(self):
                 return self.__transaction
 
-        def __init__(self, wallet):
-            self.__wallet = wallet
+        def __init__(self, wallet: 'Wallet'):
+            self.__wallet: 'Wallet' = wallet
             self.__transaction_builder = None
 
         def _start_gathering_operations_for_single_transaction(self):
@@ -476,7 +476,7 @@ class Wallet(ScopedObject):
         self.executable_file_path = None
         self.stdout_file = None
         self.stderr_file = None
-        self.process = None
+        self.process: Optional[subprocess.Popen] = None
         self.additional_arguments = list(additional_arguments)
         self.logger = logger.create_child_logger(self.name)
 
