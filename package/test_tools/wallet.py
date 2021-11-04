@@ -215,7 +215,9 @@ class Wallet(ScopedObject):
             return self.__send('estimate_hive_collateral', hbd_amount_to_get=hbd_amount_to_get)
 
         def exit(self):
-            return self.__send('exit')
+            result = self.__send('exit')
+            self.__wallet.process.wait(timeout=10)
+            return result
 
         def find_proposals(self, proposal_ids):
             return self.__send('find_proposals', proposal_ids=proposal_ids)
