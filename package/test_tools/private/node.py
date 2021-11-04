@@ -169,6 +169,8 @@ class Node:
             self.p2p_plugin_started_event = Event()
             self.p2p_endpoint: Optional[str] = None
 
+            self.synchronization_started_event = Event()
+
             self.replay_finished_event = Event()
 
             self.snapshot_dumped_event = Event()
@@ -196,6 +198,8 @@ class Node:
                     self.replay_finished_event.set()
                 elif details['current_status'] == 'finished dumping snapshot':
                     self.snapshot_dumped_event.set()
+                elif details['current_status'] == 'syncing':
+                    self.synchronization_started_event.set()
             elif message['name'] == 'P2P listening':
                 details = message['value']
                 endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
@@ -210,6 +214,7 @@ class Node:
             self.http_listening_event.clear()
             self.ws_listening_event.clear()
             self.p2p_plugin_started_event.clear()
+            self.synchronization_started_event.clear()
             self.replay_finished_event.clear()
             self.snapshot_dumped_event.clear()
 
@@ -436,6 +441,9 @@ class Node:
         self.__produced_files = True
 
         if not exit_before_synchronization:
+            wait_for_event(self.__notifications.synchronization_started_event, deadline=deadline,
+                           exception=TimeoutError('Synchronization not started on time.'))
+
             wait_for_event(self.__notifications.http_listening_event, deadline=deadline,
                            exception=TimeoutError('HTTP server didn\'t start listening on time.'))
 
