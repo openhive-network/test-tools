@@ -3,6 +3,7 @@ from pathlib import Path
 from test_tools import constants
 from test_tools.network import Network
 from test_tools.private.nodes_creator import NodesCreator
+from test_tools.private.block_log import BlockLog
 
 
 class World(NodesCreator):
@@ -104,3 +105,31 @@ class World(NodesCreator):
 
     def set_clean_up_policy(self, policy: constants.WorldCleanUpPolicy):
         self.__clean_up_policy = policy
+def get_time_offset_from_file(name):
+    timestamp = ''
+    with open(name, 'r') as f:
+        timestamp = f.read()
+    timestamp = timestamp.strip()
+    current_time = datetime.now(timezone.utc)
+    new_time = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S').replace(tzinfo=timezone.utc)
+    difference = round(new_time.timestamp()-current_time.timestamp()) - 10 # circa 10 seconds is needed for nodes to startup
+    time_offset = str(difference) + 's'
+    return time_offset
+
+
+def run_networks(world, blocklog_directory):
+    time_offset = get_time_offset_from_file(blocklog_directory/'timestamp')
+
+    block_log = BlockLog(None, blocklog_directory/'block_log', include_index=False)
+
+    nodes = world.nodes()
+    nodes[0].run(wait_for_live=False, replay_from=block_log, time_offset=time_offset)
+    endpoint = nodes[0].get_p2p_endpoint()
+    for node in nodes[1:]:
+        node.config.p2p_seed_node.append(endpoint)
+        node.run(wait_for_live=False, replay_from=block_log, time_offset=time_offset)
+
+    for network in world.networks():
+        network.is_running = True
+    for node in nodes:
+        node.wait_for_live()
