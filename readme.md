@@ -4,9 +4,14 @@ The easiest way of working with TestTools is to install them. Then package will 
 
 ### Installation
 
-Run installation script. It will install TestTools and help you to select which _hived_, _cli_wallet_ and such executables should be used by TestTools.
+Install TestTools with following command:
 ```bash
-python3 hive/tests/test_tools/install.py
+pip3 install -e /home/dev/hive/tests/test_tools/
+```
+
+Define environment variable with path to build directory (containing _hived_, _cli_wallet_ and other executables):
+```bash
+HIVE_BUILD_ROOT_PATH="/home/dev/hive/build"
 ```
 
 ### Running without installation
