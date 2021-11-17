@@ -6,6 +6,7 @@ import re
 import shutil
 import signal
 import subprocess
+from typing import List, Tuple, Union
 import weakref
 
 from test_tools import communication, constants, network, paths_to_executables
@@ -346,6 +347,7 @@ class Node:
             stop_at_block=None,
             exit_before_synchronization=False,
             wait_for_live=None,
+            with_arguments: Union[List[str], Tuple[str, ...]] = (),
             timeout=__DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
             time_offset=None
     ):
@@ -381,7 +383,7 @@ class Node:
         if time_offset is not None:
             log_message += f' with time offset {time_offset}'
 
-        additional_arguments = []
+        additional_arguments = [*with_arguments]
         if load_snapshot_from is not None:
             self.__handle_loading_snapshot(load_snapshot_from, additional_arguments)
             log_message += ', loading snapshot'
