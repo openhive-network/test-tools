@@ -221,6 +221,11 @@ class Node:
             lambda line: 'transactions on block' in line or 'Generated block #' in line
         )
 
+    def __is_switching_fork(self):
+        return self.__any_line_in_stderr(
+            lambda line: 'Switching to fork' in line
+        )
+
     def __is_snapshot_dumped(self):
         return self.__any_line_in_stderr(lambda line: 'Snapshot generation finished' in line)
 
@@ -259,6 +264,10 @@ class Node:
     def wait_for_live(self, timeout=__DEFAULT_WAIT_FOR_LIVE_TIMEOUT):
         wait_for(self.__is_live, timeout=timeout,
                  timeout_error_message=f'Waiting too long for {self} live (to start produce or receive blocks)')
+
+    def wait_for_back_from_fork(self, timeout=__DEFAULT_WAIT_FOR_LIVE_TIMEOUT*2):
+        wait_for(self.__is_switching_fork, timeout=timeout,
+                 timeout_error_message=f'Waiting too long for {self} to switch forks')
 
     def send(self, method, params=None, jsonrpc='2.0', id_=1, *, only_result: bool = True):
         if self.config.webserver_http_endpoint is None:
