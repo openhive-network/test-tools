@@ -2,6 +2,7 @@ import signal
 import subprocess
 import time
 import psycopg2
+import shutil
 
 from test_tools import logger
 from test_tools.private.scope import context, ScopedObject
@@ -15,6 +16,9 @@ class Sync(ScopedObject):
         self.node = node
 
     def environment_setup(self):
+        self.remove_directory()
+        self.create_directory()
+
         connect_postgres = psycopg2.connect(
             host='localhost',
             database='postgres',
@@ -40,8 +44,6 @@ class Sync(ScopedObject):
         db_extension = 'CREATE EXTENSION intarray;'
         cursor.execute(db_extension)
         connect_hivemind.close()
-
-        self.remove_directory()
 
     def run(self, node):
         self.create_directory()
@@ -74,4 +76,4 @@ class Sync(ScopedObject):
 
     def remove_directory(self):
         self.directory = context.get_current_directory() / 'hivemind'
-        self.directory.rmdir()
+        shutil.rmtree(self.directory, ignore_errors=True)
