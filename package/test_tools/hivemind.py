@@ -78,7 +78,7 @@ class Hivemind(ScopedObject):
 
     def run_server(self):
         self.create_directory('hivemind_server')
-        time.sleep(25)
+        time.sleep(23)
 
         self.process_server = subprocess.Popen(
             [
