@@ -76,7 +76,7 @@ class Hivemind(ScopedObject):
         # logger.info(f'{self.process.pid=}')
         logger.info('Sync RUN')
 
-    def run_server(self, node):
+    def run_server(self):
         self.create_directory('hivemind_server')
         time.sleep(25)
 
