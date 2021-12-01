@@ -23,8 +23,8 @@ class Hivemind(ScopedObject):
     # database = "postgresql://dev:devdevdev@localhost:5432/hivemind_pyt"
 
     def environment_setup(self):
-        self.remove_directory()
-        self.create_directory()
+        self.remove_directory('hivemind_sync')
+        self.remove_directory('hivemind_server')
 
         connect_postgres = psycopg2.connect(
             host=self.host,
@@ -55,7 +55,7 @@ class Hivemind(ScopedObject):
         connect_hivemind.close()
 
     def run_sync(self, node):
-        self.create_directory()
+        self.create_directory('hivemind_sync')
 
         while node.get_last_block_number() < 25:
             logger.info(node.get_last_block_number())
@@ -79,10 +79,10 @@ class Hivemind(ScopedObject):
     def at_exit_from_scope(self):
         self.process.send_signal(signal.SIGINT)
 
-    def create_directory(self):
-        self.directory = context.get_current_directory() / 'hivemind'
+    def create_directory(self, directory_name):
+        self.directory = context.get_current_directory() / directory_name
         self.directory.mkdir(parents=True, exist_ok=True)
 
-    def remove_directory(self):
-        self.directory = context.get_current_directory() / 'hivemind'
+    def remove_directory(self, directory_name):
+        self.directory = context.get_current_directory() / directory_name
         shutil.rmtree(self.directory, ignore_errors=True)
