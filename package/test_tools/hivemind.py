@@ -63,7 +63,7 @@ class Hivemind(ScopedObject):
 
         http_endpoint = self.node.get_http_endpoint()
         http_endpoint_clean = http_endpoint.replace("'", "")
-        self.process = subprocess.Popen(
+        self.process_sync = subprocess.Popen(
             [
                 'hive',
                 'sync',
@@ -81,7 +81,7 @@ class Hivemind(ScopedObject):
         self.create_directory('hivemind_server')
         time.sleep(25)
 
-        self.process = subprocess.Popen(
+        self.process_server = subprocess.Popen(
             [
                 'hive',
                 'server',
@@ -94,7 +94,8 @@ class Hivemind(ScopedObject):
         logger.info('Server RUN')
 
     def at_exit_from_scope(self):
-        self.process.send_signal(signal.SIGINT)
+        self.process_sync.send_signal(signal.SIGINT)
+        self.process_server.send_signal(signal.SIGINT)
 
     def create_directory(self, directory_name):
         self.directory = context.get_current_directory() / directory_name
