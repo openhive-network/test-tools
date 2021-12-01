@@ -62,13 +62,12 @@ class Hivemind(ScopedObject):
             time.sleep(1)
 
         http_endpoint = self.node.get_http_endpoint()
-        http_endpoint_clean = http_endpoint.replace("'", "")
         self.process_sync = subprocess.Popen(
             [
                 'hive',
                 'sync',
                 "--database-url=" + self.database_adress,
-                "--steemd-url={" + '"default" : "' + http_endpoint_clean + '"}'
+                "--steemd-url={" + '"default" : "' + http_endpoint + '"}'
             ],
             cwd=self.directory,
             stdout=open(self.directory / 'stdout.txt', 'w'),
