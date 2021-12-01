@@ -76,6 +76,23 @@ class Hivemind(ScopedObject):
         )
         # logger.info(f'{self.process.pid=}')
         logger.info('Sync RUN')
+
+    def run_server(self, node):
+        self.create_directory('hivemind_server')
+        time.sleep(25)
+
+        self.process = subprocess.Popen(
+            [
+                'hive',
+                'server',
+                "--database-url=" + self.database_adress,
+            ],
+            cwd=self.directory,
+            stdout=open(self.directory / 'stdout.txt', 'w'),
+            stderr=open(self.directory / 'stderr.txt', 'w')
+        )
+        logger.info('Server RUN')
+
     def at_exit_from_scope(self):
         self.process.send_signal(signal.SIGINT)
 
