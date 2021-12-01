@@ -74,8 +74,8 @@ class Hivemind(ScopedObject):
             stdout=open(self.directory / 'stdout.txt', 'w'),
             stderr=open(self.directory / 'stderr.txt', 'w')
         )
-        logger.info(f'{self.process.pid=}')
-
+        # logger.info(f'{self.process.pid=}')
+        logger.info('Sync RUN')
     def at_exit_from_scope(self):
         self.process.send_signal(signal.SIGINT)
 
