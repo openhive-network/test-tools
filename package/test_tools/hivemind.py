@@ -8,44 +8,53 @@ from test_tools import logger
 from test_tools.private.scope import context, ScopedObject
 
 
-class Sync(ScopedObject):
-    def __init__(self, database_adress, node):
+class Hivemind(ScopedObject):
+    def __init__(self, host, port, database_name, user, password, node):
         super().__init__()
 
-        self.database_adress = database_adress
+        self.host = host
+        self.port = port
+        self.database_name = database_name
+        self.user = user
+        self.password = password
         self.node = node
+        self.database_adress = F'postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database_name}'
+
+    # database = "postgresql://dev:devdevdev@localhost:5432/hivemind_pyt"
 
     def environment_setup(self):
         self.remove_directory()
         self.create_directory()
 
         connect_postgres = psycopg2.connect(
-            host='localhost',
+            host=self.host,
             database='postgres',
-            user='dev',
-            password='devdevdev',
-            port='5432')
+            user=self.user,
+            password=self.password,
+            port=self.port)
+
         connect_postgres.autocommit = True
         cursor = connect_postgres.cursor()
-        db_drop = 'DROP DATABASE IF EXISTS hivemind_pyt;'
+        db_drop = F'DROP DATABASE IF EXISTS {self.database_name};'
         cursor.execute(db_drop)
-        db_create = 'CREATE database hivemind_pyt;'
+        db_create = F'CREATE database {self.database_name};'
         cursor.execute(db_create)
         connect_postgres.close()
 
         connect_hivemind = psycopg2.connect(
-            host='localhost',
-            database='hivemind_pyt',
-            user='dev',
-            password='devdevdev',
-            port='5432')
+            host=self.host,
+            database=self.database_name,
+            user=self.user,
+            password=self.password,
+            port=self.port)
+
         connect_hivemind.autocommit = True
         cursor = connect_hivemind.cursor()
         db_extension = 'CREATE EXTENSION intarray;'
         cursor.execute(db_extension)
         connect_hivemind.close()
 
-    def run(self, node):
+    def run_sync(self, node):
         self.create_directory()
 
         while node.get_last_block_number() < 25:
