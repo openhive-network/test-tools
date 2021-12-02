@@ -1,3 +1,4 @@
+import os
 import signal
 import subprocess
 import time
@@ -25,7 +26,7 @@ class Hivemind(ScopedObject):
         self.directory = None
         self.process_server = None
         self.process_sync = None
-        
+
     def environment_setup(self):
         self.remove_directory('hivemind_sync')
         self.remove_directory('hivemind_server')
@@ -57,6 +58,11 @@ class Hivemind(ScopedObject):
         db_extension = 'CREATE EXTENSION intarray;'
         cursor.execute(db_extension)
         connect_hivemind.close()
+
+    def detabase_prepare(self):
+        os.system("PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'DROP DATABASE IF EXISTS hivemind_pyt'")
+        os.system("PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'CREATE DATABASE hivemind_pyt'")
+        os.system("PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d hivemind_pyt -a -c 'CREATE EXTENSION intarray'")
 
     def run_sync(self,
                  node,
