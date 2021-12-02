@@ -1,8 +1,9 @@
 import signal
 import subprocess
 import time
-import psycopg2
 import shutil
+
+import psycopg2
 
 from test_tools import logger
 from test_tools.private.scope import context, ScopedObject
@@ -20,8 +21,11 @@ class Hivemind(ScopedObject):
         self.node = node
         self.database_adress = F'postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database_name}'
 
-    # database = "postgresql://dev:devdevdev@localhost:5432/hivemind_pyt"
-
+        self.hivemind_sync_directory = None
+        self.directory = None
+        self.process_server = None
+        self.process_sync = None
+        
     def environment_setup(self):
         self.remove_directory('hivemind_sync')
         self.remove_directory('hivemind_server')
@@ -66,7 +70,7 @@ class Hivemind(ScopedObject):
                  ):
         self.create_directory('hivemind_sync')
 
-        while node.get_last_block_number() < 25:
+        while node.get_last_block_number() < 24:
             logger.info(node.get_last_block_number())
             time.sleep(1)
 
@@ -95,7 +99,7 @@ class Hivemind(ScopedObject):
     def run_server(self):
         self.create_directory('hivemind_server')
         # time.sleep(23)
-        while self.is_in_stderr_hive_sync(trigger_string='[LIVE SYNC] <===== Processed block 21') == False :
+        while not self.is_in_stderr_hive_sync(trigger_string='[LIVE SYNC] <===== Processed block 21'):
             time.sleep(1)
 
         self.process_server = subprocess.Popen(
@@ -123,10 +127,7 @@ class Hivemind(ScopedObject):
         shutil.rmtree(self.directory, ignore_errors=True)
 
     def is_in_stderr_hive_sync(self, trigger_string):
-        hivemind_sync_directory = context.get_current_directory() / 'hivemind_sync'
-        with open(hivemind_sync_directory / 'stderr.txt') as file:
+        self.hivemind_sync_directory = context.get_current_directory() / 'hivemind_sync'
+        with open(self.hivemind_sync_directory / 'stderr.txt') as file:
             stderr = file.read()
-        trigger_string = trigger_string
         return trigger_string in stderr
-
-# [LIVE SYNC] <===== Processed block 22
