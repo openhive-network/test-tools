@@ -74,6 +74,7 @@ class Hivemind(ScopedObject):
                  trial_blocks='2',
                  hived_database_url=''
                  ):
+        self.remove_directory('hivemind_sync')
         self.create_directory('hivemind_sync')
 
         while node.get_last_block_number() < 24:
@@ -103,6 +104,7 @@ class Hivemind(ScopedObject):
         logger.info('Sync RUN')
 
     def run_server(self):
+        self.remove_directory('hivemind_server')
         self.create_directory('hivemind_server')
         # time.sleep(23)
         while not self.is_in_stderr_hive_sync(trigger_string='[LIVE SYNC] <===== Processed block 21'):
