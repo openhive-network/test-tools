@@ -54,7 +54,16 @@ class Hivemind(ScopedObject):
         cursor.execute(db_extension)
         connect_hivemind.close()
 
-    def run_sync(self, node):
+    def run_sync(self,
+                 node,
+                 log_level='INFO',
+                 http_server_port='8080',
+                 max_batch='35',
+                 max_workers='6',
+                 max_retries='-1',
+                 trial_blocks='2',
+                 hived_database_url=''
+                 ):
         self.create_directory('hivemind_sync')
 
         while node.get_last_block_number() < 25:
@@ -67,7 +76,14 @@ class Hivemind(ScopedObject):
                 'hive',
                 'sync',
                 "--database-url=" + self.database_adress,
-                "--steemd-url={" + '"default" : "' + http_endpoint + '"}'
+                "--steemd-url={" + '"default" : "' + http_endpoint + '"}',
+                F'--log-level={log_level}',
+                F'--http-server-port={http_server_port}',
+                F'--max-batch={max_batch}',
+                F'--max-workers={max_workers}',
+                F'--max-retries={max_retries}',
+                F'--trail-blocks={trial_blocks}',
+                F'--hived-database-url={hived_database_url}'
             ],
             cwd=self.directory,
             stdout=open(self.directory / 'stdout.txt', 'w'),
