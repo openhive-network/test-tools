@@ -27,38 +27,6 @@ class Hivemind(ScopedObject):
         self.process_server = None
         self.process_sync = None
 
-    def environment_setup(self):
-        self.remove_directory('hivemind_sync')
-        self.remove_directory('hivemind_server')
-
-        connect_postgres = psycopg2.connect(
-            host=self.host,
-            database='postgres',
-            user=self.user,
-            password=self.password,
-            port=self.port)
-
-        connect_postgres.autocommit = True
-        cursor = connect_postgres.cursor()
-        db_drop = F'DROP DATABASE IF EXISTS {self.database_name};'
-        cursor.execute(db_drop)
-        db_create = F'CREATE database {self.database_name};'
-        cursor.execute(db_create)
-        connect_postgres.close()
-
-        connect_hivemind = psycopg2.connect(
-            host=self.host,
-            database=self.database_name,
-            user=self.user,
-            password=self.password,
-            port=self.port)
-
-        connect_hivemind.autocommit = True
-        cursor = connect_hivemind.cursor()
-        db_extension = 'CREATE EXTENSION intarray;'
-        cursor.execute(db_extension)
-        connect_hivemind.close()
-
     def detabase_prepare(self):
         os.system("PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'DROP DATABASE IF EXISTS hivemind_pyt'")
         os.system("PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'CREATE DATABASE hivemind_pyt'")
