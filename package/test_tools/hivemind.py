@@ -26,22 +26,41 @@ class Hivemind(ScopedObject):
         self.directory = None
         self.process_server = None
         self.process_sync = None
+        self.parameters = {'log_level': 'INFO',
+                           'http_server_port': '8080',
+                           'max_batch': '35',
+                           'max_workers': '6',
+                           'max_retries': '-1',
+                           'trial_blocks': '2',
+                           'hived_database_url': ''}
 
     def detabase_prepare(self):
-        os.system("PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'DROP DATABASE IF EXISTS hivemind_pyt'")
-        os.system("PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'CREATE DATABASE hivemind_pyt'")
-        os.system("PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d hivemind_pyt -a -c 'CREATE EXTENSION intarray'")
+        os.system(
+            "PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'DROP DATABASE IF EXISTS hivemind_pyt'")
+        os.system(
+            "PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'CREATE DATABASE hivemind_pyt'")
+        os.system(
+            "PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d hivemind_pyt -a -c 'CREATE EXTENSION intarray'")
 
-    def run_sync(self,
-                 node,
-                 log_level='INFO',
-                 http_server_port='8080',
-                 max_batch='35',
-                 max_workers='6',
-                 max_retries='-1',
-                 trial_blocks='2',
-                 hived_database_url=''
-                 ):
+    def set_run_parameters(self,
+                           log_level='INFO',
+                           http_server_port='8080',
+                           max_batch='35',
+                           max_workers='6',
+                           max_retries='-1',
+                           trial_blocks='2',
+                           hived_database_url=''
+                           ):
+
+        self.parameters = {'log_level': log_level,
+                           'http_server_port': http_server_port,
+                           'max_batch': max_batch,
+                           'max_workers': max_workers,
+                           'max_retries': max_retries,
+                           'trial_blocks': trial_blocks,
+                           'hived_database_url': hived_database_url}
+
+    def run_sync(self, node):
         self.remove_directory('hivemind_sync')
         self.create_directory('hivemind_sync')
 
@@ -56,13 +75,13 @@ class Hivemind(ScopedObject):
                 'sync',
                 "--database-url=" + self.database_adress,
                 "--steemd-url={" + '"default" : "' + http_endpoint + '"}',
-                F'--log-level={log_level}',
-                F'--http-server-port={http_server_port}',
-                F'--max-batch={max_batch}',
-                F'--max-workers={max_workers}',
-                F'--max-retries={max_retries}',
-                F'--trail-blocks={trial_blocks}',
-                F'--hived-database-url={hived_database_url}'
+                F'--log-level={self.parameters["log_level"]}',
+                F'--http-server-port={self.parameters["http_server_port"]}',
+                F'--max-batch={self.parameters["max_batch"]}',
+                F'--max-workers={self.parameters["max_workers"]}',
+                F'--max-retries={self.parameters["max_retries"]}',
+                F'--trail-blocks={self.parameters["trial_blocks"]}',
+                F'--hived-database-url={self.parameters["hived_database_url"]}'
             ],
             cwd=self.directory,
             stdout=open(self.directory / 'stdout.txt', 'w'),
