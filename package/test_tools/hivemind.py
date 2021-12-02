@@ -78,7 +78,9 @@ class Hivemind(ScopedObject):
 
     def run_server(self):
         self.create_directory('hivemind_server')
-        time.sleep(23)
+        # time.sleep(23)
+        while self.is_in_stderr_hive_sync(trigger_string='[LIVE SYNC] <===== Processed block 21') == False :
+            time.sleep(1)
 
         self.process_server = subprocess.Popen(
             [
@@ -103,3 +105,12 @@ class Hivemind(ScopedObject):
     def remove_directory(self, directory_name):
         self.directory = context.get_current_directory() / directory_name
         shutil.rmtree(self.directory, ignore_errors=True)
+
+    def is_in_stderr_hive_sync(self, trigger_string):
+        hivemind_sync_directory = context.get_current_directory() / 'hivemind_sync'
+        with open(hivemind_sync_directory / 'stderr.txt') as file:
+            stderr = file.read()
+        trigger_string = trigger_string
+        return trigger_string in stderr
+
+# [LIVE SYNC] <===== Processed block 22
