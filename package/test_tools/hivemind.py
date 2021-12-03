@@ -48,12 +48,23 @@ class Hivemind(ScopedObject):
                            'trial_blocks': '2'}
 
     def detabase_prepare(self):
-        os.system(
-            "PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'DROP DATABASE IF EXISTS hivemind_pyt'")
-        os.system(
-            "PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'CREATE DATABASE hivemind_pyt'")
-        os.system(
-            "PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d hivemind_pyt -a -c 'CREATE EXTENSION intarray'")
+        subprocess.run(
+            [
+                "PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'DROP DATABASE IF EXISTS hivemind_pyt'"
+            ],
+            shell=True)
+
+        subprocess.run(
+            [
+                "PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'CREATE DATABASE hivemind_pyt'"
+            ],
+            shell=True)
+
+        subprocess.run(
+            [
+                "PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d hivemind_pyt -a -c 'CREATE EXTENSION intarray'"
+            ],
+            shell=True)
 
     def set_run_parameters(self,
                            log_level='INFO',
