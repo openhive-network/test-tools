@@ -5,8 +5,6 @@ import time
 from typing import TYPE_CHECKING
 import shutil
 
-import psycopg2
-
 from test_tools import logger
 from test_tools.private.scope import context, ScopedObject
 
