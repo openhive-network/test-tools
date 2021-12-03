@@ -188,9 +188,3 @@ class Hivemind(ScopedObject):
         self.stderr_file_sync.close()
         self.__close_process(self.process_sync)
         self.__close_process(self.process_server)
-
-
-
-
-
-
