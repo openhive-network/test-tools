@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 import shutil
 
 from test_tools import logger
+from test_tools.private.logger.logger_internal_interface import logger
 from test_tools.private.scope import context, ScopedObject
 
 # if TYPE_CHECKING:
@@ -47,13 +48,14 @@ class Hivemind(ScopedObject):
                            'max_retries': '-1',
                            'trial_blocks': '2'}
 
+        self.logger = logger.create_child_logger('Logger')
+
     def detabase_prepare(self):
         subprocess.run(
             [
                 "PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'DROP DATABASE IF EXISTS hivemind_pyt'"
             ],
             shell=True)
-
         subprocess.run(
             [
                 "PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'CREATE DATABASE hivemind_pyt'"
@@ -152,10 +154,29 @@ class Hivemind(ScopedObject):
             stderr = file.read()
         return trigger_string in stderr
 
+    def __close_process(self, process):
+        if process is None:
+            return
+
+        process.send_signal(signal.SIGINT)
+        try:
+            return_code = process.wait(timeout=3)
+            self.logger.debug(f'Closed with {return_code} return code')
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+            self.logger.warning('Process was force-closed with SIGKILL, because didn\'t close before timeout')
+
     def at_exit_from_scope(self):
-        self.process_sync.send_signal(signal.SIGINT)
-        self.process_server.send_signal(signal.SIGINT)
         self.stdout_file_server.close()
         self.stderr_file_server.close()
         self.stdout_file_sync.close()
         self.stderr_file_sync.close()
+        self.__close_process(self.process_sync)
+        self.__close_process(self.process_server)
+
+
+
+
+
+

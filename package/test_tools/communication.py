@@ -16,7 +16,7 @@ class CustomJsonEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-def request(url: str, message: dict, max_attempts=3, seconds_between_attempts=0.2):
+def request(url: str, message: dict, max_attempts=3, seconds_between_attempts=0.2) -> object:
     assert max_attempts > 0
 
     message = bytes(json.dumps(message, cls=CustomJsonEncoder), "utf-8") + b"\r\n"
