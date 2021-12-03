@@ -21,6 +21,7 @@ class Hivemind(ScopedObject):
                  sync_with,
                  database_host: str = 'localhost',
                  database_port: str = '5432',
+                 maintance_database_name: str = 'postgres'
                  ):
         """
         :param sync_with: Node to sync with.
@@ -35,6 +36,7 @@ class Hivemind(ScopedObject):
         self.user = database_user
         self.password = database_password
         self.node = sync_with
+        self.maintance_database_name=maintance_database_name
         self.database_adress = F'postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database_name}'
 
         self.hivemind_sync_directory = None
