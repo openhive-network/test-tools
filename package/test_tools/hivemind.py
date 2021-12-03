@@ -11,15 +11,27 @@ from test_tools.private.scope import context, ScopedObject
 
 
 class Hivemind(ScopedObject):
-    def __init__(self, host, port, database_name, user, password, node):
+    def __init__(self,
+                 database_name: str,
+                 database_user: str,
+                 database_password: str,
+                 sync_with,
+                 database_host: str = 'localhost',
+                 database_port: str = '5432',
+                 ):
+        """
+        :param sync_with: Node to sync with.
+
+        """
+
         super().__init__()
 
-        self.host = host
-        self.port = port
+        self.host = database_host
+        self.port = database_port
         self.database_name = database_name
-        self.user = user
-        self.password = password
-        self.node = node
+        self.user = database_user
+        self.password = database_password
+        self.node = sync_with
         self.database_adress = F'postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database_name}'
 
         self.hivemind_sync_directory = None
