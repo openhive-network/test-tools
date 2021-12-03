@@ -552,7 +552,6 @@ class Node:
     def __remove_unneeded_files(self):
         unneeded_files_or_directories = [
             'blockchain/',
-            'p2p/',
             'snapshot/',
         ]
 
