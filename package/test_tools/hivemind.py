@@ -45,8 +45,7 @@ class Hivemind(ScopedObject):
                            'max_batch': '35',
                            'max_workers': '6',
                            'max_retries': '-1',
-                           'trial_blocks': '2',
-                           'hived_database_url': ''}
+                           'trial_blocks': '2'}
 
     def detabase_prepare(self):
         os.system(
@@ -63,7 +62,6 @@ class Hivemind(ScopedObject):
                            max_workers='6',
                            max_retries='-1',
                            trial_blocks='2',
-                           hived_database_url=''
                            ):
 
         self.parameters = {'log_level': log_level,
@@ -71,8 +69,7 @@ class Hivemind(ScopedObject):
                            'max_batch': max_batch,
                            'max_workers': max_workers,
                            'max_retries': max_retries,
-                           'trial_blocks': trial_blocks,
-                           'hived_database_url': hived_database_url}
+                           'trial_blocks': trial_blocks}
 
     def run(self):
         self.run_sync()
@@ -96,12 +93,11 @@ class Hivemind(ScopedObject):
                 "--database-url=" + self.database_adress,
                 "--steemd-url={" + '"default" : "' + http_endpoint + '"}',
                 F'--log-level={self.parameters["log_level"]}',
-                F'--http-server-port={self.parameters["http_server_port"]}',
+
                 F'--max-batch={self.parameters["max_batch"]}',
                 F'--max-workers={self.parameters["max_workers"]}',
                 F'--max-retries={self.parameters["max_retries"]}',
                 F'--trail-blocks={self.parameters["trial_blocks"]}',
-                F'--hived-database-url={self.parameters["hived_database_url"]}'
             ],
             cwd=self.directory,
             stdout=self.stdout_file_sync,
@@ -123,6 +119,7 @@ class Hivemind(ScopedObject):
                 'hive',
                 'server',
                 "--database-url=" + self.database_adress,
+                F'--http-server-port={self.parameters["http_server_port"]}'
             ],
             cwd=self.directory,
             stdout=self.stdout_file_server,
