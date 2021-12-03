@@ -81,6 +81,8 @@ class Hivemind(ScopedObject):
     def run_sync(self):
         self.remove_directory('hivemind_sync')
         self.create_directory('hivemind_sync')
+        self.stdout_file_sync = open(self.directory / 'stdout.txt', 'w')
+        self.stderr_file_sync = open(self.directory / 'stderr.txt', 'w')
 
         while self.node.get_last_block_number() < 24:
             logger.info(self.node.get_last_block_number())
@@ -102,16 +104,17 @@ class Hivemind(ScopedObject):
                 F'--hived-database-url={self.parameters["hived_database_url"]}'
             ],
             cwd=self.directory,
-            stdout=open(self.directory / 'stdout.txt', 'w'),
-            stderr=open(self.directory / 'stderr.txt', 'w')
-        )
+            stdout=self.stdout_file_sync,
+            stderr=self.stderr_file_sync
+            )
         # logger.info(f'{self.process.pid=}')
         logger.info('Sync RUN')
 
     def run_server(self):
         self.remove_directory('hivemind_server')
         self.create_directory('hivemind_server')
-        # time.sleep(23)
+        self.stdout_file_server = open(self.directory / 'stdout.txt', 'w')
+        self.stderr_file_server = open(self.directory / 'stderr.txt', 'w')
         while not self.is_in_stderr_hive_sync(trigger_string='[LIVE SYNC] <===== Processed block 21'):
             time.sleep(1)
 
@@ -122,14 +125,10 @@ class Hivemind(ScopedObject):
                 "--database-url=" + self.database_adress,
             ],
             cwd=self.directory,
-            stdout=open(self.directory / 'stdout.txt', 'w'),
-            stderr=open(self.directory / 'stderr.txt', 'w')
-        )
+            stdout=self.stdout_file_server,
+            stderr=self.stdout_file_server
+            )
         logger.info('Server RUN')
-
-    def at_exit_from_scope(self):
-        self.process_sync.send_signal(signal.SIGINT)
-        self.process_server.send_signal(signal.SIGINT)
 
     def create_directory(self, directory_name):
         self.directory = context.get_current_directory() / directory_name
@@ -144,3 +143,11 @@ class Hivemind(ScopedObject):
         with open(self.hivemind_sync_directory / 'stderr.txt') as file:
             stderr = file.read()
         return trigger_string in stderr
+
+    def at_exit_from_scope(self):
+        self.process_sync.send_signal(signal.SIGINT)
+        self.process_server.send_signal(signal.SIGINT)
+        self.stdout_file_server.close()
+        self.stderr_file_server.close()
+        self.stdout_file_sync.close()
+        self.stderr_file_sync.close()
