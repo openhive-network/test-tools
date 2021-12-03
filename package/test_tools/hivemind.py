@@ -53,20 +53,32 @@ class Hivemind(ScopedObject):
         self.logger = logger.create_child_logger('Logger')
 
     def detabase_prepare(self):
+        #Terminate all of connection to repair problem with droping database
         subprocess.run(
             [
-                "PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'DROP DATABASE IF EXISTS hivemind_pyt'"
-            ],
-            shell=True)
-        subprocess.run(
-            [
-                "PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d postgres -a -c 'CREATE DATABASE hivemind_pyt'"
+                F'PGPASSWORD={self.password} psql -h {self.host} -U {self.user} -d {self.maintance_database_name} -a '
+                F'-c "SELECT pid, pg_terminate_backend(pid) '
+                F'FROM pg_stat_activity '
+                F'WHERE datname = \'hivemind_pyt\' AND pid <> pg_backend_pid();"'
             ],
             shell=True)
 
         subprocess.run(
             [
-                "PGPASSWORD=devdevdev psql -h 127.0.0.1 -U dev -d hivemind_pyt -a -c 'CREATE EXTENSION intarray'"
+                F"PGPASSWORD={self.password} psql -h {self.host} -U {self.user} -d {self.maintance_database_name} -a "
+                F"-c 'DROP DATABASE IF EXISTS {self.database_name}' "
+            ],
+            shell=True)
+
+        subprocess.run(
+            [
+                F"PGPASSWORD={self.password} psql -h {self.host} -U {self.user} -d {self.maintance_database_name} -a -c 'CREATE DATABASE {self.database_name}'"
+            ],
+            shell=True)
+
+        subprocess.run(
+            [
+                F"PGPASSWORD={self.password} psql -h {self.host} -U {self.user} -d {self.database_name} -a -c 'CREATE EXTENSION intarray'"
             ],
             shell=True)
 
