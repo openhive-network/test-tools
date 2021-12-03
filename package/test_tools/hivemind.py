@@ -60,12 +60,16 @@ class Hivemind(ScopedObject):
                            'trial_blocks': trial_blocks,
                            'hived_database_url': hived_database_url}
 
-    def run_sync(self, node):
+    def run(self):
+        self.run_sync()
+        self.run_server()
+
+    def run_sync(self):
         self.remove_directory('hivemind_sync')
         self.create_directory('hivemind_sync')
 
-        while node.get_last_block_number() < 24:
-            logger.info(node.get_last_block_number())
+        while self.node.get_last_block_number() < 24:
+            logger.info(self.node.get_last_block_number())
             time.sleep(1)
 
         http_endpoint = self.node.get_http_endpoint()
