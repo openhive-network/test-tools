@@ -24,8 +24,16 @@ class Hivemind(ScopedObject):
                  maintance_database_name: str = 'postgres'
                  ):
         """
-        :param sync_with: Node to sync with.
+        Database params are specyfic to usage of program. If you want sync or sync and server, database with parameters
+        will be create or reset. If you want to use only server, parameters should be involve with existing database,
+        consist correct hivemind data.
 
+        :param database_name:
+        :param database_user:
+        :param database_password:
+        :param database_host:
+        :param database_port:
+        :param maintance_database_name:
         """
 
         super().__init__()
@@ -52,7 +60,7 @@ class Hivemind(ScopedObject):
 
         self.logger = logger.create_child_logger('Logger')
 
-    def detabase_prepare(self):
+    def database_prepare(self):
         # Terminate all of connection to repair problem with droping database
         subprocess.run(
             [
@@ -100,13 +108,20 @@ class Hivemind(ScopedObject):
 
     def run(self,
             sync_with,
+            run_sync: bool = True,
+            run_server: bool = True
             ):
         self.node = sync_with
-        self.run_sync()
-        self.run_server()
+        self.remove_directory('hivemind_sync')
+        self.remove_directory('hivemind_server')
+
+        if run_sync:
+            self.database_prepare()
+            self.run_sync()
+        if run_server:
+            self.run_server()
 
     def run_sync(self):
-        self.remove_directory('hivemind_sync')
         self.create_directory('hivemind_sync')
         self.stdout_file_sync = open(self.directory / 'stdout.txt', 'w')
         self.stderr_file_sync = open(self.directory / 'stderr.txt', 'w')
@@ -137,12 +152,13 @@ class Hivemind(ScopedObject):
         logger.info('Sync RUN')
 
     def run_server(self):
-        self.remove_directory('hivemind_server')
         self.create_directory('hivemind_server')
         self.stdout_file_server = open(self.directory / 'stdout.txt', 'w')
         self.stderr_file_server = open(self.directory / 'stderr.txt', 'w')
-        while not self.is_in_stderr_hive_sync(trigger_string='[LIVE SYNC] <===== Processed block 21'):
-            time.sleep(1)
+
+        if self.process_sync is not None:
+            while not self.is_in_stderr_hive_sync(trigger_string='[LIVE SYNC] <===== Processed block 21'):
+                time.sleep(1)
 
         self.process_server = subprocess.Popen(
             [
@@ -155,6 +171,10 @@ class Hivemind(ScopedObject):
             stdout=self.stdout_file_server,
             stderr=self.stdout_file_server
         )
+
+        if self.process_sync is None:
+            time.sleep(5)
+            logger.info('Server is running...')
         logger.info('Server RUN')
 
     def create_directory(self, directory_name):
@@ -185,9 +205,12 @@ class Hivemind(ScopedObject):
             self.logger.warning('Process was force-closed with SIGKILL, because didn\'t close before timeout')
 
     def at_exit_from_scope(self):
-        self.stdout_file_server.close()
-        self.stderr_file_server.close()
-        self.stdout_file_sync.close()
-        self.stderr_file_sync.close()
-        self.__close_process(self.process_sync)
-        self.__close_process(self.process_server)
+        if self.process_sync is not None:
+            self.stdout_file_sync.close()
+            self.stderr_file_sync.close()
+            self.__close_process(self.process_sync)
+
+        if self.process_server is not None:
+            self.stdout_file_server.close()
+            self.stderr_file_server.close()
+            self.__close_process(self.process_server)
