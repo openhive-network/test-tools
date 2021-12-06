@@ -171,10 +171,8 @@ class Hivemind(ScopedObject):
             stdout=self.stdout_file_server,
             stderr=self.stdout_file_server
         )
-
-        if self.process_sync is None:
-            time.sleep(5)
-            logger.info('Server is running...')
+        logger.info('Server is running...')
+        time.sleep(5)
         logger.info('Server RUN')
 
     def create_directory(self, directory_name):
