@@ -9,6 +9,7 @@ from test_tools import logger
 from test_tools.private.logger.logger_internal_interface import logger
 from test_tools.private.scope import context, ScopedObject
 
+
 # if TYPE_CHECKING:
 #     from test_tools.types import Node
 
@@ -18,7 +19,6 @@ class Hivemind(ScopedObject):
                  database_name: str,
                  database_user: str,
                  database_password: str,
-                 sync_with,
                  database_host: str = 'localhost',
                  database_port: str = '5432',
                  maintance_database_name: str = 'postgres'
@@ -30,13 +30,13 @@ class Hivemind(ScopedObject):
 
         super().__init__()
 
+        self.node = None
         self.host = database_host
         self.port = database_port
         self.database_name = database_name
         self.user = database_user
         self.password = database_password
-        self.node = sync_with
-        self.maintance_database_name=maintance_database_name
+        self.maintance_database_name = maintance_database_name
         self.database_adress = F'postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database_name}'
 
         self.hivemind_sync_directory = None
@@ -53,7 +53,7 @@ class Hivemind(ScopedObject):
         self.logger = logger.create_child_logger('Logger')
 
     def detabase_prepare(self):
-        #Terminate all of connection to repair problem with droping database
+        # Terminate all of connection to repair problem with droping database
         subprocess.run(
             [
                 F'PGPASSWORD={self.password} psql -h {self.host} -U {self.user} -d {self.maintance_database_name} -a '
@@ -98,7 +98,10 @@ class Hivemind(ScopedObject):
                            'max_retries': max_retries,
                            'trial_blocks': trial_blocks}
 
-    def run(self):
+    def run(self,
+            sync_with,
+            ):
+        self.node = sync_with
         self.run_sync()
         self.run_server()
 
@@ -129,7 +132,7 @@ class Hivemind(ScopedObject):
             cwd=self.directory,
             stdout=self.stdout_file_sync,
             stderr=self.stderr_file_sync
-            )
+        )
         # logger.info(f'{self.process.pid=}')
         logger.info('Sync RUN')
 
@@ -151,7 +154,7 @@ class Hivemind(ScopedObject):
             cwd=self.directory,
             stdout=self.stdout_file_server,
             stderr=self.stdout_file_server
-            )
+        )
         logger.info('Server RUN')
 
     def create_directory(self, directory_name):
