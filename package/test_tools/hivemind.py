@@ -202,6 +202,11 @@ class Hivemind(ScopedObject):
             process.wait()
             self.logger.warning('Process was force-closed with SIGKILL, because didn\'t close before timeout')
 
+    def stop(self):
+        self.__close_process(self.process_sync)
+        self.__close_process(self.process_server)
+        self.logger.debug("Stop HIVEMIND process")
+
     def at_exit_from_scope(self):
         if self.process_sync is not None:
             self.stdout_file_sync.close()
