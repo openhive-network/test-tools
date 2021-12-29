@@ -112,15 +112,17 @@ class Hivemind(ScopedObject):
             sync_with,
             run_sync: bool = True,
             run_server: bool = True,
-            with_time_offset: str = None
+            with_time_offset: str = None,
+            database_prepare: bool = True
             ):
         self.node = sync_with
         self.with_time_offset = with_time_offset
         self.remove_directory('hivemind_sync')
         self.remove_directory('hivemind_server')
 
-        if run_sync:
+        if database_prepare:
             self.database_prepare()
+        if run_sync:
             self.run_sync()
         if run_server:
             self.run_server()
@@ -234,7 +236,11 @@ class Hivemind(ScopedObject):
             self.logger.warning('Process was force-closed with SIGKILL, because didn\'t close before timeout')
 
     def stop(self):
+        self.stdout_file_sync.close()
+        self.stderr_file_sync.close()
         self.__close_process(self.process_sync)
+        self.stdout_file_server.close()
+        self.stderr_file_server.close()
         self.__close_process(self.process_server)
         self.logger.debug("Stop HIVEMIND process")
 
