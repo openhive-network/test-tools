@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import signal
 import subprocess
 import time
@@ -38,6 +39,7 @@ class Hivemind(ScopedObject):
 
         super().__init__()
 
+        self.with_time_offset = None
         self.node = None
         self.host = database_host
         self.port = database_port
@@ -109,9 +111,11 @@ class Hivemind(ScopedObject):
     def run(self,
             sync_with,
             run_sync: bool = True,
-            run_server: bool = True
+            run_server: bool = True,
+            with_time_offset: str = None
             ):
         self.node = sync_with
+        self.with_time_offset = with_time_offset
         self.remove_directory('hivemind_sync')
         self.remove_directory('hivemind_server')
 
@@ -125,6 +129,10 @@ class Hivemind(ScopedObject):
         self.create_directory('hivemind_sync')
         self.stdout_file_sync = open(self.directory / 'stdout.txt', 'w')
         self.stderr_file_sync = open(self.directory / 'stderr.txt', 'w')
+
+        env = dict(os.environ)
+        if self.with_time_offset is not None:
+            self.__configure_fake_time(env, self.with_time_offset)
 
         while self.node.get_last_block_number() < 24:
             logger.info(self.node.get_last_block_number())
@@ -146,7 +154,8 @@ class Hivemind(ScopedObject):
             ],
             cwd=self.directory,
             stdout=self.stdout_file_sync,
-            stderr=self.stderr_file_sync
+            stderr=self.stderr_file_sync,
+            env=env,
         )
         # logger.info(f'{self.process.pid=}')
         logger.info('Sync RUN')
@@ -156,10 +165,21 @@ class Hivemind(ScopedObject):
         self.stdout_file_server = open(self.directory / 'stdout.txt', 'w')
         self.stderr_file_server = open(self.directory / 'stderr.txt', 'w')
 
-        if self.process_sync is not None:
-            while not self.is_in_stderr_hive_sync(trigger_string='[LIVE SYNC] <===== Processed block 21'):
-                time.sleep(1)
+        env = dict(os.environ)
+        if self.with_time_offset is not None:
+            self.__configure_fake_time(env, self.with_time_offset)
 
+#TODO Improve trigger to start server
+        if self.process_sync is not None:
+            if self.with_time_offset is None:
+                while not self.is_in_stderr_hive_sync(trigger_string='[LIVE SYNC] <===== Processed block 21'):
+                    time.sleep(1)
+            else:
+                __last_block = self.node.get_last_block_number()
+                while __last_block < 30:
+                    __last_block = self.node.get_last_block_number()
+                    time.sleep(1)
+        time.sleep(10)
         self.process_server = subprocess.Popen(
             [
                 'hive',
@@ -169,11 +189,22 @@ class Hivemind(ScopedObject):
             ],
             cwd=self.directory,
             stdout=self.stdout_file_server,
-            stderr=self.stdout_file_server
+            stderr=self.stdout_file_server,
+            env=env,
         )
         logger.info('Server is running...')
         time.sleep(5)
         logger.info('Server RUN')
+
+    def __configure_fake_time(self, env, time_offset):
+        libfaketime_path = os.getenv('LIBFAKETIME_PATH') or '/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1'
+        if not Path(libfaketime_path).is_file():
+            raise RuntimeError(f'libfaketime was not found at {libfaketime_path}')
+        self.logger.info(f"using time_offset {time_offset}")
+        env['LD_PRELOAD'] = libfaketime_path
+        env['FAKETIME'] = time_offset
+        env['FAKETIME_DONT_RESET'] = '1'
+        env['TZ'] = 'UTC'
 
     def create_directory(self, directory_name):
         self.directory = context.get_current_directory() / directory_name
