@@ -93,12 +93,12 @@ class Hivemind(ScopedObject):
             shell=True)
 
     def set_run_parameters(self,
-                           log_level='INFO',
-                           http_server_port='8080',
-                           max_batch='35',
-                           max_workers='6',
-                           max_retries='-1',
-                           trial_blocks='2',
+                           log_level: str = 'INFO',
+                           http_server_port: str = '8080',
+                           max_batch: str = '35',
+                           max_workers: str = '6',
+                           max_retries: str = '-1',
+                           trial_blocks: str = '2',
                            ):
 
         self.parameters = {'log_level': log_level,
