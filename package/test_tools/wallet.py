@@ -717,7 +717,7 @@ class Wallet(ScopedObject):
                 file.close()
 
     def create_accounts(self, number_of_accounts: int, name_base: str = 'account',
-                        *, secret: str = 'secret') -> List[Account]:
+                        *, secret: str = 'secret', import_keys: bool = True) -> List[Account]:
         def send_transaction(accounts_):
             transaction = copy.deepcopy(transaction_pattern)
 
@@ -752,6 +752,11 @@ class Wallet(ScopedObject):
 
         for future in futures:
             future.result()
+
+        if import_keys:
+            private_keys_per_transaction = 10_000
+            for i in range(0, len(accounts), private_keys_per_transaction):
+                self.api.import_keys([account.private_key for account in accounts[i: i + private_keys_per_transaction]])
 
         return accounts
 
