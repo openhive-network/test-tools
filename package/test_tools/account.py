@@ -1,3 +1,5 @@
+from typing import Optional
+
 from test_tools.private.key_generator import KeyGenerator
 
 
@@ -16,6 +18,16 @@ class Account:
             self.secret = secret
             self.private_key = output['private_key']
             self.public_key = output['public_key']
+
+    def __repr__(self):
+        def format_key(key: Optional[str]) -> str:
+            return f'{key[:8]}...' if key else '?'
+
+        return (
+            f'<{self.__class__.__name__}: {self.name}, '
+            f'private_key={format_key(self.private_key)}, '
+            f'public_key={format_key(self.public_key)}>'
+        )
 
     @classmethod
     def create_multiple(cls, number_of_accounts, name_base='account', *, secret='secret'):
