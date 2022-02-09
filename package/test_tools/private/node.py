@@ -646,3 +646,9 @@ class Node:
 
     def set_clean_up_policy(self, policy: constants.NodeCleanUpPolicy):
         self.__clean_up_policy = policy
+
+    def wait_for_live(self, timeout=__DEFAULT_WAIT_FOR_LIVE_TIMEOUT):
+        assert timeout >= 0
+        deadline = time.time() + timeout
+        wait_for_event(self.__notifications.live_mode_entered_event, deadline=deadline,
+                       exception_message='Live mode not activated on time.')
