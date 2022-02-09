@@ -3,6 +3,7 @@ from pathlib import Path
 from test_tools import constants
 from test_tools.network import Network
 from test_tools.private.nodes_creator import NodesCreator
+from test_tools.private.prepared_block_log.block_log_utils import get_prepared_block_log, get_prepared_time_offset
 
 
 class World(NodesCreator):
@@ -104,3 +105,28 @@ class World(NodesCreator):
 
     def set_clean_up_policy(self, policy: constants.WorldCleanUpPolicy):
         self.__clean_up_policy = policy
+
+    def run_all_nodes(self, prepared_block_log=False, replay_all_nodes=True, wait_for_live=True):
+        block_log = None
+        time_offset = None
+        if prepared_block_log:
+            block_log = get_prepared_block_log()
+            time_offset = get_prepared_time_offset()
+
+        nodes_to_run = self.nodes()
+        seed_node = nodes_to_run[0]
+        seed_node.run(wait_for_live=False, replay_from=block_log, time_offset=time_offset)
+        endpoint = seed_node.get_p2p_endpoint()
+        for node in nodes_to_run[1:]:
+            node.config.p2p_seed_node.append(endpoint)
+            if replay_all_nodes:
+                node.run(wait_for_live=False, replay_from=block_log, time_offset=time_offset)
+            else:
+                node.run(wait_for_live=False, time_offset=time_offset)
+
+        for network in self.networks():
+            network.is_running = True
+
+        if wait_for_live:
+            for node in nodes_to_run:
+                node.wait_for_live()
