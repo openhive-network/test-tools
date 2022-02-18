@@ -3,8 +3,9 @@ import argparse
 import os
 
 from test_tools import logger, constants, Account, World, Asset, Wallet
-from test_tools.private.prepared_block_log.witnesses import alpha_witness_names, beta_witness_names, all_witness_names
-from test_tools.private.prepared_block_log.block_log_utils import block_log_file, timestamp_file
+from test_tools.private.prepared_block_log.block_log_utils import (
+    all_witness_names, alpha_witness_names, beta_witness_names, block_log_file, timestamp_file
+)
 
 
 class Bcolors:
