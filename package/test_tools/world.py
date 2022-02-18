@@ -106,7 +106,7 @@ class World(NodesCreator):
     def set_clean_up_policy(self, policy: constants.WorldCleanUpPolicy):
         self.__clean_up_policy = policy
 
-    def run_all_nodes(self, prepared_block_log=False, replay_all_nodes=True):
+    def run_all_nodes(self, prepared_block_log=False, replay_all_nodes=True, wait_for_live=True):
         block_log = None
         time_offset = None
         if prepared_block_log:
@@ -127,5 +127,6 @@ class World(NodesCreator):
         for network in self.networks():
             network.is_running = True
 
-        for node in nodes_to_run:
-            node.wait_for_live()
+        if wait_for_live:
+            for node in nodes_to_run:
+                node.wait_for_live()

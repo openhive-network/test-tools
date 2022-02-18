@@ -3,8 +3,9 @@ import argparse
 import os
 
 from test_tools import logger, constants, Account, World, Asset, Wallet
-from test_tools.private.prepared_block_log.witnesses import alpha_witness_names, beta_witness_names, all_witness_names
-from test_tools.private.prepared_block_log.block_log_utils import block_log_file, timestamp_file
+from test_tools.private.prepared_block_log.block_log_utils import (
+    all_witness_names, alpha_witness_names, beta_witness_names, block_log_file, timestamp_file
+)
 
 
 class Bcolors:
@@ -150,7 +151,7 @@ if __name__ == "__main__":
 
     if os.path.exists(timestamp_file):
         os.remove(timestamp_file)
-    with open(timestamp_file, 'w') as f:
+    with open(timestamp_file, 'w', encoding='utf8') as f:
         f.write(f'{timestamp}')
 
     logger.info(f'{Bcolors.OKGREEN}files written to {block_log_file} and {timestamp_file}{Bcolors.ENDC}')
