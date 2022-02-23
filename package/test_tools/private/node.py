@@ -617,8 +617,21 @@ class Node:
             'snapshot/',
         ]
 
+        self.__register_rocksdb_data_to_remove(unneeded_files_or_directories)
+
         for unneeded in unneeded_files_or_directories:
             self.__remove(self.directory.joinpath(unneeded))
+
+    def __register_rocksdb_data_to_remove(self, unneeded_files_or_directories):
+        rocksdb_directory = self.directory.joinpath('blockchain/account-history-rocksdb-storage')
+        if not rocksdb_directory:
+            return
+
+        # Do not remove blockchain directory
+        unneeded_files_or_directories.remove('blockchain/')
+
+        # All files below will be removed
+        unneeded_files_or_directories.extend(rocksdb_directory.glob('*.sst'))
 
     def __remove_all_files(self):
         self.__remove(self.directory)
