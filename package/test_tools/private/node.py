@@ -191,6 +191,8 @@ class Node:
 
             self.snapshot_dumped_event = Event()
 
+            self.fork_event = Event()
+
         def listen(self):
             self.node.config.notifications_endpoint = f'127.0.0.1:{self.server.port}'
             self.server.run()
@@ -218,6 +220,8 @@ class Node:
                     self.synchronization_started_event.set()
                 elif details['current_status'] == 'entering live mode':
                     self.live_mode_entered_event.set()
+                elif 'switching to fork' in details['current_status']:
+                    self.fork_event.set()
             elif message['name'] == 'P2P listening':
                 details = message['value']
                 endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
@@ -240,6 +244,7 @@ class Node:
             self.live_mode_entered_event.clear()
             self.replay_finished_event.clear()
             self.snapshot_dumped_event.clear()
+            self.fork_event.clear()
 
             self.__logger.debug('Notifications server closed')
 
@@ -622,3 +627,9 @@ class Node:
         deadline = time.time() + timeout
         wait_for_event(self.__notifications.live_mode_entered_event, deadline=deadline,
                        exception_message='Live mode not activated on time.')
+
+    def wait_for_fork(self, timeout=__DEFAULT_WAIT_FOR_LIVE_TIMEOUT):
+        assert timeout >= 0
+        deadline = time.time() + timeout
+        wait_for_event(self.__notifications.fork_event, deadline=deadline,
+                       exception_message='Fork not not occur on time.')
