@@ -284,7 +284,7 @@ class Node:
         return self.__name
 
     def get_block_log(self, include_index=True):
-        return BlockLog(self, self.directory.joinpath('blockchain/block_log'), include_index=include_index)
+        return BlockLog(self.directory.joinpath('blockchain/block_log'), owner=self, include_index=include_index)
 
     def get_supported_plugins(self) -> List[str]:
         return self.__executable.get_supported_plugins()
@@ -524,7 +524,7 @@ class Node:
 
     def __handle_replay(self, replay_source: BlockLog, stop_at_block: int, additional_arguments: list):
         if not isinstance(replay_source, BlockLog):
-            replay_source = BlockLog(None, replay_source)
+            replay_source = BlockLog(replay_source)
 
         additional_arguments.append('--force-replay')
         if stop_at_block is not None:

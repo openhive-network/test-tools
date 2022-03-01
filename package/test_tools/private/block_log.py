@@ -5,10 +5,11 @@ import warnings
 
 from test_tools import paths_to_executables
 
+
 class BlockLog:
-    def __init__(self, owner, path, *, include_index=True):
-        self.__owner = owner
+    def __init__(self, path, *, owner=None, include_index=True):
         self.__path = Path(path)
+        self.__owner = owner
         self.__include_index = include_index
 
     def __repr__(self):
@@ -39,7 +40,7 @@ class BlockLog:
             ],
             check=True,
         )
-        return BlockLog(None, output_block_log_path)
+        return BlockLog(output_block_log_path)
 
     def __warn_about_missing_index(self, block_log_index_path):
         if self.__owner is not None:
