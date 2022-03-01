@@ -436,16 +436,6 @@ class Node:
         assert timeout >= 0
         deadline = time.time() + timeout
 
-        if not self.__executable.is_test_net_build():
-            raise NotImplementedError(
-                f'You have configured path to non-testnet hived build.\n'
-                f'At the moment only testnet build is supported.\n'
-                f'Your current hived path is: {paths_to_executables.get_path_of("hived")}\n'
-                f'\n'
-                f'Please check following page if you need help with paths configuration:\n'
-                f'https://gitlab.syncad.com/hive/test-tools/-/blob/master/documentation/paths_to_executables.md'
-            )
-
         if not self.__produced_files and self.directory.exists():
             shutil.rmtree(self.directory)
         self.directory.mkdir(parents=True, exist_ok=True)
