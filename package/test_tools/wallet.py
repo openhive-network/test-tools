@@ -10,7 +10,7 @@ import warnings
 
 from test_tools import communication, paths_to_executables
 from test_tools.account import Account
-from test_tools.exceptions import CommunicationError, NodeIsNotRunning
+from test_tools.exceptions import NodeIsNotRunning
 from test_tools.private.logger.logger_internal_interface import logger
 from test_tools.private.node import Node
 from test_tools.private.remote_node import RemoteNode
@@ -643,14 +643,6 @@ class Wallet(ScopedObject):
         endpoint = self.__get_http_server_endpoint()
         self.http_server_port = endpoint.split(':')[1]
 
-        if self.__is_online():
-            timeout -= wait_for(
-                self.__is_communication_established,
-                timeout=timeout,
-                timeout_error_message=f'Problem with starting wallet. '
-                                      f'See {self.get_stderr_file_path()} for more details.'
-            )
-
         if preconfigure:
             password = self.DEFAULT_PASSWORD
 
@@ -664,13 +656,6 @@ class Wallet(ScopedObject):
 
     def __is_online(self) -> bool:
         return self.connected_node is not None
-
-    def __is_communication_established(self):
-        try:
-            self.api.info()
-        except CommunicationError:
-            return False
-        return True
 
     def __get_http_server_endpoint(self):
         with open(self.directory / 'stderr.txt', encoding='utf-8') as output:
