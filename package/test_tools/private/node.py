@@ -491,6 +491,7 @@ class Node:
 
         if replay_from is not None and not exit_before_synchronization:
             self.__notifications.replay_finished_event.wait()
+            deadline = None
 
         self.__produced_files = True
 
