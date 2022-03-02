@@ -19,13 +19,13 @@ class BlockLog:
         return self.__path
 
     def copy_to(self, destination):
-        shutil.copy(self.__path, destination)
+        shutil.copy(self.__path, Path(destination).joinpath('block_log'))
 
         if self.__include_index:
             block_log_index_file_name = f'{self.__path.name}.index'
             block_log_index_path = self.__path.with_name(block_log_index_file_name)
             if block_log_index_path.exists():
-                shutil.copy(block_log_index_path, destination)
+                shutil.copy(block_log_index_path, Path(destination).joinpath('block_log.index'))
             else:
                 self.__warn_about_missing_index(block_log_index_path)
 
