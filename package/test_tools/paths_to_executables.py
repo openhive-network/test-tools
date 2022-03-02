@@ -140,7 +140,7 @@ class _PathsToExecutables:
     @staticmethod
     def __append_environment_variable_value_if_defined(variables, name):
         variable = getenv(name)
-        if variable is not None:
+        if variable:
             variables[name] = variable
 
     def set_installed_executables(self, installed_executables=None):
