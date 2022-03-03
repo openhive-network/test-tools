@@ -1,7 +1,6 @@
 from pathlib import Path
 from shutil import rmtree
 
-from test_tools import constants
 from test_tools.private.logger.logger_internal_interface import logger
 from test_tools.private.nodes_creator import NodesCreator
 
@@ -40,8 +39,8 @@ class Network(NodesCreator):
             node.config.p2p_seed_node.append(endpoint)
             node.run(wait_for_live=wait_for_live)
 
-    def handle_final_cleanup(self, *, default_policy: constants.WorldCleanUpPolicy):
-        self._handle_final_cleanup(default_policy=default_policy)
+    def handle_final_cleanup(self):
+        self._handle_final_cleanup()
 
     def connect_with(self, network):
         if len(self._nodes) == 0 or len(network.nodes()) == 0:

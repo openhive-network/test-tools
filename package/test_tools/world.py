@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from test_tools import constants
 from test_tools.network import Network
 from test_tools.private.nodes_creator import NodesCreator
 
@@ -12,7 +11,6 @@ class World(NodesCreator):
         self.__networks = []
         self.__name = 'World'
         self.__is_monitoring_resources = False
-        self.__clean_up_policy = constants.WorldCleanUpPolicy.DO_NOT_REMOVE_FILES
 
         if directory is None:
             self._directory = Path() / f'GeneratedIn{self}'
@@ -40,10 +38,10 @@ class World(NodesCreator):
         if not self.__is_monitoring_resources:
             raise RuntimeError('World was already closed. Can be closed only once.')
 
-        self._handle_final_cleanup(default_policy=self.__clean_up_policy)
+        self._handle_final_cleanup()
 
         for network in self.__networks:
-            network.handle_final_cleanup(default_policy=self.__clean_up_policy)
+            network.handle_final_cleanup()
 
     def create_network(self, name=None):
         if name is not None:
@@ -78,6 +76,3 @@ class World(NodesCreator):
 
     def set_directory(self, directory):
         self._directory = Path(directory)
-
-    def set_clean_up_policy(self, policy: constants.WorldCleanUpPolicy):
-        self.__clean_up_policy = policy

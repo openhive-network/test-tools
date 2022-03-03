@@ -1,7 +1,6 @@
 from pathlib import Path
 import warnings
 
-from test_tools import constants
 from test_tools.account import Account
 from test_tools.private.children_names import ChildrenNames
 from test_tools.private.node import Node
@@ -94,17 +93,6 @@ class NodesCreator:
     def nodes(self):
         return self._nodes
 
-    def _handle_final_cleanup(self, *, default_policy: constants.WorldCleanUpPolicy):
+    def _handle_final_cleanup(self):
         for node in self._nodes:
-            node.handle_final_cleanup(default_policy=self.__get_corresponding_node_policy(default_policy))
-
-    @staticmethod
-    def __get_corresponding_node_policy(policy: constants.WorldCleanUpPolicy):
-        NodePolicy = constants.NodeCleanUpPolicy
-        WorldPolicy = constants.WorldCleanUpPolicy
-
-        return {
-            WorldPolicy.REMOVE_EVERYTHING:          NodePolicy.REMOVE_EVERYTHING,
-            WorldPolicy.REMOVE_ONLY_UNNEEDED_FILES: NodePolicy.REMOVE_ONLY_UNNEEDED_FILES,
-            WorldPolicy.DO_NOT_REMOVE_FILES:        NodePolicy.DO_NOT_REMOVE_FILES,
-        }[policy]
+            node.handle_final_cleanup()
