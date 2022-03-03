@@ -14,7 +14,6 @@ class Network(NodesCreator):
         self._directory = Path(directory).joinpath(self.name).absolute()
         self.network_to_connect_with = None
         self.disconnected_networks = []
-        self.__clean_up_policy: constants.NetworkCleanUpPolicy = None
         self.logger = logger.create_child_logger(str(self))
 
     def __str__(self):
@@ -41,16 +40,8 @@ class Network(NodesCreator):
             node.config.p2p_seed_node.append(endpoint)
             node.run(wait_for_live=wait_for_live)
 
-    def handle_final_cleanup(self, *, default_policy: constants.NetworkCleanUpPolicy):
-        policy = default_policy if self.__clean_up_policy is None else self.__clean_up_policy
-
-        corresponding_nodes_creator_policy = {
-            constants.NetworkCleanUpPolicy.REMOVE_EVERYTHING:          super().CleanUpPolicy.REMOVE_EVERYTHING,
-            constants.NetworkCleanUpPolicy.REMOVE_ONLY_UNNEEDED_FILES: super().CleanUpPolicy.REMOVE_ONLY_UNNEEDED_FILES,
-            constants.NetworkCleanUpPolicy.DO_NOT_REMOVE_FILES:        super().CleanUpPolicy.DO_NOT_REMOVE_FILES,
-        }
-
-        self._handle_final_cleanup(default_policy=corresponding_nodes_creator_policy[policy])
+    def handle_final_cleanup(self, *, default_policy: constants.WorldCleanUpPolicy):
+        self._handle_final_cleanup(default_policy=default_policy)
 
     def connect_with(self, network):
         if len(self._nodes) == 0 or len(network.nodes()) == 0:
@@ -90,6 +81,3 @@ class Network(NodesCreator):
     def allow_for_connections_with_anyone(self):
         for node in self._nodes:
             node.set_allowed_nodes([])
-
-    def set_clean_up_policy(self, policy: constants.NetworkCleanUpPolicy):
-        self.__clean_up_policy = policy

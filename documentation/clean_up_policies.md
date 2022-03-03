@@ -4,7 +4,7 @@ You can specify which files will be automatically removed when script finishes (
 - in automatic tests (running locally or in CI) -- unneeded files are removed (`constants.WorldCleanUpPolicy.REMOVE_ONLY_UNNEEDED_FILES`)
 - in manual tests -- no clean up is performed (`constants.WorldCleanUpPolicy.DO_NOT_REMOVE_FILES`)
 
-You can change this behavior for node, network and world. For example, if you want to access some file removed by default when test will finish, (let's say -- block log or shared memory file, from node which is running in automatic test), you can do it in following way:
+You can change this behavior for node and world. For example, if you want to access some file removed by default when test will finish, (let's say -- block log or shared memory file, from node which is running in automatic test), you can do it in following way:
 ```python
 from test_tools import constants
 node.set_clean_up_policy(constants.NodeCleanUpPolicy.DO_NOT_REMOVE_FILES)

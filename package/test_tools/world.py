@@ -40,33 +40,10 @@ class World(NodesCreator):
         if not self.__is_monitoring_resources:
             raise RuntimeError('World was already closed. Can be closed only once.')
 
-        nodes_creator_policy = self.__get_corresponding_nodes_creator_policy(self.__clean_up_policy)
-        self._handle_final_cleanup(default_policy=nodes_creator_policy)
+        self._handle_final_cleanup(default_policy=self.__clean_up_policy)
 
         for network in self.__networks:
-            network.handle_final_cleanup(default_policy=self.__get_corresponding_network_policy(self.__clean_up_policy))
-
-    @staticmethod
-    def __get_corresponding_nodes_creator_policy(policy: constants.WorldCleanUpPolicy) -> NodesCreator.CleanUpPolicy:
-        WorldPolicy = constants.WorldCleanUpPolicy
-        NodesCreatorPolicy = NodesCreator.CleanUpPolicy
-
-        return {
-            WorldPolicy.REMOVE_EVERYTHING:          NodesCreatorPolicy.REMOVE_EVERYTHING,
-            WorldPolicy.REMOVE_ONLY_UNNEEDED_FILES: NodesCreatorPolicy.REMOVE_ONLY_UNNEEDED_FILES,
-            WorldPolicy.DO_NOT_REMOVE_FILES:        NodesCreatorPolicy.DO_NOT_REMOVE_FILES,
-        }[policy]
-
-    @staticmethod
-    def __get_corresponding_network_policy(policy: constants.WorldCleanUpPolicy) -> constants.NetworkCleanUpPolicy:
-        WorldPolicy = constants.WorldCleanUpPolicy
-        NetworkPolicy = constants.NetworkCleanUpPolicy
-
-        return {
-            WorldPolicy.REMOVE_EVERYTHING:          NetworkPolicy.REMOVE_EVERYTHING,
-            WorldPolicy.REMOVE_ONLY_UNNEEDED_FILES: NetworkPolicy.REMOVE_ONLY_UNNEEDED_FILES,
-            WorldPolicy.DO_NOT_REMOVE_FILES:        NetworkPolicy.DO_NOT_REMOVE_FILES,
-        }[policy]
+            network.handle_final_cleanup(default_policy=self.__clean_up_policy)
 
     def create_network(self, name=None):
         if name is not None:
