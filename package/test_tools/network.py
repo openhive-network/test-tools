@@ -12,7 +12,6 @@ class Network(NodesCreator):
 
         self.name = name
         self._directory = Path(directory).joinpath(self.name).absolute()
-        self.__wallets = []
         self.network_to_connect_with = None
         self.disconnected_networks = []
         self.__clean_up_policy: constants.NetworkCleanUpPolicy = None
@@ -52,10 +51,6 @@ class Network(NodesCreator):
         }
 
         self._handle_final_cleanup(default_policy=corresponding_nodes_creator_policy[policy])
-
-        for wallet in self.__wallets:
-            if wallet.is_running():
-                wallet.close()
 
     def connect_with(self, network):
         if len(self._nodes) == 0 or len(network.nodes()) == 0:
