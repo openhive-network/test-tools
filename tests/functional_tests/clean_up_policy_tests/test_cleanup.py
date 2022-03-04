@@ -3,7 +3,7 @@ from typing import Optional
 import pytest
 
 from test_tools import clean_up_policy
-from test_tools.constants import CleanUpPolicy, NodeCleanUpPolicy
+from test_tools.constants import CleanUpPolicy
 
 
 def important_files_are_removed(node):
@@ -33,13 +33,7 @@ def check_if_node_files_are_removed(world,
     init_node.run()
 
     if policy is not None:
-        corresponding_clean_up_policy = {
-            CleanUpPolicy.REMOVE_EVERYTHING: NodeCleanUpPolicy.REMOVE_EVERYTHING,
-            CleanUpPolicy.REMOVE_ONLY_UNNEEDED_FILES: NodeCleanUpPolicy.REMOVE_ONLY_UNNEEDED_FILES,
-            CleanUpPolicy.DO_NOT_REMOVE_FILES: NodeCleanUpPolicy.DO_NOT_REMOVE_FILES,
-        }
-
-        init_node.set_clean_up_policy(corresponding_clean_up_policy[policy])
+        init_node.set_clean_up_policy(policy)
 
     world.close()
 

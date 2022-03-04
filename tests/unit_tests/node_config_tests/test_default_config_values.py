@@ -2,14 +2,14 @@
 
 import pytest
 
-from test_tools import constants
+from test_tools.constants import CleanUpPolicy
 from test_tools.node_configs.default import create_default_config
 
 
 @pytest.fixture
 def generated_config(world):
     node = world.create_raw_node()
-    node.set_clean_up_policy(constants.NodeCleanUpPolicy.REMOVE_EVERYTHING)
+    node.set_clean_up_policy(CleanUpPolicy.REMOVE_EVERYTHING)
     node.dump_config()
 
     return node.config

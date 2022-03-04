@@ -11,7 +11,7 @@ from typing import Dict, List, Optional, Tuple, Union
 import warnings
 import weakref
 
-from test_tools import clean_up_policy, communication, constants, exceptions, paths_to_executables
+from test_tools import clean_up_policy, communication, exceptions, paths_to_executables
 from test_tools.constants import CleanUpPolicy
 from test_tools.node_api.node_apis import Apis
 from test_tools.node_configs.default import create_default_config
@@ -604,25 +604,14 @@ class Node:
         self.run(wait_for_live=wait_for_live, timeout=timeout)
 
     def __remove_files(self):
-        if self.__clean_up_policy is not None:
-            policy = self.__clean_up_policy
-        else:
-            policy = self.__get_corresponding_clean_up_policy(clean_up_policy.get_default())
+        policy = clean_up_policy.get_default() if self.__clean_up_policy is None else self.__clean_up_policy
 
-        if policy == constants.NodeCleanUpPolicy.DO_NOT_REMOVE_FILES:
+        if policy == CleanUpPolicy.DO_NOT_REMOVE_FILES:
             pass
-        elif policy == constants.NodeCleanUpPolicy.REMOVE_ONLY_UNNEEDED_FILES:
+        elif policy == CleanUpPolicy.REMOVE_ONLY_UNNEEDED_FILES:
             self.__remove_unneeded_files()
-        elif policy == constants.NodeCleanUpPolicy.REMOVE_EVERYTHING:
+        elif policy == CleanUpPolicy.REMOVE_EVERYTHING:
             self.__remove_all_files()
-
-    @staticmethod
-    def __get_corresponding_clean_up_policy(policy: CleanUpPolicy) -> constants.NodeCleanUpPolicy:
-        return {
-            CleanUpPolicy.REMOVE_EVERYTHING: constants.NodeCleanUpPolicy.REMOVE_EVERYTHING,
-            CleanUpPolicy.REMOVE_ONLY_UNNEEDED_FILES: constants.NodeCleanUpPolicy.REMOVE_ONLY_UNNEEDED_FILES,
-            CleanUpPolicy.DO_NOT_REMOVE_FILES: constants.NodeCleanUpPolicy.DO_NOT_REMOVE_FILES,
-        }[policy]
 
     @staticmethod
     def __remove(path: Path):
@@ -664,7 +653,7 @@ class Node:
     def set_executable_file_path(self, executable_file_path):
         self.__executable.set_path(executable_file_path)
 
-    def set_clean_up_policy(self, policy: constants.NodeCleanUpPolicy):
+    def set_clean_up_policy(self, policy: CleanUpPolicy):
         self.__clean_up_policy = policy
 
     def wait_for_next_fork(self, timeout=math.inf):
