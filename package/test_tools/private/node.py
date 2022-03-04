@@ -11,7 +11,8 @@ from typing import Dict, List, Optional, Tuple, Union
 import warnings
 import weakref
 
-from test_tools import communication, constants, exceptions, paths_to_executables
+from test_tools import clean_up_policy, communication, constants, exceptions, paths_to_executables
+from test_tools.constants import CleanUpPolicy
 from test_tools.node_api.node_apis import Apis
 from test_tools.node_configs.default import create_default_config
 from test_tools.private.block_log import BlockLog
@@ -593,17 +594,20 @@ class Node:
         self.__process.close()
         self.__notifications.close()
 
-    def handle_final_cleanup(self, *, default_policy: constants.NodeCleanUpPolicy):
+    def handle_final_cleanup(self):
         self.close()
         self.__process.close_opened_files()
-        self.__remove_files(default_policy=default_policy)
+        self.__remove_files()
 
     def restart(self, wait_for_live=True, timeout=__DEFAULT_WAIT_FOR_LIVE_TIMEOUT):
         self.close()
         self.run(wait_for_live=wait_for_live, timeout=timeout)
 
-    def __remove_files(self, *, default_policy: constants.NodeCleanUpPolicy):
-        policy = default_policy if self.__clean_up_policy is None else self.__clean_up_policy
+    def __remove_files(self):
+        if self.__clean_up_policy is not None:
+            policy = self.__clean_up_policy
+        else:
+            policy = self.__get_corresponding_clean_up_policy(clean_up_policy.get_default())
 
         if policy == constants.NodeCleanUpPolicy.DO_NOT_REMOVE_FILES:
             pass
@@ -611,6 +615,14 @@ class Node:
             self.__remove_unneeded_files()
         elif policy == constants.NodeCleanUpPolicy.REMOVE_EVERYTHING:
             self.__remove_all_files()
+
+    @staticmethod
+    def __get_corresponding_clean_up_policy(policy: CleanUpPolicy) -> constants.NodeCleanUpPolicy:
+        return {
+            CleanUpPolicy.REMOVE_EVERYTHING: constants.NodeCleanUpPolicy.REMOVE_EVERYTHING,
+            CleanUpPolicy.REMOVE_ONLY_UNNEEDED_FILES: constants.NodeCleanUpPolicy.REMOVE_ONLY_UNNEEDED_FILES,
+            CleanUpPolicy.DO_NOT_REMOVE_FILES: constants.NodeCleanUpPolicy.DO_NOT_REMOVE_FILES,
+        }[policy]
 
     @staticmethod
     def __remove(path: Path):
