@@ -1,16 +1,12 @@
-from pathlib import Path
-from shutil import rmtree
-
 from test_tools.private.logger.logger_internal_interface import logger
 from test_tools.private.nodes_creator import NodesCreator
 
 
 class Network(NodesCreator):
-    def __init__(self, name, directory):
+    def __init__(self, name):
         super().__init__()
 
         self.name = name
-        self._directory = Path(directory).joinpath(self.name).absolute()
         self.network_to_connect_with = None
         self.disconnected_networks = []
         self.logger = logger.create_child_logger(str(self))
@@ -19,11 +15,6 @@ class Network(NodesCreator):
         return self.name
 
     def run(self, wait_for_live=True):
-        if self._directory.exists():
-            rmtree(self._directory)
-
-        self._directory.mkdir(parents=True)
-
         if self.network_to_connect_with is None:
             seed_node = self._nodes[0]
             seed_node.run(wait_for_live=wait_for_live)

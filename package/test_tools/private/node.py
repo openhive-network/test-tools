@@ -19,6 +19,7 @@ from test_tools.private.raise_exception_helper import RaiseExceptionHelper
 from test_tools.private.logger.logger_internal_interface import logger
 from test_tools.private.node_http_server import NodeHttpServer
 from test_tools.private.node_message import NodeMessage
+from test_tools.private.scope import context
 from test_tools.private.snapshot import Snapshot
 from test_tools.private.url import Url
 from test_tools.private.wait_for import wait_for, wait_for_event
@@ -251,11 +252,11 @@ class Node:
 
             self.__logger.debug('Notifications server closed')
 
-    def __init__(self, name, directory):
+    def __init__(self, name):
         self.api = Apis(self)
 
         self.__name = name
-        self.directory = Path(directory).joinpath(self.__name).absolute()
+        self.directory = context.get_current_directory().joinpath(self.__name).absolute()
         self.__produced_files = False
         self.__logger = logger.create_child_logger(self.__name)
 

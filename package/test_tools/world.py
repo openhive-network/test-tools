@@ -1,21 +1,14 @@
-from pathlib import Path
-
 from test_tools.network import Network
 from test_tools.private.nodes_creator import NodesCreator
 
 
 class World(NodesCreator):
-    def __init__(self, directory=None):
+    def __init__(self):
         super().__init__()
 
         self.__networks = []
         self.__name = 'World'
         self.__is_monitoring_resources = False
-
-        if directory is None:
-            self._directory = Path() / f'GeneratedIn{self}'
-        else:
-            self._directory = directory
 
     def __str__(self):
         return self.__name
@@ -49,7 +42,7 @@ class World(NodesCreator):
         else:
             name = self._children_names.create_name('Network')
 
-        network = Network(name, self._directory)
+        network = Network(name)
         self.__networks.append(network)
         return network
 
@@ -73,6 +66,3 @@ class World(NodesCreator):
         for network in self.__networks:
             nodes += network.nodes()
         return nodes
-
-    def set_directory(self, directory):
-        self._directory = Path(directory)

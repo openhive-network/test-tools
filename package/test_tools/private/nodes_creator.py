@@ -1,4 +1,3 @@
-from pathlib import Path
 import warnings
 
 from test_tools.account import Account
@@ -9,7 +8,6 @@ from test_tools.private.node import Node
 class NodesCreator:
     def __init__(self):
         self._children_names = ChildrenNames()
-        self._directory: Path = None  # Should be overriden by derived class
         self._nodes = []
 
     def create_init_node(self, name='InitNode') -> Node:
@@ -63,7 +61,7 @@ class NodesCreator:
         else:
             name = self._children_names.create_name(default_name)
 
-        node = Node(name, self._directory)
+        node = Node(name)
         self._nodes.append(node)
         return node
 
