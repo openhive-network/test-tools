@@ -9,7 +9,6 @@ from threading import Event
 import time
 from typing import Dict, List, Optional, Tuple, Union
 import warnings
-import weakref
 
 from test_tools import cleanup_policy, communication, exceptions, paths_to_executables
 from test_tools.constants import CleanupPolicy
@@ -252,10 +251,9 @@ class Node:
 
             self.__logger.debug('Notifications server closed')
 
-    def __init__(self, creator, name, directory):
+    def __init__(self, name, directory):
         self.api = Apis(self)
 
-        self.__creator = weakref.proxy(creator)
         self.__name = name
         self.directory = Path(directory).joinpath(self.__name).absolute()
         self.__produced_files = False

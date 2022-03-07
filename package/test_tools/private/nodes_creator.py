@@ -63,7 +63,7 @@ class NodesCreator:
         else:
             name = self._children_names.create_name(default_name)
 
-        node = Node(self, name, self._directory)
+        node = Node(name, self._directory)
         self._nodes.append(node)
         return node
 
