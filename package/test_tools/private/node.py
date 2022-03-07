@@ -259,7 +259,7 @@ class Node:
         self.__name = name
         self.directory = Path(directory).joinpath(self.__name).absolute()
         self.__produced_files = False
-        self.__logger = logger.create_child_logger(f'{self.__creator}.{self.__name}')
+        self.__logger = logger.create_child_logger(self.__name)
 
         self.__executable = self.__Executable()
         self.__process = self.__Process(self.directory, self.__executable, self.__logger)
