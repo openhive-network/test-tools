@@ -2,8 +2,8 @@ from typing import Optional
 
 import pytest
 
-from test_tools import clean_up_policy
-from test_tools.constants import CleanUpPolicy
+from test_tools import cleanup_policy
+from test_tools.constants import CleanupPolicy
 
 
 def important_files_are_removed(node):
@@ -25,7 +25,7 @@ def unneeded_files_are_removed(node):
 
 
 def check_if_node_files_are_removed(world,
-                                    policy: Optional[CleanUpPolicy] = None,
+                                    policy: Optional[CleanupPolicy] = None,
                                     *,
                                     remove_important_files: bool,
                                     remove_unneeded_files: bool):
@@ -33,7 +33,7 @@ def check_if_node_files_are_removed(world,
     init_node.run()
 
     if policy is not None:
-        init_node.set_clean_up_policy(policy)
+        init_node.set_cleanup_policy(policy)
 
     world.close()
 
@@ -42,7 +42,7 @@ def check_if_node_files_are_removed(world,
 
 
 def check_if_everyone_files_are_removed(world,
-                                        policy: Optional[CleanUpPolicy] = None,
+                                        policy: Optional[CleanupPolicy] = None,
                                         *,
                                         remove_important_files: bool,
                                         remove_unneeded_files: bool):
@@ -60,7 +60,7 @@ def check_if_everyone_files_are_removed(world,
     network.run()
 
     if policy is not None:
-        clean_up_policy.set_default(policy)
+        cleanup_policy.set_default(policy)
 
     world.close()
 
@@ -91,30 +91,30 @@ def test_default_policy(world, check_if_files_are_removed):
 
 
 @run_for_all_cases
-def test_do_not_remove_files_clean_up_policy(world, check_if_files_are_removed):
+def test_do_not_remove_files_cleanup_policy(world, check_if_files_are_removed):
     check_if_files_are_removed(
         world,
-        CleanUpPolicy.DO_NOT_REMOVE_FILES,
+        CleanupPolicy.DO_NOT_REMOVE_FILES,
         remove_important_files=False,
         remove_unneeded_files=False
     )
 
 
 @run_for_all_cases
-def test_remove_only_unneeded_files_clean_up_policy(world, check_if_files_are_removed):
+def test_remove_only_unneeded_files_cleanup_policy(world, check_if_files_are_removed):
     check_if_files_are_removed(
         world,
-        CleanUpPolicy.REMOVE_ONLY_UNNEEDED_FILES,
+        CleanupPolicy.REMOVE_ONLY_UNNEEDED_FILES,
         remove_important_files=False,
         remove_unneeded_files=True
     )
 
 
 @run_for_all_cases
-def test_remove_everything_clean_up_policy(world, check_if_files_are_removed):
+def test_remove_everything_cleanup_policy(world, check_if_files_are_removed):
     check_if_files_are_removed(
         world,
-        CleanUpPolicy.REMOVE_EVERYTHING,
+        CleanupPolicy.REMOVE_EVERYTHING,
         remove_important_files=True,
         remove_unneeded_files=True
     )

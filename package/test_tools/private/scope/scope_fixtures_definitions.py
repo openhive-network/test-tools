@@ -4,22 +4,22 @@ from typing import Final, Optional
 
 import pytest
 
-from test_tools import clean_up_policy
-from test_tools.constants import CleanUpPolicy
-from test_tools.private.scope import current_scope, ScopedCleanUpPolicy, ScopedCurrentDirectory
+from test_tools import cleanup_policy
+from test_tools.constants import CleanupPolicy
+from test_tools.private.scope import current_scope, ScopedCleanupPolicy, ScopedCurrentDirectory
 from test_tools.private.logger.module_logger import ModuleLogger
 from test_tools.private.logger.package_logger import PackageLogger
 
 
-__clean_up_policy_was_set_in_package_scope: bool = False
-__DEFAULT_CLEAN_UP_POLICY: Final[CleanUpPolicy] = CleanUpPolicy.REMOVE_ONLY_UNNEEDED_FILES
+__cleanup_policy_was_set_in_package_scope: bool = False
+__DEFAULT_CLEANUP_POLICY: Final[CleanupPolicy] = CleanupPolicy.REMOVE_ONLY_UNNEEDED_FILES
 
 
 @pytest.fixture(autouse=True, scope='function')
 def function_scope(request):
     with current_scope.create_new_scope(f'function: {__get_function_name(request)}'):
         ScopedCurrentDirectory(__get_directory_for_function(request))
-        ScopedCleanUpPolicy(clean_up_policy.get_default())
+        ScopedCleanupPolicy(cleanup_policy.get_default())
 
         current_logger = current_scope.context.get_logger()
         function_logger = current_logger.create_child_logger(__get_logger_name(request))
@@ -33,8 +33,8 @@ def function_scope(request):
 def module_scope(request):
     with current_scope.create_new_scope(f'module: {__get_module_name(request)}'):
         ScopedCurrentDirectory(__get_directory_for_module(request))
-        if not __clean_up_policy_was_set_in_package_scope:
-            ScopedCleanUpPolicy(__DEFAULT_CLEAN_UP_POLICY)
+        if not __cleanup_policy_was_set_in_package_scope:
+            ScopedCleanupPolicy(__DEFAULT_CLEANUP_POLICY)
 
         current_logger = current_scope.context.get_logger()
         module_logger = current_logger.create_child_logger(__get_logger_name(request), child_type=ModuleLogger)
@@ -45,7 +45,7 @@ def module_scope(request):
 
 @pytest.fixture(autouse=True, scope='package')
 def package_scope(request):
-    global __clean_up_policy_was_set_in_package_scope  # pylint: disable=invalid-name, global-statement
+    global __cleanup_policy_was_set_in_package_scope  # pylint: disable=invalid-name, global-statement
 
     if not __is_run_in_package(request):
         # Fixtures with package scope are run also for tests which are not in any
@@ -54,8 +54,8 @@ def package_scope(request):
     else:
         with current_scope.create_new_scope(f'package: {__get_package_name(request)}'):
             ScopedCurrentDirectory(__get_directory_for_package(request))
-            ScopedCleanUpPolicy(__DEFAULT_CLEAN_UP_POLICY)
-            __clean_up_policy_was_set_in_package_scope = True
+            ScopedCleanupPolicy(__DEFAULT_CLEANUP_POLICY)
+            __cleanup_policy_was_set_in_package_scope = True
 
             current_logger = current_scope.context.get_logger()
             package_logger = current_logger.create_child_logger(__get_logger_name(request), child_type=PackageLogger)

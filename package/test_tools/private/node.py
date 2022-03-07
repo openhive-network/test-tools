@@ -11,8 +11,8 @@ from typing import Dict, List, Optional, Tuple, Union
 import warnings
 import weakref
 
-from test_tools import clean_up_policy, communication, exceptions, paths_to_executables
-from test_tools.constants import CleanUpPolicy
+from test_tools import cleanup_policy, communication, exceptions, paths_to_executables
+from test_tools.constants import CleanupPolicy
 from test_tools.node_api.node_apis import Apis
 from test_tools.node_configs.default import create_default_config
 from test_tools.private.block_log import BlockLog
@@ -264,7 +264,7 @@ class Node:
         self.__executable = self.__Executable()
         self.__process = self.__Process(self.directory, self.__executable, self.__logger)
         self.__notifications = self.__NotificationsServer(self, self.__logger)
-        self.__clean_up_policy = None
+        self.__cleanup_policy = None
 
         self.config = create_default_config()
 
@@ -604,13 +604,13 @@ class Node:
         self.run(wait_for_live=wait_for_live, timeout=timeout)
 
     def __remove_files(self):
-        policy = clean_up_policy.get_default() if self.__clean_up_policy is None else self.__clean_up_policy
+        policy = cleanup_policy.get_default() if self.__cleanup_policy is None else self.__cleanup_policy
 
-        if policy == CleanUpPolicy.DO_NOT_REMOVE_FILES:
+        if policy == CleanupPolicy.DO_NOT_REMOVE_FILES:
             pass
-        elif policy == CleanUpPolicy.REMOVE_ONLY_UNNEEDED_FILES:
+        elif policy == CleanupPolicy.REMOVE_ONLY_UNNEEDED_FILES:
             self.__remove_unneeded_files()
-        elif policy == CleanUpPolicy.REMOVE_EVERYTHING:
+        elif policy == CleanupPolicy.REMOVE_EVERYTHING:
             self.__remove_all_files()
 
     @staticmethod
@@ -653,8 +653,8 @@ class Node:
     def set_executable_file_path(self, executable_file_path):
         self.__executable.set_path(executable_file_path)
 
-    def set_clean_up_policy(self, policy: CleanUpPolicy):
-        self.__clean_up_policy = policy
+    def set_cleanup_policy(self, policy: CleanupPolicy):
+        self.__cleanup_policy = policy
 
     def wait_for_next_fork(self, timeout=math.inf):
         assert timeout >= 0
