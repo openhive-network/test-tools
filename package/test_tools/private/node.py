@@ -269,9 +269,7 @@ class Node:
         self.config = create_default_config()
 
     def __str__(self):
-        # Break import-cycle; At the moment of this method execution, Network will be defined
-        from test_tools.network import Network  # pylint: disable=import-outside-toplevel, cyclic-import
-        return f'{self.__creator}.{self.__name}' if isinstance(self.__creator, Network) else self.__name
+        return self.__name
 
     def __get_config_file_path(self):
         return self.directory / 'config.ini'
