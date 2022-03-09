@@ -252,12 +252,12 @@ class Node(ScopedObject):
 
             self.__logger.debug('Notifications server closed')
 
-    def __init__(self, name):
+    def __init__(self, *, name):
         super().__init__()
 
         self.api = Apis(self)
 
-        self.__name = name
+        self.__name = context.names.register_numbered_name(name)
         self.directory = context.get_current_directory().joinpath(self.__name).absolute()
         self.__produced_files = False
         self.__logger = logger.create_child_logger(self.__name)
