@@ -44,7 +44,6 @@ class NodeConfig:
         self.history_whitelist_ops = Untouched()  # Set correct type
         self.account_history_blacklist_ops = Untouched()  # Set correct type
         self.history_blacklist_ops = Untouched()  # Set correct type
-        self.history_disable_pruning = Untouched()  # Set correct type
         self.account_history_rocksdb_path = String()
         self.account_history_rocksdb_track_account_range = Untouched()  # Set correct type
         self.account_history_rocksdb_whitelist_ops = Untouched()  # Set correct type
