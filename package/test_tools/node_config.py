@@ -44,6 +44,7 @@ class NodeConfig:
         self.history_whitelist_ops = Untouched()  # Set correct type
         self.account_history_blacklist_ops = Untouched()  # Set correct type
         self.history_blacklist_ops = Untouched()  # Set correct type
+        self.history_disable_pruning = Boolean()
         self.account_history_rocksdb_path = String()
         self.account_history_rocksdb_track_account_range = Untouched()  # Set correct type
         self.account_history_rocksdb_whitelist_ops = Untouched()  # Set correct type
@@ -219,7 +220,7 @@ class NodeConfig:
         valid_keys = [key.replace('_', '-') for key in self.__get_entries().keys()]
 
         if key_to_check not in valid_keys:
-            raise KeyError('Wrong config entry name')
+            raise KeyError(f'Wrong config entry name: {key_to_check}')
 
     def __clear_values(self):
         entries = self.__get_entries()
