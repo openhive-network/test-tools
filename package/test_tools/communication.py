@@ -25,7 +25,7 @@ def request(url: str, message: dict, max_attempts=3, seconds_between_attempts=0.
     while attempts_left > 0:
         response = requests.post(url, data=message)
         status_code = response.status_code
-        response = json.loads(response.text)
+        response = json.loads(response.content.decode('utf-8'))
         if status_code == 200:
             if 'result' in response:
                 return response
