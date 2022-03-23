@@ -192,6 +192,7 @@ class Node:
             self.snapshot_dumped_event = Event()
 
             self.switch_fork_event = Event()
+            self.number_of_forks = 0
 
         def listen(self):
             self.node.config.notifications_endpoint = f'127.0.0.1:{self.server.port}'
@@ -226,6 +227,7 @@ class Node:
                 self.p2p_endpoint = Url(endpoint).as_string(with_protocol=False)
                 self.p2p_plugin_started_event.set()
             elif message['name'] == 'switching forks':
+                self.number_of_forks += 1
                 self.switch_fork_event.set()
                 self.switch_fork_event.clear()
             elif message['name'] == 'error':
@@ -658,3 +660,6 @@ class Node:
         deadline = time.time() + timeout
         wait_for_event(self.__notifications.switch_fork_event, deadline=deadline,
                        exception_message='Fork did not happen on time.')
+
+    def get_number_of_forks(self):
+        return self.__notifications.number_of_forks
