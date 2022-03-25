@@ -1,5 +1,6 @@
 from pathlib import Path
 from shutil import rmtree
+from typing import List, Tuple, Union
 
 from test_tools import constants
 from test_tools.private.logger.logger_internal_interface import logger
@@ -21,7 +22,7 @@ class Network(NodesCreator):
     def __str__(self):
         return self.name
 
-    def run(self, wait_for_live=True):
+    def run(self, wait_for_live=True, arguments: Union[List[str], Tuple[str, ...]] = ()):
         if self._directory.exists():
             rmtree(self._directory)
 
@@ -29,7 +30,7 @@ class Network(NodesCreator):
 
         if self.network_to_connect_with is None:
             seed_node = self._nodes[0]
-            seed_node.run(wait_for_live=wait_for_live)
+            seed_node.run(wait_for_live=wait_for_live, arguments=arguments)
             nodes_connecting_to_seed = self._nodes[1:]
         else:
             seed_node = self.network_to_connect_with.nodes()[0]
@@ -40,7 +41,7 @@ class Network(NodesCreator):
 
         for node in nodes_connecting_to_seed:
             node.config.p2p_seed_node.append(endpoint)
-            node.run(wait_for_live=wait_for_live)
+            node.run(wait_for_live=wait_for_live, arguments=arguments)
 
     def handle_final_cleanup(self, *, default_policy: constants.NetworkCleanUpPolicy):
         policy = default_policy if self.__clean_up_policy is None else self.__clean_up_policy
