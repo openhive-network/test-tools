@@ -1,22 +1,22 @@
 import pytest
 
-from test_tools import Account, logger, Wallet
+import test_tools as tt
 
 
-def test_init_node_startup(world):
-    init_node = world.create_init_node()
+def test_init_node_startup():
+    init_node = tt.InitNode()
     init_node.run()
     init_node.wait_for_block_with_number(1)
 
 
-def test_startup_timeout(world):
-    node = world.create_witness_node(witnesses=[])
+def test_startup_timeout():
+    node = tt.WitnessNode(witnesses=[])
     with pytest.raises(TimeoutError):
         node.run(timeout=2)
 
 
-def test_loading_own_snapshot(world):
-    init_node = world.create_init_node()
+def test_loading_own_snapshot():
+    init_node = tt.InitNode()
     init_node.run()
 
     make_transaction_for_test(init_node)
@@ -29,83 +29,83 @@ def test_loading_own_snapshot(world):
     assert_that_transaction_for_test_has_effect(init_node)
 
 
-def test_loading_snapshot_from_other_node(world):
-    init_node = world.create_init_node()
+def test_loading_snapshot_from_other_node():
+    init_node = tt.InitNode()
     init_node.run()
 
     make_transaction_for_test(init_node)
     generate_blocks(init_node, 100)  # To make sure, that block with test operation will be stored in block log
     snapshot = init_node.dump_snapshot()
 
-    loading_node = world.create_api_node()
+    loading_node = tt.ApiNode()
     loading_node.run(load_snapshot_from=snapshot, wait_for_live=False)
     assert_that_transaction_for_test_has_effect(loading_node)
 
 
-def test_loading_snapshot_from_custom_path(world):
-    init_node = world.create_init_node()
+def test_loading_snapshot_from_custom_path():
+    init_node = tt.InitNode()
     init_node.run()
 
     make_transaction_for_test(init_node)
     generate_blocks(init_node, 100)  # To make sure, that block with test operation will be stored in block log
     snapshot = init_node.dump_snapshot()
 
-    loading_node = world.create_api_node()
+    loading_node = tt.ApiNode()
     loading_node.run(load_snapshot_from=snapshot.get_path(), wait_for_live=False)
     assert_that_transaction_for_test_has_effect(loading_node)
 
 
-def test_replay_from_other_node_block_log(world):
-    init_node = world.create_init_node()
+def test_replay_from_other_node_block_log():
+    init_node = tt.InitNode()
     init_node.run()
 
     make_transaction_for_test(init_node)
     generate_blocks(init_node, 100)  # To make sure, that block with test operation will be stored in block log
     init_node.close()
 
-    replaying_node = world.create_api_node()
+    replaying_node = tt.ApiNode()
     replaying_node.run(replay_from=init_node.get_block_log(), wait_for_live=False)
     assert_that_transaction_for_test_has_effect(replaying_node)
 
 
-def test_replay_until_specified_block(world):
-    init_node = world.create_init_node()
+def test_replay_until_specified_block():
+    init_node = tt.InitNode()
     init_node.run()
     generate_blocks(init_node, 100)
     init_node.close()
 
-    replaying_node = world.create_api_node()
+    replaying_node = tt.ApiNode()
     replaying_node.run(replay_from=init_node.get_block_log(), stop_at_block=50, wait_for_live=False)
     assert replaying_node.get_last_block_number() == 50
 
 
-def test_replay_from_external_block_log(world):
-    init_node = world.create_init_node()
+def test_replay_from_external_block_log():
+    init_node = tt.InitNode()
     init_node.run()
     generate_blocks(init_node, 100)
     init_node.close()
 
     external_block_log_path = init_node.get_block_log().get_path()
 
-    replaying_node = world.create_api_node()
+    replaying_node = tt.ApiNode()
     replaying_node.run(replay_from=external_block_log_path, stop_at_block=50, wait_for_live=False)
     assert replaying_node.get_last_block_number() == 50
 
 
-def test_exit_before_synchronization(world):
-    init_node = world.create_init_node()
+def test_exit_before_synchronization():
+    init_node = tt.InitNode()
     init_node.run(exit_before_synchronization=True)
     assert not init_node.is_running()
 
 
-def test_restart(world):
-    init_node = world.create_init_node()
+def test_restart():
+    init_node = tt.InitNode()
     init_node.run()
     init_node.restart()
 
 
 def make_transaction_for_test(node):
-    wallet = Wallet(attach_to=node)
+    wallet = tt.Wallet(attach_to=node)
     wallet.api.create_account('initminer', 'alice', '{}')
 
 
@@ -115,12 +115,12 @@ def assert_that_transaction_for_test_has_effect(node):
 
 
 def generate_blocks(node, number_of_blocks):
-    logger.info(f'Generation of {number_of_blocks} blocks started...')
+    tt.logger.info(f'Generation of {number_of_blocks} blocks started...')
     node.api.debug_node.debug_generate_blocks(
-        debug_key=Account('initminer').private_key,
+        debug_key=tt.Account('initminer').private_key,
         count=number_of_blocks,
         skip=0,
         miss_blocks=0,
         edit_if_needed=True
     )
-    logger.info('Blocks generation finished.')
+    tt.logger.info('Blocks generation finished.')

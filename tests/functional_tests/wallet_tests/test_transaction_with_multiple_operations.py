@@ -1,21 +1,21 @@
 import pytest
 
-from test_tools import Asset, Wallet
+import test_tools as tt
 
 
 @pytest.fixture
-def wallet(world):
-    node = world.create_init_node()
+def wallet():
+    node = tt.InitNode()
     node.run()
 
-    return Wallet(attach_to=node)
+    return tt.Wallet(attach_to=node)
 
 
 def test_sending_transaction_with_multiple_operations(wallet):
     accounts_and_balances = {
-        'first': Asset.Test(100),
-        'second': Asset.Test(200),
-        'third': Asset.Test(300),
+        'first': tt.Asset.Test(100),
+        'second': tt.Asset.Test(200),
+        'third': tt.Asset.Test(300),
     }
 
     with wallet.in_single_transaction():
@@ -53,6 +53,6 @@ def test_setting_broadcast_when_building_transaction(wallet):
 def test_getting_response(wallet):
     with wallet.in_single_transaction() as transaction:
         wallet.api.create_account('initminer', 'alice', '{}')
-        wallet.api.transfer('initminer', 'alice', Asset.Test(100), 'memo')
+        wallet.api.transfer('initminer', 'alice', tt.Asset.Test(100), 'memo')
 
     assert transaction.get_response() is not None

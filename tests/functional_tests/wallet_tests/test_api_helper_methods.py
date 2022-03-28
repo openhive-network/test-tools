@@ -1,11 +1,11 @@
 import pytest
 
-from test_tools import Wallet
+import test_tools as tt
 
 
 @pytest.fixture
-def wallet(world, request):
-    init_node = world.create_init_node()
+def wallet(request):
+    init_node = tt.InitNode()
 
     shared_file_size = request.node.get_closest_marker('node_shared_file_size')
     if shared_file_size:
@@ -13,7 +13,7 @@ def wallet(world, request):
 
     init_node.run()
 
-    return Wallet(attach_to=init_node)
+    return tt.Wallet(attach_to=init_node)
 
 
 def test_keys_import_during_account_creation(wallet):

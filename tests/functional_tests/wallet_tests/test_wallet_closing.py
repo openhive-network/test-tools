@@ -1,11 +1,11 @@
-from test_tools.wallet import Wallet
+import test_tools as tt
 
 
-def test_closing(world):
-    init_node = world.create_init_node()
+def test_closing():
+    init_node = tt.InitNode()
     init_node.run()
 
-    wallet = Wallet(attach_to=init_node)
+    wallet = tt.Wallet(attach_to=init_node)
     wallet.close()
 
     assert not wallet.is_running()

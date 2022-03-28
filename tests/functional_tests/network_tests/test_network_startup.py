@@ -1,21 +1,24 @@
-def test_network_startup(world):
-    network = world.create_network()
-    network.create_init_node()
-    network.create_witness_node(witnesses=[])
-    network.create_api_node()
+import test_tools as tt
+
+
+def test_network_startup():
+    network = tt.Network()
+    tt.InitNode(network=network)
+    tt.WitnessNode(witnesses=[], network=network)
+    tt.ApiNode(network=network)
 
     network.run()
 
 
-def test_two_connected_networks_startup(world):
-    first = world.create_network()
-    first.create_init_node()
+def test_two_connected_networks_startup():
+    first = tt.Network()
+    tt.InitNode(network=first)
     for _ in range(3):
-        first.create_api_node()
+        tt.ApiNode(network=first)
 
-    second = world.create_network()
+    second = tt.Network()
     for _ in range(3):
-        second.create_api_node()
+        tt.ApiNode(network=second)
 
     first.connect_with(second)
 
