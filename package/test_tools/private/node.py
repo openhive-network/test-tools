@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import math
 import os
@@ -7,7 +9,7 @@ import signal
 import subprocess
 from threading import Event
 import time
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, TYPE_CHECKING, Union
 import warnings
 
 from test_tools import cleanup_policy, communication, exceptions, paths_to_executables
@@ -24,6 +26,9 @@ from test_tools.private.snapshot import Snapshot
 from test_tools.private.url import Url
 from test_tools.private.user_handles.implementation import Implementation as UserHandleImplementation
 from test_tools.private.wait_for import wait_for, wait_for_event
+
+if TYPE_CHECKING:
+    from test_tools.network import Network
 
 
 class Node(UserHandleImplementation, ScopedObject):
@@ -253,7 +258,7 @@ class Node(UserHandleImplementation, ScopedObject):
 
             self.__logger.debug('Notifications server closed')
 
-    def __init__(self, *, name, handle=None):
+    def __init__(self, *, name, network: Optional[Network] = None, handle=None):
         super().__init__(handle=handle)
 
         self.api = Apis(self)
@@ -262,6 +267,10 @@ class Node(UserHandleImplementation, ScopedObject):
         self.directory = context.get_current_directory().joinpath(self.__name).absolute()
         self.__produced_files = False
         self.__logger = logger.create_child_logger(self.__name)
+
+        self.__network: Optional[Network] = network
+        if self.__network is not None:
+            self.__network.add(self)
 
         self.__executable = self.__Executable()
         self.__process = self.__Process(self.directory, self.__executable, self.__logger)

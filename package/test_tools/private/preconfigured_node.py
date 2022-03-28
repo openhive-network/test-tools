@@ -5,14 +5,15 @@ from typing import Optional, TYPE_CHECKING
 from test_tools.private.raw_node import RawNode
 
 if TYPE_CHECKING:
+    from test_tools.network import Network
     from test_tools.private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
 
 
 class PreconfiguredNode(RawNode):
     """Only for internal use, user must never see it."""
 
-    def __init__(self, name: str, handle: Optional[NodeHandle] = None):
-        super().__init__(name=name, handle=handle)
+    def __init__(self, name: str, network: Optional[Network] = None, handle: Optional[NodeHandle] = None):
+        super().__init__(name=name, network=network, handle=handle)
 
         self.__enable_all_api_plugins()
         self.config.log_logger = '{"name":"default","level":"info","appender":"stderr"} ' \

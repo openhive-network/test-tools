@@ -22,6 +22,9 @@ class Network:
     def __str__(self):
         return self.name
 
+    def add(self, node: Node) -> None:
+        self.nodes.append(node)
+
     def node(self, name: str) -> Node:
         for node in self.nodes:
             if node.get_name() == name:

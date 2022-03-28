@@ -7,13 +7,14 @@ from test_tools.account import Account
 from test_tools.private.preconfigured_node import PreconfiguredNode
 
 if TYPE_CHECKING:
+    from test_tools.network import Network
     from test_tools.private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
 
 
 class WitnessNode(PreconfiguredNode):
     def __init__(self, *, name: str = 'WitnessNode', witnesses: Optional[List[str]] = None,
-                 handle: Optional[NodeHandle] = None):
-        super().__init__(name=name, handle=handle)
+                 network: Optional[Network] = None, handle: Optional[NodeHandle] = None):
+        super().__init__(name=name, network=network, handle=handle)
 
         assert 'witness' in self.config.plugin
 
