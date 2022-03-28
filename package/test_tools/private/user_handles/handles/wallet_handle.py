@@ -3,20 +3,20 @@ from __future__ import annotations
 from typing import Iterable, List, TYPE_CHECKING, Union
 
 from test_tools.private.user_handles.get_implementation import get_implementation
+from test_tools.private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase
 from test_tools.wallet import Wallet
 
 if TYPE_CHECKING:
     from pathlib import Path
 
     from test_tools import Account, RemoteNode
-    from test_tools.private.node import Node
 
 
 class WalletHandle:
     DEFAULT_PASSWORD = Wallet.DEFAULT_PASSWORD
 
     def __init__(self,
-                 attach_to: Union[None, 'Node', 'RemoteNode'] = None,
+                 attach_to: Union[None, NodeHandleBase, 'RemoteNode'] = None,
                  additional_arguments: Iterable[str] = (),
                  preconfigure: bool = True):
         """
@@ -31,7 +31,7 @@ class WalletHandle:
 
         # Break import-cycle
         from test_tools import RemoteNode  # pylint: disable=import-outside-toplevel
-        if isinstance(attach_to, RemoteNode):
+        if isinstance(attach_to, (NodeHandleBase, RemoteNode)):
             attach_to = get_implementation(attach_to)
 
         self.__implementation = Wallet(

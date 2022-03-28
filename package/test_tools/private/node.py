@@ -29,13 +29,14 @@ from test_tools.private.wait_for import wait_for, wait_for_event
 
 if TYPE_CHECKING:
     from test_tools.network import Network
+    from test_tools.private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
 
 
 class Node(UserHandleImplementation, ScopedObject):
     # pylint: disable=too-many-instance-attributes, too-many-public-methods
     # This pylint warning is right, but this refactor has low priority. Will be done later...
 
-    __DEFAULT_WAIT_FOR_LIVE_TIMEOUT = int(os.environ.get('TEST_TOOLS_NODE_DEFAULT_WAIT_FOR_LIVE_TIMEOUT', default=20))
+    DEFAULT_WAIT_FOR_LIVE_TIMEOUT = int(os.environ.get('TEST_TOOLS_NODE_DEFAULT_WAIT_FOR_LIVE_TIMEOUT', default=20))
 
     class __Executable:
         def __init__(self):
@@ -258,7 +259,7 @@ class Node(UserHandleImplementation, ScopedObject):
 
             self.__logger.debug('Notifications server closed')
 
-    def __init__(self, *, name, network: Optional[Network] = None, handle=None):
+    def __init__(self, *, name, network: Optional[Network] = None, handle: Optional[NodeHandle] = None):
         super().__init__(handle=handle)
 
         self.api = Apis(self)
@@ -435,7 +436,7 @@ class Node(UserHandleImplementation, ScopedObject):
             wait_for_live=None,
             arguments: Union[List[str], Tuple[str, ...]] = (),
             environment_variables: Optional[Dict] = None,
-            timeout=__DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
+            timeout=DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
             time_offset=None,
     ):
         """
@@ -611,7 +612,7 @@ class Node(UserHandleImplementation, ScopedObject):
         self.__process.close_opened_files()
         self.__remove_files()
 
-    def restart(self, wait_for_live=True, timeout=__DEFAULT_WAIT_FOR_LIVE_TIMEOUT):
+    def restart(self, wait_for_live=True, timeout=DEFAULT_WAIT_FOR_LIVE_TIMEOUT):
         self.close()
         self.run(wait_for_live=wait_for_live, timeout=timeout)
 
