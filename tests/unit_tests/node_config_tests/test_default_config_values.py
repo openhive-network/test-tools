@@ -10,6 +10,7 @@ from test_tools.node_configs.default import create_default_config
 def generated_config(world):
     node = world.create_raw_node()
     node.set_clean_up_policy(constants.NodeCleanUpPolicy.REMOVE_EVERYTHING)
+    node.config = create_default_config() # prevent the test from generating a config.ini
     node.dump_config()
 
     return node.config

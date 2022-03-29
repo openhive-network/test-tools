@@ -8,7 +8,7 @@ def create_default_config():
              '{"appender":"p2p","file":"logs/p2p/p2p.log","time_format":"iso_8601_milliseconds", "delta_times": false}'
     config.log_logger = '{"name":"default","level":"info","appender":"stderr"} '\
                         '{"name":"user","level":"debug","appender":"stderr"} '\
-                        '{"name":"p2p","level":"debug","appender":"p2p"}'
+                        '{"name":"p2p","level":"warn","appender":"p2p"}'
     config.backtrace = 'yes'
     config.plugin = ['witness', 'account_by_key', 'account_by_key_api', 'wallet_bridge_api']
     config.account_history_rocksdb_path = 'blockchain/account-history-rocksdb-storage'
@@ -39,4 +39,11 @@ def create_default_config():
     config.required_participation = 33
     config.witness_skip_enforce_bandwidth = '1'
 
+    return config
+def create_testing_config():
+    config = create_default_config()
+    config.log_logger = '{"name":"default","level":"info","appender":"stderr"} '\
+                        '{"name":"user","level":"debug","appender":"stderr"} '\
+                        '{"name":"chainlock","level":"debug","appender":"p2p"} '\
+                        '{"name":"p2p","level":"debug","appender":"p2p"}'
     return config

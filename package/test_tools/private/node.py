@@ -13,7 +13,7 @@ import weakref
 
 from test_tools import communication, constants, exceptions, paths_to_executables
 from test_tools.node_api.node_apis import Apis
-from test_tools.node_configs.default import create_default_config
+from test_tools.node_configs.default import create_default_config, create_testing_config
 from test_tools.private.block_log import BlockLog
 from test_tools.private.raise_exception_helper import RaiseExceptionHelper
 from test_tools.private.logger.logger_internal_interface import logger
@@ -257,7 +257,7 @@ class Node:
         self.__notifications = self.__NotificationsServer(self, self.__logger)
         self.__clean_up_policy = None
 
-        self.config = create_default_config()
+        self.config = create_testing_config()
 
     def __str__(self):
         # Break import-cycle; At the moment of this method execution, Network will be defined
