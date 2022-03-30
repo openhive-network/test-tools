@@ -3,10 +3,8 @@ from test_tools.private.user_handles.handles.remote_node_handle import RemoteNod
 
 
 def get_implementation(handle):
-    # pylint: disable=protected-access
-
     if isinstance(handle, RemoteNodeHandle):
-        return handle._RemoteNodeHandle__implementation
+        return handle._RemoteNodeHandle__implementation  # pylint: disable=protected-access
 
     raise RuntimeError(f'Unable to get implementation for {handle}')
 
