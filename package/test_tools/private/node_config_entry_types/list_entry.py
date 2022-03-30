@@ -4,7 +4,7 @@ from test_tools.exceptions import NotSupported, ParseError
 from test_tools.private.node_config_entry_types.config_entry import ConfigEntry
 
 
-class List(ConfigEntry):
+class List(ConfigEntry, list):  # Shouldn't inherit from `list`, this is workaround described at the bottom of file.
     class __ListWithoutAdditionOperator(list):
         def __iadd__(self, other):
             """Operator += is removed, because there is no -= operator.
@@ -78,3 +78,12 @@ class List(ConfigEntry):
             value = [value]
 
         self._value = self.__ListWithoutAdditionOperator(value)
+
+
+# `List` inherits from built-in Python `list` to workaround problem reported by pylint. NodeConfig have overloaded
+# `__getattr__` method to access config entries, like list entry. User writes e.g. `config.some_list.append('value')`,
+# `config.some_list` returns internal value of List. Note that not `List` is returned, but built-in Python `list` which
+# is internal value of `List`. Everything works fine, but it looks like pylint is ignoring `__getattr__` logic and
+# mistakenly thinks, that List is returned. Reports error, that e.g. `List` has no `append` method. I don't know how to
+# tell him, that not `List` is returned, but list -- this would be solution, not workaround -- so, I added `list's`
+# interface to `List` and now there is `append` method, so pylint is silent, but `List` is broken.
