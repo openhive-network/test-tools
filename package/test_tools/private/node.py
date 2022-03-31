@@ -22,10 +22,11 @@ from test_tools.private.node_message import NodeMessage
 from test_tools.private.scope import context, ScopedObject
 from test_tools.private.snapshot import Snapshot
 from test_tools.private.url import Url
+from test_tools.private.user_handles.implementation import Implementation as UserHandleImplementation
 from test_tools.private.wait_for import wait_for, wait_for_event
 
 
-class Node(ScopedObject):
+class Node(UserHandleImplementation, ScopedObject):
     # pylint: disable=too-many-instance-attributes, too-many-public-methods
     # This pylint warning is right, but this refactor has low priority. Will be done later...
 
@@ -252,8 +253,8 @@ class Node(ScopedObject):
 
             self.__logger.debug('Notifications server closed')
 
-    def __init__(self, *, name):
-        super().__init__()
+    def __init__(self, *, name, handle=None):
+        super().__init__(handle=handle)
 
         self.api = Apis(self)
 

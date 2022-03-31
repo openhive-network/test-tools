@@ -1,11 +1,18 @@
+from __future__ import annotations
+
+from typing import Optional, TYPE_CHECKING
+
 from test_tools.private.witness_node import WitnessNode
+
+if TYPE_CHECKING:
+    from test_tools.private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
 
 
 class InitNode(WitnessNode):
     """Node which is ready to produce blocks"""
 
-    def __init__(self, *, name: str = 'InitNode'):
-        super().__init__(name=name, witnesses=['initminer'])
+    def __init__(self, *, name: str = 'InitNode', handle: Optional[NodeHandle] = None):
+        super().__init__(name=name, witnesses=['initminer'], handle=handle)
 
         self.config.enable_stale_production = True
         self.config.required_participation = 0

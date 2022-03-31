@@ -1,13 +1,19 @@
-from typing import List, Optional
+from __future__ import annotations
+
+from typing import List, Optional, TYPE_CHECKING
 import warnings
 
 from test_tools.account import Account
 from test_tools.private.preconfigured_node import PreconfiguredNode
 
+if TYPE_CHECKING:
+    from test_tools.private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
+
 
 class WitnessNode(PreconfiguredNode):
-    def __init__(self, *, name: str = 'WitnessNode', witnesses: Optional[List[str]] = None):
-        super().__init__(name=name)
+    def __init__(self, *, name: str = 'WitnessNode', witnesses: Optional[List[str]] = None,
+                 handle: Optional[NodeHandle] = None):
+        super().__init__(name=name, handle=handle)
 
         assert 'witness' in self.config.plugin
 
