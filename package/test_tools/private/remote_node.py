@@ -1,14 +1,23 @@
-from typing import Optional
+from __future__ import annotations
+
+from typing import Optional, TYPE_CHECKING
 
 from test_tools import communication
 from test_tools.node_api.node_apis import Apis
 from test_tools.private.node_message import NodeMessage
 from test_tools.private.scope import context
 from test_tools.private.url import Url
+from test_tools.private.user_handles.implementation import Implementation as UserHandleImplementation
+
+if TYPE_CHECKING:
+    from test_tools.private.user_handles.handles.node_handles.remote_node_handle import RemoteNodeHandle
 
 
-class RemoteNode:
-    def __init__(self, http_endpoint: str, *, ws_endpoint: Optional[str] = None):
+class RemoteNode(UserHandleImplementation):
+    def __init__(self, http_endpoint: str, *, ws_endpoint: Optional[str] = None,
+                 handle: Optional[RemoteNodeHandle] = None):
+        super().__init__(handle=handle)
+
         self.api = Apis(self)
         self.name = context.names.register_numbered_name('RemoteNode')
         self.__http_endpoint: Url = Url(http_endpoint, protocol='http')

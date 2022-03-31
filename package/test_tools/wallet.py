@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import concurrent.futures
 import copy
 import math
@@ -5,7 +7,7 @@ import re
 import shutil
 import signal
 import subprocess
-from typing import Final, Iterable, List, Union
+from typing import Final, Iterable, List, Optional, TYPE_CHECKING, Union
 import warnings
 
 from test_tools import communication, paths_to_executables
@@ -15,10 +17,14 @@ from test_tools.private.logger.logger_internal_interface import logger
 from test_tools.private.node import Node
 from test_tools.private.remote_node import RemoteNode
 from test_tools.private.scope import context, ScopedObject
+from test_tools.private.user_handles.implementation import Implementation as UserHandleImplementation
 from test_tools.private.wait_for import wait_for
 
+if TYPE_CHECKING:
+    from test_tools.private.user_handles.handles.wallet_handle import WalletHandle
 
-class Wallet(ScopedObject):
+
+class Wallet(UserHandleImplementation, ScopedObject):
     # pylint: disable=too-many-instance-attributes
     # This pylint warning is right, but this refactor has low priority. Will be done later...
 
@@ -529,8 +535,9 @@ class Wallet(ScopedObject):
                  *,
                  attach_to: Union[None, 'Node', 'RemoteNode'],
                  additional_arguments: Iterable = (),
-                 preconfigure: bool = True):
-        super().__init__()
+                 preconfigure: bool = True,
+                 handle: Optional[WalletHandle] = None):
+        super().__init__(handle=handle)
 
         self.api = Wallet.__Api(self)
         self.http_server_port = None

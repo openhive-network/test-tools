@@ -1,17 +1,19 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from test_tools.private.logger.logger_internal_interface import logger
 from test_tools.private.scope import context
+from test_tools.private.user_handles.implementation import Implementation as UserHandleImplementation
 
 if TYPE_CHECKING:
     from test_tools.private.node import Node
+    from test_tools.private.user_handles.handles.network_handle import NetworkHandle
 
 
-class Network:
-    def __init__(self, name: str = 'Network'):
-        super().__init__()
+class Network(UserHandleImplementation):
+    def __init__(self, name: str = 'Network', handle: Optional[NetworkHandle] = None):
+        super().__init__(handle=handle)
 
         self.name = context.names.register_numbered_name(name)
         self.nodes = []
