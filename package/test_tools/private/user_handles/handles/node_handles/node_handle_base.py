@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import math
+import typing
 from typing import TYPE_CHECKING
 
 from test_tools.private.node import Node
+from test_tools.private.user_handles.get_implementation import get_implementation
+from test_tools.private.user_handles.handle import Handle
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -15,11 +18,12 @@ if TYPE_CHECKING:
     from test_tools.private.snapshot import Snapshot
 
 
-class NodeHandleBase:
+class NodeHandleBase(Handle):
     __DEFAULT_WAIT_FOR_LIVE_TIMEOUT = Node.DEFAULT_WAIT_FOR_LIVE_TIMEOUT
 
-    def __init__(self, *, implementation: Node):
-        self.__implementation: Node = implementation
+    @property
+    def __implementation(self) -> Node:
+        return typing.cast(Node, get_implementation(self))
 
     @property
     def api(self) -> Apis:

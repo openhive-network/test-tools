@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import typing
 from typing import Iterable, List, TYPE_CHECKING, Union
 
 from test_tools.private.user_handles.get_implementation import get_implementation
+from test_tools.private.user_handles.handle import Handle
 from test_tools.private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase
 from test_tools.wallet import Wallet
 
@@ -12,7 +14,7 @@ if TYPE_CHECKING:
     from test_tools import Account, RemoteNode
 
 
-class WalletHandle:
+class WalletHandle(Handle):
     DEFAULT_PASSWORD = Wallet.DEFAULT_PASSWORD
 
     def __init__(self,
@@ -34,13 +36,19 @@ class WalletHandle:
         if isinstance(attach_to, (NodeHandleBase, RemoteNode)):
             attach_to = get_implementation(attach_to)
 
-        self.__implementation = Wallet(
-            attach_to=attach_to,
-            additional_arguments=additional_arguments,
-            preconfigure=preconfigure
+        super().__init__(
+            implementation=Wallet(
+                attach_to=attach_to,
+                additional_arguments=additional_arguments,
+                preconfigure=preconfigure,
+            )
         )
 
         self.api = self.__implementation.api
+
+    @property
+    def __implementation(self) -> Wallet:
+        return typing.cast(Wallet, get_implementation(self))
 
     def in_single_transaction(self, *, broadcast=None):
         """
