@@ -23,8 +23,7 @@ def get_prepared_time_offset() -> str:
     timestamp = timestamp.strip()
     current_time = datetime.now(timezone.utc)
     new_time = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S').replace(tzinfo=timezone.utc)
-    startup_time = 10  # node needs some time to startup
 
-    difference = round(new_time.timestamp() - current_time.timestamp()) - startup_time
+    difference = round(new_time.timestamp() - current_time.timestamp())
     time_offset = str(difference) + 's'
     return time_offset

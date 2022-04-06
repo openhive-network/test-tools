@@ -128,5 +128,17 @@ class World(NodesCreator):
             network.is_running = True
 
         if wait_for_live:
+            if time_offset:
+                init_node = self.create_witness_node(name='FaketimeInitNode', witnesses=[])
+                init_node.config.p2p_seed_node.append(endpoint) # pylint: disable=no-member
+                init_node.config.enable_stale_production = True
+                for node in nodes_to_run:
+                    for witness in node.config.witness:
+                        self._register_witness(init_node, witness)
+                init_node.run(wait_for_live=True, replay_from=block_log, time_offset=time_offset)
+
             for node in nodes_to_run:
                 node.wait_for_live()
+
+            if time_offset:
+                init_node.close()

@@ -44,7 +44,7 @@ class NodesCreator:
             witnesses = []
 
         for witness in witnesses:
-            self.__register_witness(node, witness)
+            self._register_witness(node, witness)
 
         return node
 
@@ -80,7 +80,7 @@ class NodesCreator:
         )
 
     @staticmethod
-    def __register_witness(node, witness_name):
+    def _register_witness(node, witness_name):
         witness = Account(witness_name)
         node.config.witness.append(witness.name)
         node.config.private_key.append(witness.private_key)
