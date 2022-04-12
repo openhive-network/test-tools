@@ -4,7 +4,7 @@ from test_tools.node_api.api_base import ApiBase, NodeApiCallProxy
 class WalletBridgeApiCallProxy(NodeApiCallProxy):
     @staticmethod
     def _prepare_params(*args, **kwargs):
-        return list(args) if len(args) < 2 else [list(args)]
+        return [list(args)]
 
 
 class WalletBridgeApi(ApiBase):
