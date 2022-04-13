@@ -125,10 +125,13 @@ class Node:
             libfaketime_path = os.getenv('LIBFAKETIME_PATH') or '/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1'
             if not Path(libfaketime_path).is_file():
                 raise RuntimeError(f'libfaketime was not found at {libfaketime_path}')
-            env['LD_PRELOAD'] = libfaketime_path
-            env['FAKETIME'] = time_offset
-            env['FAKETIME_DONT_RESET'] = '1'
-            env['TZ'] = 'UTC'
+
+            env.update({
+                'LD_PRELOAD': libfaketime_path,
+                'FAKETIME': time_offset,
+                'FAKETIME_DONT_RESET': '1',
+                'TZ': 'UTC',
+            })
 
         def __prepare_files_for_streams(self):
             for name, file in self.__files.items():
