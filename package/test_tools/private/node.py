@@ -85,7 +85,7 @@ class Node:
                 'stderr': None,
             }
 
-        def run(self, *, blocking, with_arguments=(), with_environment_variables=None, with_time_offset=None):
+        def run(self, *, blocking, with_arguments=(), with_environment_variables=None):
             self.__directory.mkdir(exist_ok=True)
             self.__prepare_files_for_streams()
 
@@ -96,9 +96,6 @@ class Node:
 
             if with_environment_variables is not None:
                 environment_variables.update(with_environment_variables)
-
-            if with_time_offset is not None:
-                self.__configure_fake_time(environment_variables, with_time_offset)
 
             if blocking:
                 subprocess.run(
@@ -120,18 +117,6 @@ class Node:
 
         def get_id(self):
             return self.__process.pid
-
-        def __configure_fake_time(self, additional_environment_variables, time_offset):
-            libfaketime_path = os.getenv('LIBFAKETIME_PATH', default='/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1')
-            if not Path(libfaketime_path).is_file():
-                raise RuntimeError(f'libfaketime was not found at {libfaketime_path}')
-
-            additional_environment_variables.update({
-                'LD_PRELOAD': libfaketime_path,
-                'FAKETIME': time_offset,
-                'FAKETIME_DONT_RESET': '1',
-                'TZ': 'UTC',
-            })
 
         def __prepare_files_for_streams(self):
             for name, file in self.__files.items():
@@ -401,7 +386,6 @@ class Node:
                       write_config_before_run=True,
                       with_arguments=(),
                       with_environment_variables=None,
-                      with_time_offset=None,
     ):
         self.__notifications.listen()
 
@@ -411,7 +395,6 @@ class Node:
         self.__process.run(
             blocking=blocking,
             with_arguments=with_arguments,
-            with_time_offset=with_time_offset,
             with_environment_variables=with_environment_variables
         )
 
@@ -467,6 +450,7 @@ class Node:
             log_message += f' with time offset {time_offset}'
 
         additional_arguments = [*arguments]
+        additional_environment_variables = environment_variables.copy() if environment_variables else {}
         if load_snapshot_from is not None:
             self.__handle_loading_snapshot(load_snapshot_from, additional_arguments)
             log_message += ', loading snapshot'
@@ -474,6 +458,9 @@ class Node:
         if replay_from is not None:
             self.__handle_replay(replay_from, stop_at_block, additional_arguments)
             log_message += ', replaying'
+
+        if time_offset is not None:
+            self.__handle_fake_time_configuration(time_offset, additional_environment_variables)
 
         if exit_before_synchronization or '--exit-after-replay' in additional_arguments:
             if wait_for_live is not None:
@@ -495,8 +482,7 @@ class Node:
         self.__run_process(
             blocking=exit_before_synchronization,
             with_arguments=additional_arguments,
-            with_time_offset=time_offset,
-            with_environment_variables=environment_variables,
+            with_environment_variables=additional_environment_variables,
         )
 
         if replay_from is not None and not exit_before_synchronization:
@@ -544,6 +530,19 @@ class Node:
         blocklog_directory = self.directory.joinpath('blockchain')
         blocklog_directory.mkdir()
         replay_source.copy_to(blocklog_directory)
+
+    @staticmethod
+    def __handle_fake_time_configuration(time_offset, additional_environment_variables):
+        libfaketime_path = os.getenv('LIBFAKETIME_PATH', default='/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1')
+        if not Path(libfaketime_path).is_file():
+            raise RuntimeError(f'libfaketime was not found at {libfaketime_path}')
+
+        additional_environment_variables.update({
+            'LD_PRELOAD': libfaketime_path,
+            'FAKETIME': time_offset,
+            'FAKETIME_DONT_RESET': '1',
+            'TZ': 'UTC',
+        })
 
     def __log_run_summary(self):
         if self.is_running():
