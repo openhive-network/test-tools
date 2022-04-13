@@ -121,12 +121,12 @@ class Node:
         def get_id(self):
             return self.__process.pid
 
-        def __configure_fake_time(self, env, time_offset):
+        def __configure_fake_time(self, additional_environment_variables, time_offset):
             libfaketime_path = os.getenv('LIBFAKETIME_PATH', default='/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1')
             if not Path(libfaketime_path).is_file():
                 raise RuntimeError(f'libfaketime was not found at {libfaketime_path}')
 
-            env.update({
+            additional_environment_variables.update({
                 'LD_PRELOAD': libfaketime_path,
                 'FAKETIME': time_offset,
                 'FAKETIME_DONT_RESET': '1',
