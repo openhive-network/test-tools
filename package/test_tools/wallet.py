@@ -726,6 +726,7 @@ class Wallet(ScopedObject):
     def create_accounts(self, number_of_accounts: int, name_base: str = 'account',
                         *, secret: str = 'secret', import_keys: bool = True) -> List[Account]:
         def send_transaction(accounts_):
+            # Prepare transaction
             transaction = copy.deepcopy(transaction_pattern)
 
             for account in accounts_:
@@ -738,7 +739,17 @@ class Wallet(ScopedObject):
 
                 transaction['operations'].append(operation)
 
-            return self.api.sign_transaction(transaction)
+            # Send transaction
+            while True:
+                response = self.api.sign_transaction(transaction)
+
+                # Ensure that accounts exists
+                if accounts_[0].name in self.api.list_accounts(accounts_[0].name, 1):
+                    self.logger.debug(f'Accounts created: {accounts_[0].name}..{accounts_[-1].name}')
+                    return response
+
+                self.logger.debug(f'Node ignored create accounts request of accounts '
+                                  f'{accounts_[0].name}..{accounts_[-1].name}, requesting again...')
 
         accounts = Account.create_multiple(number_of_accounts, name_base, secret=secret)
 
