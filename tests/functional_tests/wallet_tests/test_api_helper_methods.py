@@ -26,8 +26,8 @@ def test_keys_import_during_account_creation(wallet):
 @pytest.mark.node_shared_file_size('16G')
 def test_creation_of_huge_number_of_accounts(wallet):
     accounts_before = set(wallet.list_accounts())
-    created_accounts = wallet.create_accounts(100_000, import_keys=False)
+    created_accounts = wallet.create_accounts(200_000, import_keys=False)
     accounts_after = set(wallet.list_accounts())
 
-    assert len(created_accounts) == 100_000
-    assert len(accounts_after.difference(accounts_before)) == 100_000
+    assert len(created_accounts) == 200_000
+    assert len(accounts_after.difference(accounts_before)) == 200_000
