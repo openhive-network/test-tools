@@ -45,5 +45,6 @@ def create_testing_config():
     config.log_logger = '{"name":"default","level":"info","appender":"stderr"} '\
                         '{"name":"user","level":"debug","appender":"stderr"} '\
                         '{"name":"chainlock","level":"debug","appender":"p2p"} '\
+                        '{"name":"sync","level":"debug","appender":"p2p"} '\
                         '{"name":"p2p","level":"debug","appender":"p2p"}'
     return config
