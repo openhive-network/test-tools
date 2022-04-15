@@ -1,5 +1,6 @@
 import json
 import time
+from typing import Callable
 
 import requests
 
@@ -16,6 +17,28 @@ class CustomJsonEncoder(json.JSONEncoder):
         return super().default(o)
 
 
+def __workaround_communication_problem_with_node(send_request: Callable) -> Callable:
+    """Workaround for "Unable to acquire database lock" problem in node"""
+    def __implementation(*args, **kwargs):
+        while True:
+            try:
+                return send_request(*args, **kwargs)
+            except CommunicationError as exception:
+                if all([
+                    'error' in exception.response,
+                    'message' in exception.response['error'],
+                    'Unable to acquire database lock' in exception.response['error']['message']
+                ]):
+                    message = str(args[1])
+                    logger.debug(f'Ignored "Unable to acquire database lock" error during sending request: {message}')
+                    continue
+
+                raise
+
+    return __implementation
+
+
+@__workaround_communication_problem_with_node
 def request(url: str, message: dict, max_attempts=3, seconds_between_attempts=0.2):
     assert max_attempts > 0
 
