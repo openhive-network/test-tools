@@ -56,6 +56,11 @@ class NodesCreator:
     def __create_node_preconfigured_for_tests(self, name, *, default_name) -> Node:
         node = self.create_raw_node(name, default_name=default_name)
         self.__enable_all_api_plugins(node)
+        node.config.log_logger = '{"name":"default","level":"info","appender":"stderr"} ' \
+                                 '{"name":"user","level":"debug","appender":"stderr"} ' \
+                                 '{"name":"chainlock","level":"debug","appender":"p2p"} ' \
+                                 '{"name":"sync","level":"debug","appender":"p2p"} ' \
+                                 '{"name":"p2p","level":"debug","appender":"p2p"}'
         node.config.shared_file_size = '128M'
         return node
 

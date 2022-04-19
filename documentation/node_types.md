@@ -36,6 +36,7 @@ graph TD;
 Every node extending base test node has:
 - all APIs enabled
 - reduced shared file size to 128 MB
+- increased log level to generate more detailed logs
 
 ### Init node
 
