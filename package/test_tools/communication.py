@@ -44,8 +44,7 @@ def request(url: str, message: dict, max_attempts=3, seconds_between_attempts=0.
 
     message = bytes(json.dumps(message, cls=CustomJsonEncoder), "utf-8") + b"\r\n"
 
-    attempts_left = max_attempts
-    while attempts_left > 0:
+    for attempts_left in reversed(range(max_attempts)):
         response = requests.post(url, data=message)
         status_code = response.status_code
         response = json.loads(response.content.decode('utf-8'))
@@ -63,7 +62,6 @@ def request(url: str, message: dict, max_attempts=3, seconds_between_attempts=0.
 
         if attempts_left > 0:
             time.sleep(seconds_between_attempts)
-        attempts_left -= 1
 
     raise CommunicationError(
         f'Problem occurred during communication with {url}',
