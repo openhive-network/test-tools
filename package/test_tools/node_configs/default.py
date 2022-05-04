@@ -26,7 +26,6 @@ def create_default_config():
     config.market_history_bucket_size = '[15,60,300,3600,86400]'
     config.market_history_buckets_per_size = '5760'
     config.rc_skip_reject_not_enough_rc = '0'
-    config.rc_compute_historical_rc = '0'
     config.rc_start_at_block = '0'
     config.snapshot_root_dir = 'snapshot'
     config.statsd_batchsize = '1'
