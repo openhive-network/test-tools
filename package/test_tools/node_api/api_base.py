@@ -1,3 +1,6 @@
+import os
+
+
 class NodeApiCallProxy:
     def __init__(self, node, method, params=None, jsonrpc='2.0', id_=1):
         self.__node = node
@@ -10,13 +13,23 @@ class NodeApiCallProxy:
 
     def __call__(self, *args, only_result: bool = True, **kwargs):
         self.__message['params'] = self._prepare_params(*args, **kwargs)
-        return self.__node.send(
+        response = self.__node.send(
             self.__message['method'],
             self.__message['params'],
             jsonrpc=self.__message['jsonrpc'],
             id_=self.__message['id'],
             only_result=only_result,
         )
+
+        def schemas_should_be_automatically_validated() -> bool:
+            should_validate = os.getenv('TEST_TOOLS_VALIDATE_RESPONSE_SCHEMAS', default='FALSE')
+            return should_validate.lower() == 'true' or should_validate == '1'
+
+        if schemas_should_be_automatically_validated():
+            from schemas.get_schema import get_schema  # pylint: disable=import-outside-toplevel, import-error
+            get_schema(self.__message['method']).validate(response)
+
+        return response
 
     @staticmethod
     def _prepare_params(*args, **kwargs):
