@@ -76,7 +76,6 @@ class NodeConfig:
         self.p2p_seed_node = List(Untouched)
         self.p2p_parameters = Untouched()  # Set correct type
         self.rc_skip_reject_not_enough_rc = Untouched()  # Set correct type
-        self.rc_compute_historical_rc = Untouched()  # Set correct type
         self.rc_start_at_block = Untouched()  # Set correct type
         self.rc_account_whitelist = Untouched()  # Set correct type
         self.snapshot_root_dir = String()
