@@ -71,6 +71,14 @@ class AssetBase:
         if type(self) is type(other):
             return self.amount == other.amount
 
+        if isinstance(other, dict):
+            if set(self.as_nai().keys()) == set(other.keys()):
+                return self.as_nai() == other
+            else:
+                raise KeyError(f'The keys did not match. '
+                               f'Expected: {set(self.as_nai().keys())}. '
+                               f'Actual: {set(other.keys())}')
+
         raise TypeError(f'Assets can\'t be compared with objects of type {type(other)}')
 
     def __str__(self):
