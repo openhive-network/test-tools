@@ -38,5 +38,7 @@ def create_default_config():
     config.enable_stale_production = False
     config.required_participation = 33
     config.witness_skip_enforce_bandwidth = '1'
+    config.enable_block_log_compression = True
+    config.block_log_compression_level = 15
 
     return config

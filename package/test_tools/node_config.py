@@ -103,6 +103,8 @@ class NodeConfig:
         self.psql_index_threshold = Integer()
         self.psql_operations_threads_number = Integer()
         self.psql_transactions_threads_number = Integer()
+        self.enable_block_log_compression = Boolean()
+        self.block_log_compression_level = Integer()
 
     def __setattr__(self, key, value):
         entries = self.__get_entries()
