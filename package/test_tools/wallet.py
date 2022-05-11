@@ -594,6 +594,7 @@ class Wallet(ScopedObject):
         run_parameters = [
             '--daemon',
             '--rpc-http-allowip=127.0.0.1',
+            '--legacy-format=false',
         ]
 
         if self.is_running():
