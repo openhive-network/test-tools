@@ -1,5 +1,6 @@
 import os
 
+from test_tools import logger
 
 class NodeApiCallProxy:
     def __init__(self, node, method, params=None, jsonrpc='2.0', id_=1):
@@ -26,6 +27,7 @@ class NodeApiCallProxy:
             return should_validate.lower() == 'true' or should_validate == '1'
 
         if schemas_should_be_automatically_validated():
+            logger.info(f"{self.__message['method']} Start auto-validate")
             from schemas.get_schema import get_schema  # pylint: disable=import-outside-toplevel, import-error
             get_schema(self.__message['method']).validate(response)
 
