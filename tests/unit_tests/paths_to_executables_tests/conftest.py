@@ -31,6 +31,12 @@ def __executables():
         Executable('hived', '--hived-path', 'HIVED_PATH', 'programs/hived/hived'),
         Executable('cli_wallet', '--cli-wallet-path', 'CLI_WALLET_PATH', 'programs/cli_wallet/cli_wallet'),
         Executable('get_dev_key', '--get-dev-key-path', 'GET_DEV_KEY_PATH', 'programs/util/get_dev_key'),
+        Executable(
+            'compress_block_log',
+            '--compress-block-log-path',
+            'COMPRESS_BLOCK_LOG_PATH',
+            'programs/util/compress_block_log'
+        ),
     ]
 
 
