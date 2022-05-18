@@ -1,4 +1,7 @@
 import atexit
+import inspect
+from pathlib import Path
+import pkgutil
 from typing import List, Optional, TYPE_CHECKING
 import warnings
 
@@ -48,6 +51,33 @@ class ScopesStack:
 
     @property
     def __current_scope(self) -> Scope:
+        def get_module_path(module_name: str) -> Path:
+            module_path = pkgutil.get_loader(module_name).path
+            return Path(module_path).absolute()
+
+        scope_fixtures_definitions_path = get_module_path('test_tools.private.scope.scope_fixtures_definitions')
+        pytest_fixtures_caller_path = get_module_path('_pytest.fixtures')
+        pytest_test_runner_path = get_module_path('_pytest.python')
+
+        for frame in inspect.stack():
+            if Path(frame.filename).absolute() == scope_fixtures_definitions_path:
+                break  # We are in special TestTools fixtures, which handles scopes creation.
+
+            if Path(frame.filename).absolute() == pytest_fixtures_caller_path:
+                if frame.frame.f_locals['request'].scope == 'package':
+                    for scope in self.__scopes_stack:
+                        if scope.name.startswith('package'):
+                            # We are in fixture, which is NOT handled correctly with default behavior.
+                            # When test requests fixture with package scope and fixture wasn't initialized earlier,
+                            # TestTools' scopes stack thinks that we are in module scope and pass it to requests from
+                            # package scope fixture. Here is workaround for this case.
+                            return scope
+
+                break  # We are in fixture, which is handled correctly with default behavior.
+
+            if Path(frame.filename).absolute() == pytest_test_runner_path:
+                break  # We are in test function.
+
         return self.__scopes_stack[-1] if self.__scopes_stack else None
 
     def create_new_scope(self, name):
