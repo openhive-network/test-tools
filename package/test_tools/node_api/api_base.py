@@ -1,5 +1,5 @@
 import os
-
+from test_tools import logger
 
 class NodeApiCallProxy:
     def __init__(self, node, method, params=None, jsonrpc='2.0', id_=1):
@@ -20,12 +20,15 @@ class NodeApiCallProxy:
             id_=self.__message['id'],
             only_result=only_result,
         )
+        #FIXME Validate switch: ON
+        # os.environ['TEST_TOOLS_VALIDATE_RESPONSE_SCHEMAS'] = '1'
 
         def schemas_should_be_automatically_validated() -> bool:
             should_validate = os.getenv('TEST_TOOLS_VALIDATE_RESPONSE_SCHEMAS', default='FALSE')
             return should_validate.lower() == 'true' or should_validate == '1'
 
         if schemas_should_be_automatically_validated():
+            logger.info(f"{self.__message['method']} Start auto-validate")
             from schemas.get_schema import get_schema  # pylint: disable=import-outside-toplevel, import-error
             get_schema(self.__message['method']).validate(response)
 
