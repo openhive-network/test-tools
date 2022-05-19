@@ -3,7 +3,6 @@ from typing import Optional
 import pytest
 
 import test_tools as tt
-from test_tools import cleanup_policy
 from test_tools.constants import CleanupPolicy
 from test_tools.private.scope import current_scope
 
@@ -60,7 +59,7 @@ def check_if_everyone_files_are_removed(policy: Optional[CleanupPolicy] = None,
         network.run()
 
         if policy is not None:
-            cleanup_policy.set_default(policy)
+            tt.cleanup_policy.set_default(policy)
 
     for node in [init_node, api_node]:
         assert important_files_are_removed(node) == remove_important_files

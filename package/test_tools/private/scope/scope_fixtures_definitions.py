@@ -4,7 +4,7 @@ from typing import Final, Optional
 
 import pytest
 
-from test_tools import cleanup_policy
+import test_tools as tt
 from test_tools.constants import CleanupPolicy
 from test_tools.private.scope import current_scope, ScopedCleanupPolicy, ScopedCurrentDirectory
 from test_tools.private.logger.module_logger import ModuleLogger
@@ -19,7 +19,7 @@ __DEFAULT_CLEANUP_POLICY: Final[CleanupPolicy] = CleanupPolicy.REMOVE_ONLY_UNNEE
 def function_scope(request):
     with current_scope.create_new_scope(f'function: {__get_function_name(request)}'):
         ScopedCurrentDirectory(__get_directory_for_function(request))
-        ScopedCleanupPolicy(cleanup_policy.get_default())
+        ScopedCleanupPolicy(tt.cleanup_policy.get_default())
 
         current_logger = current_scope.context.get_logger()
         function_logger = current_logger.create_child_logger(__get_logger_name(request))

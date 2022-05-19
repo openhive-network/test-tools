@@ -11,10 +11,10 @@ from test_tools.private.user_handles.handle import Handle
 if TYPE_CHECKING:
     from pathlib import Path
     from typing import Dict, List, Optional, Tuple, Union
-    from test_tools.cleanup_policy import CleanupPolicy
     from test_tools.node_api.node_apis import Apis
     from test_tools.node_config import NodeConfig
     from test_tools.private.block_log import BlockLog
+    from test_tools.private.cleanup_policy import CleanupPolicy
     from test_tools.private.snapshot import Snapshot
 
 

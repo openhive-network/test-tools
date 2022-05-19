@@ -1,5 +1,5 @@
-from test_tools import cleanup_policy
 from test_tools.constants import CleanupPolicy
+from test_tools.private import cleanup_policy
 from test_tools.private.scope.scoped_object import ScopedObject
 
 
