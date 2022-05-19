@@ -1,7 +1,7 @@
 import ast
 import subprocess
 
-from test_tools import paths_to_executables
+from test_tools.private import paths_to_executables
 
 
 class KeyGenerator:

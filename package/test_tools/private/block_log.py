@@ -3,7 +3,8 @@ import shutil
 import subprocess
 import warnings
 
-from test_tools import paths_to_executables
+from test_tools.private import paths_to_executables
+
 
 class BlockLog:
     def __init__(self, owner, path, *, include_index=True):

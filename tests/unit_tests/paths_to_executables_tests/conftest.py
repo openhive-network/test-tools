@@ -1,6 +1,6 @@
 import pytest
 
-from test_tools.paths_to_executables import _PathsToExecutables
+from test_tools.private.paths_to_executables import _PathsToExecutables
 
 
 @pytest.fixture

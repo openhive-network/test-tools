@@ -10,7 +10,8 @@ import subprocess
 from typing import Final, Iterable, List, Optional, TYPE_CHECKING, Union
 import warnings
 
-from test_tools import communication, paths_to_executables
+from test_tools import communication
+from test_tools.private import paths_to_executables
 from test_tools.private.account import Account
 from test_tools.private.exceptions import CommunicationError, NodeIsNotRunning
 from test_tools.private.logger.logger_internal_interface import logger
