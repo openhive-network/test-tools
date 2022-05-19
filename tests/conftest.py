@@ -1,6 +1,6 @@
 import logging
 
-from test_tools.private.scope.scope_fixtures import *  # pylint: disable=wildcard-import, unused-wildcard-import
+from test_tools.__private.scope.scope_fixtures import *  # pylint: disable=wildcard-import, unused-wildcard-import
 
 
 def pytest_sessionstart() -> None:

@@ -1,6 +1,6 @@
 import pytest
 
-from test_tools.private.node_config import NodeConfig
+from test_tools.__private.node_config import NodeConfig
 
 
 @pytest.fixture

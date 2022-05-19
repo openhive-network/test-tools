@@ -1,7 +1,7 @@
 import pytest
 
 import test_tools as tt
-from test_tools.private.names import Names
+from test_tools.__private.names import Names
 
 
 @pytest.fixture

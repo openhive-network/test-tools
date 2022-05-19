@@ -1,4 +1,4 @@
-from test_tools.private.scope import current_scope, ScopedObject
+from test_tools.__private.scope import current_scope, ScopedObject
 
 
 class ScopedObjectMock(ScopedObject):

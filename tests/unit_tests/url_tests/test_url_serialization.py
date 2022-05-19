@@ -1,4 +1,4 @@
-from test_tools.private.url import Url
+from test_tools.__private.url import Url
 
 
 def test_serialization():

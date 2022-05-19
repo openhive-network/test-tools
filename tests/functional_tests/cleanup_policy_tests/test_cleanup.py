@@ -3,7 +3,7 @@ from typing import Optional
 import pytest
 
 import test_tools as tt
-from test_tools.private.scope import current_scope
+from test_tools.__private.scope import current_scope
 
 
 def important_files_are_removed(node):
