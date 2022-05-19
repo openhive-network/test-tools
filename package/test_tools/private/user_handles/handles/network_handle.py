@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 from typing import List
 
-from test_tools.network import Network
+from test_tools.private.network import Network
 from test_tools.private.user_handles.get_implementation import get_implementation, get_handle
 from test_tools.private.user_handles.handle import Handle
 from test_tools.private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as Node

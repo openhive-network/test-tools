@@ -28,7 +28,7 @@ from test_tools.private.user_handles.implementation import Implementation as Use
 from test_tools.private.wait_for import wait_for, wait_for_event
 
 if TYPE_CHECKING:
-    from test_tools.network import Network
+    from test_tools.private.network import Network
     from test_tools.private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
 
 

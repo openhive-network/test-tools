@@ -7,7 +7,7 @@ from test_tools.account import Account
 from test_tools.private.preconfigured_node import PreconfiguredNode
 
 if TYPE_CHECKING:
-    from test_tools.network import Network
+    from test_tools.private.network import Network
     from test_tools.private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
 
 

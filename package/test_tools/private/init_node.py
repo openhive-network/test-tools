@@ -5,7 +5,7 @@ from typing import Optional, TYPE_CHECKING
 from test_tools.private.witness_node import WitnessNode
 
 if TYPE_CHECKING:
-    from test_tools.network import Network
+    from test_tools.private.network import Network
     from test_tools.private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
 
 
