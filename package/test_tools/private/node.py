@@ -20,10 +20,10 @@ from test_tools.private import exceptions
 from test_tools.private import paths_to_executables
 from test_tools.private.block_log import BlockLog
 from test_tools.private.constants import CleanupPolicy
-from test_tools.private.raise_exception_helper import RaiseExceptionHelper
 from test_tools.private.logger.logger_internal_interface import logger
 from test_tools.private.node_http_server import NodeHttpServer
 from test_tools.private.node_message import NodeMessage
+from test_tools.private.raise_exception_helper import RaiseExceptionHelper
 from test_tools.private.scope import context, ScopedObject
 from test_tools.private.snapshot import Snapshot
 from test_tools.private.url import Url
