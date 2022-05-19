@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 
-from test_tools import communication
 from test_tools.node_api.node_apis import Apis
+from test_tools.private import communication
 from test_tools.private.node_message import NodeMessage
 from test_tools.private.scope import context
 from test_tools.private.url import Url

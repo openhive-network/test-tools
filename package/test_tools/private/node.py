@@ -12,10 +12,10 @@ import time
 from typing import Dict, List, Optional, Tuple, TYPE_CHECKING, Union
 import warnings
 
-from test_tools import communication
 from test_tools.node_api.node_apis import Apis
 from test_tools.node_configs.default import create_default_config
 from test_tools.private import cleanup_policy
+from test_tools.private import communication
 from test_tools.private import exceptions
 from test_tools.private import paths_to_executables
 from test_tools.private.block_log import BlockLog
