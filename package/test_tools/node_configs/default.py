@@ -1,4 +1,4 @@
-from test_tools.node_config import NodeConfig
+from test_tools.private.node_config import NodeConfig
 
 
 def create_default_config():
