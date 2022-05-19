@@ -158,9 +158,9 @@ if __name__ == '__main__':
     translator.parse_wallet_methods()
     python_api = translator.generate_python_api()
 
-    import test_tools.wallet
+    import test_tools.private.wallet
     replace_file_content_between_tags(
-        file_path=Path(test_tools.wallet.__file__),
+        file_path=Path(test_tools.private.wallet.__file__),
         new_content=python_api,
         begin_tag='# Begin of machine generated code',
         end_tag='# End of machine generated code',

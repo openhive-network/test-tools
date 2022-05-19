@@ -6,7 +6,7 @@ from typing import Iterable, List, TYPE_CHECKING, Union
 from test_tools.private.user_handles.get_implementation import get_implementation
 from test_tools.private.user_handles.handle import Handle
 from test_tools.private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase
-from test_tools.wallet import Wallet
+from test_tools.private.wallet import Wallet
 
 if TYPE_CHECKING:
     from pathlib import Path
