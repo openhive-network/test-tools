@@ -3,7 +3,6 @@ from typing import Optional
 import pytest
 
 import test_tools as tt
-from test_tools.constants import CleanupPolicy
 from test_tools.private.scope import current_scope
 
 
@@ -25,7 +24,7 @@ def unneeded_files_are_removed(node):
     return all(not node.directory.joinpath(path).exists() for path in paths_of_unneeded_files)
 
 
-def check_if_node_files_are_removed(policy: Optional[CleanupPolicy] = None,
+def check_if_node_files_are_removed(policy: Optional[tt.constants.CleanupPolicy] = None,
                                     *,
                                     remove_important_files: bool,
                                     remove_unneeded_files: bool):
@@ -40,7 +39,7 @@ def check_if_node_files_are_removed(policy: Optional[CleanupPolicy] = None,
     assert unneeded_files_are_removed(init_node) == remove_unneeded_files
 
 
-def check_if_everyone_files_are_removed(policy: Optional[CleanupPolicy] = None,
+def check_if_everyone_files_are_removed(policy: Optional[tt.constants.CleanupPolicy] = None,
                                         *,
                                         remove_important_files: bool,
                                         remove_unneeded_files: bool):
@@ -89,7 +88,7 @@ def test_default_policy(check_if_files_are_removed):
 @run_for_all_cases
 def test_do_not_remove_files_cleanup_policy(check_if_files_are_removed):
     check_if_files_are_removed(
-        CleanupPolicy.DO_NOT_REMOVE_FILES,
+        tt.constants.CleanupPolicy.DO_NOT_REMOVE_FILES,
         remove_important_files=False,
         remove_unneeded_files=False
     )
@@ -98,7 +97,7 @@ def test_do_not_remove_files_cleanup_policy(check_if_files_are_removed):
 @run_for_all_cases
 def test_remove_only_unneeded_files_cleanup_policy(check_if_files_are_removed):
     check_if_files_are_removed(
-        CleanupPolicy.REMOVE_ONLY_UNNEEDED_FILES,
+        tt.constants.CleanupPolicy.REMOVE_ONLY_UNNEEDED_FILES,
         remove_important_files=False,
         remove_unneeded_files=True
     )
@@ -107,7 +106,7 @@ def test_remove_only_unneeded_files_cleanup_policy(check_if_files_are_removed):
 @run_for_all_cases
 def test_remove_everything_cleanup_policy(check_if_files_are_removed):
     check_if_files_are_removed(
-        CleanupPolicy.REMOVE_EVERYTHING,
+        tt.constants.CleanupPolicy.REMOVE_EVERYTHING,
         remove_important_files=True,
         remove_unneeded_files=True
     )

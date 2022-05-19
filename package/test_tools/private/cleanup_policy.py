@@ -1,4 +1,4 @@
-from test_tools.constants import CleanupPolicy
+from test_tools.private.constants import CleanupPolicy
 
 
 # This is default value only when pytest is not used (e.g. in manual tests).

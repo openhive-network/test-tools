@@ -5,14 +5,13 @@ from typing import Final, Optional
 import pytest
 
 import test_tools as tt
-from test_tools.constants import CleanupPolicy
 from test_tools.private.scope import current_scope, ScopedCleanupPolicy, ScopedCurrentDirectory
 from test_tools.private.logger.module_logger import ModuleLogger
 from test_tools.private.logger.package_logger import PackageLogger
 
 
 __cleanup_policy_was_set_in_package_scope: bool = False
-__DEFAULT_CLEANUP_POLICY: Final[CleanupPolicy] = CleanupPolicy.REMOVE_ONLY_UNNEEDED_FILES
+__DEFAULT_CLEANUP_POLICY: Final[tt.constants.CleanupPolicy] = tt.constants.CleanupPolicy.REMOVE_ONLY_UNNEEDED_FILES
 
 
 @pytest.fixture(autouse=True, scope='function')

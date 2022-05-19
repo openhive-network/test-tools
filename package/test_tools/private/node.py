@@ -13,11 +13,11 @@ from typing import Dict, List, Optional, Tuple, TYPE_CHECKING, Union
 import warnings
 
 from test_tools import communication, exceptions, paths_to_executables
-from test_tools.constants import CleanupPolicy
 from test_tools.node_api.node_apis import Apis
 from test_tools.node_configs.default import create_default_config
 from test_tools.private import cleanup_policy
 from test_tools.private.block_log import BlockLog
+from test_tools.private.constants import CleanupPolicy
 from test_tools.private.raise_exception_helper import RaiseExceptionHelper
 from test_tools.private.logger.logger_internal_interface import logger
 from test_tools.private.node_http_server import NodeHttpServer

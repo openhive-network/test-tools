@@ -3,14 +3,13 @@
 import pytest
 
 import test_tools as tt
-from test_tools.constants import CleanupPolicy
 from test_tools.node_configs.default import create_default_config
 
 
 @pytest.fixture
 def generated_config():
     node = tt.RawNode()
-    node.set_cleanup_policy(CleanupPolicy.REMOVE_EVERYTHING)
+    node.set_cleanup_policy(tt.constants.CleanupPolicy.REMOVE_EVERYTHING)
     node.dump_config()
 
     return node.config
