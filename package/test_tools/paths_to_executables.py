@@ -3,7 +3,7 @@ from os import getenv, path
 from pathlib import Path
 import shutil
 
-from test_tools.exceptions import MissingPathToExecutable, NotSupported
+from test_tools.private.exceptions import MissingPathToExecutable, NotSupported
 
 
 class _PathsToExecutables:

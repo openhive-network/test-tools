@@ -1,6 +1,6 @@
 from typing import Set
 
-from test_tools.exceptions import NameAlreadyInUse
+from test_tools.private.exceptions import NameAlreadyInUse
 
 
 class Names:

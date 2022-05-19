@@ -1,7 +1,6 @@
 import pytest
 
 import test_tools as tt
-from test_tools.exceptions import CommunicationError
 
 
 @pytest.fixture
@@ -13,11 +12,11 @@ def wallet():
 
 
 def test_if_raise_when_parameters_are_bad(wallet):
-    with pytest.raises(CommunicationError):
+    with pytest.raises(tt.exceptions.CommunicationError):
         wallet.api.create_account('surely', 'bad', 'arguments')
 
 
 def test_if_raise_when_operation_is_invalid(wallet):
-    with pytest.raises(CommunicationError):
+    with pytest.raises(tt.exceptions.CommunicationError):
         # Operation is invalid because account "alice" doesn't exists
         wallet.api.transfer('initminer', 'alice', tt.Asset.Test(1), 'memo')

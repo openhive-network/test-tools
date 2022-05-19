@@ -1,7 +1,6 @@
 import pytest
 
 import test_tools as tt
-from test_tools.exceptions import NodeIsNotRunning
 
 
 def test_attaching_wallet_to_local_node():
@@ -25,7 +24,7 @@ def test_attaching_wallet_to_remote_node():
 def test_attaching_wallet_to_not_run_node():
     node = tt.InitNode()
 
-    with pytest.raises(NodeIsNotRunning):
+    with pytest.raises(tt.exceptions.NodeIsNotRunning):
         tt.Wallet(attach_to=node)
 
 

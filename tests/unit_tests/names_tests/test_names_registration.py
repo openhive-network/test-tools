@@ -1,6 +1,6 @@
 import pytest
 
-from test_tools.exceptions import NameAlreadyInUse
+import test_tools as tt
 from test_tools.private.names import Names
 
 
@@ -16,7 +16,7 @@ def test_unique_name_registration(names):
 
 def test_unique_name_double_registration(names):
     names.register_unique_name('InitNode')
-    with pytest.raises(NameAlreadyInUse):
+    with pytest.raises(tt.exceptions.NameAlreadyInUse):
         names.register_unique_name('InitNode')
 
 

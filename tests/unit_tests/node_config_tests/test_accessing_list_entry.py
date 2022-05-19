@@ -1,13 +1,13 @@
 import pytest
 
-from test_tools.exceptions import NotSupported
+import test_tools as tt
 
 
 def test_addition_operator_is_removed(config):
-    with pytest.raises(NotSupported):
+    with pytest.raises(tt.exceptions.NotSupported):
         config.witness += ['initminer']
 
-    with pytest.raises(NotSupported):
+    with pytest.raises(tt.exceptions.NotSupported):
         config.witness += 'initminer'
 
 
