@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List, Optional, TYPE_CHECKING
 import warnings
 
-from test_tools.account import Account
+from test_tools.private.account import Account
 from test_tools.private.preconfigured_node import PreconfiguredNode
 
 if TYPE_CHECKING:

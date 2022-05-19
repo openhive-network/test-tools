@@ -11,8 +11,8 @@ from typing import Final, Iterable, List, Optional, TYPE_CHECKING, Union
 import warnings
 
 from test_tools import communication, paths_to_executables
-from test_tools.account import Account
 from test_tools.exceptions import CommunicationError, NodeIsNotRunning
+from test_tools.private.account import Account
 from test_tools.private.logger.logger_internal_interface import logger
 from test_tools.private.node import Node
 from test_tools.private.remote_node import RemoteNode
