@@ -7,7 +7,7 @@ from test_tools.__private.user_handles.get_implementation import get_implementat
 from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase
 
 if TYPE_CHECKING:
-    from test_tools import Network
+    from test_tools.__private.user_handles.handles.network_handle import NetworkHandle as Network
 
 
 class InitNodeHandle(NodeHandleBase):

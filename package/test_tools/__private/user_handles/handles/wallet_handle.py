@@ -6,19 +6,20 @@ from typing import Iterable, List, TYPE_CHECKING, Union
 from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.user_handles.handle import Handle
 from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase
+from test_tools.__private.user_handles.handles.node_handles.remote_node_handle import RemoteNodeHandle as RemoteNode
 from test_tools.__private.wallet import Wallet
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from test_tools import Account, RemoteNode
+    from test_tools.__private.account import Account
 
 
 class WalletHandle(Handle):
     DEFAULT_PASSWORD = Wallet.DEFAULT_PASSWORD
 
     def __init__(self,
-                 attach_to: Union[None, NodeHandleBase, 'RemoteNode'] = None,
+                 attach_to: Union[None, NodeHandleBase, RemoteNode] = None,
                  additional_arguments: Iterable[str] = (),
                  preconfigure: bool = True):
         """
@@ -30,9 +31,6 @@ class WalletHandle(Handle):
         :param preconfigure: If set to True, after run wallet will be unlocked with password DEFAULT_PASSWORD and
             initminer's keys imported.
         """
-
-        # Break import-cycle
-        from test_tools import RemoteNode  # pylint: disable=import-outside-toplevel
         if isinstance(attach_to, (NodeHandleBase, RemoteNode)):
             attach_to = get_implementation(attach_to)
 
