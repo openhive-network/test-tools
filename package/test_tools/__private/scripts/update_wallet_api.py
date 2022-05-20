@@ -5,7 +5,7 @@ import re
 import shutil
 from typing import List
 
-from test_tools import Wallet
+import test_tools as tt
 
 
 class Parameter:
@@ -39,7 +39,7 @@ class WalletApiTranslator:
         self.api_methods: List[Method] = []
 
     def parse_wallet_methods(self) -> None:
-        wallet = Wallet()
+        wallet = tt.Wallet()
         method_signatures = wallet.api.help()['result'].split('\n')[:-1]
         wallet_directory = wallet.directory
         wallet.close()

@@ -1,8 +1,8 @@
 import pytest
 
-from test_tools import Asset
+import test_tools as tt
 
 
 def test_warning_about_losing_precision():
     with pytest.warns(UserWarning):
-        Asset.Hive(0.0001)
+        tt.Asset.Hive(0.0001)
