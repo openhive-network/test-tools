@@ -28,7 +28,7 @@ class Node:
     # pylint: disable=too-many-instance-attributes, too-many-public-methods
     # This pylint warning is right, but this refactor has low priority. Will be done later...
 
-    __DEFAULT_WAIT_FOR_LIVE_TIMEOUT = 20
+    __DEFAULT_WAIT_FOR_LIVE_TIMEOUT = int(os.environ.get('TEST_TOOLS_NODE_DEFAULT_WAIT_FOR_LIVE_TIMEOUT', default=20))
 
     class __Executable:
         def __init__(self):
