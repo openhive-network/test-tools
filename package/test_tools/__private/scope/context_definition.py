@@ -1,4 +1,3 @@
-from copy import deepcopy
 from pathlib import Path
 from typing import Optional, Union, TYPE_CHECKING
 
@@ -19,7 +18,8 @@ class Context:
         if self.__parent is not None:
             self.__current_directory = self.__parent.get_current_directory()
             self.__logger = self.__parent.get_logger()
-            self.__names = deepcopy(self.__parent.get_names())
+            self.__names = Names(parent=self.__parent.__names)  # pylint: disable=protected-access
+            # Accessing another instance private member of the same class is not a privacy violation.
         else:
             self.__current_directory = self.DEFAULT_CURRENT_DIRECTORY
             self.__logger = None
