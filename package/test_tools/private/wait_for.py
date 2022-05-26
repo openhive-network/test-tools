@@ -35,6 +35,10 @@ def wait_for_event(event: 'Event',
     :param exception_message: When deadline is reached, TimeoutError with message specified by
                               this parameter will be raised.
     """
+    if deadline is None:
+        event.wait()
+        return
+
     timeout = deadline - time.time()
     if not event.wait(timeout):
         raise TimeoutError(exception_message)

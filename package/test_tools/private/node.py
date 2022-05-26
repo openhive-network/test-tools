@@ -354,10 +354,15 @@ class Node:
 
         self.__logger.info('Config dumping started...')
 
+        if not self.__produced_files and self.directory.exists():
+            shutil.rmtree(self.directory)
+        self.directory.mkdir(parents=True, exist_ok=True)
+
         config_was_modified = self.config != create_default_config()
         self.__run_process(blocking=True, with_arguments=['--dump-config'], write_config_before_run=config_was_modified)
 
         self.config.load_from_file(self.__get_config_file_path())
+        self.__produced_files = True
 
         self.__logger.info('Config dumped')
 
@@ -499,6 +504,7 @@ class Node:
 
         if replay_from is not None and not exit_before_synchronization:
             self.__notifications.replay_finished_event.wait()
+            deadline = None
 
         self.__produced_files = True
 
