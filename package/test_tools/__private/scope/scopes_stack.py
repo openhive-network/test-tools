@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 class ScopesStack:
     class __NamedScope(Scope):
-        def __init__(self, name: str, parent: Optional['Scope']):
+        def __init__(self, name: str, parent: Optional[Scope]):
             super().__init__(parent)
 
             self.name = name
@@ -35,7 +35,7 @@ class ScopesStack:
             self.__scope.exit()
 
     def __init__(self):
-        self.__scopes_stack: List['__NamedScope'] = []
+        self.__scopes_stack: List[ScopesStack.__NamedScope] = []
         self.create_new_scope('root')
 
         root_scope = self.__current_scope

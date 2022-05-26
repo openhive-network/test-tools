@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -9,18 +11,18 @@ if TYPE_CHECKING:
 
 
 class ContextInternalHandle:
-    def __init__(self, scopes_stack: 'ScopesStack'):
-        self.__scopes_stack: 'ScopesStack' = scopes_stack
+    def __init__(self, scopes_stack: ScopesStack):
+        self.__scopes_stack: ScopesStack = scopes_stack
 
     @property
-    def __context(self) -> 'Context':
+    def __context(self) -> Context:
         return self.__scopes_stack.context
 
     @property
     def __current_directory(self):
         return self.__context.get_current_directory()
 
-    def get_current_directory(self) -> 'Path':
+    def get_current_directory(self) -> Path:
         assert self.__current_directory.exists()
         return self.__current_directory
 

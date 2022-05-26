@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Optional, Union, TYPE_CHECKING
 
@@ -10,10 +12,10 @@ if TYPE_CHECKING:
 class Context:
     DEFAULT_CURRENT_DIRECTORY = Path('./generated').absolute()
 
-    def __init__(self, *, parent: Optional['Context']):
+    def __init__(self, *, parent: Optional[Context]):
         self.__current_directory: Path
 
-        self.__parent: Optional['Context'] = parent
+        self.__parent: Optional[Context] = parent
 
         if self.__parent is not None:
             self.__current_directory = self.__parent.get_current_directory()
@@ -31,10 +33,10 @@ class Context:
     def set_current_directory(self, directory: Union[str, Path]):
         self.__current_directory = Path(directory)
 
-    def get_logger(self) -> 'LoggerWrapper':
+    def get_logger(self) -> LoggerWrapper:
         return self.__logger
 
-    def set_logger(self, logger: 'LoggerWrapper'):
+    def set_logger(self, logger: LoggerWrapper):
         self.__logger = logger
 
     def get_names(self) -> Names:
