@@ -20,22 +20,45 @@ class NetworkHandle(Handle):
         return typing.cast(Network, get_implementation(self))
 
     def connect_with(self, network: NetworkHandle) -> None:
+        """
+        Connects nodes in this network with nodes from other network, passed as `network` parameter. Networks can be
+        connected only in two situations:
+        - before any node start,
+        - after previous disconnection with `disconnect_from` method.
+
+        :param network: Network to connect with.
+        """
         return self.__implementation.connect_with(
             get_implementation(network)
         )
 
     def disconnect_from(self, network: NetworkHandle) -> None:
+        """
+        Disables communication between nodes in this network and nodes from other network, passed as `network`
+        parameter. Only networks connected with `connect_with` method can be disconnected.
+
+        :param network: Network to disconnect from.
+        """
         return self.__implementation.disconnect_from(
             get_implementation(network)
         )
 
     def node(self, name: str) -> Node:
+        """
+        Returns node with specified `name`.
+
+        :param name: Name of node to retrieve.
+        """
         node = self.__implementation.node(name)
         return typing.cast(Node, get_handle(node))
 
     @property
     def nodes(self) -> List[Node]:
+        """Returns all nodes within network."""
         return [typing.cast(Node, get_handle(node)) for node in self.__implementation.nodes]
 
     def run(self) -> None:
+        """
+        Runs all nodes within network with default startup parameters. Blocks execution until all nodes enter live mode.
+        """
         return self.__implementation.run()

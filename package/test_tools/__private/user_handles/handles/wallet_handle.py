@@ -48,7 +48,7 @@ class WalletHandle(Handle):
     def __implementation(self) -> Wallet:
         return typing.cast(Wallet, get_implementation(self))
 
-    def in_single_transaction(self, *, broadcast=None):
+    def in_single_transaction(self, *, broadcast: bool = None):
         """
         Returns context manager allowing aggregation of multiple operations to single transaction. Must be used within
         `with` statement. All operations from API calls within this context are grouped to single transaction and
@@ -62,7 +62,7 @@ class WalletHandle(Handle):
 
         return self.__implementation.in_single_transaction(broadcast=broadcast)
 
-    def run(self, *, timeout, preconfigure: bool = True):
+    def run(self, *, timeout: float, preconfigure: bool = True):
         """
         Runs wallet's process and blocks until wallet will be ready to use.
 
@@ -108,6 +108,8 @@ class WalletHandle(Handle):
         :param name_base: All account names are generated as "<name_base>-<index>",
                           e.g.: account-0, account-1, account-2 and so on...
         :param secret: Text using as seed for account keys generation.
+        :param import_keys: If set to true, imports created accounts' private keys. These keys are needed if you want to
+                            create and sign transactions with previously created accounts.
         :return: List of created accounts.
         """
 
