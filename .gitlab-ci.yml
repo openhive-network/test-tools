@@ -9,7 +9,7 @@ run-pylint:
     - apk update
     - apk add py3-pip
     - pip3 install pylint==2.12.2 pytest
-    - find . -type f -name "*.py" | xargs pylint
-    - find ./package/test_tools/__private/user_handles/handles -type f -name "*.py" | xargs pylint --load-plugins=pylint.extensions.docparams --enable=missing-function-docstring
+    - echo -e "\033[1;34mLint all sources\033[0m" && find . -type f -name "*.py" | xargs pylint
+    - echo -e "\033[1;34mLint user handles documentation\033[0m" && find ./package/test_tools/__private/user_handles/handles -type f -name "*.py" | xargs pylint --load-plugins=pylint.extensions.docparams --enable=missing-function-docstring
   tags:
     - hived-for-tests  # Change to 'public-runner-docker' when pylint will be updated
