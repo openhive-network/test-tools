@@ -47,6 +47,6 @@ block_log = node.get_block_log(include_index=False)
 ```
 or if block log comes from custom directory:
 ```python
-from test_tools import BlockLog
-block_log = BlockLog('~/blockchain/block_log', include_index=False)
+import test_tools as tt
+block_log = tt.BlockLog('~/blockchain/block_log', include_index=False)
 ```

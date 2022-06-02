@@ -12,8 +12,8 @@ If you have paths configured in multiple ways (i.e. you have installed _hived_ a
 
 You can set path to executable directly in your script like on example below:
 ```python
-from test_tools import paths_to_executables
-paths_to_executables.set_path_of('hived', '/home/dev/hive/programs/hived/hived')
+import test_tools as tt
+tt.paths_to_executables.set_path_of('hived', '/home/dev/hive/programs/hived/hived')
 ```
 
 ### Pass paths as command line arguments

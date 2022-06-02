@@ -69,14 +69,13 @@ HIVE_BUILD_ROOT_PATH="/home/dev/hive/build" python3 your_script.py
 ### Easy testnet creation
 You can run testnet with node configured for blocks production and attached wallet with such simple script:
 ```python
-from test_tools import Wallet, World
+import test_tools as tt
 
 if __name__ == '__main__':
-    with World() as world:
-        node = world.create_init_node()
-        node.run()
+    node = tt.InitNode()
+    node.run()
 
-        wallet = Wallet(attach_to=node)
+    wallet = Wallet(attach_to=node)
 ```
 
 ### Node and wallet APIs
@@ -104,10 +103,10 @@ Creation and initialization of nodes are simplified by predefined node types. No
 
 This is how network consisting of init, witness and api node can be defined:
 ```python
-network = world.create_network()
-init_node = network.create_init_node()
-witness_node = network.create_witness_node(witnesses=[f'w{i}' for i in range(10)])
-api_node = network.create_api_node()
+network = tt.Network()
+init_node = tt.InitNode(network=network)
+witness_node = tt.WitnessNode(witnesses=[f'w{i}' for i in range(10)], network=network)
+api_node = tt.ApiNode(network=network)
 ```
 
 ### Node configuration
@@ -143,17 +142,17 @@ During tests nodes generates a lot of files. In most cases some of these files a
 Some tests requires multiple accounts creation. To perform operations on them keys are required. TestTools provides support for key generation with `Account` class. You only need to provide account name. Generated account contains member variables `private_key` and `public_key`, which can be used in tests. Optionally you can specify `secret` parameter, which affects generated keys.
 ```python
 # Simple account creation example
-account = Account('John')
+account = tt.Account('John')
 print(account.private_key)  # Prints: 5KSJQHSBh4vxZVaY2fi3vbhDbkkg7C74pE4S3bigEQyct2RqMDf
 print(account.public_key)   # Prints: TST8FukVPod6riKr2mg94hhDanCzCYvivJtPdpcUVnEChaJ5N9QbC
 
 # Inline usage example
-print(Account('initminer').private_key)  # Prints: 5JNHfZYKGaomSFvd4NUdQ9qMcEAC43kujbfjueTHpVapX1Kzq2n
+print(tt.Account('initminer').private_key)  # Prints: 5JNHfZYKGaomSFvd4NUdQ9qMcEAC43kujbfjueTHpVapX1Kzq2n
 ```
 
 If you need to create many accounts, (e.g. more than 10 000), it might be slow using method described above. For multiple accounts creation use method showed below:
 ```python
-Account.create_multiple(100_000, 'example')  # Optimized version of: [Account('example-{i}') for i in range(100_000)]
+tt.Account.create_multiple(100_000, 'example')  # Optimized version of: [Account('example-{i}') for i in range(100_000)]
 ```
 
 ### Send multiple operations in single wallet transaction
@@ -168,9 +167,9 @@ In above example operations `create_account` and `transfer` are sent in single t
 Implementation is very flexible and allows for using python control statements (ifs, loops), functions which sends wallet api calls and so on. See example below showing for-loop use case during transaction preparation.
 ```python
 accounts_and_balances = {
-    'first': Asset.Test(100),
-    'second': Asset.Test(200),
-    'third': Asset.Test(300),
+    'first': tt.Asset.Test(100),
+    'second': tt.Asset.Test(200),
+    'third': tt.Asset.Test(300),
 }
 
 with wallet.in_single_transaction():

@@ -43,11 +43,11 @@ Every node extending base test node has:
 Most common type of node. Probably you will start each test case with _init node_ creation. This node provides blocks generation, so it makes network live. It allows you to add next nodes to network, use _cli wallet_ and send api calls.
 
 ```python
-init_node = world.create_init_node()
+init_node = tt.InitNode()
 init_node.run()
 
 # With init node you can use wallet...
-wallet = init_node.attach_wallet()
+wallet = tt.Wallet(attach_to=init_node)
 print(wallet.api.list_witnesses())
 
 # ...and send api calls
@@ -63,9 +63,9 @@ Node configured for containing witnesses and signing blocks. Requires prepared n
 
 ```python
 # Define network
-network = world.create_network()
-init_node = network.create_init_node()
-witness_node = network.create_witness_node(witnesses=['alice'])
+network = tt.Network()
+init_node = tt.InitNode(network=network)
+witness_node = tt.WitnessNode(network=network, witnesses=['alice'])
 
 network.run()
 
@@ -73,11 +73,11 @@ network.run()
 init_node.wait_for_block_with_number(43)
 
 # Register witnesses
-wallet = init_node.attach_wallet()
+wallet = tt.Wallet(attach_to=init_node)
 wallet.api.create_account('initminer', 'alice', '')
 wallet.api.transfer_to_vesting('initminer', 'alice', '1000.000 TESTS')
 wallet.api.update_witness(
-    'alice', '', Account('alice').public_key,
+    'alice', '', tt.Account('alice').public_key,
     {"account_creation_fee": "3.000 TESTS", "maximum_block_size": 65536, "sbd_interest_rate": 0}
 )
 ```
@@ -95,9 +95,9 @@ Responsibility of this node type is api calls handling.
 
 ```python
 # Define network
-network = world.create_network()
-init_node = network.create_init_node()
-api_node = network.create_api_node()
+network = tt.Network()
+init_node = tt.InitNode(network=network)
+api_node = tt.ApiNode(network=network)
 network.run()
 
 # Send api calls
