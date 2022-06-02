@@ -108,6 +108,9 @@ def __get_function_name(request) -> str:
 def __get_pytest_package_object(request) -> Optional[pytest.Package]:
     assert request.scope == 'package'
 
+    if isinstance(request.node, pytest.Package):
+        return request.node
+
     pytest_scope = request.node.items[0]
     while pytest_scope is not None:
         if isinstance(pytest_scope, pytest.Package):
