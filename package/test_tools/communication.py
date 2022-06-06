@@ -9,10 +9,18 @@ from test_tools.private.asset import AssetBase
 from test_tools.private.logger.logger_internal_interface import logger
 
 
-class CustomJsonEncoder(json.JSONEncoder):
+class JsonEncoderWithLegacyAssets(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, AssetBase):
             return str(o)
+
+        return super().default(o)
+
+
+class JsonEncoderWithNaiAssets(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, AssetBase):
+            return o.as_nai()
 
         return super().default(o)
 
@@ -39,10 +47,12 @@ def __workaround_communication_problem_with_node(send_request: Callable) -> Call
 
 
 @__workaround_communication_problem_with_node
-def request(url: str, message: dict, max_attempts=3, seconds_between_attempts=0.2):
+def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=3,
+            seconds_between_attempts=0.2):
     assert max_attempts > 0
 
-    message = bytes(json.dumps(message, cls=CustomJsonEncoder), "utf-8") + b"\r\n"
+    json_encoder = JsonEncoderWithNaiAssets if use_nai_assets else JsonEncoderWithLegacyAssets
+    message = bytes(json.dumps(message, cls=json_encoder), "utf-8") + b"\r\n"
 
     for attempts_left in reversed(range(max_attempts)):
         response = requests.post(url, data=message)

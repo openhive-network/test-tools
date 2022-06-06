@@ -808,7 +808,11 @@ class Wallet(ScopedObject):
             'params': list(params)
         }
 
-        return communication.request(endpoint, message)
+        return communication.request(endpoint, message, self.__use_nai_assets)
+
+    @property
+    def __use_nai_assets(self) -> bool:
+        return '--transaction-serialization=hf26' in self.additional_arguments
 
     def in_single_transaction(self, *, broadcast=None):
         return SingleTransactionContext(self, broadcast=broadcast)
