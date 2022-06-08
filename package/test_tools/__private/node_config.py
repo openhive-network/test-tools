@@ -94,6 +94,7 @@ class NodeConfig:
         self.rpc_endpoint = Untouched()  # Set correct type
         self.webserver_thread_pool_size = Untouched()  # Set correct type
         self.enable_stale_production = Boolean()
+        self.debug_disable_production = Boolean()
         self.required_participation = Integer()
         self.witness = List(String, single_line=False)
         self.private_key = List(Untouched, single_line=False)
