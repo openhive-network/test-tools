@@ -43,5 +43,6 @@ def create_default_config():
     config.block_stats_report_type = 'FULL'
     config.block_stats_report_output = 'ILOG'
     config.enable_fast_confirm = True
+    config.schedule_production_at_startup = True
 
     return config
