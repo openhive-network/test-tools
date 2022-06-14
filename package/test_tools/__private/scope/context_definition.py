@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import copy
 from pathlib import Path
-from typing import Optional, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING
+from typing import Optional
+from typing import Union
 
+from test_tools.__private.configuration.experimental_config import Config
 from test_tools.__private.names import Names
 
 if TYPE_CHECKING:
@@ -27,10 +31,12 @@ class Context:
             self.__logger = self.__parent.get_logger()
             self._names = Names(parent=self.__parent._names)  # pylint: disable=protected-access
             # Accessing another instance private member of the same class is not a privacy violation.
+            self.__config = copy.deepcopy(self.__parent.__config)
         else:
             self.__current_directory = self.DEFAULT_CURRENT_DIRECTORY
             self.__logger = None
             self._names = Names()
+            self.__config = Config()
 
     def get_current_directory(self) -> Path:
         return self.__current_directory
@@ -46,3 +52,6 @@ class Context:
 
     def get_names(self) -> Names:
         return self._names
+
+    def load_config(self, package_path) -> None:
+        self.__config.load_from_package(package_path)

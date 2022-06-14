@@ -1,14 +1,17 @@
-from pathlib import Path
+import importlib.util
 import re
-from typing import Final, Optional
+from pathlib import Path
+from typing import Final
+from typing import Optional
 
 import pytest
 
 import test_tools as tt
-from test_tools.__private.scope import current_scope, ScopedCleanupPolicy, ScopedCurrentDirectory
 from test_tools.__private.logger.module_logger import ModuleLogger
 from test_tools.__private.logger.package_logger import PackageLogger
-
+from test_tools.__private.scope import ScopedCleanupPolicy
+from test_tools.__private.scope import ScopedCurrentDirectory
+from test_tools.__private.scope import current_scope
 
 __cleanup_policy_was_set_in_package_scope: bool = False
 __DEFAULT_CLEANUP_POLICY: Final[tt.constants.CleanupPolicy] = tt.constants.CleanupPolicy.REMOVE_ONLY_UNNEEDED_FILES
@@ -32,6 +35,9 @@ def function_scope(request):
 def module_scope(request):
     with current_scope.create_new_scope(f'module: {__get_module_name(request)}'):
         ScopedCurrentDirectory(__get_directory_for_module(request))
+
+        current_scope.context.load_config(request.module.__package__)
+        paths = current_scope.context._Context__config._Config__already_loaded_paths
         if not __cleanup_policy_was_set_in_package_scope:
             ScopedCleanupPolicy(__DEFAULT_CLEANUP_POLICY)
 
@@ -53,6 +59,8 @@ def package_scope(request):
     else:
         with current_scope.create_new_scope(f'package: {__get_package_name(request)}'):
             ScopedCurrentDirectory(__get_directory_for_package(request))
+
+            current_scope.context.load_config(__get_pytest_package_object(request).module.__package__)
             ScopedCleanupPolicy(__DEFAULT_CLEANUP_POLICY)
             __cleanup_policy_was_set_in_package_scope = True
 
