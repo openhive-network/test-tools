@@ -1,0 +1,3 @@
+dynaconf_merge = true
+location = 'same_folder_local'
+data = ['c']
