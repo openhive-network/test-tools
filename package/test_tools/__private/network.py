@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from typing import Dict, Optional, TYPE_CHECKING
 
 from test_tools.__private.logger.logger_internal_interface import logger
 from test_tools.__private.scope import context
@@ -34,10 +34,10 @@ class Network(UserHandleImplementation):
 
         raise RuntimeError(f'There is no node with name {name} in network {self}')
 
-    def run(self, wait_for_live=True):
+    def run(self, wait_for_live=True, environment_variables: Optional[Dict] = None):
         if self.network_to_connect_with is None:
             seed_node = self.nodes[0]
-            seed_node.run(wait_for_live=wait_for_live)
+            seed_node.run(wait_for_live=wait_for_live, environment_variables=environment_variables)
             nodes_connecting_to_seed = self.nodes[1:]
         else:
             seed_node = self.network_to_connect_with.nodes[0]
@@ -48,7 +48,7 @@ class Network(UserHandleImplementation):
 
         for node in nodes_connecting_to_seed:
             node.config.p2p_seed_node.append(endpoint)
-            node.run(wait_for_live=wait_for_live)
+            node.run(wait_for_live=wait_for_live, environment_variables=environment_variables)
 
     def connect_with(self, network):
         if len(self.nodes) == 0 or len(network.nodes) == 0:
