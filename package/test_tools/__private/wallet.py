@@ -636,13 +636,13 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         run_parameters.extend(self.additional_arguments)
 
+        command = [str(self.executable_file_path), *run_parameters]
+        self.logger.debug(' '.join(item for item in command))
+
         # pylint: disable=consider-using-with
         # Process created here have to exist longer than current scope
         self.process = subprocess.Popen(
-            [
-                str(self.executable_file_path),
-                *run_parameters,
-            ],
+            command,
             cwd=self.directory,
             stdout=self.stdout_file,
             stderr=self.stderr_file
