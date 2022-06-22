@@ -34,7 +34,7 @@ class Network(UserHandleImplementation):
 
         raise RuntimeError(f'There is no node with name {name} in network {self}')
 
-    def run(self, wait_for_live=None):
+    def run(self, wait_for_live: Optional[bool] = None):
         if self.network_to_connect_with is None:
             seed_node = self.nodes[0]
             seed_node.run(wait_for_live=wait_for_live)
