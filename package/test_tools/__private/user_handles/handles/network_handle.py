@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from typing import List
+from typing import Dict, List, Optional
 
 from test_tools.__private.network import Network
 from test_tools.__private.user_handles.get_implementation import get_implementation, get_handle
@@ -57,8 +57,10 @@ class NetworkHandle(Handle):
         """Returns all nodes within network."""
         return [typing.cast(Node, get_handle(node)) for node in self.__implementation.nodes]
 
-    def run(self) -> None:
+    def run(self, environment_variables: Optional[Dict[str, str]] = None) -> None:
         """
         Runs all nodes within network with default startup parameters. Blocks execution until all nodes enter live mode.
+
+        :param environment_variables: Additional environment variables passed to each node before start.
         """
-        return self.__implementation.run()
+        return self.__implementation.run(environment_variables=environment_variables)
