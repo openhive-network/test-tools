@@ -11,7 +11,7 @@ class DisabledKeyboardInterrupt:
         do_something()  # [1]
     # [2]
 
-    If keyboard interrupt will be raised during [1], it will ignored and reraised
+    If keyboard interrupt will be raised during [1], it will be ignored and reraised
     after exiting from covered scope [2].
     """
 
