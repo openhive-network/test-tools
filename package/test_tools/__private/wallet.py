@@ -560,6 +560,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.stderr_file = None
         self.process = None
         self.additional_arguments = list(additional_arguments)
+        self.__produced_files = False
         self.logger = logger.create_child_logger(self.name)
 
         self.run(timeout=self.DEFAULT_RUN_TIMEOUT, preconfigure=preconfigure)
@@ -590,7 +591,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         return False
 
-    def run(self, *, timeout, preconfigure=True, clean=True):
+    def run(self, *, timeout, preconfigure=True, clean: Optional[bool] = None):
         """
         Starts wallet. Blocks until wallet will be ready for use.
 
@@ -621,6 +622,11 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         run_parameters.extend([f'--rpc-http-endpoint=0.0.0.0:{self.http_server_port}'])
 
+        if clean is None:
+            # If wallet is run the first time, by default should remove files,
+            # because they were generated in previous test run and are outdated.
+            clean = not self.__produced_files
+
         if clean:
             shutil.rmtree(self.directory, ignore_errors=True)
 
@@ -647,6 +653,8 @@ class Wallet(UserHandleImplementation, ScopedObject):
             stdout=self.stdout_file,
             stderr=self.stderr_file
         )
+
+        self.__produced_files = True
 
         timeout -= wait_for(
             self.__is_ready,
