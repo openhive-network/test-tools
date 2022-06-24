@@ -62,7 +62,7 @@ class WalletHandle(Handle):
 
         return self.__implementation.in_single_transaction(broadcast=broadcast)
 
-    def run(self, *, timeout: float, preconfigure: bool = True):
+    def run(self, *, timeout: float = Wallet.DEFAULT_RUN_TIMEOUT, preconfigure: bool = True):
         """
         Runs wallet's process and blocks until wallet will be ready to use.
 
