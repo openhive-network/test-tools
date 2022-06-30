@@ -105,6 +105,7 @@ class NodeConfig:
         self.psql_transactions_threads_number = Integer()
         self.enable_block_log_compression = Boolean()
         self.block_log_compression_level = Integer()
+        self.blockchain_thread_pool_size = Integer()
 
     def __setattr__(self, key, value):
         entries = self.__get_entries()
