@@ -1,14 +1,22 @@
-image: docker:stable
+image: ubuntu:20.04
 
 stages:
   - lint
 
+.setup:
+  before_script:
+    - apt update
+    - apt install -y python3 python3-pip python3-venv
+    - pip install -U pip setuptools wheel
+    - pip install ."[dev]"
+    - python3 -V
+    - pip -V
+    - pip list
+
 run-pylint:
   stage: lint
+  extends: .setup
   script:
-    - apk update
-    - apk add py3-pip
-    - pip3 install pylint==2.12.2 pytest
     - echo -e "\033[1;34mLint all sources\033[0m" && find . -type f -name "*.py" | xargs pylint
     - echo -e "\033[1;34mLint user handles documentation\033[0m" && find ./package/test_tools/__private/user_handles/handles -type f -name "*.py" | xargs pylint --load-plugins=pylint.extensions.docparams --accept-no-param-doc=false --default-docstring-type=sphinx --enable=missing-function-docstring
   tags:
