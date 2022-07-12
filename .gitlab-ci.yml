@@ -1,4 +1,4 @@
-image: docker:stable
+image: "$CI_REGISTRY_IMAGE/ci-cd-base-image"
 
 stages:
   - lint
@@ -6,8 +6,6 @@ stages:
 run-pylint:
   stage: lint
   script:
-    - apk update
-    - apk add py3-pip
     - pip3 install pylint==2.12.2 pytest
     - echo -e "\033[1;34mLint all sources\033[0m" && find . -type f -name "*.py" | xargs pylint
     - echo -e "\033[1;34mLint user handles documentation\033[0m" && find ./package/test_tools/__private/user_handles/handles -type f -name "*.py" | xargs pylint --load-plugins=pylint.extensions.docparams --accept-no-param-doc=false --default-docstring-type=sphinx --enable=missing-function-docstring
