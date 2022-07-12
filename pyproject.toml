@@ -24,6 +24,7 @@ requests = "2.27.1"
 black = "22.8.0"
 isort = { version = "5.10.1", extras = ["colors"] }
 local-tools = { path = "tests/local-tools", develop = true }
+mypy = "0.971"
 pre-commit = "2.20.0"
 pylint = "2.15.2"
 pytest = "7.1.2"
