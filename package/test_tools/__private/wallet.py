@@ -129,6 +129,13 @@ class Wallet(UserHandleImplementation, ScopedObject):
             return self.__send('cancel_transfer_from_savings', from_=from_, request_id=request_id, broadcast=broadcast,
                                only_result=only_result)
 
+        def change_comment_options(self, author, permlink, max_accepted_payout, percent_hbd, allow_votes,
+                                   allow_curation_rewards, beneficiaries, broadcast=None, only_result: bool = True):
+            return self.__send('change_comment_options', author=author, permlink=permlink,
+                               max_accepted_payout=max_accepted_payout, percent_hbd=percent_hbd,
+                               allow_votes=allow_votes, allow_curation_rewards=allow_curation_rewards,
+                               beneficiaries=beneficiaries, broadcast=broadcast, only_result=only_result)
+
         def change_recovery_account(self, owner, new_recovery_account, broadcast=None, only_result: bool = True):
             return self.__send('change_recovery_account', owner=owner, new_recovery_account=new_recovery_account,
                                broadcast=broadcast, only_result=only_result)
@@ -189,11 +196,21 @@ class Wallet(UserHandleImplementation, ScopedObject):
                                min_to_receive=min_to_receive, fill_or_kill=fill_or_kill, expiration=expiration,
                                broadcast=broadcast, only_result=only_result)
 
+        def create_order2(self, owner, order_id, amount_to_sell, exchange_rate, fill_or_kill, expiration,
+                          broadcast=None, only_result: bool = True):
+            return self.__send('create_order2', owner=owner, order_id=order_id, amount_to_sell=amount_to_sell,
+                               exchange_rate=exchange_rate, fill_or_kill=fill_or_kill, expiration=expiration,
+                               broadcast=broadcast, only_result=only_result)
+
         def create_proposal(self, creator, receiver, start_date, end_date, daily_pay, subject, permlink, broadcast=None,
                             only_result: bool = True):
             return self.__send('create_proposal', creator=creator, receiver=receiver, start_date=start_date,
                                end_date=end_date, daily_pay=daily_pay, subject=subject, permlink=permlink,
                                broadcast=broadcast, only_result=only_result)
+
+        def custom(self, required_auths, transaction_id, data, broadcast=None, only_result: bool = True):
+            return self.__send('custom', required_auths=required_auths, transaction_id=transaction_id,
+                               data=data, broadcast=broadcast, only_result=only_result)
 
         def decline_voting_rights(self, account, decline, broadcast=None, only_result: bool = True):
             return self.__send('decline_voting_rights', account=account, decline=decline, broadcast=broadcast,
@@ -201,6 +218,10 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         def decrypt_memo(self, memo, only_result: bool = True):
             return self.__send('decrypt_memo', memo=memo, only_result=only_result)
+
+        def delete_comment(self, author, permlink, broadcast=None, only_result: bool = True):
+            return self.__send('delete_comment', author=author, permlink=permlink, broadcast=broadcast,
+                               only_result=only_result)
 
         def delegate_rc(self, from_, delegatees, max_rc, broadcast=None, only_result: bool = True):
             return self.__send('delegate_rc', from_=from_, delegatees=delegatees, max_rc=max_rc, broadcast=broadcast,
@@ -475,6 +496,12 @@ class Wallet(UserHandleImplementation, ScopedObject):
             return self.__send('update_account', accountname=accountname, json_meta=json_meta, owner=owner,
                                active=active, posting=posting, memo=memo, broadcast=broadcast, only_result=only_result)
 
+        def update_account2(self, accountname, json_meta, posting_json_meta, owner, active, posting, memo,
+                            broadcast=None, only_result: bool = True):
+            return self.__send('update_account2', accountname=accountname, json_meta=json_meta,
+                               posting_json_meta=posting_json_meta, owner=owner, active=active, posting=posting,
+                               memo=memo, broadcast=broadcast, only_result=only_result)
+
         def update_account_auth_account(self, account_name, type_, auth_account, weight, broadcast=None,
                                         only_result: bool = True):
             return self.__send('update_account_auth_account', account_name=account_name, type_=type_,
@@ -510,6 +537,10 @@ class Wallet(UserHandleImplementation, ScopedObject):
         def update_witness(self, witness_name, url, block_signing_key, props, broadcast=None, only_result: bool = True):
             return self.__send('update_witness', witness_name=witness_name, url=url,
                                block_signing_key=block_signing_key, props=props, broadcast=broadcast,
+                               only_result=only_result)
+
+        def update_witness2(self, witness_name, props, broadcast=None, only_result: bool = True):
+            return self.__send('update_witness2', witness_name=witness_name, props=props, broadcast=broadcast,
                                only_result=only_result)
 
         def use_authority(self, authority_type, account_name, only_result: bool = True):
