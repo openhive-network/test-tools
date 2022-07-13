@@ -202,6 +202,10 @@ class Wallet(UserHandleImplementation, ScopedObject):
         def decrypt_memo(self, memo, only_result: bool = True):
             return self.__send('decrypt_memo', memo=memo, only_result=only_result)
 
+        def delete_comment(self, author, permlink, broadcast=None, only_result: bool = True):
+            return self.__send('delete_comment', author=author, permlink=permlink, broadcast=broadcast,
+                               only_result=only_result)
+
         def delegate_rc(self, from_, delegatees, max_rc, broadcast=None, only_result: bool = True):
             return self.__send('delegate_rc', from_=from_, delegatees=delegatees, max_rc=max_rc, broadcast=broadcast,
                                only_result=only_result)
