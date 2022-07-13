@@ -1,4 +1,2 @@
-dynaconf_merge = true
 location = 'same_folder'
 data = ['b']
-
