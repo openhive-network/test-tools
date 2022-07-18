@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from typing import Iterable, List, TYPE_CHECKING, Union
+from typing import Iterable, List, Literal, TYPE_CHECKING, Union
 
 from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.user_handles.handle import Handle
@@ -82,6 +82,17 @@ class WalletHandle(Handle):
         """
 
         self.__implementation.restart(preconfigure=preconfigure)
+
+    @property
+    def transaction_serialization(self) -> Literal['legacy', 'hf26']:
+        """
+        Returns information about how transactions are serialized.
+
+        Can be serialized in legacy way (e.g. assets are serialized as strings "3.000 HIVE", but it's not the only
+        difference) or in HF26 way (then are serialized as {"amount": "3000", "precision": 3, "nai": "@@000000021"}).
+        """
+
+        return self.__implementation.transaction_serialization
 
     def close(self):
         """

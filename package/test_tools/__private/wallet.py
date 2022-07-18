@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from argparse import ArgumentParser
 import concurrent.futures
 import copy
 import math
@@ -7,7 +8,7 @@ import re
 import shutil
 import signal
 import subprocess
-from typing import Final, Iterable, List, Optional, TYPE_CHECKING, Union
+from typing import Final, Iterable, List, Literal, Optional, TYPE_CHECKING, Union
 import warnings
 
 from test_tools.__private import communication
@@ -31,6 +32,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
     DEFAULT_RUN_TIMEOUT = 15
     DEFAULT_PASSWORD = 'password'
+    DEFAULT_TRANSACTION_SERIALIZATION: Literal['legacy', 'hf26'] = 'legacy'
 
     class __Api:
         # pylint: disable=invalid-name, too-many-arguments, too-many-public-methods
@@ -687,6 +689,14 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
     def __is_online(self) -> bool:
         return self.connected_node is not None
+
+    @property
+    def transaction_serialization(self) -> Literal['legacy', 'hf26']:
+        parser = ArgumentParser()
+        parser.add_argument('--transaction-serialization', choices=['legacy', 'hf26'], required=False,
+                            default=self.DEFAULT_TRANSACTION_SERIALIZATION)
+        arguments, _ = parser.parse_known_args(self.additional_arguments)
+        return arguments.transaction_serialization
 
     def __is_communication_established(self):
         try:
