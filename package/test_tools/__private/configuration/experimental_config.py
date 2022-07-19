@@ -1,5 +1,7 @@
+import importlib.util
 from pathlib import Path
 from typing import Any
+from typing import Iterable
 from typing import Union
 
 from dynaconf import Dynaconf
@@ -7,16 +9,35 @@ from dynaconf import Dynaconf
 
 class Config:
     def __init__(self, working_directory: Union[str, Path]):
+        # FIXME: Tą zmienną to tak robię do debugowania, żebyśmy mogli łatwo podejrzeć jakie ścieżki się wymyśliły
+        possible_config_paths = self.__get_possible_config_paths(working_directory)
+
         self.__config = Dynaconf(
             preload=[
                 'test_tools_config.default.toml',
             ],
-            settings_files=['test_tools_config.toml', 'test_tools_config.loc.toml'],
-            root_path=working_directory,
+            settings_files=possible_config_paths,
+            root_path=Path(importlib.util.find_spec(working_directory).origin).parent,
         )
 
     def __getattr__(self, item: str) -> Any:
         return getattr(self.__config, item)
+
+    @staticmethod
+    def __get_possible_config_paths(package: str) -> Iterable[Path]:
+        from pathlib import Path
+        import importlib.util
+
+        possible_config_paths = []
+        while package:
+            package_path = Path(importlib.util.find_spec(package).origin).parent.absolute()
+            possible_config_paths.extend([
+                package_path / 'test_tools_config.loc.toml',
+                package_path / 'test_tools_config.toml',
+            ])
+            package, _, _ = package.rpartition('.')
+
+        return list(reversed(possible_config_paths))
 
 
 """

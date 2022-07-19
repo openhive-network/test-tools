@@ -1,10 +1,8 @@
-from pathlib import Path
-
 import pytest
 
 from test_tools.__private.configuration.experimental_config import Config
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def config(request):
-    return Config(Path(request.path).parent)
+    return Config(request.module.__package__)
