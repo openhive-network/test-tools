@@ -2,7 +2,6 @@ from test_tools.__private.scope.context_internal_interface import ContextInterna
 from test_tools.__private.scope.scopes_stack import ScopesStack
 from test_tools.__private.utilities.tests_type import is_manual_test
 
-
 current_scope = ScopesStack()
 context = ContextInternalHandle(current_scope)
 

@@ -1,8 +1,8 @@
 import builtins
 import keyword
-from pathlib import Path
 import re
 import shutil
+from pathlib import Path
 from typing import List
 
 import test_tools as tt

@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import typing
-from typing import Iterable, List, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
+from typing import Iterable
+from typing import List
+from typing import Union
 
 from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.user_handles.handle import Handle

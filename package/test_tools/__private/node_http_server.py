@@ -1,7 +1,9 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import threading
-from typing import Any, Optional
+from http.server import BaseHTTPRequestHandler
+from http.server import HTTPServer
+from typing import Any
+from typing import Optional
 
 from test_tools.__private.raise_exception_helper import RaiseExceptionHelper
 

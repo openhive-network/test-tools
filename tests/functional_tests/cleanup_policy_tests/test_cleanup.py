@@ -1,7 +1,6 @@
 from typing import Optional
 
 import pytest
-
 import test_tools as tt
 from test_tools.__private.scope import current_scope
 

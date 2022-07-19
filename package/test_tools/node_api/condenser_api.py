@@ -1,4 +1,5 @@
-from test_tools.node_api.api_base import ApiBase, NodeApiCallProxy
+from test_tools.node_api.api_base import ApiBase
+from test_tools.node_api.api_base import NodeApiCallProxy
 
 
 class CondenserApiCallProxy(NodeApiCallProxy):

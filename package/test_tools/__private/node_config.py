@@ -1,6 +1,10 @@
 import re
 
-from test_tools.__private.node_config_entry_types import Boolean, Integer, List, String, Untouched
+from test_tools.__private.node_config_entry_types import Boolean
+from test_tools.__private.node_config_entry_types import Integer
+from test_tools.__private.node_config_entry_types import List
+from test_tools.__private.node_config_entry_types import String
+from test_tools.__private.node_config_entry_types import Untouched
 
 
 class NodeConfig:

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
+from typing import List
+from typing import Optional
 
 from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase

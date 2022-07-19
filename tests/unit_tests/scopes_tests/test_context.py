@@ -1,4 +1,5 @@
-from test_tools.__private.scope.scope_singleton import context, current_scope
+from test_tools.__private.scope.scope_singleton import context
+from test_tools.__private.scope.scope_singleton import current_scope
 from test_tools.__private.scope.scoped_current_directory import ScopedCurrentDirectory
 
 

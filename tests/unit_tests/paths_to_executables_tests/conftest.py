@@ -1,5 +1,4 @@
 import pytest
-
 from test_tools.__private.paths_to_executables import _PathsToExecutables
 
 

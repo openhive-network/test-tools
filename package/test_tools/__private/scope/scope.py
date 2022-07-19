@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
+from typing import List
+from typing import Optional
 
 from test_tools.__private.scope.context_definition import Context
 

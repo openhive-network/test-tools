@@ -3,7 +3,6 @@ import time
 from typing import Callable
 
 import requests
-
 from test_tools.__private.asset import AssetBase
 from test_tools.__private.exceptions import CommunicationError
 from test_tools.__private.logger.logger_internal_interface import logger

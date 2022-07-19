@@ -1,9 +1,11 @@
-from argparse import ArgumentParser
-from os import getenv, path
-from pathlib import Path
 import shutil
+from argparse import ArgumentParser
+from os import getenv
+from os import path
+from pathlib import Path
 
-from test_tools.__private.exceptions import MissingPathToExecutable, NotSupported
+from test_tools.__private.exceptions import MissingPathToExecutable
+from test_tools.__private.exceptions import NotSupported
 
 
 class _PathsToExecutables:

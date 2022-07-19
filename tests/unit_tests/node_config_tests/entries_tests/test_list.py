@@ -1,6 +1,8 @@
 import pytest
-
-from test_tools.__private.node_config_entry_types import List, Integer, String, Untouched
+from test_tools.__private.node_config_entry_types import Integer
+from test_tools.__private.node_config_entry_types import List
+from test_tools.__private.node_config_entry_types import String
+from test_tools.__private.node_config_entry_types import Untouched
 
 
 def test_parsing_single_line_of_untouched():

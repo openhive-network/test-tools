@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Optional, Set
+from typing import Optional
+from typing import Set
 
 from test_tools.__private.exceptions import NameAlreadyInUse
 

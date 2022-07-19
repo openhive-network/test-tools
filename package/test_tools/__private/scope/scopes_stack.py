@@ -1,9 +1,11 @@
 import atexit
 import inspect
-from pathlib import Path
 import pkgutil
-from typing import List, Optional, TYPE_CHECKING
 import warnings
+from pathlib import Path
+from typing import TYPE_CHECKING
+from typing import List
+from typing import Optional
 
 from test_tools.__private.logger.logger_wrapper import LoggerWrapper
 from test_tools.__private.raise_exception_helper import RaiseExceptionHelper

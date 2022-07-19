@@ -1,7 +1,7 @@
-from pathlib import Path
 import shutil
 import subprocess
 import warnings
+from pathlib import Path
 
 from test_tools.__private import paths_to_executables
 

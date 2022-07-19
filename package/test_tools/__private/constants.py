@@ -1,4 +1,5 @@
-from enum import auto, Enum
+from enum import Enum
+from enum import auto
 
 
 class CleanupPolicy(Enum):

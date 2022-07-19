@@ -1,8 +1,8 @@
 import filecmp
-from glob import glob as get_files_matching_pattern
 import json
-from pathlib import Path
 import shutil
+from glob import glob as get_files_matching_pattern
+from pathlib import Path
 from typing import Optional
 
 

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from typing import List, Optional, TYPE_CHECKING
 import warnings
+from typing import TYPE_CHECKING
+from typing import List
+from typing import Optional
 
 from test_tools.__private.account import Account
 from test_tools.__private.preconfigured_node import PreconfiguredNode

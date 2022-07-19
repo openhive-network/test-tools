@@ -1,7 +1,8 @@
 import os
 import signal
 import threading
-from typing import ClassVar, Optional
+from typing import ClassVar
+from typing import Optional
 
 
 class RaiseExceptionHelper:

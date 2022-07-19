@@ -10,12 +10,17 @@ from test_tools.__private.user_handles.handle import Handle
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import Dict, List, Optional, Tuple, Union
-    from test_tools.node_api.node_apis import Apis
+    from typing import Dict
+    from typing import List
+    from typing import Optional
+    from typing import Tuple
+    from typing import Union
+
     from test_tools.__private.block_log import BlockLog
     from test_tools.__private.cleanup_policy import CleanupPolicy
     from test_tools.__private.node_config import NodeConfig
     from test_tools.__private.snapshot import Snapshot
+    from test_tools.node_api.node_apis import Apis
 
 
 class NodeHandleBase(Handle):

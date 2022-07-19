@@ -1,7 +1,6 @@
 # This test forces that create_default_config will be always up to date.
 
 import pytest
-
 import test_tools as tt
 from test_tools.node_configs.default import create_default_config
 

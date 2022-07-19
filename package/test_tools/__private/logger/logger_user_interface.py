@@ -1,4 +1,5 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
+from typing import Optional
 
 from test_tools.__private.logger.logger_interface_base import LoggerInterfaceBase
 

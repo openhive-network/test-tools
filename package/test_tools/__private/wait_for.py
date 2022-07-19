@@ -1,7 +1,7 @@
 import math
 import time
-from typing import Optional, TYPE_CHECKING
-
+from typing import TYPE_CHECKING
+from typing import Optional
 
 if TYPE_CHECKING:
     from threading import Event

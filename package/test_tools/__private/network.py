@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import Dict, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
+from typing import Dict
+from typing import Optional
 
 from test_tools.__private.logger.logger_internal_interface import logger
 from test_tools.__private.scope import context

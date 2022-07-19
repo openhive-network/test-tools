@@ -1,6 +1,7 @@
 import re
 
-from test_tools.__private.exceptions import NotSupported, ParseError
+from test_tools.__private.exceptions import NotSupported
+from test_tools.__private.exceptions import ParseError
 from test_tools.__private.node_config_entry_types.config_entry import ConfigEntry
 
 
