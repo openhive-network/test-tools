@@ -1,9 +1,24 @@
 image: ubuntu:20.04
 
-stages:
-  - lint
 
-.setup:
+stages:
+  - static_code_analysis
+  - tests
+
+
+variables:
+  TXT_CLEAR: \e[0m
+  TXT_RED: \e[1;31m
+  TXT_GREEN: \e[1;32m
+  TXT_BLUE: \e[1;34m
+
+
+.shared_tags:
+  tags: &shared_tags
+    - hived-for-tests  # Change to 'public-runner-docker' when pylint will be updated
+
+
+.configuration:
   before_script:
     - apt update
     - apt install -y python3 python3-pip python3-venv
@@ -13,11 +28,67 @@ stages:
     - pip -V
     - pip list
 
-run-pylint:
-  stage: lint
-  extends: .setup
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| STATIC CODE ANALYSIS |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+lint_code_with_pylint:
+  stage: static_code_analysis
+  extends: .configuration
   script:
-    - echo -e "\033[1;34mLint all sources\033[0m" && find . -type f -name "*.py" | xargs pylint
-    - echo -e "\033[1;34mLint user handles documentation\033[0m" && find ./package/test_tools/__private/user_handles/handles -type f -name "*.py" | xargs pylint --load-plugins=pylint.extensions.docparams --accept-no-param-doc=false --default-docstring-type=sphinx --enable=missing-function-docstring
-  tags:
-    - hived-for-tests  # Change to 'public-runner-docker' when pylint will be updated
+    - echo -e "${TXT_BLUE}[ Lint all sources with pylint ]"
+    - pylint package/ tests/
+    - echo -e "${TXT_BLUE}[ Lint user handles documentation ]"
+    - pylint package/test_tools/__private/user_handles/handles/ --load-plugins=pylint.extensions.docparams --accept-no-param-doc=false --default-docstring-type=sphinx --enable=missing-function-docstring
+  tags: *shared_tags
+
+
+static_typing_with_mypy_check:
+  stage: static_code_analysis
+  extends: .configuration
+  script:
+    - echo -e "${TXT_BLUE}[ Checking static typing of ${TXT_RED}package/ ${TXT_BLUE}and ${TXT_GREEN}tests/ ${TXT_BLUE}with mypy ]"
+    - mypy --pretty .
+  tags: *shared_tags
+
+
+imports_order_with_isort_check:
+  stage: static_code_analysis
+  extends: .configuration
+  script:
+    - echo -e "${TXT_BLUE}[ Checking imports order with isort ]"
+    - isort . --check --diff --color
+  tags: *shared_tags
+
+
+formatting_with_black_check:
+  stage: static_code_analysis
+  extends: .configuration
+  script:
+    - echo -e "${TXT_BLUE}[ Checking code formatting with black ]"
+    - black . --check --diff --color
+  tags: *shared_tags
+
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| STATIC CODE ANALYSIS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| TESTS |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+launch_tests:
+  stage: tests
+  extends: .configuration
+  when: always
+  script:
+    - echo -e "${TXT_BLUE}[ Launching tests ]"
+    - export NUMBER_OF_PROCESSES=$(nproc)
+    - export TESTS_TO_SKIP="not (test_multiple_accounts_creation or test_default_config_values)"
+    - python3 -m pytest -n $NUMBER_OF_PROCESSES tests/unit_tests -k "$TESTS_TO_SKIP"
+      --junitxml=report.xml
+  artifacts:
+    reports:
+      junit: report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: artifacts/coverage.xml
+  tags: *shared_tags
+
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| TESTS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
