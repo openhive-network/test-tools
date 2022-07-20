@@ -208,9 +208,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
                                end_date=end_date, daily_pay=daily_pay, subject=subject, permlink=permlink,
                                broadcast=broadcast, only_result=only_result)
 
-        def custom(self, required_auths, id, data, broadcast=None, only_result: bool = True): # pylint: disable=redefined-builtin
-            self.__send('custom', required_auths=required_auths, id=id, data=data, broadcast=broadcast,
-                        only_result=only_result)
+        def custom(self, required_auths, transaction_id, data, broadcast=None, only_result: bool = True):
+            return self.__send('custom', required_auths=required_auths, transaction_id=transaction_id,
+                               data=data, broadcast=broadcast, only_result=only_result)
 
         def decline_voting_rights(self, account, decline, broadcast=None, only_result: bool = True):
             return self.__send('decline_voting_rights', account=account, decline=decline, broadcast=broadcast,
