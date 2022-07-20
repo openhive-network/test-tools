@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 
 class RawNode(Node):
-    def __init__(self, *, name: str = 'RawNode', network: Optional[Network] = None,
-                 handle: Optional[NodeHandle] = None):
+    def __init__(
+        self, *, name: str = 'RawNode', network: Optional[Network] = None, handle: Optional[NodeHandle] = None
+    ):
         super().__init__(name=name, network=network, handle=handle)

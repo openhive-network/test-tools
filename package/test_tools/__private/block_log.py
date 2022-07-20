@@ -46,8 +46,9 @@ class BlockLog:
         if self.__owner is not None:
             hint_for_excluding_index = 'node.get_block_log(include_index=False)'
         else:
-            hint_for_excluding_index = f'import test_tools as tt\n' \
-                                       f'block_log = tt.BlockLog(\'{self.__path}\', include_index=False)'
+            hint_for_excluding_index = (
+                f'import test_tools as tt\n' f'block_log = tt.BlockLog(\'{self.__path}\', include_index=False)'
+            )
 
         warnings.warn(
             f'Block log with following path is missing:\n'

@@ -44,7 +44,7 @@ def test_if_returned_value_behaves_like_int(entry):
     # Perform few normal int operations
     assert value + 2 == 7
     assert value < 10
-    assert 2 ** value == 32
+    assert 2**value == 32
     assert bool(value)
     assert str(value) == '5'
 

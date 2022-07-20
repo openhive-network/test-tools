@@ -120,6 +120,6 @@ def generate_blocks(node, number_of_blocks):
         count=number_of_blocks,
         skip=0,
         miss_blocks=0,
-        edit_if_needed=True
+        edit_if_needed=True,
     )
     tt.logger.info('Blocks generation finished.')

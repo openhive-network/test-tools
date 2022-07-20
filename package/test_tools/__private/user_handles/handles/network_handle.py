@@ -14,9 +14,7 @@ from test_tools.__private.user_handles.handles.node_handles.node_handle_base imp
 
 class NetworkHandle(Handle):
     def __init__(self):
-        super().__init__(
-            implementation=Network(handle=self)
-        )
+        super().__init__(implementation=Network(handle=self))
 
     @property
     def __implementation(self) -> Network:
@@ -31,9 +29,7 @@ class NetworkHandle(Handle):
 
         :param network: Network to connect with.
         """
-        return self.__implementation.connect_with(
-            get_implementation(network)
-        )
+        return self.__implementation.connect_with(get_implementation(network))
 
     def disconnect_from(self, network: NetworkHandle) -> None:
         """
@@ -42,9 +38,7 @@ class NetworkHandle(Handle):
 
         :param network: Network to disconnect from.
         """
-        return self.__implementation.disconnect_from(
-            get_implementation(network)
-        )
+        return self.__implementation.disconnect_from(get_implementation(network))
 
     def node(self, name: str) -> Node:
         """

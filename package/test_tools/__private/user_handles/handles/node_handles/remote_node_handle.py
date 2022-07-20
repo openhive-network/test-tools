@@ -8,9 +8,7 @@ from test_tools.__private.user_handles.handle import Handle
 
 class RemoteNodeHandle(Handle):
     def __init__(self, http_endpoint: str, *, ws_endpoint: Optional[str] = None):
-        super().__init__(
-            implementation=RemoteNode(http_endpoint, ws_endpoint=ws_endpoint)
-        )
+        super().__init__(implementation=RemoteNode(http_endpoint, ws_endpoint=ws_endpoint))
 
         self.api = self.__implementation.api
 

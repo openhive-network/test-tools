@@ -16,11 +16,13 @@ class KeyGenerator:
 
         if account_name == 'initminer':
             assert number_of_accounts == 1
-            return [{
-                'private_key': '5JNHfZYKGaomSFvd4NUdQ9qMcEAC43kujbfjueTHpVapX1Kzq2n',
-                'public_key': 'TST6LLegbAgLAy28EHrffBVuANFWcFgmqRMW13wBmTExqFE9SCkg4',
-                'account_name': account_name,
-            }]
+            return [
+                {
+                    'private_key': '5JNHfZYKGaomSFvd4NUdQ9qMcEAC43kujbfjueTHpVapX1Kzq2n',
+                    'public_key': 'TST6LLegbAgLAy28EHrffBVuANFWcFgmqRMW13wBmTExqFE9SCkg4',
+                    'account_name': account_name,
+                }
+            ]
 
         if number_of_accounts != 1:
             account_name += f'-0:{number_of_accounts}'

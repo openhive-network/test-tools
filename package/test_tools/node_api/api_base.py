@@ -28,6 +28,7 @@ class NodeApiCallProxy:
         if schemas_should_be_automatically_validated():
             # pylint: disable=import-outside-toplevel, import-error
             from schemas.get_schema import get_schema  # type: ignore
+
             get_schema(self.__message['method']).validate(response)
 
         return response

@@ -34,7 +34,7 @@ def __executables():
             'compress_block_log',
             '--compress-block-log-path',
             'COMPRESS_BLOCK_LOG_PATH',
-            'programs/util/compress_block_log'
+            'programs/util/compress_block_log',
         ),
     ]
 

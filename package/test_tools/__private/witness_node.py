@@ -14,8 +14,14 @@ if TYPE_CHECKING:
 
 
 class WitnessNode(PreconfiguredNode):
-    def __init__(self, *, name: str = 'WitnessNode', witnesses: Optional[List[str]] = None,
-                 network: Optional[Network] = None, handle: Optional[NodeHandle] = None):
+    def __init__(
+        self,
+        *,
+        name: str = 'WitnessNode',
+        witnesses: Optional[List[str]] = None,
+        network: Optional[Network] = None,
+        handle: Optional[NodeHandle] = None,
+    ):
         super().__init__(name=name, network=network, handle=handle)
 
         assert 'witness' in self.config.plugin

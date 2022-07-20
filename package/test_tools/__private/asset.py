@@ -18,7 +18,7 @@ class AssetBase:
     @staticmethod
     def __warn_if_precision_might_be_lost(amount: Union[int, float], precision: int):
         rounded_value = round(amount, precision)
-        acceptable_error = 0.1 ** 10
+        acceptable_error = 0.1**10
 
         if abs(amount - rounded_value) > acceptable_error:
             warnings.warn(
@@ -75,9 +75,9 @@ class AssetBase:
             if set(self.as_nai().keys()) == set(other.keys()):
                 return self.as_nai() == other
 
-            raise KeyError(f'The keys did not match. '
-                           f'Expected: {set(self.as_nai().keys())}. '
-                           f'Actual: {set(other.keys())}')
+            raise KeyError(
+                f'The keys did not match. ' f'Expected: {set(self.as_nai().keys())}. ' f'Actual: {set(other.keys())}'
+            )
 
         raise TypeError(f'Assets can\'t be compared with objects of type {type(other)}')
 
@@ -89,6 +89,7 @@ class AssetBase:
 
     def __repr__(self):
         return f'Asset({self.as_nai()})'
+
 
 class Asset:
     class Hbd(AssetBase):

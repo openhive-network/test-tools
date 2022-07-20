@@ -12,11 +12,13 @@ def test_incorrect_value_with_underscores_loading(config):
 
 
 def test_double_quoted_string_loading(config):
-    config.load_from_lines([
-        'account-history-rocksdb-path = "blockchain/account-history-rocksdb-storage"',
-        'shared-file-dir = "blockchain"',
-        'snapshot-root-dir = "snapshot"',
-    ])
+    config.load_from_lines(
+        [
+            'account-history-rocksdb-path = "blockchain/account-history-rocksdb-storage"',
+            'shared-file-dir = "blockchain"',
+            'snapshot-root-dir = "snapshot"',
+        ]
+    )
 
     # Output should not contain double quotes inside string
     assert config.account_history_rocksdb_path == 'blockchain/account-history-rocksdb-storage'
@@ -30,22 +32,26 @@ def test_correct_plugins(config):
 
 
 def test_single_line_entry_loading(config):
-    config.load_from_lines([
-        'plugin = account_by_key',
-        'plugin = condenser_api',
-    ])
+    config.load_from_lines(
+        [
+            'plugin = account_by_key',
+            'plugin = condenser_api',
+        ]
+    )
 
     assert 'account_by_key' in config.plugin
     assert 'condenser_api' in config.plugin
 
 
 def test_multi_line_entry_loading(config):
-    config.load_from_lines([
-        'witness = "initminer"',
-        'witness = "other-witness"',
-        'private-key = 5JNHfZYKGaomSFvd4NUdQ9qMcEAC43kujbfjueTHpVapX1Kzq2n',
-        'private-key = 5JcCHFFWPW2DryUFDVd7ZXVj2Zo67rqMcvcq5inygZGBAPR1JoR',
-    ])
+    config.load_from_lines(
+        [
+            'witness = "initminer"',
+            'witness = "other-witness"',
+            'private-key = 5JNHfZYKGaomSFvd4NUdQ9qMcEAC43kujbfjueTHpVapX1Kzq2n',
+            'private-key = 5JcCHFFWPW2DryUFDVd7ZXVj2Zo67rqMcvcq5inygZGBAPR1JoR',
+        ]
+    )
 
     assert 'initminer' in config.witness
     assert 'other-witness' in config.witness
@@ -54,18 +60,18 @@ def test_multi_line_entry_loading(config):
 
 
 def test_entry_without_value_loading(config):
-    config.load_from_lines(
-        ['plugin = ']
-    )
+    config.load_from_lines(['plugin = '])
 
     assert not config.plugin
 
 
 def test_if_entries_without_value_not_clears_previous(config):
-    config.load_from_lines([
-        'plugin = account_by_key',
-        'plugin = condenser_api',
-        'plugin = ',
-    ])
+    config.load_from_lines(
+        [
+            'plugin = account_by_key',
+            'plugin = condenser_api',
+            'plugin = ',
+        ]
+    )
 
     assert config.plugin == ['account_by_key', 'condenser_api']

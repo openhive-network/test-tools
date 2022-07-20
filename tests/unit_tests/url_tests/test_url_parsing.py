@@ -7,7 +7,7 @@ from test_tools.__private.url import Url
     [
         ('http://127.0.0.1:8080', 'http', '127.0.0.1', 8080),
         ('ws://127.0.0.1:8080', 'ws', '127.0.0.1', 8080),
-    ]
+    ],
 )
 def test_url_parsing_without_expected_protocol(input_url, expected_protocol, expected_address, expected_port):
     url = Url(input_url)
@@ -22,7 +22,7 @@ def test_url_parsing_without_expected_protocol(input_url, expected_protocol, exp
     [
         ('127.0.0.1:8080', 'http', '127.0.0.1', 8080),
         ('127.0.0.1:8080', 'ws', '127.0.0.1', 8080),
-    ]
+    ],
 )
 def test_url_parsing_with_expected_protocol(input_url, expected_protocol, expected_address, expected_port):
     url = Url(input_url, protocol=expected_protocol)

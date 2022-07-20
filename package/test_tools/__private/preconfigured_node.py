@@ -17,11 +17,13 @@ class PreconfiguredNode(RawNode):
         super().__init__(name=name, network=network, handle=handle)
 
         self.__enable_all_api_plugins()
-        self.config.log_logger = '{"name":"default","level":"info","appender":"stderr"} ' \
-                                 '{"name":"user","level":"debug","appender":"stderr"} ' \
-                                 '{"name":"chainlock","level":"debug","appender":"p2p"} ' \
-                                 '{"name":"sync","level":"debug","appender":"p2p"} ' \
-                                 '{"name":"p2p","level":"debug","appender":"p2p"}'
+        self.config.log_logger = (
+            '{"name":"default","level":"info","appender":"stderr"} '
+            '{"name":"user","level":"debug","appender":"stderr"} '
+            '{"name":"chainlock","level":"debug","appender":"p2p"} '
+            '{"name":"sync","level":"debug","appender":"p2p"} '
+            '{"name":"p2p","level":"debug","appender":"p2p"}'
+        )
         self.config.shared_file_size = '128M'
 
     def __enable_all_api_plugins(self) -> None:

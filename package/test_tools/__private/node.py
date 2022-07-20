@@ -69,8 +69,10 @@ class Node(UserHandleImplementation, ScopedObject):
 
         def is_test_net_build(self):
             error_message = self.__run_and_get_output('--chain-id')
-            return error_message == 'Error parsing command line: '\
-                                    'the required argument for option \'--chain-id\' is missing'
+            return (
+                error_message == 'Error parsing command line: '
+                'the required argument for option \'--chain-id\' is missing'
+            )
 
         def is_main_net_build(self):
             error_message = self.__run_and_get_output('--chain-id')
@@ -327,7 +329,7 @@ class Node(UserHandleImplementation, ScopedObject):
             lambda: self.__is_block_with_number_reached(number),
             timeout=timeout,
             timeout_error_message=f'Waiting too long for block {number}',
-            poll_time=2.0
+            poll_time=2.0,
         )
 
     def __is_block_with_number_reached(self, number):
@@ -394,7 +396,7 @@ class Node(UserHandleImplementation, ScopedObject):
             with_arguments=[
                 f'--dump-snapshot={snapshot_path}',
                 *(['--exit-before-sync'] if close else []),
-            ]
+            ],
         )
 
         if not close:
@@ -414,13 +416,14 @@ class Node(UserHandleImplementation, ScopedObject):
         if plugin_required_for_snapshots not in self.config.plugin:
             self.config.plugin.append(plugin_required_for_snapshots)
 
-    def __run_process(self,
-                      *,
-                      blocking,
-                      write_config_before_run=True,
-                      with_arguments=(),
-                      with_environment_variables=None,
-                      with_time_offset=None,
+    def __run_process(
+        self,
+        *,
+        blocking,
+        write_config_before_run=True,
+        with_arguments=(),
+        with_environment_variables=None,
+        with_time_offset=None,
     ):
         self.__notifications.listen()
 
@@ -431,23 +434,24 @@ class Node(UserHandleImplementation, ScopedObject):
             blocking=blocking,
             with_arguments=with_arguments,
             with_time_offset=with_time_offset,
-            with_environment_variables=with_environment_variables
+            with_environment_variables=with_environment_variables,
         )
 
         if blocking:
             self.__notifications.close()
 
-    def run(self,
-            *,
-            load_snapshot_from=None,
-            replay_from=None,
-            stop_at_block=None,
-            exit_before_synchronization: bool = False,
-            wait_for_live=None,
-            arguments: Union[List[str], Tuple[str, ...]] = (),
-            environment_variables: Optional[Dict] = None,
-            timeout=DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
-            time_offset=None,
+    def run(
+        self,
+        *,
+        load_snapshot_from=None,
+        replay_from=None,
+        stop_at_block=None,
+        exit_before_synchronization: bool = False,
+        wait_for_live=None,
+        arguments: Union[List[str], Tuple[str, ...]] = (),
+        environment_variables: Optional[Dict] = None,
+        timeout=DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
+        time_offset=None,
     ):
         """
         :param wait_for_live: Stops execution until node will generate or receive blocks.
@@ -524,18 +528,30 @@ class Node(UserHandleImplementation, ScopedObject):
         self.__produced_files = True
 
         if not exit_before_synchronization:
-            wait_for_event(self.__notifications.synchronization_started_event, deadline=deadline,
-                           exception_message='Synchronization not started on time.')
+            wait_for_event(
+                self.__notifications.synchronization_started_event,
+                deadline=deadline,
+                exception_message='Synchronization not started on time.',
+            )
 
-            wait_for_event(self.__notifications.http_listening_event, deadline=deadline,
-                           exception_message='HTTP server didn\'t start listening on time.')
+            wait_for_event(
+                self.__notifications.http_listening_event,
+                deadline=deadline,
+                exception_message='HTTP server didn\'t start listening on time.',
+            )
 
-            wait_for_event(self.__notifications.ws_listening_event, deadline=deadline,
-                           exception_message='WS server didn\'t start listening on time.')
+            wait_for_event(
+                self.__notifications.ws_listening_event,
+                deadline=deadline,
+                exception_message='WS server didn\'t start listening on time.',
+            )
 
             if wait_for_live:
-                wait_for_event(self.__notifications.live_mode_entered_event, deadline=deadline,
-                               exception_message='Live mode not activated on time.')
+                wait_for_event(
+                    self.__notifications.live_mode_entered_event,
+                    deadline=deadline,
+                    exception_message='Live mode not activated on time.',
+                )
 
         self.__log_run_summary()
 
@@ -544,7 +560,7 @@ class Node(UserHandleImplementation, ScopedObject):
             snapshot_source = Snapshot(
                 snapshot_source,
                 Path(snapshot_source).joinpath('../blockchain/block_log'),
-                Path(snapshot_source).joinpath('../blockchain/block_log.index')
+                Path(snapshot_source).joinpath('../blockchain/block_log.index'),
             )
 
         self.__ensure_that_plugin_required_for_snapshot_is_included()
@@ -663,12 +679,14 @@ class Node(UserHandleImplementation, ScopedObject):
         unneeded_files_or_directories.remove('blockchain/')
 
         # All files below will be removed
-        unneeded_files_or_directories.extend([
-            'blockchain/block_log',
-            'blockchain/block_log.index',
-            'blockchain/shared_memory.bin',
-            *rocksdb_directory.glob('*.sst'),
-        ])
+        unneeded_files_or_directories.extend(
+            [
+                'blockchain/block_log',
+                'blockchain/block_log.index',
+                'blockchain/shared_memory.bin',
+                *rocksdb_directory.glob('*.sst'),
+            ]
+        )
 
     def __remove_all_files(self):
         self.__remove(self.directory)
@@ -682,8 +700,9 @@ class Node(UserHandleImplementation, ScopedObject):
     def wait_for_next_fork(self, timeout=math.inf):
         assert timeout >= 0
         deadline = time.time() + timeout
-        wait_for_event(self.__notifications.switch_fork_event, deadline=deadline,
-                       exception_message='Fork did not happen on time.')
+        wait_for_event(
+            self.__notifications.switch_fork_event, deadline=deadline, exception_message='Fork did not happen on time.'
+        )
 
     def get_number_of_forks(self):
         return self.__notifications.number_of_forks
