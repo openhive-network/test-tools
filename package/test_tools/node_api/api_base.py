@@ -1,3 +1,4 @@
+from distutils.util import strtobool
 import os
 
 
@@ -23,7 +24,7 @@ class NodeApiCallProxy:
 
         def schemas_should_be_automatically_validated() -> bool:
             should_validate = os.getenv('TEST_TOOLS_VALIDATE_RESPONSE_SCHEMAS', default='FALSE')
-            return should_validate.lower() == 'true' or should_validate == '1'
+            return bool(strtobool(should_validate))
 
         if schemas_should_be_automatically_validated():
             from schemas.get_schema import get_schema  # pylint: disable=import-outside-toplevel, import-error
