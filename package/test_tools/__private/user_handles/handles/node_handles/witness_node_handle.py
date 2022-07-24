@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing
 from typing import List, Optional, TYPE_CHECKING
 
 from test_tools.__private.user_handles.get_implementation import get_implementation
@@ -19,3 +20,5 @@ class WitnessNodeHandle(NodeHandleBase):
                 handle=self,
             )
         )
+    def disable_fast_confirm(self):
+        typing.cast(WitnessNode, get_implementation(self)).disable_fast_confirm()
