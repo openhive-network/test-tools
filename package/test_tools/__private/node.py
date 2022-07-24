@@ -363,6 +363,15 @@ class Node(UserHandleImplementation, ScopedObject):
     def set_allowed_nodes(self, nodes):
         return self.api.network_node.set_allowed_peers(allowed_peers=[node.get_id() for node in nodes])
 
+    def enable_fast_confirm(self):
+        self.api.witness.enable_fast_confirm()
+
+    def disable_fast_confirm(self):
+        self.api.witness.disable_fast_confirm()
+
+    def is_fast_confirm_enabled(self):
+        return self.api.witness.is_fast_confirm_enabled()
+
     def dump_config(self):
         assert not self.is_running()
 
