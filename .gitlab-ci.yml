@@ -1,7 +1,11 @@
 image: "$CI_REGISTRY_IMAGE/ci-cd-base-image"
 
+
 stages:
   - static_code_analysis
+
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| STATIC CODE ANALYSIS |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 lint_code_with_pylint:
   stage: static_code_analysis
@@ -11,3 +15,5 @@ lint_code_with_pylint:
     - echo -e "\033[1;34mLint user handles documentation\033[0m" && find ./package/test_tools/__private/user_handles/handles -type f -name "*.py" | xargs pylint --load-plugins=pylint.extensions.docparams --accept-no-param-doc=false --default-docstring-type=sphinx --enable=missing-function-docstring
   tags:
     - hived-for-tests  # Change to 'public-runner-docker' when pylint will be updated
+
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| STATIC CODE ANALYSIS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
