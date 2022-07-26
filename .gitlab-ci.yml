@@ -11,6 +11,10 @@ variables:
   TXT_CLEAR: "\e[0m"
 
 
+.shared_tags: &shared_tags
+  - hived-for-tests  # Change to 'public-runner-docker' when pylint will be updated
+
+
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| STATIC CODE ANALYSIS |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 lint_code_with_pylint:
@@ -24,7 +28,6 @@ lint_code_with_pylint:
         --load-plugins=pylint.extensions.docparams
         --accept-no-param-doc=false --default-docstring-type=sphinx
         --enable=missing-function-docstring
-  tags:
-    - hived-for-tests  # Change to 'public-runner-docker' when pylint will be updated
+  tags: *shared_tags
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| STATIC CODE ANALYSIS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
