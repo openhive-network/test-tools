@@ -49,6 +49,15 @@ lint_code_with_pylint:
         --enable=missing-function-docstring
   tags: *shared_tags
 
+
+formatting_with_black_check:
+  stage: static_code_analysis
+  extends: .configuration
+  script:
+    - echo -e "${TXT_BLUE}Checking code formatting with black${TXT_CLEAR}" &&
+      black package/test_tools tests/ --check --diff --color
+  tags: *shared_tags
+
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| STATIC CODE ANALYSIS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
