@@ -18,6 +18,9 @@ variables:
 .configuration:
   before_script:
     - pip install ."[dev]"
+    - python3 -V
+    - pip -V
+    - pip list
 
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| STATIC CODE ANALYSIS |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
