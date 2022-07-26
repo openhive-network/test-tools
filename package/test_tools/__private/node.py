@@ -308,7 +308,7 @@ class Node(UserHandleImplementation, ScopedObject):
         self.__executable = self.__Executable()
         self.__process = self.__Process(self.directory, self.__executable, self.__logger)
         self.__notifications = self.__NotificationsServer(self, self.__logger)
-        self.__cleanup_policy = None
+        self.__cleanup_policy: Optional[CleanupPolicy] = None
 
         self.config = create_default_config()
 

@@ -8,7 +8,7 @@ import re
 import shutil
 import signal
 import subprocess
-from typing import Final, Iterable, List, Literal, Optional, TYPE_CHECKING, Union
+from typing import Final, IO, Iterable, List, Literal, Optional, TYPE_CHECKING, Union
 import warnings
 
 from test_tools.__private import communication, paths_to_executables
@@ -995,7 +995,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         super().__init__(handle=handle)
 
         self.api = Wallet.__Api(self)
-        self.http_server_port = None
+        self.http_server_port: Optional[int] = None
         self.connected_node: Union[None, "Node", "RemoteNode"] = attach_to
         self.password = None
 
@@ -1010,9 +1010,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
             self.directory = context.get_current_directory() / self.name
 
         self.executable_file_path = None
-        self.stdout_file = None
-        self.stderr_file = None
-        self.process = None
+        self.stdout_file: Optional[IO] = None
+        self.stderr_file: Optional[IO] = None
+        self.process: Optional[subprocess.Popen] = None
         self.additional_arguments = list(additional_arguments)
         self.__produced_files = False
         self.logger = logger.create_child_logger(self.name)

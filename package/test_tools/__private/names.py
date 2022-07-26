@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import Optional, Set
+from typing import Dict, Optional, Set
 
 from test_tools.__private.exceptions import NameAlreadyInUse
 
 
 class Names:
     def __init__(self, parent: Optional[Names] = None):
-        self.__unique_names = set()
-        self.__next_name_numbers = {}
+        self.__unique_names: Set[str] = set()
+        self.__next_name_numbers: Dict[str, int] = {}
 
         self.__parent = parent
 

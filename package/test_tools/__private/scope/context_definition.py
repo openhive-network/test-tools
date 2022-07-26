@@ -14,6 +14,7 @@ class Context:
 
     def __init__(self, *, parent: Optional[Context]):
         self.__current_directory: Path
+        self.__logger: Optional[LoggerWrapper]
 
         self.__parent: Optional[Context] = parent
 
@@ -32,7 +33,7 @@ class Context:
     def set_current_directory(self, directory: Union[str, Path]):
         self.__current_directory = Path(directory)
 
-    def get_logger(self) -> LoggerWrapper:
+    def get_logger(self) -> Optional[LoggerWrapper]:
         return self.__logger
 
     def set_logger(self, logger: LoggerWrapper):

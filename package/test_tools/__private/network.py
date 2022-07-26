@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Optional, TYPE_CHECKING
+from typing import Dict, List, Optional, TYPE_CHECKING
 
 from test_tools.__private.logger.logger_internal_interface import logger
 from test_tools.__private.scope import context
@@ -16,8 +16,8 @@ class Network(UserHandleImplementation):
         super().__init__(handle=handle)
 
         self.name = context.names.register_numbered_name(name)
-        self.nodes = []
-        self.network_to_connect_with = None
+        self.nodes: List[Node] = []
+        self.network_to_connect_with: Optional[Network] = None
         self.connected_networks: set[Network] = set()
         self.disconnected_networks: set[Network] = set()
         self.logger = logger.create_child_logger(str(self))
