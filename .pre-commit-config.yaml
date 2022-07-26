@@ -22,6 +22,11 @@ repos:
         entry: black
         language: system
         types: [ python ]
+      - id: isort
+        name: reorder python imports with isort
+        entry: isort
+        language: system
+        types: [ python ]
       - id: pylint-sources
         name: lint all sources with pylint
         entry: pylint
