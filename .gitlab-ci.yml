@@ -51,6 +51,15 @@ lint_code_with_pylint:
   tags: *shared_tags
 
 
+static_typing_with_mypy_check:
+  stage: static_code_analysis
+  extends: .configuration
+  script:
+    - echo -e "${TXT_BLUE}[ Checking static typing of ${TXT_RED}package/ ${TXT_BLUE}and ${TXT_GREEN}tests/ ${TXT_BLUE}with mypy ]"
+    - mypy --pretty .
+  tags: *shared_tags
+
+
 imports_order_with_isort_check:
   stage: static_code_analysis
   extends: .configuration
