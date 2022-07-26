@@ -1,0 +1,14 @@
+# This dockerfile is used to build the base image used by CI/CD jobs.
+# In order to make changes, new image should be built and pushed to gitlab container registry.
+
+FROM ubuntu:20.04
+
+RUN \
+    apt-get update && \
+    apt-get install -y \
+      python3 \
+      python3-pip \
+      python3-venv \
+      git
+
+RUN pip install -U pip setuptools wheel
