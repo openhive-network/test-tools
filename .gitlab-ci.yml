@@ -18,9 +18,12 @@ lint_code_with_pylint:
   script:
     - pip3 install pylint==2.12.2 pytest
     - echo -e "${TXT_BLUE}Lint all sources with pylint${TXT_CLEAR}" &&
-      find . -type f -name "*.py" | xargs pylint
+      pylint package/test_tools tests/
     - echo -e "${TXT_BLUE}Lint user handles documentation${TXT_CLEAR}" &&
-      find ./package/test_tools/__private/user_handles/handles -type f -name "*.py" | xargs pylint --load-plugins=pylint.extensions.docparams --accept-no-param-doc=false --default-docstring-type=sphinx --enable=missing-function-docstring
+      pylint package/test_tools/__private/user_handles/handles/
+        --load-plugins=pylint.extensions.docparams
+        --accept-no-param-doc=false --default-docstring-type=sphinx
+        --enable=missing-function-docstring
   tags:
     - hived-for-tests  # Change to 'public-runner-docker' when pylint will be updated
 
