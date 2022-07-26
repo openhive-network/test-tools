@@ -51,6 +51,15 @@ lint_code_with_pylint:
   tags: *shared_tags
 
 
+imports_order_with_isort_check:
+  stage: static_code_analysis
+  extends: .configuration
+  script:
+    - echo -e "${TXT_BLUE}Check imports order with isort${TXT_CLEAR}" &&
+      isort ${PACKAGES_TO_CHECK} --check --diff --color
+  tags: *shared_tags
+
+
 formatting_with_black_check:
   stage: static_code_analysis
   extends: .configuration
