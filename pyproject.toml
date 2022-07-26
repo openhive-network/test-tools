@@ -29,6 +29,7 @@ pre-commit = "2.20.0"
 pylint = "2.15.2"
 pytest = "7.1.2"
 pytest-xdist = "2.5.0"
+types-requests = "2.28.4"
 
 
 [tool.black]
