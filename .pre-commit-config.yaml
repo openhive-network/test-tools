@@ -48,3 +48,8 @@ repos:
         ]
         language: system
         pass_filenames: false
+      - id: mypy
+        name: type check with mypy
+        entry: mypy
+        language: system
+        types: [ python ]
