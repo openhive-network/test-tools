@@ -15,6 +15,7 @@ class RaiseExceptionHelper:
             if cls.__last_exception is None:
                 # Default SIGINT handler raises KeyboardInterrupt, so below code is not executed
                 signal.default_int_handler(signal_number, current_stack_frame)
+                raise RuntimeError('SIGINT handler was not called')  # should never be reached, just for mypy checking
 
             exception_to_raise = cls.__last_exception
             cls.__last_exception = None
