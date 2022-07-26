@@ -17,6 +17,11 @@ repos:
         args: [ "--no-update" ]
   - repo: local
     hooks:
+      - id: black
+        name: format code using black
+        entry: black
+        language: system
+        types: [ python ]
       - id: pylint-sources
         name: lint all sources with pylint
         entry: pylint
