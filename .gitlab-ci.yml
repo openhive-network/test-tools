@@ -15,12 +15,17 @@ variables:
   - hived-for-tests  # Change to 'public-runner-docker' when pylint will be updated
 
 
+.configuration:
+  before_script:
+    - pip install ."[dev]"
+
+
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| STATIC CODE ANALYSIS |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 lint_code_with_pylint:
   stage: static_code_analysis
+  extends: .configuration
   script:
-    - pip3 install pylint==2.12.2 pytest
     - echo -e "${TXT_BLUE}Lint all sources with pylint${TXT_CLEAR}" &&
       pylint package/test_tools tests/
     - echo -e "${TXT_BLUE}Lint user handles documentation${TXT_CLEAR}" &&
