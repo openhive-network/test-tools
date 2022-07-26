@@ -1,10 +1,10 @@
 image: "$CI_REGISTRY_IMAGE/ci-cd-base-image"
 
 stages:
-  - lint
+  - static_code_analysis
 
-run-pylint:
-  stage: lint
+lint_code_with_pylint:
+  stage: static_code_analysis
   script:
     - pip3 install pylint==2.12.2 pytest
     - echo -e "\033[1;34mLint all sources\033[0m" && find . -type f -name "*.py" | xargs pylint
