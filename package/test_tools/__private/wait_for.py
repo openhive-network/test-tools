@@ -1,6 +1,6 @@
 import math
 import time
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from threading import Event
@@ -23,7 +23,7 @@ def wait_for(predicate, *, timeout=math.inf, timeout_error_message=None, poll_ti
 
 def wait_for_event(
     event: "Event",
-    deadline: Optional[float] = None,
+    deadline: float,
     exception_message: str = "The event didn't occur within given time frame",
 ) -> None:
     """
