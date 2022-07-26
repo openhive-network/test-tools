@@ -3,6 +3,7 @@ image: "$CI_REGISTRY_IMAGE/ci-cd-base-image"
 
 stages:
   - static_code_analysis
+  - tests
 
 
 variables:
@@ -39,3 +40,23 @@ lint_code_with_pylint:
   tags: *shared_tags
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| STATIC CODE ANALYSIS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| TESTS |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+unit_tests_launch:
+  stage: tests
+  extends: .configuration
+  needs: []  # to start immediately, without waiting for previous stages
+  when: always  # to run even when static_code_analysis fails
+  script:
+    - export NUMBER_OF_PROCESSES=$(nproc)
+    - export TESTS_TO_SKIP="not (test_multiple_accounts_creation or test_default_config_values)"
+    - echo -e "${TXT_BLUE}Launching tests${TXT_CLEAR}" &&
+      python3 -m pytest -n $NUMBER_OF_PROCESSES -k "$TESTS_TO_SKIP" --junitxml=report.xml tests/unit_tests
+  artifacts:
+    reports:
+      junit: report.xml
+  tags: *shared_tags
+
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| TESTS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
