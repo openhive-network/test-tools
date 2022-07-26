@@ -1,0 +1,36 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-json
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: double-quote-string-fixer
+      - id: pretty-format-json
+        args: [ "--autofix" ]
+  - repo: local
+    hooks:
+      - id: pylint-sources
+        name: lint all sources with pylint
+        entry: pylint
+        args: [
+          "package/test_tools/",
+          "tests/",
+        ]
+        language: system
+        pass_filenames: false
+      - id: pylint-handles
+        name: lint user handles documentation with pylint
+        entry: pylint
+        args: [
+          "package/test_tools/__private/user_handles/handles/",
+          "--load-plugins=pylint.extensions.docparams",
+          "--accept-no-param-doc=false",
+          "--default-docstring-type=sphinx",
+          "--enable=missing-function-docstring",
+        ]
+        language: system
+        pass_filenames: false
