@@ -126,7 +126,7 @@ class NodeConfig:
             raise KeyError(f'There is no such entry like "{key}"') from error
 
     def __get_entries(self):
-        return self.__getattribute__("__entries")
+        return getattr(self, "__entries")
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
