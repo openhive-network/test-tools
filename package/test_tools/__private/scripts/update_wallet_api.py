@@ -48,6 +48,8 @@ class WalletApiTranslator:
 
         for signature in method_signatures:
             method_match_result = re.match(r"\s*(.+) ([\w_]+)\((.*)\)", signature)
+            if not method_match_result:
+                continue
 
             method = Method(name=method_match_result[2], return_value=method_match_result[1], parameters=[])
 
@@ -56,6 +58,8 @@ class WalletApiTranslator:
                     continue
 
                 parameter_match_result = re.match(r"(.*) ([\w_]+)", parameter)
+                if not parameter_match_result:
+                    continue
                 method.parameters.append(
                     Parameter(
                         name=parameter_match_result[2],
