@@ -68,21 +68,21 @@ def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=
     for attempts_left in reversed(range(max_attempts)):
         response = requests.post(url, data=message)  # pylint: disable=missing-timeout
         status_code = response.status_code
-        response = json.loads(response.content.decode("utf-8"))
+        result = json.loads(response.content.decode("utf-8"))
         if status_code == 200:
-            if "result" in response:
-                return response
+            if "result" in result:
+                return result
 
-            if "error" in response:
-                logger.debug(f"Error in response from {url}: message={message}, response={response}")
+            if "error" in result:
+                logger.debug(f"Error in response from {url}: message={message}, response={result}")
             else:
-                raise CommunicationError(f"Unknown response format from {url}: ", message, response)
+                raise CommunicationError(f"Unknown response format from {url}: ", message, result)
         else:
             logger.debug(
-                f"Received bad status code {status_code} != 200 from {url}, message={message}, response={response}"
+                f"Received bad status code {status_code} != 200 from {url}, message={message}, response={result}"
             )
 
         if attempts_left > 0:
             time.sleep(seconds_between_attempts)
 
-    raise CommunicationError(f"Problem occurred during communication with {url}", message, response)
+    raise CommunicationError(f"Problem occurred during communication with {url}", message, result)
