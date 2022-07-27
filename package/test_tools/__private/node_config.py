@@ -28,7 +28,7 @@ class NodeConfig:
         # pylint: disable=too-many-statements
         # Config contains so many entries and all of them must be defined here
 
-        super().__setattr__("__entries", {})
+        super().__setattr__(f"_{self.__class__.__name__}__entries", {})
 
         # pylint: disable=attribute-defined-outside-init
         # This method is called in __init__
@@ -109,24 +109,19 @@ class NodeConfig:
         self.block_stats_report_output = String()
 
     def __setattr__(self, key, value):
-        entries = self.__get_entries()
         if self.__is_initialization_stage():
-            entries[key] = value
+            self.__entries[key] = value
         else:
             try:
-                entries[key].set_value(value)
+                self.__entries[key].set_value(value)
             except KeyError as error:
                 raise KeyError(f'There is no such entry like "{key}"') from error
 
     def __getattr__(self, key):
-        entries = self.__get_entries()
         try:
-            return entries[key].get_value()
+            return self.__entries[key].get_value()
         except KeyError as error:
             raise KeyError(f'There is no such entry like "{key}"') from error
-
-    def __get_entries(self):
-        return self.__getattribute__("__entries")
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -138,8 +133,7 @@ class NodeConfig:
 
     def get_differences_between(self, other, stop_at_first_difference=False):
         differences = {}
-        names_of_entries = self.__get_entries().keys()
-        for name_of_entry in names_of_entries:
+        for name_of_entry in self.__entries:
             mine = getattr(self, name_of_entry)
             his = getattr(other, name_of_entry)
 
@@ -162,8 +156,7 @@ class NodeConfig:
             return False
 
         file_entries = []
-        entries = self.__get_entries()
-        for key, entry in entries.items():
+        for key, entry in self.__entries.items():
             if should_skip_entry(entry):
                 continue
 
@@ -215,19 +208,17 @@ class NodeConfig:
                 self.__check_if_key_from_file_is_valid(key)
 
                 if value != "":
-                    entries = self.__get_entries()
-                    entries[key.replace("-", "_")].parse_from_text(value)
+                    self.__entries[key.replace("-", "_")].parse_from_text(value)
 
     def __check_if_key_from_file_is_valid(self, key_to_check):
         """Keys from file have hyphens instead of underscores"""
-        valid_keys = [key.replace("_", "-") for key in self.__get_entries().keys()]
+        valid_keys = [key.replace("_", "-") for key in self.__entries]
 
         if key_to_check not in valid_keys:
             raise KeyError(f'Unknown config entry name: "{key_to_check}".')
 
     def __clear_values(self):
-        entries = self.__get_entries()
-        for entry in entries.values():
+        for entry in self.__entries.values():
             entry.clear()
 
     def load_from_file(self, file_path):
