@@ -21,7 +21,7 @@ class Context:
         if self.__parent is not None:
             self.__current_directory = self.__parent.get_current_directory()
             self.__logger = self.__parent.get_logger()
-            self.__names = Names(parent=self.__parent.__names)  # pylint: disable=protected-access
+            self._names = Names(parent=self.__parent.get_names())
         else:
             self.__current_directory = self.DEFAULT_CURRENT_DIRECTORY
             self.__logger = None
