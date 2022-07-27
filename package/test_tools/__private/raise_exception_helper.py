@@ -1,7 +1,7 @@
 import os
 import signal
 import threading
-from typing import ClassVar, Optional
+from typing import ClassVar, NoReturn, Optional
 
 
 class RaiseExceptionHelper:
@@ -10,12 +10,12 @@ class RaiseExceptionHelper:
     __lock: ClassVar[threading.Lock] = threading.Lock()
 
     @classmethod
-    def __external_error_handler(cls, signal_number, current_stack_frame) -> None:
+    def __external_error_handler(cls, signal_number, current_stack_frame) -> NoReturn:
         with cls.__lock:
             if cls.__last_exception is None:
                 # Default SIGINT handler raises KeyboardInterrupt, so below code is not executed
                 signal.default_int_handler(signal_number, current_stack_frame)
-                raise RuntimeError('SIGINT handler was not called')  # should never be reached, just for mypy checking
+                raise RuntimeError("SIGINT handler was not called")  # should never be reached, just for mypy checking
 
             exception_to_raise = cls.__last_exception
             cls.__last_exception = None
@@ -31,10 +31,11 @@ class RaiseExceptionHelper:
             cls.__is_initialized = True
 
     @classmethod
-    def raise_exception_in_main_thread(cls, exception: Exception) -> None:
+    def raise_exception_in_main_thread(cls, exception: Exception) -> NoReturn:
         with cls.__lock:
             assert threading.current_thread() is not threading.main_thread()
             assert cls.__is_initialized, "initialize() should be called before this function"
 
             cls.__last_exception = exception
             os.kill(os.getpid(), signal.SIGINT)
+        raise RuntimeError("SIGINT was not raised")  # should never be reached, just for mypy checking
