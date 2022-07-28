@@ -44,7 +44,7 @@ lint_code_with_pylint:
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| TESTS |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-unit_tests_launch:
+run_unit_tests:
   stage: tests
   extends: .configuration
   needs: []  # to start immediately, without waiting for previous stages
