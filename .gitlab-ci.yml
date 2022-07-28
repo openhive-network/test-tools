@@ -7,6 +7,7 @@ stages:
 
 
 variables:
+  PACKAGES_TO_CHECK: "package/test_tools/ tests/"
   # colors:
   TXT_BLUE: "\e[1;34m"
   TXT_CLEAR: "\e[0m"
@@ -41,7 +42,7 @@ lint_code_with_pylint:
   extends: .configuration
   script:
     - echo -e "${TXT_BLUE}Lint all sources with pylint${TXT_CLEAR}" &&
-      pylint package/test_tools tests/
+      pylint ${PACKAGES_TO_CHECK}
     - echo -e "${TXT_BLUE}Lint user handles documentation${TXT_CLEAR}" &&
       pylint package/test_tools/__private/user_handles/handles/
         --load-plugins=pylint.extensions.docparams
@@ -55,7 +56,7 @@ formatting_with_black_check:
   extends: .configuration
   script:
     - echo -e "${TXT_BLUE}Checking code formatting with black${TXT_CLEAR}" &&
-      black package/test_tools tests/ --check --diff --color
+      black ${PACKAGES_TO_CHECK} --check --diff --color
   tags: *shared_tags
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| STATIC CODE ANALYSIS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
