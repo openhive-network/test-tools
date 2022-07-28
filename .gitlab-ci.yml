@@ -50,7 +50,7 @@ run_unit_tests:
   needs: []  # to start immediately, without waiting for previous stages
   when: always  # to run even when static_code_analysis fails
   script:
-    - echo -e "${TXT_BLUE}Launching tests${TXT_CLEAR}" &&
+    - echo -e "${TXT_BLUE}Run tests${TXT_CLEAR}" &&
       python3 -m pytest -n auto --junitxml=report.xml tests/unit_tests
   artifacts:
     reports:
