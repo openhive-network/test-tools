@@ -105,6 +105,8 @@ class NodeConfig:
         self.enable_block_log_compression = Boolean()
         self.block_log_compression_level = Integer()
         self.blockchain_thread_pool_size = Integer()
+        self.block_stats_report_type = Untouched()
+        self.block_stats_report_output = Untouched()
 
     def __setattr__(self, key, value):
         entries = self.__get_entries()

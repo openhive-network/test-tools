@@ -18,7 +18,7 @@ def create_default_config():
     config.block_log_info_print_irreversible = '1'
     config.block_log_info_print_file = 'ILOG'
     config.shared_file_dir = 'blockchain'
-    config.shared_file_size = '54G'
+    config.shared_file_size = '24G'
     config.shared_file_full_threshold = '0'
     config.shared_file_scale_rate = '0'
     config.follow_max_feed_size = '500'
@@ -40,5 +40,7 @@ def create_default_config():
     config.enable_block_log_compression = True
     config.block_log_compression_level = 15
     config.blockchain_thread_pool_size = 8
+    config.block_stats_report_type = 'FULL'
+    config.block_stats_report_output = 'ILOG'
 
     return config
