@@ -180,7 +180,7 @@ class NodeHandleBase(Handle):
         :param timeout: Time limit for wait. When timeout is reached, `TimeoutError` exception is thrown. Expressed in
             seconds.
 
-        See also similar method: `wait_for_block_with_number`.
+        See also similar methods: `wait_for_block_with_number` and `wait_until_block_will_be_irreversible`.
         """
         return self.__implementation.wait_number_of_blocks(blocks_to_wait, timeout=timeout)
 
@@ -196,6 +196,17 @@ class NodeHandleBase(Handle):
         See also similar method: `wait_number_of_blocks`.
         """
         return self.__implementation.wait_for_block_with_number(number, timeout=timeout)
+
+    def wait_until_block_will_be_irreversible(self, number_of_block: int, *, timeout: float = math.inf) -> None:
+        """
+        Blocks program execution until block with specified number by `number_of_block` will be irreversible. Maximum
+        wait time can be limited with `timeout` parameter.
+
+        :param number_of_block: When block with this number will be irreversible, execution will be resumed.
+        :param timeout: Time limit for wait. When timeout is reached, `TimeoutError` exception is thrown. Expressed in
+            seconds.
+        """
+        return self.__implementation.wait_until_block_will_be_irreversible(number_of_block, timeout=timeout)
 
     @property
     def ws_endpoint(self) -> str:

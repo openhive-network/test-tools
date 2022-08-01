@@ -323,6 +323,28 @@ class Node(UserHandleImplementation, ScopedObject):
             poll_time=2.0
         )
 
+    def wait_until_block_will_be_irreversible(self, number_of_block: int, *, timeout: float = math.inf) -> None:
+        self.__logger.debug(f'Waiting until block {number_of_block} will be irreversible.')
+
+        def __is_block_irreversible() -> bool:
+            last_irreversible_block_number = self.__last_irreversible_block_number
+            self.__logger.debug(f'Last irreversible block is {last_irreversible_block_number}.')
+            return last_irreversible_block_number >= number_of_block
+
+        wait_for(
+            __is_block_irreversible,
+            timeout=timeout,
+            timeout_error_message=f'Waiting too long for block {number_of_block} to be irreversible',
+            poll_time=1.5,
+        )
+
+        self.__logger.debug(f'Queried block {number_of_block} is irreversible.')
+
+    @property
+    def __last_irreversible_block_number(self) -> int:
+        properties = self.api.database.get_dynamic_global_properties()
+        return properties['last_irreversible_block_num']
+
     def __is_block_with_number_reached(self, number):
         last = self.get_last_block_number()
         return last >= number
