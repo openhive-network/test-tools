@@ -580,9 +580,9 @@ class Node(UserHandleImplementation, ScopedObject):
         if stop_at_block is not None:
             additional_arguments.append(f"--stop-replay-at-block={stop_at_block}")
 
-        blocklog_directory = self.directory.joinpath("blockchain")
-        blocklog_directory.mkdir()
-        replay_source.copy_to(blocklog_directory)
+        block_log_directory = self.directory.joinpath("blockchain")
+        block_log_directory.mkdir()
+        replay_source.copy_to(block_log_directory)
 
     def __log_run_summary(self):
         if self.is_running():

@@ -28,7 +28,7 @@ snapshot = first_node.dump_snapshot()
 second_node.run(load_snapshot_from=snapshot)
 ```
 
-If you have external snapshot, which was generated outside of test case, you can pass path to snapshot files in `load_snapshot_from` parameter (but don't forget that blocklog files are also needed, read below code example):
+If you have external snapshot, which was generated outside of test case, you can pass path to snapshot files in `load_snapshot_from` parameter (but don't forget that block log files are also needed, read below code example):
 ```python
 second_node.run(load_snapshot_from='~/snapshot')
 ```

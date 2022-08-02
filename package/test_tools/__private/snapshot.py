@@ -25,11 +25,11 @@ class Snapshot:
                 self.state = json.load(state_file)
 
     def copy_to(self, node_directory: Path):
-        blocklog_directory = node_directory / "blockchain"
-        blocklog_directory.mkdir(exist_ok=True)
+        block_log_directory = node_directory / "blockchain"
+        block_log_directory.mkdir(exist_ok=True)
 
-        self.__copy_file(self.__block_log_path, blocklog_directory)
-        self.__copy_file(self.__block_log_artifacts_path, blocklog_directory, allow_missing=True)
+        self.__copy_file(self.__block_log_path, block_log_directory)
+        self.__copy_file(self.__block_log_artifacts_path, block_log_directory, allow_missing=True)
 
         destination_snapshot_path = node_directory / "snapshot"
         if self.__snapshot_path != destination_snapshot_path:

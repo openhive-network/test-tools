@@ -108,7 +108,7 @@ print(response)
 
 ### Raw node
 
-Node with default, unmodified configuration. Can be useful for tests which checks default behavior of node. Using this type of node is not recomended. Should be avoided and used only if any other can't meet the requirements. Every raw node creates 54 GB file for blocklog and has only few APIs included (it means additional code for including APIs in every test case).
+Node with default, unmodified configuration. Can be useful for tests which checks default behavior of node. Using this type of node is not recomended. Should be avoided and used only if any other can't meet the requirements. Every raw node creates 54 GB file for block log and has only few APIs included (it means additional code for including APIs in every test case).
 
 If you want to check some default config value, use `create_default_config` function.
 ```python
