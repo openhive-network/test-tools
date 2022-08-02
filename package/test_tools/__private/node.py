@@ -324,8 +324,8 @@ class Node(UserHandleImplementation, ScopedObject):
     def get_name(self):
         return self.__name
 
-    def get_block_log(self, include_index=True):
-        return BlockLog(self, self.directory.joinpath("blockchain/block_log"), include_index=include_index)
+    def get_block_log(self, include_artifacts=True):
+        return BlockLog(self, self.directory.joinpath("blockchain/block_log"), include_artifacts=include_artifacts)
 
     def get_supported_plugins(self) -> List[str]:
         return self.__executable.get_supported_plugins()
@@ -420,7 +420,7 @@ class Node(UserHandleImplementation, ScopedObject):
         return Snapshot(
             self.directory / "snapshot" / snapshot_path,
             self.directory / "blockchain/block_log",
-            self.directory / "blockchain/block_log.index",
+            self.directory / "blockchain/block_log.artifacts",
             self,
         )
 
@@ -565,7 +565,7 @@ class Node(UserHandleImplementation, ScopedObject):
             snapshot_source = Snapshot(
                 snapshot_source,
                 Path(snapshot_source).joinpath("../blockchain/block_log"),
-                Path(snapshot_source).joinpath("../blockchain/block_log.index"),
+                Path(snapshot_source).joinpath("../blockchain/block_log.artifacts"),
             )
 
         self.__ensure_that_plugin_required_for_snapshot_is_included()

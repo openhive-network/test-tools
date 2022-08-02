@@ -32,11 +32,11 @@ If you have external snapshot, which was generated outside of test case, you can
 ```python
 second_node.run(load_snapshot_from='~/snapshot')
 ```
-To start from snapshot node requires, besides snapshot files, block log (and optionally block log index). TestTools will try to find these files in same directory, where snapshot is located, in `blockchain` subdirectory. So in above example you need to provide following files structure:
+To start from snapshot node requires, besides snapshot files, block log (and optionally block log artifacts). TestTools will try to find these files in same directory, where snapshot is located, in `blockchain` subdirectory. So in above example you need to provide following files structure:
 ```
 📂 ~
 ├─ 📂 blockchain
 │  ├─ block_log
-│  └─ block_log.index
+│  └─ block_log.artifacts
 └─ 📂 snapshot
 ```

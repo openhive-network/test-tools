@@ -73,16 +73,17 @@ class NodeHandleBase(Handle):
         """
         return self.__implementation.dump_snapshot(close=close)
 
-    def get_block_log(self, *, include_index: bool = True) -> BlockLog:
+    def get_block_log(self, *, include_artifacts: bool = True) -> BlockLog:
         """
-        Returns block log object, containing paths to block log and optionally block log index. Presence of index can be
-        configured with `include_index` flag. It is safe to get block log object when node is running, but copying or
-        using for replay might lead to problems, because files referenced by block log object might be modified.
+        Returns block log object, containing paths to block log and optionally block log artifacts. Presence of
+        artifacts can be configured with `include_artifacts` flag. It is safe to get block log object when node is
+        running, but copying or using for replay might lead to problems, because files referenced by block log object
+        might be modified.
 
-        :param include_index: When set to True, block log object will contain block log index path.
+        :param include_artifacts: When set to True, block log object will contain block log artifacts path.
         :return: Block log object, which can be used by another node to perform replay.
         """
-        return self.__implementation.get_block_log(include_index)
+        return self.__implementation.get_block_log(include_artifacts)
 
     def get_last_block_number(self) -> int:
         """Returns number of the newest block known to node."""
@@ -127,12 +128,12 @@ class NodeHandleBase(Handle):
 
         :param load_snapshot_from: Path to snapshot data directory. When provided, snapshot data are copied into node's
             directory and then node loads snapshot. Note that snapshot requires also block log and optionally block log
-            index. These files should be in blockchain directory, at the same level as directory with snapshot files.
-            For details see tutorial at:
+            artifacts. These files should be in blockchain directory, at the same level as directory with snapshot
+            files. For details see tutorial at:
             https://gitlab.syncad.com/hive/test-tools/-/blob/master/documentation/tutorials/snapshot.md.
-        :param replay_from: Path to block log (and optionally block log index), which will be replayed. When provided,
-            given block log is copied into node's directory and then is used for replay. For details see tutorial at:
-            https://gitlab.syncad.com/hive/test-tools/-/blob/master/documentation/tutorials/replay.md.
+        :param replay_from: Path to block log (and optionally block log artifacts), which will be replayed. When
+            provided, given block log is copied into node's directory and then is used for replay. For details see
+            tutorial at: https://gitlab.syncad.com/hive/test-tools/-/blob/master/documentation/tutorials/replay.md.
         :param stop_at_block: Number of last block which should be replayed. After this block, replay is interrupted and
             synchronization starts.
         :param exit_before_synchronization: Stops node startup and closes node before synchronization.

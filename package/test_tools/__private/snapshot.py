@@ -7,10 +7,12 @@ from typing import Optional
 
 
 class Snapshot:
-    def __init__(self, snapshot_path: Path, block_log_path: Path, block_log_index_path: Path, node=None):
+    def __init__(self, snapshot_path: Path, block_log_path: Path, block_log_artifacts_path: Path, node=None):
         self.__snapshot_path: Path = snapshot_path
         self.__block_log_path: Path = block_log_path
-        self.__block_log_index_path: Optional[Path] = block_log_index_path if block_log_index_path.exists() else None
+        self.__block_log_artifacts_path: Optional[Path] = (
+            block_log_artifacts_path if block_log_artifacts_path.exists() else None
+        )
         self.__creator = node
 
         if node is not None:
@@ -27,7 +29,7 @@ class Snapshot:
         blocklog_directory.mkdir(exist_ok=True)
 
         self.__copy_file(self.__block_log_path, blocklog_directory)
-        self.__copy_file(self.__block_log_index_path, blocklog_directory, allow_missing=True)
+        self.__copy_file(self.__block_log_artifacts_path, blocklog_directory, allow_missing=True)
 
         destination_snapshot_path = node_directory / "snapshot"
         if self.__snapshot_path != destination_snapshot_path:

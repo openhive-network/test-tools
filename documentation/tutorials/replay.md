@@ -33,20 +33,20 @@ Replay can be stopped at specified block number with `stop_at_block` parameter:
 node.run(replay_from='~/blockchain/block_log', stop_at_block=1_000_000)
 ```
 
-Replay can be accelerated by appending `block_log.index` file. Then node don't need to generate it again. This file will be automatically found and use in both above described methods. Index file should be placed in the same directory as block log file.
+Replay can be accelerated by appending `block_log.artifacts` file. Then node don't need to generate it again. This file will be automatically found and use in both above described methods. Artifacts file should be placed in the same directory as block log file.
 ```
 📂 ~
 └─ 📂 blockchain
    ├─ block_log
-   └─ block_log.index
+   └─ block_log.artifacts
 ```
 
-If you don't have index file or just want to perform replay without it, set `include_index` to `False`. If you are getting block log from node in same test case:
+If you don't have artifacts file or just want to perform replay without it, set `include_artifacts` to `False`. If you are getting block log from node in same test case:
 ```python
-block_log = node.get_block_log(include_index=False)
+block_log = node.get_block_log(include_artifacts=False)
 ```
 or if block log comes from custom directory:
 ```python
 import test_tools as tt
-block_log = tt.BlockLog('~/blockchain/block_log', include_index=False)
+block_log = tt.BlockLog('~/blockchain/block_log', include_artifacts=False)
 ```
