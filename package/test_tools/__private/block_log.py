@@ -51,7 +51,7 @@ class BlockLog:
             )  # fmt: skip
 
         warnings.warn(
-            f"Block log with following path is missing:\n"
+            f"Block log artifacts with following path are missing:\n"
             f"{block_log_artifacts_path}\n"
             f"\n"
             f"If you want to use block log without artifacts, set include_artifacts flag to False like:\n"
