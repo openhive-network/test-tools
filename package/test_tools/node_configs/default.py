@@ -39,6 +39,7 @@ def create_default_config():
     config.witness_skip_enforce_bandwidth = '1'
     config.enable_block_log_compression = True
     config.block_log_compression_level = 15
+    config.schedule_production_at_startup = True
     config.blockchain_thread_pool_size = 8
 
     return config
