@@ -136,7 +136,7 @@ class Node(UserHandleImplementation, ScopedObject):
             libfaketime_path = os.getenv('LIBFAKETIME_PATH') or '/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1'
             if not Path(libfaketime_path).is_file():
                 raise RuntimeError(f'libfaketime was not found at {libfaketime_path}')
-            self.__logger.info(f"using time_offset {time_offset}")
+            self.__logger.info(f'using time_offset {time_offset}')
             env['LD_PRELOAD'] = libfaketime_path
             env['FAKETIME'] = time_offset
             env['FAKETIME_DONT_RESET'] = '1'
