@@ -52,7 +52,7 @@ def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=
     assert max_attempts > 0
 
     json_encoder = JsonEncoderWithNaiAssets if use_nai_assets else JsonEncoderWithLegacyAssets
-    message = bytes(json.dumps(message, cls=json_encoder), "utf-8") + b"\r\n"
+    message = bytes(json.dumps(message, cls=json_encoder), 'utf-8') + b'\r\n'
 
     for attempts_left in reversed(range(max_attempts)):
         response = requests.post(url, data=message)
