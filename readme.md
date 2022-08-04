@@ -4,43 +4,125 @@ To use TestTools you have to install them and specify location of hive executabl
 
 ### 1. Install package
 
-Select one of following methods (click to expand):
-
 <details>
-<summary>Install with PyCharm</summary>
+<summary>Full installation (recommended for testers and developers)</summary>
 
-With opened project, select tab "Python Packages" at the bottom of window, click "Add Package" and then "From Disk".
+#### A. Select one of following methods:
+- <details>
+  <summary>Install with PyCharm</summary>
 
-![Installation instructions](./documentation/installation_in_pycharm0.png)
+  Best to create virtual environment in the `~/hive/tests/` directory using pycharm _project-specific_
+  [_isolated virtual environment_](https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html).
 
-Select TestTools directory, mark "Install as editable" option and click OK.
+  With opened project, select tab `Python Packages` at the bottom of window, click `Add Package` and then `From Disk`.
 
-![Installation instructions](./documentation/installation_in_pycharm1.png)
+  ![Installation instructions](./documentation/installation_in_pycharm0.png)
+
+  Select TestTools directory, mark `Install as editable` option, specify extra `[dev]` for additional dependencies and click OK.
+
+  ![Installation instructions](./documentation/installation_in_pycharm_dev.png)
+  </details>
+
+- <details>
+  <summary>Install in virtual environment manually</summary>
+
+  ```bash
+  cd ~/hive/tests/                              # Go to tests/ directory of hive repository
+  python3.8 -m venv venv/                       # Create virtual environment in venv/ directory
+  . venv/bin/activate                           # Activate it
+  pip install -e ~/hive/tests/test_tools'[dev]' # Install TestTools with `[dev]` extras
+  ```
+
+  To deactivate virtual environment run:
+  ```bash
+  deactivate
+  ```
+  </details>
+
+- <details>
+  <summary>Install in your operating system scope (not recommended)</summary>
+
+  Enter following command in terminal:
+  ```bash
+  pip3 install -e ~/hive/tests/test_tools'[dev]'
+  ```
+  </details>
+
+#### B. Initialize git hooks
+Installation will include additional tools for code quality checking and `pre-commit` framework for git hooks managing.\
+You can initialize it with following line:
+```bash
+pre-commit install
+```
+
+If for some reason you want to bypass the pre-commit hooks, use the `--no-verify` flag.
+This will skip all analysis, so you will be able to trigger CI/CD pipeline (e.g. to run tests on WIP code) without the
+need to ensure the production quality of the code.
+```bash
+git commit --no-verify
+```
+
+#### C. `[Only with the virtual environment]` Install script which will automatically activate virtual environment
+
+Git hooks require additional dependencies already installed in a virtual environment to work. It is annoying to activate
+it manually every time. This script activates them automatically every time you enter the directory containing the
+virtual environment.
+
+Follow instructions below:
+
+1. Get the script
+
+    ```bash
+    git clone --depth 1 https://github.com/egilewski/virtualenv-autodetect /tmp/virtualenv-autodetect
+    cp /tmp/virtualenv-autodetect/virtualenv-autodetect.sh ~/.virtualenv-autodetect.sh
+    ```
+
+2. Add the following line to end of your `.bashrc`, `.bash-profile` or `.zshenv` file:
+
+   `source ~/.virtualenv-autodetect.sh`
 </details>
 
 <details>
-<summary>Install in virtual environment manually</summary>
+<summary>Lightweight installation (if you want only to run tests, without contributing)</summary>
 
-```bash
-cd ~/virtual_environments               # Select location for virtual environment
-python3.8 -m venv venv                  # Create virtual environment in current directory
-source venv/bin/activate                # Activate it
-pip install -e ~/hive/tests/test_tools  # Install TestTools
-```
+#### Select one of following methods:
+- <details>
+  <summary>Install with PyCharm</summary>
 
-To deactivate virtual environment run:
-```bash
-deactivate
-```
-</details>
+  With opened project, select tab `Python Packages` at the bottom of window, click `Add Package` and then `From Disk`.
 
-<details>
-<summary>Install in your operating system scope (not recommended)</summary>
+  ![Installation instructions](./documentation/installation_in_pycharm0.png)
 
-Enter following command in terminal:
-```bash
-pip3 install -e ~/hive/tests/test_tools/
-```
+  Select TestTools directory, mark `Install as editable` option and click OK.
+
+  ![Installation instructions](./documentation/installation_in_pycharm1.png)
+  </details>
+
+- <details>
+  <summary>Install in virtual environment manually</summary>
+
+  ```bash
+  cd ~/hive/tests/test_tools/             # Go to repository root directory
+  python3.8 -m venv venv/                 # Create virtual environment in venv/ directory
+  source venv/bin/activate                # Activate it
+  pip install -e ~/hive/tests/test_tools  # Install TestTools
+  ```
+
+  To deactivate virtual environment run:
+  ```bash
+  deactivate
+  ```
+  </details>
+
+- <details>
+  <summary>Install in your operating system scope (not recommended)</summary>
+
+  Enter following command in terminal:
+  ```bash
+  pip3 install -e ~/hive/tests/test_tools/
+  ```
+  </details>
+
 </details>
 
 ### 2. Define path to hive executables
