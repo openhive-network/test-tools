@@ -9,6 +9,5 @@ class Integer(ConfigEntry):
     def serialize_to_text(self):
         return str(self._value)
 
-    @classmethod
-    def _validate(cls, value):
-        cls._validate_type(value, [int, type(None)])
+    def _validate(self, value):
+        self._validate_type(value, [int, type(None)])

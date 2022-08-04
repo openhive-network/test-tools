@@ -17,6 +17,5 @@ class String(ConfigEntry):
     def serialize_to_text(self) -> str:
         return self._value
 
-    @classmethod
-    def _validate(cls, value):
-        cls._validate_type(value, [str, type(None)])
+    def _validate(self, value):
+        self._validate_type(value, [str, type(None)])

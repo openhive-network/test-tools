@@ -15,6 +15,5 @@ class PrivateKey(ConfigEntry):
     parse_from_text = String.parse_from_text
     serialize_to_text = String.serialize_to_text
 
-    @classmethod
-    def _validate(cls, value):
-        cls._validate_type(value, [str, PrivateKeyType, type(None)])
+    def _validate(self, value):
+        self._validate_type(value, [str, PrivateKeyType, type(None)])

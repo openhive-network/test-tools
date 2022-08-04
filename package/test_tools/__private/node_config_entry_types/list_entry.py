@@ -61,10 +61,10 @@ class List(ConfigEntry, list):  # Shouldn't inherit from `list`, this is workaro
 
         if isinstance(value, list):
             for single_value in value:
-                check_single_value(single_value, self.__item_type)
+                check_single_value(single_value, self.__item_type())
         else:
             try:
-                check_single_value(value, self.__item_type)
+                check_single_value(value, self.__item_type())
             except ValueError as error:
                 raise ValueError(
                     "To clear a list entry you have to write:\n"
