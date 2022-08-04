@@ -1,6 +1,3 @@
-# pylint: disable=all
-# Check git blame for details
-
 import pytest
 
 from test_tools.__private.node_config_entry_types import String
@@ -14,23 +11,20 @@ def entry():
 @pytest.fixture
 def values():
     return [
-        ('"example"', 'example'),
+        '"example"',
+        '5JcCHFFWPW2DryUFDVd7ZXVj2Zo67rqMcvcq5inygZGBAPR1JoR',
+        '0.0.0.0:51003',
+        '56G',
     ]
 
 
 def test_parsing(entry, values):
-    for input_text, expected in values:
-        entry.parse_from_text(input_text)
-        assert entry.get_value() == expected
+    for value in values:
+        entry.parse_from_text(value)
+        assert entry.get_value() == value
 
 
 def test_serializing(entry, values):
-    for expected, input_value in values:
-        entry.set_value(input_value)
-        assert entry.serialize_to_text() == expected
-
-
-def test_different_type_assignments(entry):
-    for incorrect_value in [True, 123, 2.718]:
-        with pytest.raises(ValueError):
-            entry.set_value(incorrect_value)
+    for value in values:
+        entry.set_value(value)
+        assert entry.serialize_to_text() == value

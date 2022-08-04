@@ -1,6 +1,6 @@
 import re
 
-from test_tools.__private.node_config_entry_types import Boolean, Integer, List, String, Untouched
+from test_tools.__private.node_config_entry_types import Boolean, Integer, List, String, StringQuoted
 
 
 class NodeConfig:
@@ -32,81 +32,81 @@ class NodeConfig:
 
         # pylint: disable=attribute-defined-outside-init
         # This method is called in __init__
-        self.log_appender = Untouched()  # Set correct type
-        self.log_console_appender = Untouched()  # Set correct type
-        self.log_file_appender = Untouched()  # Set correct type
-        self.log_logger = Untouched()  # Set correct type
-        self.backtrace = Untouched()  # Set correct type
-        self.plugin = List(Untouched)
-        self.account_history_track_account_range = Untouched()  # Set correct type
-        self.track_account_range = Untouched()  # Set correct type
-        self.account_history_whitelist_ops = Untouched()  # Set correct type
-        self.history_whitelist_ops = Untouched()  # Set correct type
-        self.account_history_blacklist_ops = Untouched()  # Set correct type
-        self.history_blacklist_ops = Untouched()  # Set correct type
-        self.account_history_rocksdb_path = String()
-        self.account_history_rocksdb_track_account_range = Untouched()  # Set correct type
-        self.account_history_rocksdb_whitelist_ops = Untouched()  # Set correct type
-        self.account_history_rocksdb_blacklist_ops = Untouched()  # Set correct type
-        self.block_data_export_file = Untouched()  # Set correct type
+        self.log_appender = String()  # Set correct type
+        self.log_console_appender = String()  # Set correct type
+        self.log_file_appender = String()  # Set correct type
+        self.log_logger = String()  # Set correct type
+        self.backtrace = String()  # Set correct type
+        self.plugin = List(String)
+        self.account_history_track_account_range = String()  # Set correct type
+        self.track_account_range = String()  # Set correct type
+        self.account_history_whitelist_ops = String()  # Set correct type
+        self.history_whitelist_ops = String()  # Set correct type
+        self.account_history_blacklist_ops = String()  # Set correct type
+        self.history_blacklist_ops = String()  # Set correct type
+        self.account_history_rocksdb_path = StringQuoted()
+        self.account_history_rocksdb_track_account_range = String()  # Set correct type
+        self.account_history_rocksdb_whitelist_ops = String()  # Set correct type
+        self.account_history_rocksdb_blacklist_ops = String()  # Set correct type
+        self.block_data_export_file = String()  # Set correct type
         self.block_data_skip_empty = Boolean()
-        self.block_log_info_print_interval_seconds = Untouched()  # Set correct type
-        self.block_log_info_print_irreversible = Untouched()  # Set correct type
-        self.block_log_info_print_file = Untouched()  # Set correct type
-        self.shared_file_dir = String()
-        self.shared_file_size = Untouched()  # Set correct type
-        self.shared_file_full_threshold = Untouched()  # Set correct type
-        self.shared_file_scale_rate = Untouched()  # Set correct type
-        self.checkpoint = Untouched()  # Set correct type
-        self.flush_state_interval = Untouched()  # Set correct type
-        self.cashout_logging_starting_block = Untouched()  # Set correct type
-        self.cashout_logging_ending_block = Untouched()  # Set correct type
-        self.cashout_logging_log_path_dir = Untouched()  # Set correct type
-        self.debug_node_edit_script = Untouched()  # Set correct type
-        self.edit_script = Untouched()  # Set correct type
-        self.follow_max_feed_size = Untouched()  # Set correct type
-        self.follow_start_feeds = Untouched()  # Set correct type
-        self.log_json_rpc = Untouched()  # Set correct type
-        self.market_history_bucket_size = Untouched()  # Set correct type
-        self.market_history_buckets_per_size = Untouched()  # Set correct type
-        self.notifications_endpoint = Untouched()
-        self.p2p_endpoint = Untouched()
-        self.p2p_max_connections = Untouched()  # Set correct type
-        self.seed_node = Untouched()  # Set correct type
-        self.p2p_seed_node = List(Untouched)
-        self.p2p_parameters = Untouched()  # Set correct type
-        self.rc_skip_reject_not_enough_rc = Untouched()  # Set correct type
-        self.rc_start_at_block = Untouched()  # Set correct type
-        self.rc_account_whitelist = Untouched()  # Set correct type
-        self.snapshot_root_dir = String()
-        self.statsd_endpoint = Untouched()  # Set correct type
-        self.statsd_batchsize = Untouched()  # Set correct type
-        self.statsd_whitelist = Untouched()  # Set correct type
-        self.statsd_blacklist = Untouched()  # Set correct type
-        self.tags_start_promoted = Untouched()  # Set correct type
-        self.tags_skip_startup_update = Untouched()  # Set correct type
-        self.transaction_status_block_depth = Untouched()  # Set correct type
-        self.transaction_status_track_after_block = Untouched()  # Set correct type
-        self.webserver_http_endpoint = Untouched()
-        self.webserver_unix_endpoint = Untouched()
-        self.webserver_ws_endpoint = Untouched()
-        self.webserver_enable_permessage_deflate = Untouched()  # Set correct type
-        self.rpc_endpoint = Untouched()  # Set correct type
-        self.webserver_thread_pool_size = Untouched()  # Set correct type
+        self.block_log_info_print_interval_seconds = String()  # Set correct type
+        self.block_log_info_print_irreversible = String()  # Set correct type
+        self.block_log_info_print_file = String()  # Set correct type
+        self.shared_file_dir = StringQuoted()
+        self.shared_file_size = String()  # Set correct type
+        self.shared_file_full_threshold = String()  # Set correct type
+        self.shared_file_scale_rate = String()  # Set correct type
+        self.checkpoint = String()  # Set correct type
+        self.flush_state_interval = String()  # Set correct type
+        self.cashout_logging_starting_block = String()  # Set correct type
+        self.cashout_logging_ending_block = String()  # Set correct type
+        self.cashout_logging_log_path_dir = String()  # Set correct type
+        self.debug_node_edit_script = String()  # Set correct type
+        self.edit_script = String()  # Set correct type
+        self.follow_max_feed_size = String()  # Set correct type
+        self.follow_start_feeds = String()  # Set correct type
+        self.log_json_rpc = String()  # Set correct type
+        self.market_history_bucket_size = String()  # Set correct type
+        self.market_history_buckets_per_size = String()  # Set correct type
+        self.notifications_endpoint = String()
+        self.p2p_endpoint = String()
+        self.p2p_max_connections = String()  # Set correct type
+        self.seed_node = String()  # Set correct type
+        self.p2p_seed_node = List(String)
+        self.p2p_parameters = String()  # Set correct type
+        self.rc_skip_reject_not_enough_rc = String()  # Set correct type
+        self.rc_start_at_block = String()  # Set correct type
+        self.rc_account_whitelist = String()  # Set correct type
+        self.snapshot_root_dir = StringQuoted()
+        self.statsd_endpoint = String()  # Set correct type
+        self.statsd_batchsize = String()  # Set correct type
+        self.statsd_whitelist = String()  # Set correct type
+        self.statsd_blacklist = String()  # Set correct type
+        self.tags_start_promoted = String()  # Set correct type
+        self.tags_skip_startup_update = String()  # Set correct type
+        self.transaction_status_block_depth = String()  # Set correct type
+        self.transaction_status_track_after_block = String()  # Set correct type
+        self.webserver_http_endpoint = String()
+        self.webserver_unix_endpoint = String()
+        self.webserver_ws_endpoint = String()
+        self.webserver_enable_permessage_deflate = String()  # Set correct type
+        self.rpc_endpoint = String()  # Set correct type
+        self.webserver_thread_pool_size = String()  # Set correct type
         self.enable_stale_production = Boolean()
         self.required_participation = Integer()
-        self.witness = List(String, single_line=False)
-        self.private_key = List(Untouched, single_line=False)
-        self.witness_skip_enforce_bandwidth = Untouched()  # Set correct type
-        self.psql_url = Untouched()
+        self.witness = List(StringQuoted, single_line=False)
+        self.private_key = List(String, single_line=False)
+        self.witness_skip_enforce_bandwidth = String()  # Set correct type
+        self.psql_url = String()
         self.psql_index_threshold = Integer()
         self.psql_operations_threads_number = Integer()
         self.psql_transactions_threads_number = Integer()
         self.enable_block_log_compression = Boolean()
         self.block_log_compression_level = Integer()
         self.blockchain_thread_pool_size = Integer()
-        self.block_stats_report_type = Untouched()
-        self.block_stats_report_output = Untouched()
+        self.block_stats_report_type = String()
+        self.block_stats_report_output = String()
 
     def __setattr__(self, key, value):
         entries = self.__get_entries()

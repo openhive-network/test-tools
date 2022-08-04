@@ -2,4 +2,4 @@ from test_tools.__private.node_config_entry_types.boolean_entry import Boolean
 from test_tools.__private.node_config_entry_types.integer_entry import Integer
 from test_tools.__private.node_config_entry_types.list_entry import List
 from test_tools.__private.node_config_entry_types.string_entry import String
-from test_tools.__private.node_config_entry_types.untouched_entry import Untouched
+from test_tools.__private.node_config_entry_types.string_quoted_entry import StringQuoted

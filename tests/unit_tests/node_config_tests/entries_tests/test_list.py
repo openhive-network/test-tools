@@ -1,21 +1,21 @@
 import pytest
 
-from test_tools.__private.node_config_entry_types import List, Integer, String, Untouched
+from test_tools.__private.node_config_entry_types import List, Integer, String, StringQuoted
 
 
-def test_parsing_single_line_of_untouched():
+def test_parsing_single_line_of_string():
     expected_items = ['network_node_api', 'account_by_key', 'witness', 'network_broadcast_api', 'condenser_api']
 
-    items = List(Untouched)
+    items = List(String)
     items.parse_from_text(' '.join(expected_items))
 
     assert items.get_value() == expected_items
 
 
-def test_serializing_single_line_of_untouched():
+def test_serializing_single_line_of_string():
     input_items = ['network_node_api', 'account_by_key', 'witness', 'network_broadcast_api', 'condenser_api']
 
-    items = List(Untouched)
+    items = List(String)
     items.set_value(input_items)
 
     serialized = items.serialize_to_text()
@@ -43,11 +43,11 @@ def test_serializing_single_line_of_integers():
     assert items.serialize_to_text() == expected
 
 
-def test_serializing_multiple_lines_of_strings():
+def test_serializing_multiple_lines_of_quoted_strings():
     input_items = ['initminer', 'blocktrades', 'gtg', 'good-karma']
     expected = [f'"{item}"' for item in input_items]
 
-    items = List(String, single_line=False)
+    items = List(StringQuoted, single_line=False)
     items.set_value(input_items)
 
     assert items.serialize_to_text() == expected
@@ -67,7 +67,7 @@ def test_setting_single_integer():
     assert items.get_value() == [5]
 
 
-def test_setting_single_string():
-    items = List(String)
+def test_setting_single_quoted_string():
+    items = List(StringQuoted)
     items.set_value('text')  # Note: it is not ['text'], but 'text'
     assert items.get_value() == ['text']

@@ -3,7 +3,7 @@ from typing import Optional
 from test_tools.__private.node_config_entry_types.config_entry import ConfigEntry
 
 
-class String(ConfigEntry):
+class StringQuoted(ConfigEntry):
     def __init__(self, value: Optional[str] = None):
         # pylint: disable=useless-super-delegation
         # This method is defined to provide more detailed parameters type annotations
@@ -11,11 +11,11 @@ class String(ConfigEntry):
         super().__init__(value)
 
     def parse_from_text(self, text: str) -> str:
-        self.set_value(text)
+        self.set_value(text.strip('"'))
         return self._value
 
     def serialize_to_text(self) -> str:
-        return self._value
+        return f'"{self._value}"'
 
     @classmethod
     def _validate(cls, value):
