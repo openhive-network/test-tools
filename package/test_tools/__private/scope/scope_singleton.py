@@ -1,12 +1,12 @@
 from test_tools.__private.scope.context_internal_interface import ContextInternalHandle
 from test_tools.__private.scope.scopes_stack import ScopesStack
-from test_tools.__private.utilities.tests_type import is_manual_test
+from test_tools.__private.utilities.tests_type import is_automatic_test
 
 
 current_scope = ScopesStack()
 context = ContextInternalHandle(current_scope)
 
-if is_manual_test():
+if not is_automatic_test():
     # Break import-cycle; ScopedObject depends on current_scope, which is already defined
     # pylint: disable=cyclic-import
     from test_tools.__private.scope.scoped_current_directory import ScopedCurrentDirectory
