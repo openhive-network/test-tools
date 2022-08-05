@@ -107,6 +107,7 @@ class NodeConfig:
         self.blockchain_thread_pool_size = Integer()
         self.block_stats_report_type = Untouched()
         self.block_stats_report_output = Untouched()
+        self.enable_fast_confirm = Boolean()
 
     def __setattr__(self, key, value):
         entries = self.__get_entries()
