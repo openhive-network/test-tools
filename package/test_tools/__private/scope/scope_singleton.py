@@ -13,6 +13,5 @@ if not is_automatic_test():
     ScopedCurrentDirectory(current_scope.context.get_current_directory())
 
     root_logger = current_scope.context.get_logger()
-    current_scope.context.set_logger(root_logger.create_child_logger('main'))
-
     root_logger.log_to_stdout()
+    root_logger.log_to_file(context.get_current_directory() / 'last_run.log')

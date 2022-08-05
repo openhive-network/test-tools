@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 import sys
 from typing import Optional
 
@@ -35,7 +36,11 @@ class LoggerWrapper:
         self.__file_handler.setLevel(logging.DEBUG)
         self.internal_logger.addHandler(self.__file_handler)
 
-    def log_to_file(self):
+    def log_to_file(self, file_path: Optional[Path] = None) -> None:
+        if file_path is not None:
+            self.set_file_handler(file_path)
+            return
+
         # Break import-cycle
         from test_tools.__private.scope import context  # pylint: disable=import-outside-toplevel, cyclic-import
         self.set_file_handler(context.get_current_directory().joinpath('last_run.log'))
