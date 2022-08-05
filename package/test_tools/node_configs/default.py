@@ -42,5 +42,6 @@ def create_default_config():
     config.blockchain_thread_pool_size = 8
     config.block_stats_report_type = 'FULL'
     config.block_stats_report_output = 'ILOG'
+    config.enable_fast_confirm = True
 
     return config
