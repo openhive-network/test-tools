@@ -15,7 +15,8 @@ class BlockLog:
     def __repr__(self):
         return f"<BlockLog: path={self.__path}>"
 
-    def get_path(self):
+    @property
+    def path(self) -> Path:
         return self.__path
 
     def copy_to(self, destination):

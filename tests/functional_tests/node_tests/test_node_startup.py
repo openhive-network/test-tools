@@ -85,7 +85,7 @@ def test_replay_from_external_block_log():
     generate_blocks(init_node, 100)
     init_node.close()
 
-    external_block_log_path = init_node.get_block_log().get_path()
+    external_block_log_path = init_node.get_block_log().path
 
     replaying_node = tt.ApiNode()
     replaying_node.run(replay_from=external_block_log_path, stop_at_block=50, wait_for_live=False)
