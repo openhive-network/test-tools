@@ -204,3 +204,9 @@ class NodeHandleBase(Handle):
         with special values like 0.0.0.0 address or 0 port, special values are replaced with actually selected by node.
         """
         return self.__implementation.get_ws_endpoint()
+
+    def get_number_of_forks(self) -> int:
+        """
+            Gets number of forks that occured on this node, forks are reported via notification system
+        """
+        return self.__implementation.get_number_of_forks()
