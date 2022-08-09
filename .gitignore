@@ -2,6 +2,7 @@ package/*.egg-info/
 __pycache__/
 .pytest_cache/
 build/
+generated/
 generated_by_*/
 generated_during_*/
 logs/
