@@ -19,6 +19,10 @@ class BlockLog:
     def path(self) -> Path:
         return self.__path
 
+    @property
+    def artifacts_path(self) -> Path:
+        return self.path.with_suffix(".artifacts")
+
     def copy_to(self, destination):
         shutil.copy(self.__path, destination)
 
