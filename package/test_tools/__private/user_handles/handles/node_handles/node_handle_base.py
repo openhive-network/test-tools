@@ -148,7 +148,11 @@ class NodeHandleBase(Handle):
             time_offset=time_offset,
         )
 
-    def restart(self, wait_for_live: bool = True, timeout: float = __DEFAULT_WAIT_FOR_LIVE_TIMEOUT) -> None:
+    def restart(
+        self, wait_for_live: bool = True,
+        timeout: float = __DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
+        time_offset: Optional[str] = None
+    ) -> None:
         """
         Stops node and immediately starts it again. Whole restart is performed synchronously. By default, program
         execution is blocked until node will enter live mode. This behavior can be modified with `wait_for_live`
@@ -158,8 +162,10 @@ class NodeHandleBase(Handle):
         :param wait_for_live: Blocks program execution until node starts to generate or receive blocks.
         :param timeout: If `wait_for_live` is set to True, this parameter sets how long waiting can take. When timeout
             is reached, `TimeoutError` exception is thrown. Expressed in seconds.
+        :param time_offset:
+            See parameter ``time_offset`` in :func:`run`.
         """
-        return self.__implementation.restart(wait_for_live=wait_for_live, timeout=timeout)
+        return self.__implementation.restart(wait_for_live=wait_for_live, timeout=timeout, time_offset=time_offset)
 
     def set_cleanup_policy(self, policy: CleanupPolicy) -> None:
         """
