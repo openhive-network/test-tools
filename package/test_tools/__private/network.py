@@ -82,8 +82,8 @@ class Network(UserHandleImplementation):
         network.allow_for_connections_only_between_nodes_in_network()
 
     def allow_for_connections_only_between_nodes_in_network(self):
-        for node_number, node in enumerate(self.nodes):
-            node.set_allowed_nodes(self.nodes[:node_number] + self.nodes[node_number+1:])
+        for node in self.nodes:
+            node.set_allowed_nodes(self.nodes)
 
     def allow_for_connections_with_anyone(self):
         for node in self.nodes:
