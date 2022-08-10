@@ -29,12 +29,13 @@ class BlockLog:
             else:
                 self.__warn_about_missing_index(block_log_index_path)
 
-    def truncate(self, output_block_log_path: str, block_number: int):
+    @staticmethod
+    def truncate(input_block_log_path: str, output_block_log_path: str, block_number: int):
         subprocess.run(
             [
                 paths_to_executables.get_path_of('compress_block_log'),
-                f'--input-block-log={self.__path.parent.absolute()}',
-                f'--output-block-log={Path(output_block_log_path).parent.absolute()}',
+                f'--input-block-log={input_block_log_path}',
+                f'--output-block-log={output_block_log_path}',
                 f'--block-count={block_number}',
                 '--decompress',
             ],
