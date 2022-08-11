@@ -22,8 +22,7 @@ class BlockLog:
         shutil.copy(self.__path, destination)
 
         if self.__include_artifacts:
-            block_log_artifacts_file_name = f"{self.__path.name}.artifacts"
-            block_log_artifacts_path = self.__path.with_name(block_log_artifacts_file_name)
+            block_log_artifacts_path = self.__path.with_suffix(".artifacts")
             if block_log_artifacts_path.exists():
                 shutil.copy(block_log_artifacts_path, destination)
             else:
