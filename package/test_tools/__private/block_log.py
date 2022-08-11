@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 import shutil
 import subprocess
@@ -23,8 +25,9 @@ class BlockLog:
     def artifacts_path(self) -> Path:
         return self.path.with_suffix(".artifacts")
 
-    def copy_to(self, destination):
-        shutil.copy(self.__path, destination)
+    def copy_to(self, destination) -> BlockLog:
+        copied_block_log_path = shutil.copy(self.__path, destination)
+        copied_block_log = BlockLog(self.__owner, copied_block_log_path, include_artifacts=self.__include_artifacts)
 
         if self.__include_artifacts:
             block_log_artifacts_path = self.__path.with_suffix(".artifacts")
@@ -32,6 +35,8 @@ class BlockLog:
                 shutil.copy(block_log_artifacts_path, destination)
             else:
                 self.__warn_about_missing_artifacts(block_log_artifacts_path)
+
+        return copied_block_log
 
     def truncate(self, output_block_log_path: str, block_number: int):
         subprocess.run(
