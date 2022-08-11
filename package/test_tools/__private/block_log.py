@@ -27,20 +27,18 @@ class BlockLog:
         return self.path.with_suffix(".artifacts")
 
     def copy_to(self, destination) -> BlockLog:
+        assert self.__path.exists()
+
+        if self.__artifacts != "excluded":
+            if self.artifacts_path.exists():
+                shutil.copy(self.artifacts_path, destination)
+            elif self.__artifacts == "required":
+                self.__raise_missing_artifacts_error(self.artifacts_path)
+            else:
+                assert self.__artifacts == "optional"
+
         copied_block_log_path = shutil.copy(self.__path, destination)
-        copied_block_log = BlockLog(self.__owner, copied_block_log_path, artifacts=self.__artifacts)
-
-        if self.__artifacts == "excluded":
-            return copied_block_log
-
-        if self.artifacts_path.exists():
-            shutil.copy(self.artifacts_path, destination)
-        elif self.__artifacts == "required":
-            self.__raise_missing_artifacts_error(self.artifacts_path)
-        else:
-            assert self.__artifacts == "optional"
-
-        return copied_block_log
+        return BlockLog(self.__owner, copied_block_log_path, artifacts=self.__artifacts)
 
     def truncate(self, output_block_log_path: str, block_number: int):
         subprocess.run(

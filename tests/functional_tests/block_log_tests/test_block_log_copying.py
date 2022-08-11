@@ -56,6 +56,8 @@ def test_copying_when_required_artifacts_are_missing(block_log_stub, destination
     with pytest.raises(tt.exceptions.MissingBlockLogArtifactsError):
         __prepare_copy(block_log_stub, destination_directory, artifacts="required")
 
+    assert __is_empty(destination_directory)  # When error occurs nothing should be copied.
+
 
 def test_copying_when_optional_artifacts_exists(
     block_log_stub, artifacts_stub, destination_directory
@@ -79,6 +81,11 @@ def test_copying_when_excluded_artifacts_exists(
 def test_copying_when_excluded_artifacts_are_missing(block_log_stub, destination_directory):
     copied_block_log = __prepare_copy(block_log_stub, destination_directory, artifacts="excluded")
     __assert_files_were_copied(copied_block_log, require_artifacts=False)
+
+
+def __is_empty(directory: Path) -> bool:
+    assert directory.is_dir()
+    return not any(directory.iterdir())
 
 
 def __prepare_copy(
