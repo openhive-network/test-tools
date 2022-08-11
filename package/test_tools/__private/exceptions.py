@@ -9,6 +9,10 @@ class InternalNodeError(Exception):
     pass
 
 
+class MissingBlockLogArtifactsError(RuntimeError):
+    pass
+
+
 class MissingPathToExecutable(Exception):
     pass
 

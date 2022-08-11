@@ -325,7 +325,7 @@ class Node(UserHandleImplementation, ScopedObject):
         return self.__name
 
     def get_block_log(self, include_artifacts=True):
-        return BlockLog(self, self.directory.joinpath("blockchain/block_log"), include_artifacts=include_artifacts)
+        return BlockLog(self, self.directory.joinpath("blockchain/block_log"), artifacts=include_artifacts)
 
     def get_supported_plugins(self) -> List[str]:
         return self.__executable.get_supported_plugins()
@@ -574,7 +574,7 @@ class Node(UserHandleImplementation, ScopedObject):
 
     def __handle_replay(self, replay_source: BlockLog, stop_at_block: int, additional_arguments: list):
         if not isinstance(replay_source, BlockLog):
-            replay_source = BlockLog(None, replay_source)
+            replay_source = BlockLog(None, replay_source, artifacts="required")
 
         additional_arguments.append("--force-replay")
         if stop_at_block is not None:

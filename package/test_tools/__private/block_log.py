@@ -3,16 +3,17 @@ from __future__ import annotations
 from pathlib import Path
 import shutil
 import subprocess
-import warnings
+from typing import Literal, NoReturn
 
 from test_tools.__private import paths_to_executables
+from test_tools.__private.exceptions import MissingBlockLogArtifactsError
 
 
 class BlockLog:
-    def __init__(self, owner, path, *, include_artifacts=True):
+    def __init__(self, owner, path, *, artifacts: Literal["required", "optional", "excluded"]):
         self.__owner = owner
         self.__path = Path(path)
-        self.__include_artifacts = include_artifacts
+        self.__artifacts = artifacts
 
     def __repr__(self):
         return f"<BlockLog: path={self.__path}>"
@@ -27,14 +28,17 @@ class BlockLog:
 
     def copy_to(self, destination) -> BlockLog:
         copied_block_log_path = shutil.copy(self.__path, destination)
-        copied_block_log = BlockLog(self.__owner, copied_block_log_path, include_artifacts=self.__include_artifacts)
+        copied_block_log = BlockLog(self.__owner, copied_block_log_path, artifacts=self.__artifacts)
 
-        if self.__include_artifacts:
-            block_log_artifacts_path = self.__path.with_suffix(".artifacts")
-            if block_log_artifacts_path.exists():
-                shutil.copy(block_log_artifacts_path, destination)
-            else:
-                self.__warn_about_missing_artifacts(block_log_artifacts_path)
+        if self.__artifacts == "excluded":
+            return copied_block_log
+
+        if self.artifacts_path.exists():
+            shutil.copy(self.artifacts_path, destination)
+        elif self.__artifacts == "required":
+            self.__raise_missing_artifacts_error(self.artifacts_path)
+        else:
+            assert self.__artifacts == "optional"
 
         return copied_block_log
 
@@ -49,21 +53,10 @@ class BlockLog:
             ],
             check=True,
         )
-        return BlockLog(None, output_block_log_path)
+        return BlockLog(None, output_block_log_path, artifacts="optional")
 
-    def __warn_about_missing_artifacts(self, block_log_artifacts_path):
-        if self.__owner is not None:
-            hint_for_excluding_artifacts = "node.get_block_log(include_artifacts=False)"
-        else:
-            hint_for_excluding_artifacts = (
-                f"import test_tools as tt\n"
-                f"block_log = tt.BlockLog('{self.__path}', include_artifacts=False)"
-            )  # fmt: skip
-
-        warnings.warn(
-            f"Block log artifacts with following path are missing:\n"
-            f"{block_log_artifacts_path}\n"
-            f"\n"
-            f"If you want to use block log without artifacts, set include_artifacts flag to False like:\n"
-            f"{hint_for_excluding_artifacts}"
+    @staticmethod
+    def __raise_missing_artifacts_error(block_log_artifacts_path) -> NoReturn:
+        raise MissingBlockLogArtifactsError(
+            f"Block log artifacts with following path are missing:\n{block_log_artifacts_path}"
         )
