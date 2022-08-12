@@ -574,7 +574,7 @@ class Node(UserHandleImplementation, ScopedObject):
 
     def __handle_replay(self, replay_source: BlockLog, stop_at_block: int, additional_arguments: list):
         if not isinstance(replay_source, BlockLog):
-            replay_source = BlockLog(None, replay_source, artifacts="required")
+            replay_source = BlockLog(None, replay_source, artifacts="optional")
 
         additional_arguments.append("--force-replay")
         if stop_at_block is not None:
