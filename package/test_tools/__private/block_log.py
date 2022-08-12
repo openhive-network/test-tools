@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 import shutil
 import subprocess
-from typing import Literal, NoReturn
+from typing import Literal, NoReturn, Optional
 
 from test_tools.__private import paths_to_executables
 from test_tools.__private.exceptions import MissingBlockLogArtifactsError
@@ -26,19 +26,23 @@ class BlockLog:
     def artifacts_path(self) -> Path:
         return self.path.with_suffix(".artifacts")
 
-    def copy_to(self, destination) -> BlockLog:
+    def copy_to(
+        self, destination, *, artifacts: Optional[Literal["required", "optional", "excluded"]] = None
+    ) -> BlockLog:
         assert self.__path.exists()
 
-        if self.__artifacts != "excluded":
+        artifacts = artifacts if artifacts is not None else self.__artifacts
+
+        if artifacts != "excluded":
             if self.artifacts_path.exists():
                 shutil.copy(self.artifacts_path, destination)
-            elif self.__artifacts == "required":
+            elif artifacts == "required":
                 self.__raise_missing_artifacts_error(self.artifacts_path)
             else:
-                assert self.__artifacts == "optional"
+                assert artifacts == "optional"
 
         copied_block_log_path = shutil.copy(self.__path, destination)
-        return BlockLog(self.__owner, copied_block_log_path, artifacts=self.__artifacts)
+        return BlockLog(self.__owner, copied_block_log_path, artifacts=artifacts)
 
     def truncate(self, output_block_log_path: str, block_number: int):
         subprocess.run(
