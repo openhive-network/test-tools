@@ -9,7 +9,7 @@ import signal
 import subprocess
 from threading import Event
 import time
-from typing import Dict, List, Optional, Tuple, TYPE_CHECKING, Union
+from typing import Dict, List, Optional, Set, Tuple, TYPE_CHECKING, Union
 import warnings
 
 from test_tools.node_api.node_apis import Apis
@@ -281,6 +281,8 @@ class Node(UserHandleImplementation, ScopedObject):
         self.__notifications = self.__NotificationsServer(self, self.__logger)
         self.__cleanup_policy = None
 
+        self.__connected_nodes: Set[Node] = set()
+
         self.config = create_default_config()
 
     def __str__(self):
@@ -360,8 +362,13 @@ class Node(UserHandleImplementation, ScopedObject):
         response = self.api.network_node.get_info()
         return response['node_id']
 
-    def set_allowed_nodes(self, nodes):
+    def set_allowed_nodes(self, nodes: List[Node]):
+        """Empty list means all nodes are disallowed."""
         return self.api.network_node.set_allowed_peers(allowed_peers=[node.get_id() for node in nodes])
+
+    def set_disallowed_nodes(self, nodes: List[Node]):
+        """Empty list means all nodes are allowed. """
+        return self.api.network_node.set_allowed_peers(disallowed_peers=[node.get_id() for node in nodes])
 
     def dump_config(self):
         assert not self.is_running()
