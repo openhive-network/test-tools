@@ -324,8 +324,8 @@ class Node(UserHandleImplementation, ScopedObject):
     def get_name(self):
         return self.__name
 
-    def get_block_log(self, include_artifacts=True):
-        return BlockLog(self, self.directory.joinpath("blockchain/block_log"), artifacts=include_artifacts)
+    def get_block_log(self, *, artifacts: Literal["required", "optional", "excluded"] = "required") -> BlockLog:
+        return BlockLog(self, self.directory.joinpath("blockchain/block_log"), artifacts=artifacts)
 
     def get_supported_plugins(self) -> List[str]:
         return self.__executable.get_supported_plugins()

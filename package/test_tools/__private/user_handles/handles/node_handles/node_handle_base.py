@@ -10,7 +10,7 @@ from test_tools.__private.user_handles.handle import Handle
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import Dict, List, Optional, Tuple, Union
+    from typing import Dict, List, Literal, Optional, Tuple, Union
 
     from test_tools.__private.block_log import BlockLog
     from test_tools.__private.cleanup_policy import CleanupPolicy
@@ -73,17 +73,20 @@ class NodeHandleBase(Handle):
         """
         return self.__implementation.dump_snapshot(close=close)
 
-    def get_block_log(self, *, include_artifacts: bool = True) -> BlockLog:
+    def get_block_log(self, *, artifacts: Literal["required", "optional", "excluded"] = "required") -> BlockLog:
         """
         Returns block log object, containing paths to block log and optionally block log artifacts. Presence of
-        artifacts can be configured with `include_artifacts` flag. It is safe to get block log object when node is
-        running, but copying or using for replay might lead to problems, because files referenced by block log object
-        might be modified.
+        artifacts can be configured with `artifacts` parameter. By default, artifacts are required. It is safe to get
+        block log object when node is running, but copying or using for replay might lead to problems, because files
+        referenced by block log object might be modified.
 
-        :param include_artifacts: When set to True, block log object will contain block log artifacts path.
+        :param artifacts: Decides how artifacts are handled during block log copying. Allowed values:
+            - "required" -- Artifacts are always copied. Missing artifacts are treated as error.
+            - "optional" -- Artifacts are copied if exists. This is not a problem when artifacts are missing.
+            - "excluded" -- Artifacts are never copied.
         :return: Block log object, which can be used by another node to perform replay.
         """
-        return self.__implementation.get_block_log(include_artifacts)
+        return self.__implementation.get_block_log(artifacts=artifacts)
 
     def get_last_block_number(self) -> int:
         """Returns number of the newest block known to node."""
