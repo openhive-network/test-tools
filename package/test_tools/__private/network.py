@@ -65,7 +65,7 @@ class Network(UserHandleImplementation):
             return
 
         if network not in self.disconnected_networks:
-            raise Exception('Unsupported (yet): cannot connect networks when were already run')
+            raise Exception('Unsupported: cannot connect networks when were already run and not disconnected before')
 
         # Temporary implementation working only with one network
         self.allow_for_connections_with_anyone()
