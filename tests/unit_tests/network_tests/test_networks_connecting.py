@@ -7,6 +7,7 @@ import test_tools as tt
 # pylint: disable=protected-access
 
 
+@pytest.mark.hived_required
 def test_connecting_two_networks(two_networks_connected: Iterable[tt.Network]):
     # ARRANGE AND ACT is done in two_networks_connected fixture
     first_network, second_network = two_networks_connected
@@ -20,6 +21,7 @@ def test_connecting_two_networks(two_networks_connected: Iterable[tt.Network]):
     )
 
 
+@pytest.mark.hived_required
 @pytest.mark.parametrize(
     "broadcast", argvalues=[True, False], ids=("first_connecting_to_third_only", "second_connecting_to_third_also")
 )
@@ -49,6 +51,7 @@ def test_connecting_three_networks(broadcast: bool, three_networks_connected: It
     }
 
 
+@pytest.mark.hived_required
 def test_connecting_four_networks(four_networks_connected: Iterable[tt.Network]):
     # ARRANGE AND ACT is partly done in four_networks_connected fixture
     first_network, second_network, third_network, fourth_network = four_networks_connected
