@@ -43,6 +43,12 @@ class NetworkHandle(Handle):
             get_implementation(network)
         )
 
+    def disconnect_from_all(self) -> None:
+        """
+        Disables communication between nodes in this network and nodes from all other networks
+        """
+        return self.__implementation.disconnect_from_all()
+
     def node(self, name: str) -> Node:
         """
         Returns node with specified `name`.

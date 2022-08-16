@@ -12,13 +12,15 @@ if TYPE_CHECKING:
 
 
 class Network(UserHandleImplementation):
+
     def __init__(self, name: str = 'Network', handle: Optional[NetworkHandle] = None):
         super().__init__(handle=handle)
 
         self.name = context.names.register_numbered_name(name)
         self.nodes = []
         self.network_to_connect_with = None
-        self.disconnected_networks = []
+        self.connected_networks: set[Network] = set()
+        self.disconnected_networks: set[Network] = set()
         self.logger = logger.create_child_logger(str(self))
 
     def __str__(self):
@@ -51,6 +53,13 @@ class Network(UserHandleImplementation):
             node.run(wait_for_live=wait_for_live, environment_variables=environment_variables)
 
     def connect_with(self, network):
+        def _update_connected_networks_in_child_networks():
+            for child_network in self.connected_networks:
+                networks = list(self.connected_networks)
+                networks.remove(child_network)
+                networks.append(self)
+                child_network.connected_networks.update(networks)
+
         if len(self.nodes) == 0 or len(network.nodes) == 0:
             raise Exception('Unable to connect empty network')
 
@@ -59,32 +68,54 @@ class Network(UserHandleImplementation):
                 network.network_to_connect_with = self
             else:
                 self.network_to_connect_with = network
+
+            self.connected_networks.add(network)
+            _update_connected_networks_in_child_networks()
             return
 
         if network not in self.disconnected_networks:
             raise Exception('Unsupported (yet): cannot connect networks when were already run')
 
-        # Temporary implementation working only with one network
-        self.allow_for_connections_with_anyone()
+        self.connected_networks.add(network)
+        _update_connected_networks_in_child_networks()
+
         self.disconnected_networks.remove(network)
 
-        network.allow_for_connections_with_anyone()
-        network.disconnected_networks.remove(self)
+        self.allow_for_connections_only_between_nodes_in_connected_networks()
 
     def disconnect_from(self, network):
         if len(self.nodes) == 0 or len(network.nodes) == 0:
             raise Exception('Unable to disconnect empty network')
 
-        self.disconnected_networks.append(network)
-        network.disconnected_networks.append(self)
+        self.connected_networks.remove(network)
 
-        self.allow_for_connections_only_between_nodes_in_network()
-        network.allow_for_connections_only_between_nodes_in_network()
+        self.disconnected_networks.add(network)
 
-    def allow_for_connections_only_between_nodes_in_network(self):
-        for node_number, node in enumerate(self.nodes):
-            node.set_allowed_nodes(self.nodes[:node_number] + self.nodes[node_number+1:])
+        self.allow_for_connections_only_between_nodes_in_connected_networks()
+
+    def disconnect_from_all(self):
+        if not self.nodes:
+            raise Exception('Unable to disconnect empty network')
+
+        self.disconnected_networks.update(self.connected_networks.copy())
+        self.connected_networks.clear()
+
+        for node in self.nodes:
+            self.logger.info(f'allowing connections only with self nodes: {list(map(str,self.nodes))}')
+            node.set_allowed_nodes(self.nodes)
+
+    def allow_for_connections_only_between_nodes_in_connected_networks(self):
+        allowed_nodes = set()
+        for network in self.connected_networks:
+            allowed_nodes.update(network.nodes)
+
+        allowed_nodes.update(self.nodes)
+
+        for node in self.nodes:
+            self.logger.info(f'allowing connections only with: {list(map(str,allowed_nodes))}')
+            node.set_allowed_nodes(allowed_nodes)
 
     def allow_for_connections_with_anyone(self):
         for node in self.nodes:
+            self.logger.info('allowing connections with anyone')
             node.set_allowed_nodes([])
