@@ -53,7 +53,7 @@ unit_tests_launch:
   needs: []  # to start immediately, without waiting for previous stages
   script:
     - echo -e "${TXT_BLUE}Launch unit tests${TXT_CLEAR}" &&
-      python3 -m pytest -n auto --junitxml=report.xml tests/unit_tests
+      python3 -m pytest -n auto -m "not hived_required" --junitxml=report.xml tests/unit_tests
   artifacts:
     reports:
       junit: report.xml
