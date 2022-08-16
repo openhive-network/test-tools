@@ -108,6 +108,17 @@ class Network(UserHandleImplementation):
         for node in self.nodes:
             node.set_allowed_nodes(allowed_nodes)
 
+    def disconnect_from_all(self):
+        if not self.nodes:
+            raise Exception('Unable to disconnect empty network')
+
+        self.disconnected_networks.update(self.connected_networks)
+        self.connected_networks.clear()
+
+        self.logger.info(f'Allowing connections only with nodes in my network: {self.nodes}')
+        for node in self.nodes:
+            node.set_allowed_nodes(self.nodes)
+
     def allow_for_connections_with_anyone(self):
         self.logger.info('Allowing connections with anyone')
         for node in self.nodes:
