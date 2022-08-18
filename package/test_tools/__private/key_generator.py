@@ -1,14 +1,23 @@
+from __future__ import annotations
+
 import ast
 import subprocess
+from typing import TYPE_CHECKING
 
 from test_tools.__private import paths_to_executables
 
+if TYPE_CHECKING:
+    from typing import Dict, List, Optional
+    from pathlib import Path
+
 
 class KeyGenerator:
-    def __init__(self, executable_path=None):
-        self.executable_path = executable_path
-
-    def generate_keys(self, account_name, *, number_of_accounts=1, secret='secret'):
+    @staticmethod
+    def generate_keys(account_name: str,
+                      *,
+                      number_of_accounts: int = 1,
+                      secret: str = 'secret',
+                      executable_path: Optional[Path] = None) -> List[Dict[str, str]]:
         assert number_of_accounts >= 1
 
         if account_name == 'initminer':
@@ -19,11 +28,11 @@ class KeyGenerator:
                 'account_name': account_name,
             }]
 
-        if self.executable_path is None:
-            self.executable_path = paths_to_executables.get_path_of('get_dev_key')
+        if executable_path is None:
+            executable_path = paths_to_executables.get_path_of('get_dev_key')
 
         if number_of_accounts != 1:
             account_name += f'-0:{number_of_accounts}'
 
-        output = subprocess.check_output([str(self.executable_path), secret, account_name]).decode('utf-8')
+        output = subprocess.check_output([str(executable_path), secret, account_name]).decode('utf-8')
         return ast.literal_eval(output)
