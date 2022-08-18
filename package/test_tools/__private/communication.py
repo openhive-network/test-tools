@@ -9,7 +9,12 @@ from test_tools.__private.exceptions import CommunicationError
 from test_tools.__private.logger.logger_internal_interface import logger
 
 
-class JsonEncoderWithLegacyAssets(json.JSONEncoder):
+class CustomJsonEncoder(json.JSONEncoder):
+    def default(self, o):
+        return super().default(o)
+
+
+class JsonEncoderWithLegacyAssets(CustomJsonEncoder):
     def default(self, o):
         if isinstance(o, AssetBase):
             return str(o)
@@ -17,7 +22,7 @@ class JsonEncoderWithLegacyAssets(json.JSONEncoder):
         return super().default(o)
 
 
-class JsonEncoderWithNaiAssets(json.JSONEncoder):
+class JsonEncoderWithNaiAssets(CustomJsonEncoder):
     def default(self, o):
         if isinstance(o, AssetBase):
             return o.as_nai()
