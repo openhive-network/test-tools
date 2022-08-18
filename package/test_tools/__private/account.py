@@ -3,16 +3,23 @@ from test_tools.__private.key_generator import KeyGenerator
 
 class Account:
     def __init__(self, name, secret='secret', with_keys=True):
-        self.name = name
-        self.secret = None
+        self.__name = name
+        self.__secret = secret
         self.private_key = None
         self.public_key = None
 
         if with_keys:
             output = KeyGenerator.generate_keys(name, secret=secret)[0]
-            self.secret = secret
             self.private_key = output['private_key']
             self.public_key = output['public_key']
+
+    @property
+    def name(self) -> str:
+        return self.__name
+
+    @property
+    def secret(self) -> str:
+        return self.__secret
 
     @staticmethod
     def create_multiple(number_of_accounts, name_base='account', *, secret='secret'):
