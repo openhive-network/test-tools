@@ -7,6 +7,7 @@ from test_tools.__private import paths_to_executables
 from test_tools.__private.account import Account
 from test_tools.__private.asset import Asset
 from test_tools.__private.block_log import BlockLog
+from test_tools.__private.keys import PrivateKey, PublicKey
 from test_tools.__private.logger.logger_user_interface import logger
 
 # User handles
