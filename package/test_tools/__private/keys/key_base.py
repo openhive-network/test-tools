@@ -40,5 +40,14 @@ class KeyBase(ABC):
 
         raise TypeError(f'{self.__class__.__name__} can be compared only with keys and strings.')
 
+    def __hash__(self) -> int:
+        # Counting hash of string which holds hash seems stupid, but it covers a case, where we
+        # have set of keys stored as strings, and we check if key object is contained by set.
+        # In such case key object have to return same hash as string present in container.
+        #
+        # So hashes of key object and key expressed as string have to be equal:
+        # hash(tt.PrivateKey('initminer')) == hash('5JNHfZYKGaomSFvd4NUdQ9qMcEAC43kujbfjueTHpVapX1Kzq2n')
+        return hash(self._value)
+
     def __is_generated(self) -> bool:
         return self.__value is not None
