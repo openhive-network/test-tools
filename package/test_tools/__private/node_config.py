@@ -1,6 +1,6 @@
 import re
 
-from test_tools.__private.node_config_entry_types import Boolean, Integer, List, String, StringQuoted
+from test_tools.__private.node_config_entry_types import Boolean, Integer, List, PrivateKey, String, StringQuoted
 
 
 class NodeConfig:
@@ -96,7 +96,7 @@ class NodeConfig:
         self.enable_stale_production = Boolean()
         self.required_participation = Integer()
         self.witness = List(StringQuoted, single_line=False)
-        self.private_key = List(String, single_line=False)
+        self.private_key = List(PrivateKey, single_line=False)
         self.witness_skip_enforce_bandwidth = String()  # Set correct type
         self.psql_url = String()
         self.psql_index_threshold = Integer()
