@@ -6,11 +6,15 @@ import requests
 
 from test_tools.__private.asset import AssetBase
 from test_tools.__private.exceptions import CommunicationError
+from test_tools.__private.keys.key_base import KeyBase
 from test_tools.__private.logger.logger_internal_interface import logger
 
 
 class CustomJsonEncoder(json.JSONEncoder):
     def default(self, o):
+        if isinstance(o, KeyBase):
+            return str(o)
+
         return super().default(o)
 
 
