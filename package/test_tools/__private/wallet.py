@@ -26,6 +26,10 @@ from test_tools.__private.wait_for import wait_for
 if TYPE_CHECKING:
     from test_tools.__private.user_handles.handles.wallet_handle import WalletHandle
 
+# pylint: disable=too-many-lines
+# This pylint warning is right, but refactor has low priority. Will be done later...
+# It can be solved by moving the generated code to a separate file and disabling the warning in that file only.
+
 
 class Wallet(UserHandleImplementation, ScopedObject):
     # pylint: disable=too-many-instance-attributes
