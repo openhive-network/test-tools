@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING as __TYPE_CHECKING
+
 from test_tools.__private import cleanup_policy
 from test_tools.__private import constants
 from test_tools.__private import exceptions
@@ -16,3 +18,8 @@ from test_tools.__private.user_handles import RawNodeHandle as RawNode
 from test_tools.__private.user_handles import RemoteNodeHandle as RemoteNode
 from test_tools.__private.user_handles import WalletHandle as Wallet
 from test_tools.__private.user_handles import WitnessNodeHandle as WitnessNode
+
+# Type annotations
+if __TYPE_CHECKING:
+    from test_tools.__private.type_annotations import AnyLocalNodeHandle as AnyLocalNode
+    from test_tools.__private.type_annotations import AnyNodeHandle as AnyNode
