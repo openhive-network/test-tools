@@ -57,13 +57,13 @@ class Network(UserHandleImplementation):
         if not self.nodes or not network.nodes:
             raise Exception('Unable to connect empty network')
 
-        if not any(node.is_running() for node in self.nodes):
-            if any(node.is_able_to_produce_blocks() for node in self.nodes):
-                network.network_to_connect_with = self
-            else:
-                self.network_to_connect_with = network
+        if any(node.is_running() for node in self.nodes):
+            self.__connect_with_earlier_disconnected_network(network)
             return
 
+        self.__prepare_connections_before_run(network)
+
+    def __connect_with_earlier_disconnected_network(self, network) -> None:
         if network not in self.disconnected_networks:
             raise Exception('Unsupported: cannot connect networks when were already run and not disconnected before')
 
@@ -73,6 +73,12 @@ class Network(UserHandleImplementation):
 
         network.allow_for_connections_with_anyone()
         network.disconnected_networks.remove(self)
+
+    def __prepare_connections_before_run(self, network) -> None:
+        if any(node.is_able_to_produce_blocks() for node in self.nodes):
+            network.network_to_connect_with = self
+        else:
+            self.network_to_connect_with = network
 
     def disconnect_from(self, network):
         if not self.nodes or not network.nodes:
