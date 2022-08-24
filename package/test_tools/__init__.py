@@ -21,6 +21,14 @@ from test_tools.__private.user_handles import WitnessNodeHandle as WitnessNode
 
 # Type annotations
 if __TYPE_CHECKING:
+    # If you encountered error like:
+    # E   AttributeError: module 'test_tools' has no attribute 'TypeAnnotationDefinedBelow'
+    # You need to add following import at the top of client module:
+    # from __future__ import annotations
+    #
+    # Note for TestTools developers:
+    #   Above information is needed only in Python older than 3.10 and should be removed,
+    #   when we will remove support for these versions.
     from test_tools.__private.type_annotations import AnyAsset
     from test_tools.__private.type_annotations import AnyLocalNodeHandle as AnyLocalNode
     from test_tools.__private.type_annotations import AnyNodeHandle as AnyNode
