@@ -1,3 +1,4 @@
+from test_tools.__private.type_annotations.any_asset import AnyAsset
 from test_tools.__private.type_annotations.any_local_node import AnyLocalNode
 from test_tools.__private.type_annotations.any_local_node_handle import AnyLocalNodeHandle
 from test_tools.__private.type_annotations.any_node import AnyNode

@@ -21,5 +21,6 @@ from test_tools.__private.user_handles import WitnessNodeHandle as WitnessNode
 
 # Type annotations
 if __TYPE_CHECKING:
+    from test_tools.__private.type_annotations import AnyAsset
     from test_tools.__private.type_annotations import AnyLocalNodeHandle as AnyLocalNode
     from test_tools.__private.type_annotations import AnyNodeHandle as AnyNode
