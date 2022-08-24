@@ -54,7 +54,7 @@ class Network(UserHandleImplementation):
             node.run(wait_for_live=wait_for_live, environment_variables=environment_variables)
 
     def connect_with(self, network):
-        if len(self.nodes) == 0 or len(network.nodes) == 0:
+        if not self.nodes or not network.nodes:
             raise Exception('Unable to connect empty network')
 
         if not any(node.is_running() for node in self.nodes):
@@ -75,7 +75,7 @@ class Network(UserHandleImplementation):
         network.disconnected_networks.remove(self)
 
     def disconnect_from(self, network):
-        if len(self.nodes) == 0 or len(network.nodes) == 0:
+        if not self.nodes or not network.nodes:
             raise Exception('Unable to disconnect empty network')
 
         self.disconnected_networks.add(network)
