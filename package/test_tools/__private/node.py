@@ -286,6 +286,9 @@ class Node(UserHandleImplementation, ScopedObject):
     def __str__(self):
         return self.__name
 
+    def __repr__(self) -> str:
+        return str(self)
+
     def __get_config_file_path(self):
         return self.directory / 'config.ini'
 

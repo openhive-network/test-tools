@@ -24,6 +24,9 @@ class Network(UserHandleImplementation):
     def __str__(self):
         return self.name
 
+    def __repr__(self) -> str:
+        return str(self)
+
     def add(self, node: Node) -> None:
         self.nodes.append(node)
 
