@@ -18,7 +18,7 @@ class Network(UserHandleImplementation):
         self.name = context.names.register_numbered_name(name)
         self.nodes = []
         self.network_to_connect_with = None
-        self.disconnected_networks = []
+        self.disconnected_networks: set[Network] = set()
         self.logger = logger.create_child_logger(str(self))
 
     def __str__(self):
@@ -78,8 +78,8 @@ class Network(UserHandleImplementation):
         if len(self.nodes) == 0 or len(network.nodes) == 0:
             raise Exception('Unable to disconnect empty network')
 
-        self.disconnected_networks.append(network)
-        network.disconnected_networks.append(self)
+        self.disconnected_networks.add(network)
+        network.disconnected_networks.add(self)
 
         self.allow_for_connections_only_between_nodes_in_network()
         network.allow_for_connections_only_between_nodes_in_network()
