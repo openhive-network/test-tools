@@ -12,8 +12,8 @@ To use TestTools you have to install them and specify location of hive executabl
 - <details>
   <summary>Install with PyCharm</summary>
 
-  Best to create virtual environment in the `~/hive/tests/` directory using pycharm _project-specific_
-  [_isolated virtual environment_](https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html).
+  Create virtual environment in the `~/hive/tests/` directory using PyCharm project-specific isolated virtual
+  environment ([read more](https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html)).
 
   With opened project, select tab `Python Packages` at the bottom of window, click `Add Package` and then `From Disk`.
 
