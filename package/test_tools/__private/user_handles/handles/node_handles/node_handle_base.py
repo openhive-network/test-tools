@@ -37,6 +37,16 @@ class NodeHandleBase(Handle):
         """
         return self.__implementation.api
 
+    @property
+    def event(self):
+        """
+        Returns accessor for event queues
+
+        :example:
+            node.event.benchmark.get()
+        """
+        return self.__implementation.event
+
     def close(self) -> None:
         """
         Stops node's process with SIGINT (same as Ctrl+C in terminal). If node doesn't stop within 10 seconds, is

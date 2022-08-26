@@ -303,6 +303,35 @@ class Node(UserHandleImplementation, ScopedObject):
 
             self.__logger.debug('Notifications server closed')
 
+    class __CustomEventHandler:
+        class __QueueReadOnlyWrapper:
+            def __init__(self, queue : Queue):
+                self.__queue = queue
+
+            def get(self, *, timeout : Optional[float] = None) -> dict:
+                """
+                Blocks execution of for maximum of $timeout seconds,
+                waiting for any element in queue
+
+                :param timeout:  specifies amount of seconds to wait for any element in queue
+                :return dict:    first element in queue
+                """
+                return self.__queue.get(True, timeout=timeout)
+
+            def empty(self) -> bool:
+                """
+                Checks are there any elements in queue
+                """
+                return self.__queue.empty()
+
+        def __init__(self, notification_server : Node.__NotificationsServer):
+            self.__server = notification_server
+
+        def __getattribute__(self, __name: str) -> __QueueReadOnlyWrapper:
+            assert isinstance(__name, str)
+            self.__server.ensure_notification_name_in_buffer(__name)
+            return self.__QueueReadOnlyWrapper(self.__server.other_events_buffer[__name])
+
     def __init__(self, *, name, network: Optional[Network] = None, handle: Optional[NodeHandle] = None):
         super().__init__(handle=handle)
 
@@ -320,6 +349,7 @@ class Node(UserHandleImplementation, ScopedObject):
         self.__executable = self.__Executable()
         self.__process = self.__Process(self.directory, self.__executable, self.__logger)
         self.__notifications = self.__NotificationsServer(self, self.__logger)
+        self.event = self.__CustomEventHandler(self.__notifications)
         self.__cleanup_policy = None
 
         self.config = create_default_config()
