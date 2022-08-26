@@ -4,6 +4,7 @@ import json
 import math
 import os
 from pathlib import Path
+from queue import Queue
 import shutil
 import signal
 import subprocess
@@ -181,6 +182,8 @@ class Node(BaseNode, ScopedObject):
             self.switch_fork_event = Event()
             self.number_of_forks = 0
 
+            self.other_events_buffer : Dict[str, Queue] = {}
+
         def listen(self):
             self.node.config.notifications_endpoint = f"127.0.0.1:{self.server.port}"
             self.server.run()
@@ -222,8 +225,16 @@ class Node(BaseNode, ScopedObject):
                 RaiseExceptionHelper.raise_exception_in_main_thread(
                     exceptions.InternalNodeError(f'{self.node}: {message["value"]["message"]}')
                 )
+            else:
+                self.ensure_notification_name_in_buffer(name)
+                self.other_events_buffer[name].put_nowait(message['value'])
+
 
             self.__logger.info(f"Received message: {message}")
+
+        def ensure_notification_name_in_buffer(self, name : str):
+            if name not in self.other_events_buffer:
+                self.other_events_buffer[name] = Queue()
 
         def close(self):
             self.server.close()
