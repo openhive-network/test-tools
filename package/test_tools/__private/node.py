@@ -241,7 +241,8 @@ class Node(UserHandleImplementation, ScopedObject):
             self.__logger.debug(f'Notifications server is listening on {self.node.config.notifications_endpoint}...')
 
         def notify(self, message):
-            if message['name'] == 'webserver listening':
+            name = message['name']
+            if name == 'webserver listening':
                 details = message['value']
                 if details['type'] == 'HTTP':
                     endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
@@ -251,7 +252,7 @@ class Node(UserHandleImplementation, ScopedObject):
                     endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
                     self.ws_endpoint = Url(endpoint, protocol='ws').as_string(with_protocol=False)
                     self.ws_listening_event.set()
-            elif message['name'] == 'hived_status':
+            elif name == 'hived_status':
                 details = message['value']
                 if details['current_status'] == 'finished replaying':
                     self.replay_finished_event.set()
@@ -261,16 +262,16 @@ class Node(UserHandleImplementation, ScopedObject):
                     self.synchronization_started_event.set()
                 elif details['current_status'] == 'entering live mode':
                     self.live_mode_entered_event.set()
-            elif message['name'] == 'P2P listening':
+            elif name == 'P2P listening':
                 details = message['value']
                 endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
                 self.p2p_endpoint = Url(endpoint).as_string(with_protocol=False)
                 self.p2p_plugin_started_event.set()
-            elif message['name'] == 'switching forks':
+            elif name == 'switching forks':
                 self.number_of_forks += 1
                 self.switch_fork_event.set()
                 self.switch_fork_event.clear()
-            elif message['name'] == 'error':
+            elif name == 'error':
                 RaiseExceptionHelper.raise_exception_in_main_thread(
                     exceptions.InternalNodeError(f'{self.node}: {message["value"]["message"]}')
                 )
