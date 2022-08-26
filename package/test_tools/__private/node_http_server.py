@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import threading
@@ -80,7 +81,4 @@ class HttpRequestHandler(BaseHTTPRequestHandler):
         pass
 
     def __set_response(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write(f'PUT request for {self.path}'.encode('utf-8'))
+        self.send_response(HTTPStatus.NO_CONTENT)
