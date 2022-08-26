@@ -41,6 +41,16 @@ class NodeHandleBase(Handle):
         """
         return self.__implementation.api
 
+    @property
+    def event(self):
+        """
+        Returns accessor for event queues
+
+        :example:
+            node.event.benchmark.get()
+        """
+        return self.__implementation.event
+
     def get_last_block_number(self) -> int:
         """Returns number of the newest block known to node."""
         return self.__implementation.get_last_block_number()
