@@ -79,7 +79,6 @@ class NodeConfig:
         self.rc_stats_report_output = String()
         self.snapshot_root_dir = StringQuoted()
         self.statsd_endpoint = String()  # Set correct type
-        self.statsd_batchsize = String()  # Set correct type
         self.statsd_whitelist = String()  # Set correct type
         self.statsd_blacklist = String()  # Set correct type
         self.tags_start_promoted = String()  # Set correct type
