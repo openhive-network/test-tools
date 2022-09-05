@@ -51,17 +51,17 @@ class LoggerWrapper:
         self.__stream_handler.setLevel(logging.INFO)
         logging.root.addHandler(self.__stream_handler)
 
-    def debug(self, message, stacklevel=0):
-        self.internal_logger.debug(message, stacklevel=stacklevel + 2)
+    def debug(self, message, stacklevel=1):
+        self.internal_logger.debug(message, stacklevel=stacklevel + 1)
 
-    def info(self, message, stacklevel=0):
-        self.internal_logger.info(message, stacklevel=stacklevel + 2)
+    def info(self, message, stacklevel=1):
+        self.internal_logger.info(message, stacklevel=stacklevel + 1)
 
-    def warning(self, message, stacklevel=0):
-        self.internal_logger.warning(message, stacklevel=stacklevel + 2)
+    def warning(self, message, stacklevel=1):
+        self.internal_logger.warning(message, stacklevel=stacklevel + 1)
 
-    def error(self, message, stacklevel=0):
-        self.internal_logger.error(message, stacklevel=stacklevel + 2)
+    def error(self, message, stacklevel=1):
+        self.internal_logger.error(message, stacklevel=stacklevel + 1)
 
-    def critical(self, message, stacklevel=0):
-        self.internal_logger.critical(message, stacklevel=stacklevel + 2)
+    def critical(self, message, stacklevel=1):
+        self.internal_logger.critical(message, stacklevel=stacklevel + 1)

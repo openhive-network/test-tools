@@ -40,7 +40,7 @@ Above log registration is handled by following sequence of actions:
 
     test --> handler: info("Example")
     activate handler
-        handler --> wrapper: info("Example", stacklevel=1)
+        handler --> wrapper: info("Example", stacklevel=2)
         activate wrapper
             wrapper --> logging: info("Example", stacklevel=3)
             activate logging
