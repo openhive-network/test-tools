@@ -28,7 +28,6 @@ def create_default_config():
     config.rc_skip_reject_not_enough_rc = '0'
     config.rc_start_at_block = '0'
     config.snapshot_root_dir = 'snapshot'
-    config.statsd_batchsize = '1'
     config.tags_start_promoted = '0'
     config.tags_skip_startup_update = '0'
     config.transaction_status_block_depth = '64000'
