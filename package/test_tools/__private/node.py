@@ -5,6 +5,7 @@ import math
 import os
 from pathlib import Path
 from queue import Queue
+import re
 import shutil
 import signal
 import subprocess
@@ -175,6 +176,7 @@ class Node(BaseNode, ScopedObject):
             self.node: "Node" = node
             self.server = NodeHttpServer(self, name=f"{self.node}.NotificationsServer")
             self.__logger = logger
+            self.__snake_case_regex = re.compile("[a-z]+(:?_[a-z]+)*")
 
             self.http_listening_event = Event()
             self.http_endpoint: Optional[str] = None
@@ -205,12 +207,14 @@ class Node(BaseNode, ScopedObject):
 
         def notify(self, message):
             name = message["name"]
+            assert self.__is_snake_case(name)
+
             message.pop("name")
             details = message["value"]
 
-            if name == "webserver listening":
+            if name == "server_listening":
                 if details["type"] == "HTTP":
-                    self.http_endpoint = self.__message_details_to_url(details)
+                    self.http_endpoint = self.__message_details_to_url(details, protocol="http")
                     self.http_listening_event.set()
                 elif details["type"] == "WS":
                     self.ws_endpoint = self.__message_details_to_url(details)
@@ -233,11 +237,10 @@ class Node(BaseNode, ScopedObject):
                 self.switch_fork_event.clear()
             elif name == "error":
                 RaiseExceptionHelper.raise_exception_in_main_thread(
-                    exceptions.InternalNodeError(f'{self.node}: {message["value"]["message"]}')
+                    exceptions.InternalNodeError(f"{self.node}: {message['value']['message']}")
                 )
             else:
                 self.__put_notification_in_buffer(name, message)
-
 
             self.__logger.info(f"Received message `{name}`: {message}")
 
@@ -250,6 +253,9 @@ class Node(BaseNode, ScopedObject):
 
         def wait_for_notification(self, name: str, *, timeout: float = math.inf):
             return self.other_events_buffer[name].get(True, (timeout if timeout != math.inf else None))
+
+        def __is_snake_case(self, text: str) -> bool:
+            return self.__snake_case_regex.match(text) is not None
 
         @staticmethod
         def __message_details_to_url(details: dict, *, protocol: str = "") -> Url:
