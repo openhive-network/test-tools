@@ -215,6 +215,9 @@ class Node(BaseNode, ScopedObject):
                 elif details["type"] == "WS":
                     self.ws_endpoint = self.__message_details_to_url(details)
                     self.ws_listening_event.set()
+                elif details["type"] == "P2P":
+                    self.p2p_endpoint = self.__message_details_to_url(details)
+                    self.p2p_plugin_started_event.set()
             elif name == "hived_status":
                 if details["current_status"] == "finished replaying":
                     self.replay_finished_event.set()
@@ -224,10 +227,6 @@ class Node(BaseNode, ScopedObject):
                     self.synchronization_started_event.set()
                 elif details["current_status"] == "entering live mode":
                     self.live_mode_entered_event.set()
-            elif name == "P2P listening":
-                endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
-                self.p2p_endpoint = Url(endpoint).as_string(with_protocol=False)
-                self.p2p_plugin_started_event.set()
             elif name == "switching forks":
                 self.number_of_forks += 1
                 self.switch_fork_event.set()
