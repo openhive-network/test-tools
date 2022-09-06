@@ -244,12 +244,10 @@ class Node(UserHandleImplementation, ScopedObject):
             if message['name'] == 'webserver listening':
                 details = message['value']
                 if details['type'] == 'HTTP':
-                    endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
-                    self.http_endpoint = Url(endpoint, protocol='http').as_string(with_protocol=False)
+                    self.http_endpoint = self.__message_details_to_url(details)
                     self.http_listening_event.set()
                 elif details['type'] == 'WS':
-                    endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
-                    self.ws_endpoint = Url(endpoint, protocol='ws').as_string(with_protocol=False)
+                    self.ws_endpoint = self.__message_details_to_url(details)
                     self.ws_listening_event.set()
             elif message['name'] == 'hived_status':
                 details = message['value']
@@ -276,6 +274,11 @@ class Node(UserHandleImplementation, ScopedObject):
                 )
 
             self.__logger.info(f'Received message: {message}')
+
+        @staticmethod
+        def __message_details_to_url(details: dict, *, protocol: str = '') -> Url:
+            endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
+            return Url(endpoint, protocol=protocol).as_string(with_protocol=False)
 
         def close(self):
             self.server.close()
