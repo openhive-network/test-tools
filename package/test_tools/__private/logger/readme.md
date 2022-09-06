@@ -5,11 +5,11 @@ Classes are organized in following hierarchy:
 @startuml
     class "LoggerWrapper" as wrapper
     class "LoggerInterfaceBase" as base {
-        + debug(message: str): None
-        + info(message: str): None
-        + warning(message: str): None
-        + error(message: str): None
-        + critical(message: str): None
+        + debug(message: str, stacklevel: int = 1): None
+        + info(message: str, stacklevel: int = 1): None
+        + warning(message: str, stacklevel: int = 1): None
+        + error(message: str, stacklevel: int = 1): None
+        + critical(message: str, stacklevel: int = 1): None
     }
     class "LoggerInternalInterface" as internal_handle
     class "LoggerUserInterface" as user_handle
@@ -38,7 +38,7 @@ Above log registration is handled by following sequence of actions:
     participant "tt.logger.__instance\n<i>LoggerWrapper</i>" as wrapper
     participant "tt.logger.__instance.internal_logger\n<i>logging.Logger</i>" as logging
 
-    test --> handler: info("Example")
+    test --> handler: info("Example", stacklevel=1)
     activate handler
         handler --> wrapper: info("Example", stacklevel=2)
         activate wrapper
