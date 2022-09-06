@@ -241,14 +241,17 @@ class Node(UserHandleImplementation, ScopedObject):
             self.__logger.debug(f'Notifications server is listening on {self.node.config.notifications_endpoint}...')
 
         def notify(self, message):
-            if message['name'] == 'webserver listening':
+            if message['name'] == 'server_listening':
                 details = message['value']
                 if details['type'] == 'HTTP':
-                    self.http_endpoint = self.__message_details_to_url(details)
+                    self.http_endpoint = self.__message_details_to_url(details, protocol='http')
                     self.http_listening_event.set()
                 elif details['type'] == 'WS':
-                    self.ws_endpoint = self.__message_details_to_url(details)
+                    self.ws_endpoint = self.__message_details_to_url(details, protocol='ws')
                     self.ws_listening_event.set()
+                elif details['type'] == 'P2P':
+                    self.p2p_endpoint = self.__message_details_to_url(message)
+                    self.p2p_plugin_started_event.set()
             elif message['name'] == 'hived_status':
                 details = message['value']
                 if details['current_status'] == 'finished replaying':
@@ -259,12 +262,7 @@ class Node(UserHandleImplementation, ScopedObject):
                     self.synchronization_started_event.set()
                 elif details['current_status'] == 'entering live mode':
                     self.live_mode_entered_event.set()
-            elif message['name'] == 'P2P listening':
-                details = message['value']
-                endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
-                self.p2p_endpoint = Url(endpoint).as_string(with_protocol=False)
-                self.p2p_plugin_started_event.set()
-            elif message['name'] == 'switching forks':
+            elif message['name'] == 'switching_forks':
                 self.number_of_forks += 1
                 self.switch_fork_event.set()
                 self.switch_fork_event.clear()
