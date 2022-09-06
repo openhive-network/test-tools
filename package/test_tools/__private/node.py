@@ -241,7 +241,8 @@ class Node(UserHandleImplementation, ScopedObject):
             self.__logger.debug(f'Notifications server is listening on {self.node.config.notifications_endpoint}...')
 
         def notify(self, message):
-            if message['name'] == 'server_listening':
+            message_name = message['name']
+            if message_name == 'server_listening':
                 details = message['value']
                 if details['type'] == 'HTTP':
                     self.http_endpoint = self.__message_details_to_url(details, protocol='http')
@@ -252,7 +253,7 @@ class Node(UserHandleImplementation, ScopedObject):
                 elif details['type'] == 'P2P':
                     self.p2p_endpoint = self.__message_details_to_url(message)
                     self.p2p_plugin_started_event.set()
-            elif message['name'] == 'hived_status':
+            elif message_name == 'hived_status':
                 details = message['value']
                 if details['current_status'] == 'finished replaying':
                     self.replay_finished_event.set()
@@ -262,11 +263,11 @@ class Node(UserHandleImplementation, ScopedObject):
                     self.synchronization_started_event.set()
                 elif details['current_status'] == 'entering live mode':
                     self.live_mode_entered_event.set()
-            elif message['name'] == 'switching_forks':
+            elif message_name == 'switching_forks':
                 self.number_of_forks += 1
                 self.switch_fork_event.set()
                 self.switch_fork_event.clear()
-            elif message['name'] == 'error':
+            elif message_name == 'error':
                 RaiseExceptionHelper.raise_exception_in_main_thread(
                     exceptions.InternalNodeError(f'{self.node}: {message["value"]["message"]}')
                 )
