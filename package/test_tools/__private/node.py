@@ -4,6 +4,7 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 import shutil
 import signal
 import subprocess
@@ -214,6 +215,7 @@ class Node(UserHandleImplementation, ScopedObject):
             self.node: 'Node' = node
             self.server = NodeHttpServer(self)
             self.__logger = logger
+            self.__snake_case_regex = re.compile('[a-z]+(:?_[a-z]+)*')
 
             self.http_listening_event = Event()
             self.http_endpoint: Optional[str] = None
@@ -242,6 +244,8 @@ class Node(UserHandleImplementation, ScopedObject):
 
         def notify(self, message):
             message_name = message['name']
+            assert self.__is_snake_case(message_name)
+
             if message_name == 'server_listening':
                 details = message['value']
                 if details['type'] == 'HTTP':
@@ -273,6 +277,9 @@ class Node(UserHandleImplementation, ScopedObject):
                 )
 
             self.__logger.info(f'Received message: {message}')
+
+        def __is_snake_case(self, text: str) -> bool:
+            return self.__snake_case_regex.match(text) is not None
 
         @staticmethod
         def __message_details_to_url(details: dict, *, protocol: str = '') -> Url:
