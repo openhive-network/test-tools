@@ -166,7 +166,7 @@ class Node(UserHandleImplementation, ScopedObject):
             self.__logger = logger
 
             self.http_listening_event = Event()
-            self.http_endpoint: Optional[str] = None
+            self.http_endpoint: Optional[Url] = None
 
             self.ws_listening_event = Event()
             self.ws_endpoint: Optional[str] = None
@@ -195,7 +195,7 @@ class Node(UserHandleImplementation, ScopedObject):
                 details = message["value"]
                 if details["type"] == "HTTP":
                     endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
-                    self.http_endpoint = Url(endpoint, protocol="http").as_string(with_protocol=False)
+                    self.http_endpoint = Url(endpoint, protocol="http")
                     self.http_listening_event.set()
                 elif details["type"] == "WS":
                     endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
@@ -392,7 +392,7 @@ class Node(UserHandleImplementation, ScopedObject):
 
         self.__wait_for_http_listening()
 
-        response = communication.request(f'http://{self.get_http_endpoint()}', NodeMessage(method, params, jsonrpc, id_).as_json())
+        response = communication.request(self.get_http_endpoint(), NodeMessage(method, params, jsonrpc, id_).as_json())
 
         return response["result"] if only_result else response
 
@@ -687,9 +687,9 @@ class Node(UserHandleImplementation, ScopedObject):
         self.__wait_for_p2p_plugin_start()
         return self.__notifications.p2p_endpoint
 
-    def get_http_endpoint(self):
+    def get_http_endpoint(self, *, with_protocol: bool = True) -> str:
         self.__wait_for_http_listening()
-        return self.__notifications.http_endpoint
+        return self.__notifications.http_endpoint.as_string(with_protocol=with_protocol)
 
     def get_ws_endpoint(self):
         self.__wait_for_ws_listening()

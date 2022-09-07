@@ -107,14 +107,15 @@ class NodeHandleBase(Handle):
         """Returns current witness."""
         return self.__implementation.get_current_witness()
 
-    @property
-    def http_endpoint(self) -> str:
+    def get_http_endpoint(self, *, with_protocol: bool = True) -> str:
         """
         Returns opened HTTP endpoint. Blocks program execution if HTTP endpoint is not ready. When endpoint is
         configured with special values like 0.0.0.0 address or 0 port, special values are replaced with actually
         selected by node.
+
+        :param with_protocol: When set to True, returned endpoint will contain protocol (e.g. http://).
         """
-        return self.__implementation.get_http_endpoint()
+        return self.__implementation.get_http_endpoint(with_protocol=with_protocol)
 
     def is_running(self) -> bool:
         """Returns True if node's process is running, False if process is closed."""
