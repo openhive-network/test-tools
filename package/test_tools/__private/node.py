@@ -255,7 +255,7 @@ class Node(UserHandleImplementation, ScopedObject):
                     self.ws_endpoint = self.__message_details_to_url(details, protocol='ws')
                     self.ws_listening_event.set()
                 elif details['type'] == 'P2P':
-                    self.p2p_endpoint = self.__message_details_to_url(message)
+                    self.p2p_endpoint = self.__message_details_to_url(details)
                     self.p2p_plugin_started_event.set()
             elif message_name == 'hived_status':
                 details = message['value']
