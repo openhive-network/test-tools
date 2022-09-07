@@ -200,7 +200,12 @@ class Node(BaseNode, ScopedObject):
             self.other_events_buffer = self.__NotificationsBuffer()
 
         def listen(self):
-            self.node.config.notifications_endpoint = f"127.0.0.1:{self.server.port}"
+            if isinstance(self.node.config.notifications_endpoint, str):
+                self.node.config.notifications_endpoint = [self.node.config.notifications_endpoint]
+            elif not isinstance(self.node.config.notifications_endpoint, list):
+                self.node.config.notifications_endpoint = []
+
+            self.node.config.notifications_endpoint.append(f"127.0.0.1:{self.server.port}")
             self.server.run()
 
             self.__logger.debug(f"Notifications server is listening on {self.node.config.notifications_endpoint}...")

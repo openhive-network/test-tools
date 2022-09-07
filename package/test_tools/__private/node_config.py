@@ -69,7 +69,7 @@ class NodeConfig:
         self.log_json_rpc = String()  # Set correct type
         self.market_history_bucket_size = String()  # Set correct type
         self.market_history_buckets_per_size = String()  # Set correct type
-        self.notifications_endpoint = String()
+        self.notifications_endpoint = List(String, single_line=False)
         self.p2p_endpoint = String()
         self.p2p_max_connections = String()  # Set correct type
         self.seed_node = String()  # Set correct type
