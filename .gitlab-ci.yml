@@ -28,6 +28,15 @@ variables:
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| STATIC CODE ANALYSIS |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+pre_commit_checks:
+  stage: static_code_analysis
+  extends: .configuration
+  script:
+    - echo -e "${TXT_BLUE}Check all files with pre-commit hooks${TXT_CLEAR}" &&
+      pre-commit run --all-files
+  tags: *shared_tags
+
+
 lint_code_with_pylint:
   stage: static_code_analysis
   extends: .configuration
