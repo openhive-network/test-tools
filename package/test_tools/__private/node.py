@@ -390,12 +390,9 @@ class Node(UserHandleImplementation, ScopedObject):
         if self.config.webserver_http_endpoint is None:
             raise Exception("Webserver http endpoint is unknown")
 
-        endpoint = f"http://{self.get_http_endpoint()}"
-
         self.__wait_for_http_listening()
 
-        message = NodeMessage(method, params, jsonrpc, id_).as_json()
-        response = communication.request(endpoint, message)
+        response = communication.request(f'http://{self.get_http_endpoint()}', NodeMessage(method, params, jsonrpc, id_).as_json())
 
         return response["result"] if only_result else response
 
