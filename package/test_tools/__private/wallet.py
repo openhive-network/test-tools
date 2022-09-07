@@ -989,6 +989,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self,
         *,
         attach_to: Union[None, "Node", "RemoteNode"],
+        protocol: Literal["http", "ws"] = "http",
         additional_arguments: Iterable = (),
         preconfigure: bool = True,
         handle: Optional[WalletHandle] = None,
@@ -1019,6 +1020,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.additional_arguments = list(additional_arguments)
         self.__produced_files = False
         self.logger = logger.create_child_logger(self.name)
+        self.protocol = protocol
 
         self.run(preconfigure=preconfigure, time_offset=time_offset)
 
@@ -1106,7 +1108,11 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.stderr_file = open(self.get_stderr_file_path(), "w", encoding="utf-8")
 
         if self.__is_online():
-            run_parameters.extend([f"--server-rpc-endpoint={self.connected_node.get_ws_endpoint()}"])
+            endpoint = self.__get_wallet_communication_endpoint()
+            self.logger.info(
+                f"Connecting with {self.connected_node} using {self.protocol.upper()} protocol on: {endpoint}"
+            )
+            run_parameters.extend([f"--server-rpc-endpoint={endpoint}"])
 
         run_parameters.extend(self.additional_arguments)
 
@@ -1155,6 +1161,15 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
     def __is_online(self) -> bool:
         return self.connected_node is not None
+
+    def __get_wallet_communication_endpoint(self) -> str:
+        if self.protocol == "http":
+            return self.connected_node.get_http_endpoint()
+
+        if self.protocol == "ws":
+            return self.connected_node.get_ws_endpoint()
+
+        raise ValueError(f"Unknown protocol {self.protocol}")
 
     @property
     def transaction_serialization(self) -> Literal["legacy", "hf26"]:

@@ -22,6 +22,7 @@ class WalletHandle(Handle):
     def __init__(
         self,
         attach_to: Union[None, NodeHandleBase, RemoteNode] = None,
+        protocol: Literal["http", "ws"] = "http",
         additional_arguments: Iterable[str] = (),
         preconfigure: bool = True,
         time_offset: Optional[str] = None,
@@ -42,6 +43,7 @@ class WalletHandle(Handle):
         super().__init__(
             implementation=Wallet(
                 attach_to=attach_to,
+                protocol=protocol,
                 additional_arguments=additional_arguments,
                 preconfigure=preconfigure,
                 time_offset=time_offset,

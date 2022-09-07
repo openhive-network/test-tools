@@ -7,15 +7,29 @@ def test_attaching_wallet_to_local_node(node: tt.InitNode):
     tt.Wallet(attach_to=node)
 
 
-def test_attaching_wallet_to_remote_node():
+@pytest.mark.parametrize("with_ws_endpoint", [False, True], ids=("with_http_endpoint", "with_ws_endpoint"))
+def test_attaching_wallet_to_remote_node(with_ws_endpoint: bool):
     # Connecting with real remote node (e.g. from main net) is not reliable,
     # so wallet is connected to local node, but via remote node interface.
     local_node = tt.InitNode()
     local_node.run()
 
-    remote_node = tt.RemoteNode(local_node.http_endpoint, ws_endpoint=local_node.ws_endpoint)
+    ws_endpoint = {"ws_endpoint": local_node.get_ws_endpoint()} if with_ws_endpoint else {}
+    protocol = "ws" if with_ws_endpoint else "http"
 
-    tt.Wallet(attach_to=remote_node)
+    remote_node = tt.RemoteNode(local_node.get_http_endpoint(), **ws_endpoint)
+
+    tt.Wallet(attach_to=remote_node, protocol=protocol)
+
+
+def test_attaching_wallet_to_remote_node_without_providing_ws_endpoint():
+    local_node = tt.InitNode()
+    local_node.run()
+
+    remote_node = tt.RemoteNode(local_node.get_http_endpoint())
+
+    with pytest.raises(ValueError):
+        tt.Wallet(attach_to=remote_node, protocol="ws")
 
 
 def test_attaching_wallet_to_not_run_node():

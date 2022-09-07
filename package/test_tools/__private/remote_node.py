@@ -35,6 +35,9 @@ class RemoteNode(UserHandleImplementation):
 
         return response["result"] if only_result else response
 
+    def get_http_endpoint(self, *, with_protocol: bool = True) -> str:
+        return self.__http_endpoint.as_string(with_protocol=with_protocol)
+
     def get_ws_endpoint(self, *, with_protocol: bool = True) -> str:
         if self.__ws_endpoint is None:
             raise ValueError(f"WS endpoint of {self} was not set!")
