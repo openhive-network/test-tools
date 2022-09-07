@@ -237,7 +237,9 @@ class Node(UserHandleImplementation, ScopedObject):
             self.number_of_forks = 0
 
         def listen(self):
-            self.node.config.notifications_endpoint = f'127.0.0.1:{self.server.port}'
+            if self.node.config.notifications_endpoint is None:
+                self.node.config.notifications_endpoint = []
+            self.node.config.notifications_endpoint.append(f'127.0.0.1:{self.server.port}')
             self.server.run()
 
             self.__logger.debug(f'Notifications server is listening on {self.node.config.notifications_endpoint}...')
