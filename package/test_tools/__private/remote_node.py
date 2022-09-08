@@ -35,11 +35,11 @@ class RemoteNode(UserHandleImplementation):
 
         return response["result"] if only_result else response
 
-    def get_ws_endpoint(self):
+    def get_ws_endpoint(self, *, with_protocol: bool = True) -> Optional[str]:
         if self.__ws_endpoint is None:
             return None
 
-        return self.__ws_endpoint.as_string(with_protocol=False)
+        return self.__ws_endpoint.as_string(with_protocol=with_protocol)
 
     @staticmethod
     def is_running():

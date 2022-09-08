@@ -169,7 +169,7 @@ class Node(UserHandleImplementation, ScopedObject):
             self.http_endpoint: Optional[Url] = None
 
             self.ws_listening_event = Event()
-            self.ws_endpoint: Optional[str] = None
+            self.ws_endpoint: Optional[Url] = None
 
             self.p2p_plugin_started_event = Event()
             self.p2p_endpoint: Optional[str] = None
@@ -199,7 +199,7 @@ class Node(UserHandleImplementation, ScopedObject):
                     self.http_listening_event.set()
                 elif details["type"] == "WS":
                     endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
-                    self.ws_endpoint = Url(endpoint, protocol="ws").as_string(with_protocol=False)
+                    self.ws_endpoint = Url(endpoint, protocol="ws")
                     self.ws_listening_event.set()
             elif message["name"] == "hived_status":
                 details = message["value"]
@@ -691,9 +691,9 @@ class Node(UserHandleImplementation, ScopedObject):
         self.__wait_for_http_listening()
         return self.__notifications.http_endpoint.as_string(with_protocol=with_protocol)
 
-    def get_ws_endpoint(self):
+    def get_ws_endpoint(self, *, with_protocol: bool = True) -> str:
         self.__wait_for_ws_listening()
-        return self.__notifications.ws_endpoint
+        return self.__notifications.ws_endpoint.as_string(with_protocol=with_protocol)
 
     def close(self):
         self.__process.close()

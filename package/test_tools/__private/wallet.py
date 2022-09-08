@@ -1106,7 +1106,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.stderr_file = open(self.get_stderr_file_path(), "w", encoding="utf-8")
 
         if self.__is_online():
-            run_parameters.extend([f"--server-rpc-endpoint=ws://{self.connected_node.get_ws_endpoint()}"])
+            run_parameters.extend([f"--server-rpc-endpoint={self.connected_node.get_ws_endpoint()}"])
 
         run_parameters.extend(self.additional_arguments)
 

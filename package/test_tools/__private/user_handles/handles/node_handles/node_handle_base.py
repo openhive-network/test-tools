@@ -117,6 +117,16 @@ class NodeHandleBase(Handle):
         """
         return self.__implementation.get_http_endpoint(with_protocol=with_protocol)
 
+    def get_ws_endpoint(self, *, with_protocol: bool = True) -> str:
+        """
+        Returns opened WS endpoint. Blocks program execution if WS endpoint is not ready. When endpoint is
+        configured with special values like 0.0.0.0 address or 0 port, special values are replaced with actually
+        selected by node.
+
+        :param with_protocol: See parameter ``with_protocol`` in :func:`get_http_endpoint`.
+        """
+        return self.__implementation.get_ws_endpoint(with_protocol=with_protocol)
+
     def is_running(self) -> bool:
         """Returns True if node's process is running, False if process is closed."""
         return self.__implementation.is_running()
@@ -265,14 +275,6 @@ class NodeHandleBase(Handle):
             seconds.
         """
         self.__implementation.wait_for_live_mode(timeout=timeout)
-
-    @property
-    def ws_endpoint(self) -> str:
-        """
-        Returns opened WS endpoint. Blocks program execution if WS endpoint is not ready. When endpoint is configured
-        with special values like 0.0.0.0 address or 0 port, special values are replaced with actually selected by node.
-        """
-        return self.__implementation.get_ws_endpoint()
 
     @property
     def p2p_endpoint(self) -> str:
