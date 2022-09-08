@@ -28,7 +28,16 @@ class NodeApiCallProxy:
 
         if schemas_should_be_automatically_validated():
             from schemas.get_schema import get_schema  # pylint: disable=import-outside-toplevel, import-error
-            get_schema(self.__message['method']).validate(response)
+            from schemas.__private.fundamental_schemas import Schema
+            from schemas.__private.schema_selector import SchemaSelector  # FIXME: pbatko: Shouldn't be imported from private
+
+            schema = get_schema(self.__message['method'])
+
+            if isinstance(schema, Schema):
+                schema.validate(response)
+
+            if isinstance(schema, SchemaSelector):
+                schema.validate(response, request=self.__message)
 
         return response
 
