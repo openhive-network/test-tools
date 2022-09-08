@@ -22,6 +22,12 @@ class NodeApiCallProxy:
             only_result=only_result,
         )
 
+        # FIXME Validate switch: ON
+        #--http-endpoint = 'http://localhost:18091'
+        #--http-endpoint = 'http://api.fqdn.pl:8092'
+
+        os.environ['TEST_TOOLS_VALIDATE_RESPONSE_SCHEMAS'] = 'TRUE'
+
         def schemas_should_be_automatically_validated() -> bool:
             should_validate = os.getenv('TEST_TOOLS_VALIDATE_RESPONSE_SCHEMAS', default='FALSE')
             return bool(strtobool(should_validate))
