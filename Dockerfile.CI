@@ -1,5 +1,9 @@
 # This dockerfile is used to build the base image used by CI/CD jobs.
 # In order to make changes, new image should be built and pushed to gitlab container registry.
+#
+# These commands can be used to build and push the image (remember to change the tag pointed by[VERSION]):
+# docker build -t registry.gitlab.syncad.com/hive/test-tools/ci-cd-base-image:[VERSION] -f Dockerfile.CI .
+# docker push registry.gitlab.syncad.com/hive/test-tools/ci-cd-base-image:[VERSION]
 
 FROM ubuntu:20.04
 
