@@ -1,6 +1,26 @@
 [build-system]
-requires = [
-    "setuptools == 63.2.0",
-    "wheel == 0.37.1",
+requires = ["poetry-core==1.1.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry]
+name = "test-tools"
+version = "0.0.0"
+description = "Tools for testing hive software"
+authors = ["Piotr Batko <pbatko@syncad.com>"]
+repository = "https://gitlab.syncad.com/hive/test-tools"
+packages = [
+    { include = "test_tools", from = "package" },
 ]
-build-backend = "setuptools.build_meta"
+
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "2.27.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "7.1.2"
+pytest-xdist = "2.5.0"
+pylint = "2.12.2"
+pre-commit = "2.20.0"
