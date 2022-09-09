@@ -1,4 +1,4 @@
-image: "$CI_REGISTRY_IMAGE/ci-cd-base-image"
+image: "$CI_REGISTRY_IMAGE/ci-cd-base-image:2"
 
 
 stages:
