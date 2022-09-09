@@ -18,11 +18,10 @@ variables:
 
 .configuration:
   before_script:
-    - python3 -m venv venv/
-    - . venv/bin/activate
-    - pip install ."[dev]"
-    - python3 -V
-    - pip -V
+    - pip install poetry
+    - poetry install
+    - poetry env info
+    - source `poetry env info --path`/bin/activate
     - pip list
 
 
