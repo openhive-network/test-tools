@@ -8,6 +8,7 @@ name = "test-tools"
 version = "0.0.0"
 description = "Tools for testing hive software"
 authors = ["Piotr Batko <pbatko@syncad.com>"]
+readme = "readme.md"
 repository = "https://gitlab.syncad.com/hive/test-tools"
 packages = [
     { include = "test_tools", from = "package" },
