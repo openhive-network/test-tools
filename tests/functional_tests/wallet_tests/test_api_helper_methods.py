@@ -1,4 +1,4 @@
-from typing import Protocol
+from typing import Final, Protocol
 
 import pytest
 
@@ -44,12 +44,13 @@ def test_keys_import_during_account_creation(protocol: str, wallet: WalletMaker)
 def test_creation_of_huge_number_of_accounts(protocol: str, wallet: WalletMaker):
     # ARRANGE
     wallet = wallet(protocol=protocol)
+    number_of_accounts: Final[int] = 200_000
 
     # ACT
     accounts_before = set(wallet.list_accounts())
-    created_accounts = wallet.create_accounts(200_000, import_keys=False)
+    created_accounts = wallet.create_accounts(number_of_accounts, import_keys=False)
     accounts_after = set(wallet.list_accounts())
 
     # ASSERT
-    assert len(created_accounts) == 200_000
-    assert len(accounts_after.difference(accounts_before)) == 200_000
+    assert len(created_accounts) == number_of_accounts
+    assert len(accounts_after.difference(accounts_before)) == number_of_accounts
