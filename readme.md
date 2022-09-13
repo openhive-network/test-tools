@@ -29,10 +29,12 @@ To use TestTools you have to install them and specify location of hive executabl
   <summary>Install in virtual environment manually</summary>
 
   ```bash
-  cd ~/hive/tests/                               # Go to tests/ directory of hive repository
-  python3.8 -m venv venv/                        # Create virtual environment in venv/ directory
-  source venv/bin/activate                       # Activate it
-  pip install -e ~/hive/tests/test_tools'[dev]'  # Install TestTools with `[dev]` extras
+  cd ~/hive/tests/          # Go to tests/ directory of hive repository
+  python3.8 -m venv venv/   # Create virtual environment in venv/ directory
+  source venv/bin/activate  # Activate it
+  pip install poetry        # Install poetry
+  cd test_tools/            # Go to TestTools directory
+  poetry install            # Install TestTools with dev-dependencies
   ```
 
   To deactivate virtual environment run:
@@ -46,7 +48,9 @@ To use TestTools you have to install them and specify location of hive executabl
 
   Enter following command in terminal:
   ```bash
-  python3.8 -m pip install -e ~/hive/tests/test_tools'[dev]'  # Install TestTools with `[dev]` extras
+  python3.8 -m pip install poetry  # Install poetry
+  cd ~/hive/tests/test_tools/      # Go to TestTools directory
+  python3.8 -m poetry install      # Install TestTools with dev-dependencies
   ```
   </details>
 
