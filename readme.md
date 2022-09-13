@@ -10,23 +10,7 @@ To use TestTools you have to install them and specify location of hive executabl
 #### A. Select one of following methods:
 
 - <details>
-  <summary>Install with PyCharm</summary>
-
-  Create virtual environment in the `~/hive/tests/` directory using PyCharm project-specific isolated virtual
-  environment ([read more](https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html)).
-
-  With opened project, select tab `Python Packages` at the bottom of window, click `Add Package` and then `From Disk`.
-
-  ![Installation instructions](./documentation/installation_in_pycharm0.png)
-
-  Select TestTools directory, mark `Install as editable` option, specify extra `[dev]` for additional dependencies and
-  click OK.
-
-  ![Installation instructions](./documentation/installation_in_pycharm_dev.png)
-  </details>
-
-- <details>
-  <summary>Install in virtual environment manually</summary>
+  <summary>Install in virtual environment</summary>
 
   ```bash
   cd ~/hive/tests/          # Go to tests/ directory of hive repository
@@ -41,6 +25,16 @@ To use TestTools you have to install them and specify location of hive executabl
   ```bash
   deactivate
   ```
+
+  ℹ Hint: If you want to use PyCharm, you may be interested in the integration instructions below.
+
+  Add new, local interpreter:
+
+  ![Installation instructions](./documentation/pycharm_integration0.png)
+
+  Provide the path to python in the previously created virtual environment:
+
+  ![Installation instructions](./documentation/pycharm_integration1.png)
   </details>
 
 - <details>
@@ -151,19 +145,7 @@ Follow the instructions below:
 #### Select one of following methods:
 
 - <details>
-  <summary>Install with PyCharm</summary>
-
-  With opened project, select tab `Python Packages` at the bottom of window, click `Add Package` and then `From Disk`.
-
-  ![Installation instructions](./documentation/installation_in_pycharm0.png)
-
-  Select TestTools directory, mark `Install as editable` option and click OK.
-
-  ![Installation instructions](./documentation/installation_in_pycharm1.png)
-  </details>
-
-- <details>
-  <summary>Install in virtual environment manually</summary>
+  <summary>Install in virtual environment</summary>
 
   ```bash
   cd ~/hive/tests/test_tools/             # Go to repository root directory
@@ -176,6 +158,16 @@ Follow the instructions below:
   ```bash
   deactivate
   ```
+
+  ℹ Hint: If you want to use PyCharm, you may be interested in the integration instructions below.
+
+  Add new, local interpreter:
+
+  ![Installation instructions](./documentation/pycharm_integration0.png)
+
+  Provide the path to python in the previously created virtual environment:
+
+  ![Installation instructions](./documentation/pycharm_integration1.png)
   </details>
 
 - <details>
