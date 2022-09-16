@@ -1,6 +1,6 @@
 from copy import deepcopy
-import warnings
 from typing import Union
+import warnings
 
 
 class AssetBase:

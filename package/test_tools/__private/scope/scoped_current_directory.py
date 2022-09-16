@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Union
 
-from test_tools.__private.scope.scoped_object import ScopedObject
 from test_tools.__private.scope.scope_singleton import current_scope
+from test_tools.__private.scope.scoped_object import ScopedObject
 
 
 class ScopedCurrentDirectory(ScopedObject):

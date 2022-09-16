@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from test_tools.__private.keys.key_base import KeyBase
 from test_tools.__private.key_generator import KeyGenerator
+from test_tools.__private.keys.key_base import KeyBase
 
 
 class PrivateKey(KeyBase):

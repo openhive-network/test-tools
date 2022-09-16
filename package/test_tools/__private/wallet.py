@@ -11,8 +11,7 @@ import subprocess
 from typing import Final, Iterable, List, Literal, Optional, TYPE_CHECKING, Union
 import warnings
 
-from test_tools.__private import communication
-from test_tools.__private import paths_to_executables
+from test_tools.__private import communication, paths_to_executables
 from test_tools.__private.account import Account
 from test_tools.__private.asset import Asset
 from test_tools.__private.exceptions import CommunicationError, NodeIsNotRunning

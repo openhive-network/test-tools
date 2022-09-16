@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, Union, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Union
 
 from test_tools.__private.names import Names
 

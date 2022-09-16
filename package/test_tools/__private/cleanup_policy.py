@@ -1,6 +1,5 @@
 from test_tools.__private.constants import CleanupPolicy
 
-
 # This is default value only when pytest is not used (e.g. in manual tests).
 # For pytest there are registered autouse-fixtures which sets default cleanup
 # policy to removing only unneeded files.
