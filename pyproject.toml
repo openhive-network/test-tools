@@ -22,6 +22,7 @@ requests = "2.27.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "22.8.0"
+isort = { version = "5.10.1", extras = ["colors"] }
 local-tools = { path = "tests/local-tools", develop = true }
 pre-commit = "2.20.0"
 pylint = "2.12.2"
