@@ -1,8 +1,8 @@
 from typing import Optional, Union
 
+from test_tools.__private.keys import PrivateKey as PrivateKeyType
 from test_tools.__private.node_config_entry_types.config_entry import ConfigEntry
 from test_tools.__private.node_config_entry_types.string_entry import String
-from test_tools.__private.keys import PrivateKey as PrivateKeyType
 
 
 class PrivateKey(ConfigEntry):

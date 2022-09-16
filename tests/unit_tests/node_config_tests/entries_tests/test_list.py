@@ -1,6 +1,6 @@
 import pytest
 
-from test_tools.__private.node_config_entry_types import List, Integer, String, StringQuoted
+from test_tools.__private.node_config_entry_types import Integer, List, String, StringQuoted
 
 
 def test_parsing_single_line_of_string():

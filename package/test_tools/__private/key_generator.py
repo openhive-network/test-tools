@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING
 from test_tools.__private import paths_to_executables
 
 if TYPE_CHECKING:
-    from typing import Dict, List, Optional
     from pathlib import Path
+    from typing import Dict, List, Optional
 
 
 class KeyGenerator:
