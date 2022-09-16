@@ -19,9 +19,11 @@ def values():
 
 
 def test_parsing(entry, values):
+    # pylint: disable=duplicate-code
     for value in values:
         entry.parse_from_text(value)
         assert entry.get_value() == value
+    # pylint: enable=duplicate-code
 
 
 def test_serializing(entry, values):
