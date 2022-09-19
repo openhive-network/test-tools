@@ -18,7 +18,7 @@ variables:
 
 .configuration:
   before_script:
-    - pip install poetry
+    - pip install poetry==1.2.0
     - poetry install
     - poetry env info
     - source `poetry env info --path`/bin/activate
