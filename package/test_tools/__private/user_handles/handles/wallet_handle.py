@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from typing import Iterable, List, Literal, TYPE_CHECKING, Union
+from typing import Iterable, List, Literal, Optional, TYPE_CHECKING, Union
 
 from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.user_handles.handle import Handle
@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from test_tools.__private.account import Account
+    from test_tools.__private.asset import Asset
 
 
 class WalletHandle(Handle):
@@ -134,6 +135,21 @@ class WalletHandle(Handle):
         :return: List of account names.
         """
         return self.__implementation.list_accounts()
+
+    def create_account(self, name: str, *, creator: str = 'initminer', hives: Optional[Asset.Test] = None,
+                       vests: Optional[Asset.Test] = None, hbds: Optional[Asset.Tbd] = None) -> dict:
+        """
+        Creates account in blockchain and optionally fund it with given amount of hives, vests and HBDs.
+
+        :param name: Name of new account that will be created and broadcasted to blockchain.
+        :param creator: Name of account, which requests creation of another account.
+        :param hives: Amount of hives that will be transferred to new account.
+        :param vests: Amount of vests that will be transferred to new account.
+        :param hbds: Amount of HBDs that will be transferred to new account.
+        :return: Transaction which created account.
+        """
+
+        return self.__implementation.create_account(name, creator=creator, hives=hives, vests=vests, hbds=hbds)
 
     @property
     def directory(self) -> 'Path':

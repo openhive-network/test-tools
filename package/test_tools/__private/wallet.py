@@ -14,6 +14,7 @@ import warnings
 from test_tools.__private import communication
 from test_tools.__private import paths_to_executables
 from test_tools.__private.account import Account
+from test_tools.__private.asset import Asset
 from test_tools.__private.exceptions import CommunicationError, NodeIsNotRunning
 from test_tools.__private.logger.logger_internal_interface import logger
 from test_tools.__private.node import Node
@@ -748,6 +749,26 @@ class Wallet(UserHandleImplementation, ScopedObject):
         for file in [self.stdout_file, self.stderr_file]:
             if file is not None:
                 file.close()
+
+    def create_account(self, name: str, *, creator: str = 'initminer', hives: Optional[Asset.Test] = None,
+                       vests: Optional[Asset.Test] = None, hbds: Optional[Asset.Tbd] = None) -> dict:
+        account = Account(name)
+        create_account_transaction = self.api.create_account_with_keys(creator, account.name, '{}',
+                                                                       account.public_key, account.public_key,
+                                                                       account.public_key, account.public_key)
+        self.api.import_key(account.private_key)
+
+        with self.in_single_transaction():
+            if hives is not None:
+                self.api.transfer(creator, name, hives, 'memo')
+
+            if vests is not None:
+                self.api.transfer_to_vesting(creator, name, vests)
+
+            if hbds is not None:
+                self.api.transfer(creator, name, hbds, 'memo')
+
+        return create_account_transaction
 
     def create_accounts(self, number_of_accounts: int, name_base: str = 'account',
                         *, secret: str = 'secret', import_keys: bool = True) -> List[Account]:
