@@ -78,6 +78,8 @@ class NodeConfig:
         self.rc_skip_reject_not_enough_rc = String()  # Set correct type
         self.rc_start_at_block = String()  # Set correct type
         self.rc_account_whitelist = String()  # Set correct type
+        self.rc_stats_report_type = String()
+        self.rc_stats_report_output = String()
         self.snapshot_root_dir = StringQuoted()
         self.statsd_endpoint = String()  # Set correct type
         self.statsd_batchsize = String()  # Set correct type
