@@ -26,15 +26,23 @@ class Snapshot:
         blocklog_directory = node_directory / "blockchain"
         blocklog_directory.mkdir(exist_ok=True)
 
-        if self.__block_log_path.parent != blocklog_directory:
-            shutil.copy(self.__block_log_path, blocklog_directory)
-
-        if self.__block_log_index_path is not None and self.__block_log_index_path.parent != blocklog_directory:
-            shutil.copy(self.__block_log_index_path, blocklog_directory)
+        self.__copy_file(self.__block_log_path, blocklog_directory)
+        self.__copy_file(self.__block_log_index_path, blocklog_directory, allow_missing=True)
 
         destination_snapshot_path = node_directory / "snapshot"
         if self.__snapshot_path != destination_snapshot_path:
             shutil.copytree(self.__snapshot_path, destination_snapshot_path)
+
+    @staticmethod
+    def __copy_file(source: Optional[Path], destination: Path, *, allow_missing: bool = False):
+        if allow_missing and source is None:
+            return
+
+        try:
+            shutil.copy(source, destination)
+        except shutil.SameFileError:
+            # It's ok, just skip copying because user want to load node's own snapshot.
+            pass
 
     def get_path(self) -> Path:
         return self.__snapshot_path
