@@ -15,6 +15,7 @@ class ConnectionOptions:
     max_attempts: int = 3
     seconds_between_attempts: float = 0.2
     timeout: float = 5.0
+    allow_error: bool = False
 
 
 class CustomJsonEncoder(json.JSONEncoder):
@@ -91,8 +92,10 @@ def request(url: str, message: dict, use_nai_assets: bool = False, *, options = 
             if "result" in response:
                 return response
 
-            if "error" in response:
+            if 'error' in response:
                 logger.debug(f"Error in response from {url}: message={message}, response={response}")
+                if options.allow_error:
+                    return response
             else:
                 raise CommunicationError(f"Unknown response format from {url}: ", message, response)
         else:
