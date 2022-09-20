@@ -8,6 +8,7 @@ from typing import List
 
 import test_tools as tt
 import test_tools.__private.wallet
+from test_tools.node_api.api_base import RequestOptions
 
 
 class Parameter:
@@ -99,8 +100,8 @@ class WalletApiTranslator:
             if parameter.name == "broadcast":
                 result += "=None"
 
-        # Append 'only_result' parameter
-        result += ", only_result: bool = True"
+        # Append 'options' parameter
+        result += ", options = RequestOptions()"
 
         return result
 
@@ -125,8 +126,8 @@ class WalletApiTranslator:
             sanitized_name = cls.__sanitize_name(parameter.name)
             result += f", {sanitized_name}={sanitized_name}"
 
-        # Append 'only_result' parameter
-        result += ", only_result=only_result"
+        # Append 'options' parameter
+        result += ", options=options"
 
         return result
 
