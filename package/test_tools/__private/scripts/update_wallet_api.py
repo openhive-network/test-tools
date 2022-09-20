@@ -74,7 +74,7 @@ class WalletApiTranslator:
             api.extend(
                 [
                     f"def {method.name}(self{self.__generate_python_method_parameters(method)}):",
-                    f"    return self.__send('{method.name}'{self.__generate_python_call_parameters(method)})",
+                    f"    return self.__send(\"{method.name}\"{self.__generate_python_call_parameters(method)})",
                     "",
                 ]
             )
