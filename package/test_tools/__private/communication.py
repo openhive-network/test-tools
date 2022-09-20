@@ -1,6 +1,7 @@
 import json
 import time
 from typing import Callable
+from dataclasses import dataclass
 
 import requests
 
@@ -8,6 +9,12 @@ from test_tools.__private.asset import AssetBase
 from test_tools.__private.exceptions import CommunicationError
 from test_tools.__private.keys.key_base import KeyBase
 from test_tools.__private.logger.logger_internal_interface import logger
+
+@dataclass
+class ConnectionOptions:
+    max_attempts: int = 3
+    seconds_between_attempts: float = 0.2
+    timeout: float = 5.0
 
 
 class CustomJsonEncoder(json.JSONEncoder):
