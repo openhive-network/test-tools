@@ -25,6 +25,7 @@ from test_tools.__private.user_handles.implementation import Implementation as U
 from test_tools.__private.utilities.fake_time import configure_fake_time
 
 if TYPE_CHECKING:
+    from test_tools.node_api.api_base import RequestOptions
     from test_tools.__private.user_handles.handles.wallet_handle import WalletHandle
 
 # pylint: disable=too-many-lines
@@ -76,16 +77,16 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
             return self.sign_transaction(transaction, broadcast=broadcast) if transaction is not None else None
 
-        def __send(self, method_, jsonrpc="2.0", id_=0, *, only_result: bool, **params):
+        def __send(self, method_, jsonrpc="2.0", id_=0, *, options: RequestOptions, **params):
             if "broadcast" in params:
                 self.__handle_broadcast_parameter(params)
 
-            response = self.__wallet.send(method_, *list(params.values()), jsonrpc=jsonrpc, id_=id_)
+            response = self.__wallet.send(method_, *list(params.values()), jsonrpc=jsonrpc, id_=id_, options=options)
 
             if self.__is_transaction_build_in_progress():
                 self.__transaction_builder.append_operation(response)
 
-            return response["result"] if only_result else response
+            return response["result"] if options.only_result else response
 
         def __handle_broadcast_parameter(self, params):
             if params["broadcast"] is None:
@@ -1345,7 +1346,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
     def set_http_server_port(self, port):
         self.http_server_port = port
 
-    def send(self, method, *params, jsonrpc="2.0", id_=0):
+    def send(self, method, *params, jsonrpc='2.0', id_=0, options=RequestOptions()):
         endpoint = f"http://127.0.0.1:{self.http_server_port}"
         message = {
             "jsonrpc": jsonrpc,
@@ -1354,7 +1355,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
             "params": list(params),
         }
 
-        return communication.request(endpoint, message, self.__use_nai_assets)
+        return communication.request(endpoint, message, self.__use_nai_assets, options)
 
     @property
     def __use_nai_assets(self) -> bool:
