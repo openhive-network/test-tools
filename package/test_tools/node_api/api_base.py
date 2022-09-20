@@ -1,6 +1,12 @@
+from dataclasses import dataclass
 from distutils.util import strtobool
 import os
 
+from test_tools.__private.communication import ConnectionOptions
+
+@dataclass
+class RequestOptions(ConnectionOptions):
+    only_result: bool = True
 
 class NodeApiCallProxy:
     def __init__(self, node, method, params=None, jsonrpc="2.0", id_=1):
