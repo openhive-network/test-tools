@@ -18,14 +18,14 @@ class NodeApiCallProxy:
             "id": id_,
         }
 
-    def __call__(self, *args, only_result: bool = True, **kwargs):
+    def __call__(self, *args, options=RequestOptions(), **kwargs):
         self.__message["params"] = self._prepare_params(*args, **kwargs)
         response = self.__node.send(
             self.__message["method"],
             self.__message["params"],
             jsonrpc=self.__message["jsonrpc"],
             id_=self.__message["id"],
-            only_result=only_result,
+            options=options
         )
 
         def schemas_should_be_automatically_validated() -> bool:

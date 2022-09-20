@@ -66,14 +66,14 @@ def __workaround_communication_problem_with_node(send_request: Callable) -> Call
 
 
 @__workaround_communication_problem_with_node
-def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=3, seconds_between_attempts=0.2):
-    assert max_attempts > 0
+def request(url: str, message: dict, use_nai_assets: bool = False, *, options = ConnectionOptions()):
+    assert options.max_attempts > 0
 
     json_encoder = JsonEncoderWithNaiAssets if use_nai_assets else JsonEncoderWithLegacyAssets
     message = bytes(json.dumps(message, cls=json_encoder), "utf-8") + b"\r\n"
 
-    for attempts_left in reversed(range(max_attempts)):
-        response = requests.post(url, data=message)
+    for attempts_left in reversed(range(options.max_attempts)):
+        response = requests.post(url, data=message, timeout=options.timeout)
         status_code = response.status_code
         try:
             decoded_content = response.content.decode("utf-8")
@@ -101,6 +101,6 @@ def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=
             )
 
         if attempts_left > 0:
-            time.sleep(seconds_between_attempts)
+            time.sleep(options.seconds_between_attempts)
 
     raise CommunicationError(f"Problem occurred during communication with {url}", message, response)

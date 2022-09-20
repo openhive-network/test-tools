@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 
+from test_tools.node_api.api_base import RequestOptions
 from test_tools.__private import communication
 from test_tools.__private.node_message import NodeMessage
 from test_tools.__private.scope import context
@@ -27,13 +28,14 @@ class RemoteNode(UserHandleImplementation):
     def __str__(self) -> str:
         return self.name
 
-    def send(self, method, params=None, jsonrpc="2.0", id_=1, *, only_result: bool = True):
+    def send(self, method, params=None, jsonrpc='2.0', id_=1, *, options=RequestOptions()):
         response = communication.request(
             self.__http_endpoint.as_string(),
             NodeMessage(method, params, jsonrpc, id_).as_json(),
+            options=options
         )
 
-        return response["result"] if only_result else response
+        return response['result'] if options.only_result else response
 
     def get_ws_endpoint(self):
         if self.__ws_endpoint is None:
