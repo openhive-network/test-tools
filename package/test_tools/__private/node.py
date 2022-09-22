@@ -147,8 +147,8 @@ class Node(UserHandleImplementation, ScopedObject):
                                               '    cd libfaketime/src/\n' \
                                               '    sudo make install'
 
-            default_installation_path = Path('/usr/local/lib/faketime/libfaketime.so.1')
-            ubuntu_package_installation_path = Path('/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1')
+            default_installation_path = Path('/usr/local/lib/faketime/libfaketimeMT.so.1')
+            ubuntu_package_installation_path = Path('/usr/lib/x86_64-linux-gnu/faketime/libfaketimeMT.so.1')
 
             if 'LIBFAKETIME_PATH' in os.environ:
                 fake_time_path = Path(os.getenv('LIBFAKETIME_PATH'))
