@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Final
+from typing import Final, Optional
 
 
 class Time:
@@ -32,3 +32,10 @@ class Time:
     @staticmethod
     def days(amount: int) -> timedelta:
         return timedelta(days=amount)
+
+    @classmethod
+    def are_close(cls, first: datetime, second: datetime, *, absolute_tolerance: Optional[timedelta] = None) -> bool:
+        if absolute_tolerance is None:
+            absolute_tolerance = cls.seconds(0)
+
+        return abs(first - second) <= absolute_tolerance
