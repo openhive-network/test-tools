@@ -104,6 +104,18 @@ def test_restart():
     init_node.restart()
 
 
+def test_startup_with_modified_time():
+    requested_start_time = tt.Time.parse('2020-01-01T00:00:00')
+
+    init_node = tt.InitNode()
+    init_node.run(time_offset=f'{tt.Time.serialize(requested_start_time, format_="@%Y-%m-%d %H:%M:%S")}')
+
+    node_time = tt.Time.parse(init_node.api.database.get_dynamic_global_properties()['time'])
+
+    # Some time may pass between node start and getting time, so below comparison is made with a few block tolerance.
+    assert tt.Time.are_close(requested_start_time, node_time, absolute_tolerance=tt.Time.seconds(15))
+
+
 def make_transaction_for_test(node):
     wallet = tt.Wallet(attach_to=node)
     wallet.api.create_account('initminer', 'alice', '{}')
