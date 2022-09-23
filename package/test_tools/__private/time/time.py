@@ -4,6 +4,7 @@ from typing import Final
 
 class Time:
     DEFAULT_FORMAT: Final[str] = '%Y-%m-%dT%H:%M:%S'
+    TIME_OFFSET_FORMAT: Final[str] = '@%Y-%m-%d %H:%M:%S'
 
     def __new__(cls, *_args, **_kwargs):
         raise TypeError(f'Creation object of {Time.__name__} class is forbidden.')
@@ -11,6 +12,10 @@ class Time:
     @staticmethod
     def parse(time: str, *, format_: str = DEFAULT_FORMAT) -> datetime:
         return datetime.strptime(time, format_)
+
+    @staticmethod
+    def serialize(time: datetime, *, format_: str = DEFAULT_FORMAT) -> str:
+        return datetime.strftime(time, format_)
 
     @staticmethod
     def seconds(amount: int) -> timedelta:
