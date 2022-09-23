@@ -9,6 +9,7 @@ from test_tools.__private.asset import Asset
 from test_tools.__private.block_log import BlockLog
 from test_tools.__private.keys import PrivateKey, PublicKey
 from test_tools.__private.logger.logger_user_interface import logger
+from test_tools.__private.time import Time
 
 # User handles
 from test_tools.__private.user_handles import ApiNodeHandle as ApiNode
