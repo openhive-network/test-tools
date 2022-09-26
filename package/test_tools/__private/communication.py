@@ -66,7 +66,7 @@ def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=
     message = bytes(json.dumps(message, cls=json_encoder), "utf-8") + b"\r\n"
 
     for attempts_left in reversed(range(max_attempts)):
-        response = requests.post(url, data=message)
+        response = requests.post(url, data=message)  # pylint: disable=missing-timeout
         status_code = response.status_code
         response = json.loads(response.content.decode("utf-8"))
         if status_code == 200:
