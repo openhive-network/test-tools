@@ -22,9 +22,11 @@ def wait_for(predicate, *, timeout=math.inf, timeout_error_message=None, poll_ti
     return already_waited
 
 
-def wait_for_event(event: 'Event',
-                   deadline: Optional[float] = None,
-                   exception_message: str = 'The event didn\'t occur within given time frame') -> None:
+def wait_for_event(
+    event: 'Event',
+    deadline: Optional[float] = None,
+    exception_message: str = 'The event didn\'t occur within given time frame',
+) -> None:
     """
     Blocks current thread execution until `event` is set. Optionally raises `exception`, when
     `deadline` is reached.

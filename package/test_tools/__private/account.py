@@ -30,10 +30,9 @@ class Account:
         return self.__public_key
 
     @staticmethod
-    def create_multiple(number_of_accounts: int,
-                        name_base: str = 'account',
-                        *,
-                        secret: str = 'secret') -> List[Account]:
+    def create_multiple(
+        number_of_accounts: int, name_base: str = 'account', *, secret: str = 'secret'
+    ) -> List[Account]:
         accounts = []
         for generated in KeyGenerator.generate_keys(name_base, number_of_accounts=number_of_accounts, secret=secret):
             account = Account(generated['account_name'], secret=secret)

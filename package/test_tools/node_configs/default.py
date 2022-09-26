@@ -4,11 +4,15 @@ from test_tools.__private.node_config import NodeConfig
 def create_default_config():
     config = NodeConfig()
 
-    config.log_appender = '{"appender":"stderr","stream":"std_error","time_format":"iso_8601_microseconds"} '\
-             '{"appender":"p2p","file":"logs/p2p/p2p.log","time_format":"iso_8601_milliseconds", "delta_times": false}'
-    config.log_logger = '{"name":"default","level":"info","appender":"stderr"} '\
-                        '{"name":"user","level":"debug","appender":"stderr"} '\
-                        '{"name":"p2p","level":"warn","appender":"p2p"}'
+    config.log_appender = (
+        '{"appender":"stderr","stream":"std_error","time_format":"iso_8601_microseconds"} '
+        '{"appender":"p2p","file":"logs/p2p/p2p.log","time_format":"iso_8601_milliseconds", "delta_times": false}'
+    )
+    config.log_logger = (
+        '{"name":"default","level":"info","appender":"stderr"} '
+        '{"name":"user","level":"debug","appender":"stderr"} '
+        '{"name":"p2p","level":"warn","appender":"p2p"}'
+    )
     config.backtrace = 'yes'
     config.plugin = ['witness', 'account_by_key', 'account_by_key_api', 'wallet_bridge_api']
     config.account_history_rocksdb_path = 'blockchain/account-history-rocksdb-storage'

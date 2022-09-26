@@ -96,11 +96,19 @@ class NodeHandleBase(Handle):
         """Returns True if node's process is running, False if process is closed."""
         return self.__implementation.is_running()
 
-    def run(self, *, load_snapshot_from: Union[Snapshot, Path, str, None] = None,
-            replay_from: Union[BlockLog, Path, str, None] = None, stop_at_block: Optional[int] = None,
-            exit_before_synchronization: bool = False, wait_for_live: Optional[bool] = None,
-            arguments: Union[List[str], Tuple[str, ...]] = (), environment_variables: Optional[Dict] = None,
-            timeout: float = __DEFAULT_WAIT_FOR_LIVE_TIMEOUT, time_offset: Optional[str] = None) -> None:
+    def run(
+        self,
+        *,
+        load_snapshot_from: Union[Snapshot, Path, str, None] = None,
+        replay_from: Union[BlockLog, Path, str, None] = None,
+        stop_at_block: Optional[int] = None,
+        exit_before_synchronization: bool = False,
+        wait_for_live: Optional[bool] = None,
+        arguments: Union[List[str], Tuple[str, ...]] = (),
+        environment_variables: Optional[Dict] = None,
+        timeout: float = __DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
+        time_offset: Optional[str] = None,
+    ) -> None:
         """
         Starts node synchronously. By default, program execution is blocked until node enters live mode (see
         `wait_for_live` parameter for details).
@@ -149,9 +157,10 @@ class NodeHandleBase(Handle):
         )
 
     def restart(
-        self, wait_for_live: bool = True,
+        self,
+        wait_for_live: bool = True,
         timeout: float = __DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
-        time_offset: Optional[str] = None
+        time_offset: Optional[str] = None,
     ) -> None:
         """
         Stops node and immediately starts it again. Whole restart is performed synchronously. By default, program

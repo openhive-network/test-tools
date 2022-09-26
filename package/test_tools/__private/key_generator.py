@@ -13,20 +13,24 @@ if TYPE_CHECKING:
 
 class KeyGenerator:
     @staticmethod
-    def generate_keys(account_name: str,
-                      *,
-                      number_of_accounts: int = 1,
-                      secret: str = 'secret',
-                      executable_path: Optional[Path] = None) -> List[Dict[str, str]]:
+    def generate_keys(
+        account_name: str,
+        *,
+        number_of_accounts: int = 1,
+        secret: str = 'secret',
+        executable_path: Optional[Path] = None,
+    ) -> List[Dict[str, str]]:
         assert number_of_accounts >= 1
 
         if account_name == 'initminer':
             assert number_of_accounts == 1
-            return [{
-                'private_key': '5JNHfZYKGaomSFvd4NUdQ9qMcEAC43kujbfjueTHpVapX1Kzq2n',
-                'public_key': 'TST6LLegbAgLAy28EHrffBVuANFWcFgmqRMW13wBmTExqFE9SCkg4',
-                'account_name': account_name,
-            }]
+            return [
+                {
+                    'private_key': '5JNHfZYKGaomSFvd4NUdQ9qMcEAC43kujbfjueTHpVapX1Kzq2n',
+                    'public_key': 'TST6LLegbAgLAy28EHrffBVuANFWcFgmqRMW13wBmTExqFE9SCkg4',
+                    'account_name': account_name,
+                }
+            ]
 
         if executable_path is None:
             executable_path = paths_to_executables.get_path_of('get_dev_key')

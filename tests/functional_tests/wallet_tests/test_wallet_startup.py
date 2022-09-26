@@ -50,7 +50,7 @@ def __restart_wallet_manually(wallet: tt.Wallet):
     [
         __restart_wallet_manually,
         lambda wallet: wallet.restart,
-    ]
+    ],
 )
 def test_if_keys_are_stored_after_restart(restart):
     init_node = tt.InitNode()

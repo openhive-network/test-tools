@@ -108,9 +108,7 @@ def test_disconnecting_1_of_3_networks(
 
     first_network.node('InitNode0').wait_number_of_blocks(1)
 
-    second_network.node('ApiNode0').wait_for_block_with_number(
-        second_network_head_num_after_disconnect + 1, timeout=60
-    )
+    second_network.node('ApiNode0').wait_for_block_with_number(second_network_head_num_after_disconnect + 1, timeout=60)
 
     # ASSERT
     head_block_numbers = get_head_block_numbers_for_networks(three_networks_connected)

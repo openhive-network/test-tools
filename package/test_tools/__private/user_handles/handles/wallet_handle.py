@@ -18,10 +18,12 @@ if TYPE_CHECKING:
 class WalletHandle(Handle):
     DEFAULT_PASSWORD = Wallet.DEFAULT_PASSWORD
 
-    def __init__(self,
-                 attach_to: Union[None, NodeHandleBase, RemoteNode] = None,
-                 additional_arguments: Iterable[str] = (),
-                 preconfigure: bool = True):
+    def __init__(
+        self,
+        attach_to: Union[None, NodeHandleBase, RemoteNode] = None,
+        additional_arguments: Iterable[str] = (),
+        preconfigure: bool = True,
+    ):
         """
         Creates wallet, runs its process and blocks until wallet will be ready to use.
 
@@ -110,8 +112,9 @@ class WalletHandle(Handle):
 
         return self.__implementation.is_running()
 
-    def create_accounts(self, number_of_accounts: int, name_base: str = 'account',
-                        *, secret: str = 'secret', import_keys: bool = True) -> List[Account]:
+    def create_accounts(
+        self, number_of_accounts: int, name_base: str = 'account', *, secret: str = 'secret', import_keys: bool = True
+    ) -> List[Account]:
         """
         Creates accounts in blockchain.
 
@@ -124,8 +127,9 @@ class WalletHandle(Handle):
         :return: List of created accounts.
         """
 
-        return self.__implementation.create_accounts(number_of_accounts, name_base, secret=secret,
-                                                     import_keys=import_keys)
+        return self.__implementation.create_accounts(
+            number_of_accounts, name_base, secret=secret, import_keys=import_keys
+        )
 
     def list_accounts(self) -> List[str]:
         """
