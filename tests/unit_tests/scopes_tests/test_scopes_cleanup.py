@@ -13,7 +13,7 @@ class ScopedObjectMock(ScopedObject):
 def test_objects_cleanup_in_single_scope():
     object_outside = ScopedObjectMock()
 
-    with current_scope.create_new_scope('test-scope'):
+    with current_scope.create_new_scope("test-scope"):
         object_inside = ScopedObjectMock()
         expected_state(live=[object_outside, object_inside])
 
@@ -23,10 +23,10 @@ def test_objects_cleanup_in_single_scope():
 def test_objects_cleanup_in_multiple_scopes():
     object_outside = ScopedObjectMock()
 
-    with current_scope.create_new_scope('first'):
+    with current_scope.create_new_scope("first"):
         object_in_first = ScopedObjectMock()
 
-        with current_scope.create_new_scope('second'):
+        with current_scope.create_new_scope("second"):
             object_in_second = ScopedObjectMock()
             expected_state(live=[object_outside, object_in_first, object_in_second])
 

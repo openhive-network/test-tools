@@ -14,7 +14,7 @@ def entry():
 @pytest.fixture
 def values():
     return [
-        ('"example"', 'example'),
+        ('"example"', "example"),
     ]
 
 

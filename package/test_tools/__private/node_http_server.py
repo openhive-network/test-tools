@@ -8,7 +8,7 @@ from test_tools.__private.raise_exception_helper import RaiseExceptionHelper
 
 
 class NodeHttpServer:
-    __ADDRESS = ('127.0.0.1', 0)
+    __ADDRESS = ("127.0.0.1", 0)
 
     class __HttpServer(HTTPServer):
         def __init__(self, server_address, request_handler_class, parent):
@@ -33,7 +33,7 @@ class NodeHttpServer:
 
     def run(self):
         if self.__thread is not None:
-            raise RuntimeError('Server is already running')
+            raise RuntimeError("Server is already running")
 
         if self.__server is None:
             self.__server = self.__HttpServer(self.__ADDRESS, HttpRequestHandler, self)
@@ -57,7 +57,7 @@ class NodeHttpServer:
 
         self.__thread.join(timeout=2.0)
         if self.__thread.is_alive():
-            raise RuntimeError('Unable to join server thread')
+            raise RuntimeError("Unable to join server thread")
         self.__thread = None
 
     def notify(self, message):
@@ -69,7 +69,7 @@ class HttpRequestHandler(BaseHTTPRequestHandler):
     server: NodeHttpServer
 
     def do_PUT(self):  # pylint: disable=invalid-name
-        content_length = int(self.headers['Content-Length'])
+        content_length = int(self.headers["Content-Length"])
         message = self.rfile.read(content_length)
         self.server.notify(json.loads(message))
 

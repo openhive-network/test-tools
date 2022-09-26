@@ -11,8 +11,8 @@ def configs():
 def test_different_shared_file_size_values(configs):
     first, second, empty = configs
 
-    first.shared_file_size = '5G'
-    second.shared_file_size = '42G'
+    first.shared_file_size = "5G"
+    second.shared_file_size = "42G"
 
     assert first != second and first != empty and second != empty
 

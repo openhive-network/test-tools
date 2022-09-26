@@ -8,17 +8,17 @@ import test_tools as tt
 
 def get_head_block_number(*, node: Optional[tt.AnyNode] = None, network: Optional[tt.Network] = None) -> int:
     if not node and not network:
-        raise ValueError('Either node or network must be provided')
+        raise ValueError("Either node or network must be provided")
 
     _node = node or network.nodes[0]
-    return _node.api.database.get_dynamic_global_properties()['head_block_number']
+    return _node.api.database.get_dynamic_global_properties()["head_block_number"]
 
 
 def get_head_block_numbers_for_networks(networks: Iterable[tt.Network]) -> Dict[tt.Network, int]:
     head_block_numbers = {}
     for network in networks:
         head_block_number = get_head_block_number(network=network)
-        tt.logger.info(f'Head block number of {network} is {head_block_number}')
+        tt.logger.info(f"Head block number of {network} is {head_block_number}")
         head_block_numbers[network] = head_block_number
     return head_block_numbers
 

@@ -12,9 +12,9 @@ def entry():
 def values():
     return [
         '"example"',
-        '5JcCHFFWPW2DryUFDVd7ZXVj2Zo67rqMcvcq5inygZGBAPR1JoR',
-        '0.0.0.0:51003',
-        '56G',
+        "5JcCHFFWPW2DryUFDVd7ZXVj2Zo67rqMcvcq5inygZGBAPR1JoR",
+        "0.0.0.0:51003",
+        "56G",
     ]
 
 

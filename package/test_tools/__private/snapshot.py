@@ -14,16 +14,16 @@ class Snapshot:
         self.__creator = node
 
         if node is not None:
-            snapshot_state_path = node.directory / 'state_snapshot_dump.json'
+            snapshot_state_path = node.directory / "state_snapshot_dump.json"
             if not snapshot_state_path.exists():
                 self.state = None
                 return
 
-            with open(snapshot_state_path, encoding='utf-8') as state_file:
+            with open(snapshot_state_path, encoding="utf-8") as state_file:
                 self.state = json.load(state_file)
 
     def copy_to(self, node_directory: Path):
-        blocklog_directory = node_directory / 'blockchain'
+        blocklog_directory = node_directory / "blockchain"
         blocklog_directory.mkdir(exist_ok=True)
 
         if self.__block_log_path.parent != blocklog_directory:
@@ -32,7 +32,7 @@ class Snapshot:
         if self.__block_log_index_path is not None and self.__block_log_index_path.parent != blocklog_directory:
             shutil.copy(self.__block_log_index_path, blocklog_directory)
 
-        destination_snapshot_path = node_directory / 'snapshot'
+        destination_snapshot_path = node_directory / "snapshot"
         if self.__snapshot_path != destination_snapshot_path:
             shutil.copytree(self.__snapshot_path, destination_snapshot_path)
 
@@ -40,12 +40,12 @@ class Snapshot:
         return self.__snapshot_path
 
     def __repr__(self):
-        optional_creator_info = '' if self.__creator is None else f' from {self.__creator}'
-        return f'<Snapshot{optional_creator_info}: path={self.__snapshot_path}>'
+        optional_creator_info = "" if self.__creator is None else f" from {self.__creator}"
+        return f"<Snapshot{optional_creator_info}: path={self.__snapshot_path}>"
 
     def __eq__(self, other) -> bool:
-        my_files = sorted(get_files_matching_pattern(f'{self.get_path()}/**/*.sst', recursive=True))
-        others_files = sorted(get_files_matching_pattern(f'{other.get_path()}/**/*.sst', recursive=True))
+        my_files = sorted(get_files_matching_pattern(f"{self.get_path()}/**/*.sst", recursive=True))
+        others_files = sorted(get_files_matching_pattern(f"{other.get_path()}/**/*.sst", recursive=True))
 
         if len(my_files) != len(others_files):
             return False

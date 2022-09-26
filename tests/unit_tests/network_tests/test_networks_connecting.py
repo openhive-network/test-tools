@@ -25,7 +25,7 @@ def test_connecting_two_networks(two_networks_connected: Iterable[NetworkHandle]
 
 @pytest.mark.requires_hived_executables
 @pytest.mark.parametrize(
-    'broadcast', [True, False], ids=('first_connecting_to_third_only', 'second_connecting_to_third_also')
+    "broadcast", [True, False], ids=("first_connecting_to_third_only", "second_connecting_to_third_also")
 )
 def test_connecting_three_networks(broadcast: bool, three_networks_connected: Iterable[NetworkHandle]):
     # ARRANGE AND ACT is partly done in two_networks_connected fixture

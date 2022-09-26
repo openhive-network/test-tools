@@ -25,4 +25,4 @@ def test_setting_correct_entry(config):
 
 def test_setting_incorrect_entry(config):
     with pytest.raises(KeyError):
-        config.incorrect_entry = 'value'
+        config.incorrect_entry = "value"

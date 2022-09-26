@@ -31,4 +31,3 @@ pytest-xdist = "2.5.0"
 
 [tool.black]
 line-length = 120
-skip-string-normalization = true

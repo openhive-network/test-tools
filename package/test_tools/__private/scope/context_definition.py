@@ -15,7 +15,7 @@ class Context:
     #
     # When issue will be resolved, make `_names` member private.
 
-    DEFAULT_CURRENT_DIRECTORY = Path('./generated').absolute()
+    DEFAULT_CURRENT_DIRECTORY = Path("./generated").absolute()
 
     def __init__(self, *, parent: Optional[Context]):
         self.__current_directory: Path

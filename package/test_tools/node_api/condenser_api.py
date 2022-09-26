@@ -11,4 +11,4 @@ class CondenserApi(ApiBase):
     _NodeApiCallProxyType = CondenserApiCallProxy
 
     def __init__(self, node):
-        super().__init__(node, 'condenser_api')
+        super().__init__(node, "condenser_api")

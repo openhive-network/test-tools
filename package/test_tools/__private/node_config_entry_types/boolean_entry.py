@@ -3,7 +3,7 @@ from test_tools.__private.node_config_entry_types.config_entry import ConfigEntr
 
 
 class Boolean(ConfigEntry):
-    def __init__(self, value=None, *, true='1', false='0'):
+    def __init__(self, value=None, *, true="1", false="0"):
         super().__init__(value)
         self.__true_serialized = true
         self.__false_serialized = false
@@ -15,8 +15,8 @@ class Boolean(ConfigEntry):
             self.set_value(False)
         else:
             raise ParseError(
-                f'Can\'t parse bool value from: {text}. '
-                f'Available values are: {self.__true_serialized} and {self.__false_serialized}.'
+                f"Can't parse bool value from: {text}. "
+                f"Available values are: {self.__true_serialized} and {self.__false_serialized}."
             )
 
         return self._value

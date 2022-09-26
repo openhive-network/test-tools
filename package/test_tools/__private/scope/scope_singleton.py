@@ -15,4 +15,4 @@ if not is_automatic_test():
 
     root_logger = current_scope.context.get_logger()
     root_logger.log_to_stdout()
-    root_logger.log_to_file(context.get_current_directory() / 'last_run.log')
+    root_logger.log_to_file(context.get_current_directory() / "last_run.log")

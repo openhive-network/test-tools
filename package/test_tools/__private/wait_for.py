@@ -13,7 +13,7 @@ def wait_for(predicate, *, timeout=math.inf, timeout_error_message=None, poll_ti
     already_waited = 0
     while not predicate():
         if timeout - already_waited <= 0:
-            raise TimeoutError(timeout_error_message or 'Waited too long, timeout was reached')
+            raise TimeoutError(timeout_error_message or "Waited too long, timeout was reached")
 
         sleep_time = min(poll_time, timeout)
         time.sleep(sleep_time)
@@ -23,9 +23,9 @@ def wait_for(predicate, *, timeout=math.inf, timeout_error_message=None, poll_ti
 
 
 def wait_for_event(
-    event: 'Event',
+    event: "Event",
     deadline: Optional[float] = None,
-    exception_message: str = 'The event didn\'t occur within given time frame',
+    exception_message: str = "The event didn't occur within given time frame",
 ) -> None:
     """
     Blocks current thread execution until `event` is set. Optionally raises `exception`, when

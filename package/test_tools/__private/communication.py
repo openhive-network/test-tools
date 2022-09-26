@@ -44,9 +44,9 @@ def __workaround_communication_problem_with_node(send_request: Callable) -> Call
             except CommunicationError as exception:
                 if all(
                     [
-                        'error' in exception.response,
-                        'message' in exception.response['error'],
-                        'Unable to acquire database lock' in exception.response['error']['message'],
+                        "error" in exception.response,
+                        "message" in exception.response["error"],
+                        "Unable to acquire database lock" in exception.response["error"]["message"],
                     ]
                 ):
                     message = str(args[1])
@@ -63,26 +63,26 @@ def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=
     assert max_attempts > 0
 
     json_encoder = JsonEncoderWithNaiAssets if use_nai_assets else JsonEncoderWithLegacyAssets
-    message = bytes(json.dumps(message, cls=json_encoder), 'utf-8') + b'\r\n'
+    message = bytes(json.dumps(message, cls=json_encoder), "utf-8") + b"\r\n"
 
     for attempts_left in reversed(range(max_attempts)):
         response = requests.post(url, data=message)
         status_code = response.status_code
-        response = json.loads(response.content.decode('utf-8'))
+        response = json.loads(response.content.decode("utf-8"))
         if status_code == 200:
-            if 'result' in response:
+            if "result" in response:
                 return response
 
-            if 'error' in response:
-                logger.debug(f'Error in response from {url}: message={message}, response={response}')
+            if "error" in response:
+                logger.debug(f"Error in response from {url}: message={message}, response={response}")
             else:
-                raise CommunicationError(f'Unknown response format from {url}: ', message, response)
+                raise CommunicationError(f"Unknown response format from {url}: ", message, response)
         else:
             logger.debug(
-                f'Received bad status code {status_code} != 200 from {url}, ' f'message={message}, response={response}'
+                f"Received bad status code {status_code} != 200 from {url}, " f"message={message}, response={response}"
             )
 
         if attempts_left > 0:
             time.sleep(seconds_between_attempts)
 
-    raise CommunicationError(f'Problem occurred during communication with {url}', message, response)
+    raise CommunicationError(f"Problem occurred during communication with {url}", message, response)

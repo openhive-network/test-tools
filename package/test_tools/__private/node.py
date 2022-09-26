@@ -39,37 +39,37 @@ class Node(UserHandleImplementation, ScopedObject):
     # pylint: disable=too-many-instance-attributes, too-many-public-methods
     # This pylint warning is right, but this refactor has low priority. Will be done later...
 
-    DEFAULT_WAIT_FOR_LIVE_TIMEOUT = int(os.environ.get('TEST_TOOLS_NODE_DEFAULT_WAIT_FOR_LIVE_TIMEOUT', default=20))
+    DEFAULT_WAIT_FOR_LIVE_TIMEOUT = int(os.environ.get("TEST_TOOLS_NODE_DEFAULT_WAIT_FOR_LIVE_TIMEOUT", default=20))
 
     class __Executable:
         def __init__(self):
             self.__path = None
 
         def get_path(self):
-            return paths_to_executables.get_path_of('hived') if self.__path is None else self.__path
+            return paths_to_executables.get_path_of("hived") if self.__path is None else self.__path
 
         def set_path(self, path):
             self.__path = path
 
         def get_build_version(self):
             if self.is_test_net_build():
-                return 'testnet'
+                return "testnet"
 
             if self.is_main_net_build():
-                return 'mainnet'
+                return "mainnet"
 
-            return 'unrecognised'
+            return "unrecognised"
 
         def is_test_net_build(self):
-            error_message = self.__run_and_get_output('--chain-id')
+            error_message = self.__run_and_get_output("--chain-id")
             return (
-                error_message == 'Error parsing command line: '
-                'the required argument for option \'--chain-id\' is missing'
+                error_message == "Error parsing command line: "
+                "the required argument for option '--chain-id' is missing"
             )
 
         def is_main_net_build(self):
-            error_message = self.__run_and_get_output('--chain-id')
-            return error_message == 'Error parsing command line: unrecognised option \'--chain-id\''
+            error_message = self.__run_and_get_output("--chain-id")
+            return error_message == "Error parsing command line: unrecognised option '--chain-id'"
 
         def __run_and_get_output(self, *arguments):
             result = subprocess.check_output(
@@ -77,15 +77,15 @@ class Node(UserHandleImplementation, ScopedObject):
                 stderr=subprocess.STDOUT,
             )
 
-            return result.decode('utf-8').strip()
+            return result.decode("utf-8").strip()
 
         def get_build_commit_hash(self):
-            output = self.__run_and_get_output('--version')
-            return json.loads(f'{{{output}}}')['version']['hive_revision']
+            output = self.__run_and_get_output("--version")
+            return json.loads(f"{{{output}}}")["version"]["hive_revision"]
 
         def get_supported_plugins(self) -> List[str]:
-            output = self.__run_and_get_output('--list-plugins')
-            return output.split('\n')
+            output = self.__run_and_get_output("--list-plugins")
+            return output.split("\n")
 
     class __Process:
         def __init__(self, directory, executable, logger):
@@ -94,16 +94,16 @@ class Node(UserHandleImplementation, ScopedObject):
             self.__executable = executable
             self.__logger = logger
             self.__files = {
-                'stdout': None,
-                'stderr': None,
+                "stdout": None,
+                "stderr": None,
             }
 
         def run(self, *, blocking, with_arguments=(), with_environment_variables=None, with_time_offset=None):
             self.__directory.mkdir(exist_ok=True)
             self.__prepare_files_for_streams()
 
-            command = [str(self.__executable.get_path()), '-d', '.', *with_arguments]
-            self.__logger.debug(' '.join(item for item in command))
+            command = [str(self.__executable.get_path()), "-d", ".", *with_arguments]
+            self.__logger.debug(" ".join(item for item in command))
 
             environment_variables = dict(os.environ)
 
@@ -135,39 +135,39 @@ class Node(UserHandleImplementation, ScopedObject):
             return self.__process.pid
 
         def __configure_fake_time(self, env, time_offset):
-            self.__logger.info(f'Using time_offset {time_offset}')
+            self.__logger.info(f"Using time_offset {time_offset}")
 
-            env['LD_PRELOAD'] = self.__get_fake_time_path()
-            env['FAKETIME'] = time_offset
-            env['FAKETIME_DONT_RESET'] = '1'
-            env['TZ'] = 'UTC'
+            env["LD_PRELOAD"] = self.__get_fake_time_path()
+            env["FAKETIME"] = time_offset
+            env["FAKETIME_DONT_RESET"] = "1"
+            env["TZ"] = "UTC"
 
         def __get_fake_time_path(self) -> Path:
             installation_manual: Final[str] = (
-                'To install libfaketime perform following operations:\n'
-                '\n'
-                '    git clone https://github.com/wolfcw/libfaketime.git\n'
-                '    cd libfaketime/src/\n'
-                '    sudo make install'
+                "To install libfaketime perform following operations:\n"
+                "\n"
+                "    git clone https://github.com/wolfcw/libfaketime.git\n"
+                "    cd libfaketime/src/\n"
+                "    sudo make install"
             )
 
-            default_installation_path = Path('/usr/local/lib/faketime/libfaketimeMT.so.1')
-            ubuntu_package_installation_path = Path('/usr/lib/x86_64-linux-gnu/faketime/libfaketimeMT.so.1')
+            default_installation_path = Path("/usr/local/lib/faketime/libfaketimeMT.so.1")
+            ubuntu_package_installation_path = Path("/usr/lib/x86_64-linux-gnu/faketime/libfaketimeMT.so.1")
 
-            if 'LIBFAKETIME_PATH' in os.environ:
-                fake_time_path = Path(os.getenv('LIBFAKETIME_PATH'))
+            if "LIBFAKETIME_PATH" in os.environ:
+                fake_time_path = Path(os.getenv("LIBFAKETIME_PATH"))
                 assert fake_time_path.exists(), f'File defined in LIBFAKETIME_PATH ("{fake_time_path}") does not exist.'
             elif default_installation_path.exists():
                 fake_time_path = default_installation_path
             elif ubuntu_package_installation_path.exists():
                 self.__logger.warning(
-                    f'You are using libfaketime from Ubuntu package repository, which is not supported.\n'
-                    f'Recommended way is to build them from sources.\n\n'
-                    f'{installation_manual}'
+                    f"You are using libfaketime from Ubuntu package repository, which is not supported.\n"
+                    f"Recommended way is to build them from sources.\n\n"
+                    f"{installation_manual}"
                 )
                 fake_time_path = ubuntu_package_installation_path
             else:
-                raise RuntimeError(f'Missing path to libfaketime.\n\n' f'{installation_manual}')
+                raise RuntimeError(f"Missing path to libfaketime.\n\n" f"{installation_manual}")
 
             assert fake_time_path.is_file(), f'LIBFAKETIME_PATH (with value "{fake_time_path}") is not path of file.'
             return fake_time_path
@@ -177,7 +177,7 @@ class Node(UserHandleImplementation, ScopedObject):
                 if file is None:
                     # pylint: disable=consider-using-with
                     # Files opened here have to exist longer than current scope
-                    self.__files[name] = open(self.__directory.joinpath(f'{name}.txt'), 'w', encoding='utf-8')
+                    self.__files[name] = open(self.__directory.joinpath(f"{name}.txt"), "w", encoding="utf-8")
 
         def close(self):
             if self.__process is None:
@@ -186,11 +186,11 @@ class Node(UserHandleImplementation, ScopedObject):
             self.__process.send_signal(signal.SIGINT)
             try:
                 return_code = self.__process.wait(timeout=10)
-                self.__logger.debug(f'Closed with {return_code} return code')
+                self.__logger.debug(f"Closed with {return_code} return code")
             except subprocess.TimeoutExpired:
                 self.__process.kill()
                 self.__process.wait()
-                warnings.warn('Process was force-closed with SIGKILL, because didn\'t close before timeout')
+                warnings.warn("Process was force-closed with SIGKILL, because didn't close before timeout")
 
             self.__process = None
 
@@ -207,12 +207,12 @@ class Node(UserHandleImplementation, ScopedObject):
             return self.__process.poll() is None
 
         def get_stderr_file_path(self):
-            stderr_file = self.__files['stderr']
+            stderr_file = self.__files["stderr"]
             return Path(stderr_file.name) if stderr_file is not None else None
 
     class __NotificationsServer:
-        def __init__(self, node: 'Node', logger):
-            self.node: 'Node' = node
+        def __init__(self, node: "Node", logger):
+            self.node: "Node" = node
             self.server = NodeHttpServer(self)
             self.__logger = logger
 
@@ -236,47 +236,47 @@ class Node(UserHandleImplementation, ScopedObject):
             self.number_of_forks = 0
 
         def listen(self):
-            self.node.config.notifications_endpoint = f'127.0.0.1:{self.server.port}'
+            self.node.config.notifications_endpoint = f"127.0.0.1:{self.server.port}"
             self.server.run()
 
-            self.__logger.debug(f'Notifications server is listening on {self.node.config.notifications_endpoint}...')
+            self.__logger.debug(f"Notifications server is listening on {self.node.config.notifications_endpoint}...")
 
         def notify(self, message):
-            if message['name'] == 'webserver listening':
-                details = message['value']
-                if details['type'] == 'HTTP':
+            if message["name"] == "webserver listening":
+                details = message["value"]
+                if details["type"] == "HTTP":
                     endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
-                    self.http_endpoint = Url(endpoint, protocol='http').as_string(with_protocol=False)
+                    self.http_endpoint = Url(endpoint, protocol="http").as_string(with_protocol=False)
                     self.http_listening_event.set()
-                elif details['type'] == 'WS':
+                elif details["type"] == "WS":
                     endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
-                    self.ws_endpoint = Url(endpoint, protocol='ws').as_string(with_protocol=False)
+                    self.ws_endpoint = Url(endpoint, protocol="ws").as_string(with_protocol=False)
                     self.ws_listening_event.set()
-            elif message['name'] == 'hived_status':
-                details = message['value']
-                if details['current_status'] == 'finished replaying':
+            elif message["name"] == "hived_status":
+                details = message["value"]
+                if details["current_status"] == "finished replaying":
                     self.replay_finished_event.set()
-                elif details['current_status'] == 'finished dumping snapshot':
+                elif details["current_status"] == "finished dumping snapshot":
                     self.snapshot_dumped_event.set()
-                elif details['current_status'] == 'syncing':
+                elif details["current_status"] == "syncing":
                     self.synchronization_started_event.set()
-                elif details['current_status'] == 'entering live mode':
+                elif details["current_status"] == "entering live mode":
                     self.live_mode_entered_event.set()
-            elif message['name'] == 'P2P listening':
-                details = message['value']
+            elif message["name"] == "P2P listening":
+                details = message["value"]
                 endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
                 self.p2p_endpoint = Url(endpoint).as_string(with_protocol=False)
                 self.p2p_plugin_started_event.set()
-            elif message['name'] == 'switching forks':
+            elif message["name"] == "switching forks":
                 self.number_of_forks += 1
                 self.switch_fork_event.set()
                 self.switch_fork_event.clear()
-            elif message['name'] == 'error':
+            elif message["name"] == "error":
                 RaiseExceptionHelper.raise_exception_in_main_thread(
                     exceptions.InternalNodeError(f'{self.node}: {message["value"]["message"]}')
                 )
 
-            self.__logger.info(f'Received message: {message}')
+            self.__logger.info(f"Received message: {message}")
 
         def close(self):
             self.server.close()
@@ -290,7 +290,7 @@ class Node(UserHandleImplementation, ScopedObject):
             self.snapshot_dumped_event.clear()
             self.switch_fork_event.clear()
 
-            self.__logger.debug('Notifications server closed')
+            self.__logger.debug("Notifications server closed")
 
     def __init__(self, *, name, network: Optional[Network] = None, handle: Optional[NodeHandle] = None):
         super().__init__(handle=handle)
@@ -320,7 +320,7 @@ class Node(UserHandleImplementation, ScopedObject):
         return str(self)
 
     def __get_config_file_path(self):
-        return self.directory / 'config.ini'
+        return self.directory / "config.ini"
 
     def is_running(self):
         return self.__process.is_running()
@@ -339,7 +339,7 @@ class Node(UserHandleImplementation, ScopedObject):
         return self.__name
 
     def get_block_log(self, include_index=True):
-        return BlockLog(self, self.directory.joinpath('blockchain/block_log'), include_index=include_index)
+        return BlockLog(self, self.directory.joinpath("blockchain/block_log"), include_index=include_index)
 
     def get_supported_plugins(self) -> List[str]:
         return self.__executable.get_supported_plugins()
@@ -352,7 +352,7 @@ class Node(UserHandleImplementation, ScopedObject):
         wait_for(
             lambda: self.__is_block_with_number_reached(number),
             timeout=timeout,
-            timeout_error_message=f'Waiting too long for block {number}',
+            timeout_error_message=f"Waiting too long for block {number}",
             poll_time=2.0,
         )
 
@@ -362,36 +362,36 @@ class Node(UserHandleImplementation, ScopedObject):
 
     def get_last_block_number(self):
         response = self.api.database.get_dynamic_global_properties()
-        return response['head_block_number']
+        return response["head_block_number"]
 
     def __wait_for_p2p_plugin_start(self, timeout=10):
         if not self.__notifications.p2p_plugin_started_event.wait(timeout=timeout):
-            raise TimeoutError(f'Waiting too long for start of {self} p2p plugin')
+            raise TimeoutError(f"Waiting too long for start of {self} p2p plugin")
 
-    def send(self, method, params=None, jsonrpc='2.0', id_=1, *, only_result: bool = True):
+    def send(self, method, params=None, jsonrpc="2.0", id_=1, *, only_result: bool = True):
         if self.config.webserver_http_endpoint is None:
-            raise Exception('Webserver http endpoint is unknown')
+            raise Exception("Webserver http endpoint is unknown")
 
-        endpoint = f'http://{self.get_http_endpoint()}'
+        endpoint = f"http://{self.get_http_endpoint()}"
 
         self.__wait_for_http_listening()
 
         message = NodeMessage(method, params, jsonrpc, id_).as_json()
         response = communication.request(endpoint, message)
 
-        return response['result'] if only_result else response
+        return response["result"] if only_result else response
 
     def __wait_for_http_listening(self, timeout=10):
         if not self.__notifications.http_listening_event.wait(timeout):
-            raise TimeoutError(f'Waiting too long for {self} to start listening on http port')
+            raise TimeoutError(f"Waiting too long for {self} to start listening on http port")
 
     def __wait_for_ws_listening(self, timeout=10):
         if not self.__notifications.ws_listening_event.wait(timeout):
-            raise TimeoutError(f'Waiting too long for {self} to start listening on ws port')
+            raise TimeoutError(f"Waiting too long for {self} to start listening on ws port")
 
     def get_id(self):
         response = self.api.network_node.get_info()
-        return response['node_id']
+        return response["node_id"]
 
     def set_allowed_nodes(self, nodes):
         return self.api.network_node.set_allowed_peers(allowed_peers=[node.get_id() for node in nodes])
@@ -399,44 +399,44 @@ class Node(UserHandleImplementation, ScopedObject):
     def dump_config(self):
         assert not self.is_running()
 
-        self.__logger.info('Config dumping started...')
+        self.__logger.info("Config dumping started...")
 
         config_was_modified = self.config != create_default_config()
-        self.__run_process(blocking=True, with_arguments=['--dump-config'], write_config_before_run=config_was_modified)
+        self.__run_process(blocking=True, with_arguments=["--dump-config"], write_config_before_run=config_was_modified)
 
         self.config.load_from_file(self.__get_config_file_path())
 
-        self.__logger.info('Config dumped')
+        self.__logger.info("Config dumped")
 
     def dump_snapshot(self, *, close=False):
         self.close()
 
-        self.__logger.info('Snapshot dumping started...')
+        self.__logger.info("Snapshot dumping started...")
 
-        snapshot_path = Path('.')
+        snapshot_path = Path(".")
         self.__ensure_that_plugin_required_for_snapshot_is_included()
         self.__run_process(
             blocking=close,
             with_arguments=[
-                f'--dump-snapshot={snapshot_path}',
-                *(['--exit-before-sync'] if close else []),
+                f"--dump-snapshot={snapshot_path}",
+                *(["--exit-before-sync"] if close else []),
             ],
         )
 
         if not close:
             self.__notifications.snapshot_dumped_event.wait()
 
-        self.__logger.info('Snapshot dumped')
+        self.__logger.info("Snapshot dumped")
 
         return Snapshot(
-            self.directory / 'snapshot' / snapshot_path,
-            self.directory / 'blockchain/block_log',
-            self.directory / 'blockchain/block_log.index',
+            self.directory / "snapshot" / snapshot_path,
+            self.directory / "blockchain/block_log",
+            self.directory / "blockchain/block_log.index",
             self,
         )
 
     def __ensure_that_plugin_required_for_snapshot_is_included(self):
-        plugin_required_for_snapshots = 'state_snapshot'
+        plugin_required_for_snapshots = "state_snapshot"
         if plugin_required_for_snapshots not in self.config.plugin:
             self.config.plugin.append(plugin_required_for_snapshots)
 
@@ -495,12 +495,12 @@ class Node(UserHandleImplementation, ScopedObject):
 
         if not self.__executable.is_test_net_build():
             raise NotImplementedError(
-                f'You have configured path to non-testnet hived build.\n'
-                f'At the moment only testnet build is supported.\n'
+                f"You have configured path to non-testnet hived build.\n"
+                f"At the moment only testnet build is supported.\n"
                 f'Your current hived path is: {paths_to_executables.get_path_of("hived")}\n'
-                f'\n'
-                f'Please check following page if you need help with paths configuration:\n'
-                f'https://gitlab.syncad.com/hive/test-tools/-/blob/master/documentation/paths_to_executables.md'
+                f"\n"
+                f"Please check following page if you need help with paths configuration:\n"
+                f"https://gitlab.syncad.com/hive/test-tools/-/blob/master/documentation/paths_to_executables.md"
             )
 
         if not self.__produced_files and self.directory.exists():
@@ -509,36 +509,36 @@ class Node(UserHandleImplementation, ScopedObject):
 
         self.__set_unset_endpoints()
 
-        log_message = f'Running {self}'
+        log_message = f"Running {self}"
         if time_offset is not None:
-            log_message += f' with time offset {time_offset}'
+            log_message += f" with time offset {time_offset}"
 
         additional_arguments = [*arguments]
         if load_snapshot_from is not None:
             self.__handle_loading_snapshot(load_snapshot_from, additional_arguments)
-            log_message += ', loading snapshot'
+            log_message += ", loading snapshot"
 
         if replay_from is not None:
             self.__handle_replay(replay_from, stop_at_block, additional_arguments)
-            log_message += ', replaying'
+            log_message += ", replaying"
 
-        if exit_before_synchronization or '--exit-after-replay' in additional_arguments:
+        if exit_before_synchronization or "--exit-after-replay" in additional_arguments:
             if wait_for_live is not None:
-                raise RuntimeError('wait_for_live can\'t be used with exit_before_synchronization')
+                raise RuntimeError("wait_for_live can't be used with exit_before_synchronization")
 
             wait_for_live = False
 
             if exit_before_synchronization:
-                additional_arguments.append('--exit-before-sync')
+                additional_arguments.append("--exit-before-sync")
 
-            self.__logger.info(f'{log_message} and waiting for close...')
+            self.__logger.info(f"{log_message} and waiting for close...")
         elif wait_for_live is None:
             wait_for_live = True
-            self.__logger.info(f'{log_message} and waiting for live...')
+            self.__logger.info(f"{log_message} and waiting for live...")
         else:
-            self.__logger.info(f'{log_message} and NOT waiting for live...')
+            self.__logger.info(f"{log_message} and NOT waiting for live...")
 
-        exit_before_synchronization = exit_before_synchronization or '--exit-after-replay' in additional_arguments
+        exit_before_synchronization = exit_before_synchronization or "--exit-after-replay" in additional_arguments
         self.__run_process(
             blocking=exit_before_synchronization,
             with_arguments=additional_arguments,
@@ -555,26 +555,26 @@ class Node(UserHandleImplementation, ScopedObject):
             wait_for_event(
                 self.__notifications.synchronization_started_event,
                 deadline=deadline,
-                exception_message='Synchronization not started on time.',
+                exception_message="Synchronization not started on time.",
             )
 
             wait_for_event(
                 self.__notifications.http_listening_event,
                 deadline=deadline,
-                exception_message='HTTP server didn\'t start listening on time.',
+                exception_message="HTTP server didn't start listening on time.",
             )
 
             wait_for_event(
                 self.__notifications.ws_listening_event,
                 deadline=deadline,
-                exception_message='WS server didn\'t start listening on time.',
+                exception_message="WS server didn't start listening on time.",
             )
 
             if wait_for_live:
                 wait_for_event(
                     self.__notifications.live_mode_entered_event,
                     deadline=deadline,
-                    exception_message='Live mode not activated on time.',
+                    exception_message="Live mode not activated on time.",
                 )
 
         self.__log_run_summary()
@@ -583,60 +583,60 @@ class Node(UserHandleImplementation, ScopedObject):
         if not isinstance(snapshot_source, Snapshot):
             snapshot_source = Snapshot(
                 snapshot_source,
-                Path(snapshot_source).joinpath('../blockchain/block_log'),
-                Path(snapshot_source).joinpath('../blockchain/block_log.index'),
+                Path(snapshot_source).joinpath("../blockchain/block_log"),
+                Path(snapshot_source).joinpath("../blockchain/block_log.index"),
             )
 
         self.__ensure_that_plugin_required_for_snapshot_is_included()
-        additional_arguments.append('--load-snapshot=.')
+        additional_arguments.append("--load-snapshot=.")
         snapshot_source.copy_to(self.directory)
 
     def __handle_replay(self, replay_source: BlockLog, stop_at_block: int, additional_arguments: list):
         if not isinstance(replay_source, BlockLog):
             replay_source = BlockLog(None, replay_source)
 
-        additional_arguments.append('--force-replay')
+        additional_arguments.append("--force-replay")
         if stop_at_block is not None:
-            additional_arguments.append(f'--stop-replay-at-block={stop_at_block}')
+            additional_arguments.append(f"--stop-replay-at-block={stop_at_block}")
 
-        blocklog_directory = self.directory.joinpath('blockchain')
+        blocklog_directory = self.directory.joinpath("blockchain")
         blocklog_directory.mkdir()
         replay_source.copy_to(blocklog_directory)
 
     def __log_run_summary(self):
         if self.is_running():
-            message = f'Run with pid {self.__process.get_id()}, '
+            message = f"Run with pid {self.__process.get_id()}, "
 
             endpoints = self.__get_opened_endpoints()
             if endpoints:
                 message += f'with servers: {", ".join([f"{endpoint[1]}://{endpoint[0]}" for endpoint in endpoints])}'
             else:
-                message += 'without any server'
+                message += "without any server"
         else:
-            message = 'Run completed'
+            message = "Run completed"
 
-        message += f', {self.__executable.get_build_version()} build'
-        message += f' commit={self.__executable.get_build_commit_hash()[:8]}'
+        message += f", {self.__executable.get_build_version()} build"
+        message += f" commit={self.__executable.get_build_commit_hash()[:8]}"
         self.__logger.info(message)
 
     def __get_opened_endpoints(self):
         endpoints = [
-            (self.config.webserver_http_endpoint, 'http'),
-            (self.config.webserver_ws_endpoint, 'ws'),
-            (self.config.webserver_unix_endpoint, 'unix'),
+            (self.config.webserver_http_endpoint, "http"),
+            (self.config.webserver_ws_endpoint, "ws"),
+            (self.config.webserver_unix_endpoint, "unix"),
         ]
 
         return [endpoint for endpoint in endpoints if endpoint[0] is not None]
 
     def __set_unset_endpoints(self):
         if self.config.p2p_endpoint is None:
-            self.config.p2p_endpoint = '0.0.0.0:0'
+            self.config.p2p_endpoint = "0.0.0.0:0"
 
         if self.config.webserver_http_endpoint is None:
-            self.config.webserver_http_endpoint = '0.0.0.0:0'
+            self.config.webserver_http_endpoint = "0.0.0.0:0"
 
         if self.config.webserver_ws_endpoint is None:
-            self.config.webserver_ws_endpoint = '0.0.0.0:0'
+            self.config.webserver_ws_endpoint = "0.0.0.0:0"
 
     def get_p2p_endpoint(self):
         self.__wait_for_p2p_plugin_start()
@@ -685,8 +685,8 @@ class Node(UserHandleImplementation, ScopedObject):
 
     def __remove_unneeded_files(self):
         unneeded_files_or_directories = [
-            'blockchain/',
-            'snapshot/',
+            "blockchain/",
+            "snapshot/",
         ]
 
         self.__register_rocksdb_data_to_remove(unneeded_files_or_directories)
@@ -695,20 +695,20 @@ class Node(UserHandleImplementation, ScopedObject):
             self.__remove(self.directory.joinpath(unneeded))
 
     def __register_rocksdb_data_to_remove(self, unneeded_files_or_directories):
-        rocksdb_directory = self.directory.joinpath('blockchain/account-history-rocksdb-storage')
+        rocksdb_directory = self.directory.joinpath("blockchain/account-history-rocksdb-storage")
         if not rocksdb_directory:
             return
 
         # Do not remove blockchain directory
-        unneeded_files_or_directories.remove('blockchain/')
+        unneeded_files_or_directories.remove("blockchain/")
 
         # All files below will be removed
         unneeded_files_or_directories.extend(
             [
-                'blockchain/block_log',
-                'blockchain/block_log.index',
-                'blockchain/shared_memory.bin',
-                *rocksdb_directory.glob('*.sst'),
+                "blockchain/block_log",
+                "blockchain/block_log.index",
+                "blockchain/shared_memory.bin",
+                *rocksdb_directory.glob("*.sst"),
             ]
         )
 
@@ -725,7 +725,7 @@ class Node(UserHandleImplementation, ScopedObject):
         assert timeout >= 0
         deadline = time.time() + timeout
         wait_for_event(
-            self.__notifications.switch_fork_event, deadline=deadline, exception_message='Fork did not happen on time.'
+            self.__notifications.switch_fork_event, deadline=deadline, exception_message="Fork did not happen on time."
         )
 
     def get_number_of_forks(self):

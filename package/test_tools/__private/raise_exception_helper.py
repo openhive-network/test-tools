@@ -33,7 +33,7 @@ class RaiseExceptionHelper:
     def raise_exception_in_main_thread(cls, exception: Exception) -> None:
         with cls.__lock:
             assert threading.current_thread() is not threading.main_thread()
-            assert cls.__is_initialized, 'initialize() should be called before this function'
+            assert cls.__is_initialized, "initialize() should be called before this function"
 
             cls.__last_exception = exception
             os.kill(os.getpid(), signal.SIGINT)

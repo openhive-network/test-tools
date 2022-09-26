@@ -46,7 +46,7 @@ def __restart_wallet_manually(wallet: tt.Wallet):
 
 
 @pytest.mark.parametrize(
-    'restart',
+    "restart",
     [
         __restart_wallet_manually,
         lambda wallet: wallet.restart,
@@ -59,7 +59,7 @@ def test_if_keys_are_stored_after_restart(restart):
     wallet = tt.Wallet(attach_to=init_node)
     assert len(wallet.api.list_keys()) == 1  # After start only initminer key is registered
 
-    wallet.api.create_account('initminer', 'alice', '')
+    wallet.api.create_account("initminer", "alice", "")
     assert len(wallet.api.list_keys()) == 5  # After account creation 4 new keys were register
 
     restart(wallet)
@@ -74,7 +74,7 @@ def test_if_keys_are_stored_after_together_wallet_and_node_restart():
     wallet = tt.Wallet(attach_to=init_node)
     assert len(wallet.api.list_keys()) == 1  # After start only initminer key is registered
 
-    wallet.api.create_account('initminer', 'alice', '')
+    wallet.api.create_account("initminer", "alice", "")
     assert len(wallet.api.list_keys()) == 5  # After account creation 4 new keys were register
 
     wallet.close()
