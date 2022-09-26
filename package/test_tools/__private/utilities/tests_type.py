@@ -6,4 +6,4 @@ def is_automatic_test() -> bool:
 
 
 def __is_pytest_used() -> bool:
-    return 'pytest' in sys.modules
+    return "pytest" in sys.modules

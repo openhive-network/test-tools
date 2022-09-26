@@ -7,12 +7,12 @@ class NodeMessage:
 
     def as_json(self) -> dict:
         json_representation = {
-            'jsonrpc': self.__jsonrpc,
-            'id': self.__id,
-            'method': self.__method,
+            "jsonrpc": self.__jsonrpc,
+            "id": self.__id,
+            "method": self.__method,
         }
 
         if self.__params is not None:
-            json_representation['params'] = self.__params
+            json_representation["params"] = self.__params
 
         return json_representation

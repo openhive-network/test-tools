@@ -30,5 +30,5 @@ class ContextInternalHandle:
         return self.__context.get_logger()
 
     @property
-    def names(self) -> 'Names':
+    def names(self) -> "Names":
         return self.__context.get_names()

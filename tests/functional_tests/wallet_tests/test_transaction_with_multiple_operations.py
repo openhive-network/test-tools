@@ -13,31 +13,31 @@ def wallet():
 
 def test_sending_transaction_with_multiple_operations(wallet):
     accounts_and_balances = {
-        'first': tt.Asset.Test(100),
-        'second': tt.Asset.Test(200),
-        'third': tt.Asset.Test(300),
+        "first": tt.Asset.Test(100),
+        "second": tt.Asset.Test(200),
+        "third": tt.Asset.Test(300),
     }
 
     with wallet.in_single_transaction():
         for account, amount in accounts_and_balances.items():
-            wallet.api.create_account('initminer', account, '{}')
-            wallet.api.transfer('initminer', account, amount, 'memo')
+            wallet.api.create_account("initminer", account, "{}")
+            wallet.api.transfer("initminer", account, amount, "memo")
 
     for account, expected_balance in accounts_and_balances.items():
-        balance = wallet.api.get_account(account)['balance']
+        balance = wallet.api.get_account(account)["balance"]
         assert balance == expected_balance
 
 
 def test_sending_transaction_with_multiple_operations_without_broadcast(wallet):
     with wallet.in_single_transaction(broadcast=False) as transaction:
-        wallet.api.create_account('initminer', 'alice', '{}')
+        wallet.api.create_account("initminer", "alice", "{}")
 
     # Generated transaction can be accessed
     assert transaction.get_response() is not None
 
     # Transaction isn't send
-    response = wallet.api.list_accounts('', 100)
-    assert 'alice' not in response
+    response = wallet.api.list_accounts("", 100)
+    assert "alice" not in response
 
 
 def test_setting_broadcast_when_building_transaction(wallet):
@@ -47,12 +47,12 @@ def test_setting_broadcast_when_building_transaction(wallet):
 
     with wallet.in_single_transaction():
         with pytest.raises(RuntimeError):
-            wallet.api.create_account('initminer', 'alice', '{}', True)
+            wallet.api.create_account("initminer", "alice", "{}", True)
 
 
 def test_getting_response(wallet):
     with wallet.in_single_transaction() as transaction:
-        wallet.api.create_account('initminer', 'alice', '{}')
-        wallet.api.transfer('initminer', 'alice', tt.Asset.Test(100), 'memo')
+        wallet.api.create_account("initminer", "alice", "{}")
+        wallet.api.transfer("initminer", "alice", tt.Asset.Test(100), "memo")
 
     assert transaction.get_response() is not None

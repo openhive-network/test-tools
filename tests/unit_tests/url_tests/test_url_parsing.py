@@ -4,10 +4,10 @@ from test_tools.__private.url import Url
 
 
 @pytest.mark.parametrize(
-    'input_url, expected_protocol, expected_address, expected_port',
+    "input_url, expected_protocol, expected_address, expected_port",
     [
-        ('http://127.0.0.1:8080', 'http', '127.0.0.1', 8080),
-        ('ws://127.0.0.1:8080', 'ws', '127.0.0.1', 8080),
+        ("http://127.0.0.1:8080", "http", "127.0.0.1", 8080),
+        ("ws://127.0.0.1:8080", "ws", "127.0.0.1", 8080),
     ],
 )
 def test_url_parsing_without_expected_protocol(input_url, expected_protocol, expected_address, expected_port):
@@ -19,10 +19,10 @@ def test_url_parsing_without_expected_protocol(input_url, expected_protocol, exp
 
 
 @pytest.mark.parametrize(
-    'input_url, expected_protocol, expected_address, expected_port',
+    "input_url, expected_protocol, expected_address, expected_port",
     [
-        ('127.0.0.1:8080', 'http', '127.0.0.1', 8080),
-        ('127.0.0.1:8080', 'ws', '127.0.0.1', 8080),
+        ("127.0.0.1:8080", "http", "127.0.0.1", 8080),
+        ("127.0.0.1:8080", "ws", "127.0.0.1", 8080),
     ],
 )
 def test_url_parsing_with_expected_protocol(input_url, expected_protocol, expected_address, expected_port):

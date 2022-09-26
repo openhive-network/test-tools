@@ -15,7 +15,7 @@ class Names:
     def get_names_in_use(self) -> Set[str]:
         numbered_names = set()
         for name, number_limit in self.__next_name_numbers.items():
-            numbered_names.update([f'{name}{i}' for i in range(number_limit)])
+            numbered_names.update([f"{name}{i}" for i in range(number_limit)])
 
         return self.__unique_names | numbered_names
 
@@ -30,7 +30,7 @@ class Names:
     def register_numbered_name(self, name: str) -> str:
         self.__next_name_numbers[name] = self.__get_numbered_name_next_free_number(name)
 
-        name_with_number = f'{name}{self.__next_name_numbers[name]}'
+        name_with_number = f"{name}{self.__next_name_numbers[name]}"
         self.__next_name_numbers[name] += 1
 
         return name_with_number

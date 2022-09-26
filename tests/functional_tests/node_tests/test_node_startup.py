@@ -105,12 +105,12 @@ def test_restart():
 
 
 def test_startup_with_modified_time():
-    requested_start_time = tt.Time.parse('2020-01-01T00:00:00')
+    requested_start_time = tt.Time.parse("2020-01-01T00:00:00")
 
     init_node = tt.InitNode()
     init_node.run(time_offset=f'{tt.Time.serialize(requested_start_time, format_="@%Y-%m-%d %H:%M:%S")}')
 
-    node_time = tt.Time.parse(init_node.api.database.get_dynamic_global_properties()['time'])
+    node_time = tt.Time.parse(init_node.api.database.get_dynamic_global_properties()["time"])
 
     # Some time may pass between node start and getting time, so below comparison is made with a few block tolerance.
     assert tt.Time.are_close(requested_start_time, node_time, absolute_tolerance=tt.Time.seconds(15))
@@ -118,21 +118,21 @@ def test_startup_with_modified_time():
 
 def make_transaction_for_test(node):
     wallet = tt.Wallet(attach_to=node)
-    wallet.api.create_account('initminer', 'alice', '{}')
+    wallet.api.create_account("initminer", "alice", "{}")
 
 
 def assert_that_transaction_for_test_has_effect(node):
-    response = node.api.database.find_accounts(accounts=['alice'], delayed_votes_active=False)
-    assert response['accounts'][0]['name'] == 'alice'
+    response = node.api.database.find_accounts(accounts=["alice"], delayed_votes_active=False)
+    assert response["accounts"][0]["name"] == "alice"
 
 
 def generate_blocks(node, number_of_blocks):
-    tt.logger.info(f'Generation of {number_of_blocks} blocks started...')
+    tt.logger.info(f"Generation of {number_of_blocks} blocks started...")
     node.api.debug_node.debug_generate_blocks(
-        debug_key=tt.Account('initminer').private_key,
+        debug_key=tt.Account("initminer").private_key,
         count=number_of_blocks,
         skip=0,
         miss_blocks=0,
         edit_if_needed=True,
     )
-    tt.logger.info('Blocks generation finished.')
+    tt.logger.info("Blocks generation finished.")

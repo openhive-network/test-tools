@@ -8,9 +8,9 @@ from test_tools.__private.scope import current_scope
 
 def important_files_are_removed(node):
     paths_of_important_files = [
-        '.',
-        'config.ini',
-        'stderr.txt',
+        ".",
+        "config.ini",
+        "stderr.txt",
     ]
 
     return all(not node.directory.joinpath(path).exists() for path in paths_of_important_files)
@@ -18,7 +18,7 @@ def important_files_are_removed(node):
 
 def unneeded_files_are_removed(node):
     paths_of_unneeded_files = [
-        'blockchain/block_log',
+        "blockchain/block_log",
     ]
 
     return all(not node.directory.joinpath(path).exists() for path in paths_of_unneeded_files)
@@ -27,7 +27,7 @@ def unneeded_files_are_removed(node):
 def check_if_node_files_are_removed(
     policy: Optional[tt.constants.CleanupPolicy] = None, *, remove_important_files: bool, remove_unneeded_files: bool
 ):
-    with current_scope.create_new_scope('test-scope'):
+    with current_scope.create_new_scope("test-scope"):
         init_node = tt.InitNode()
         init_node.run()
 
@@ -41,7 +41,7 @@ def check_if_node_files_are_removed(
 def check_if_everyone_files_are_removed(
     policy: Optional[tt.constants.CleanupPolicy] = None, *, remove_important_files: bool, remove_unneeded_files: bool
 ):
-    with current_scope.create_new_scope('test-scope'):
+    with current_scope.create_new_scope("test-scope"):
         # Create some nodes outside of a network
         init_node = tt.InitNode()
         api_node = tt.ApiNode()
@@ -67,7 +67,7 @@ def check_if_everyone_files_are_removed(
 
 
 run_for_all_cases = pytest.mark.parametrize(
-    'check_if_files_are_removed',
+    "check_if_files_are_removed",
     [
         check_if_node_files_are_removed,
         check_if_everyone_files_are_removed,

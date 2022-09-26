@@ -7,7 +7,7 @@ import test_tools as tt
 def wallet(request):
     init_node = tt.InitNode()
 
-    shared_file_size = request.node.get_closest_marker('node_shared_file_size')
+    shared_file_size = request.node.get_closest_marker("node_shared_file_size")
     if shared_file_size:
         init_node.config.shared_file_size = shared_file_size.args[0]
 
@@ -23,7 +23,7 @@ def test_keys_import_during_account_creation(wallet):
     assert all(account.private_key in imported_private_keys for account in accounts)
 
 
-@pytest.mark.node_shared_file_size('16G')
+@pytest.mark.node_shared_file_size("16G")
 def test_creation_of_huge_number_of_accounts(wallet):
     accounts_before = set(wallet.list_accounts())
     created_accounts = wallet.create_accounts(200_000, import_keys=False)

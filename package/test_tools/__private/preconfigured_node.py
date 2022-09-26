@@ -23,10 +23,10 @@ class PreconfiguredNode(RawNode):
             '{"name":"sync","level":"debug","appender":"p2p"} '
             '{"name":"p2p","level":"debug","appender":"p2p"}'
         )
-        self.config.shared_file_size = '128M'
+        self.config.shared_file_size = "128M"
 
     def __enable_all_api_plugins(self) -> None:
-        self.config.plugin.append('account_history_rocksdb')  # Required by account_history_api
+        self.config.plugin.append("account_history_rocksdb")  # Required by account_history_api
 
-        all_api_plugins = [plugin for plugin in self.get_supported_plugins() if plugin.endswith('_api')]
+        all_api_plugins = [plugin for plugin in self.get_supported_plugins() if plugin.endswith("_api")]
         self.config.plugin.extend([plugin for plugin in all_api_plugins if plugin not in self.config.plugin])

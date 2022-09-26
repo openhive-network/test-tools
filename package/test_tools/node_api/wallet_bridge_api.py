@@ -11,4 +11,4 @@ class WalletBridgeApi(ApiBase):
     _NodeApiCallProxyType = WalletBridgeApiCallProxy
 
     def __init__(self, node):
-        super().__init__(node, 'wallet_bridge_api')
+        super().__init__(node, "wallet_bridge_api")

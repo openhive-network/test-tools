@@ -7,14 +7,14 @@ from test_tools.__private.exceptions import MissingPathToExecutable, NotSupporte
 
 
 class _PathsToExecutables:
-    BUILD_ROOT_PATH_COMMAND_LINE_ARGUMENT = '--build-root-path'
-    BUILD_ROOT_PATH_ENVIRONMENT_VARIABLE = 'HIVE_BUILD_ROOT_PATH'
+    BUILD_ROOT_PATH_COMMAND_LINE_ARGUMENT = "--build-root-path"
+    BUILD_ROOT_PATH_ENVIRONMENT_VARIABLE = "HIVE_BUILD_ROOT_PATH"
 
     class __ExecutableDetails:
         def __init__(self, name, default_path_from_build):
             self.name = name
             self.argument = f'--{name.replace("_", "-")}-path'
-            self.environment_variable = f'{name}_PATH'.upper()
+            self.environment_variable = f"{name}_PATH".upper()
             self.default_path_from_build = default_path_from_build
 
     def __init__(self):
@@ -23,10 +23,10 @@ class _PathsToExecutables:
         self.environment_variables = None
         self.installed_executables = None
         self.supported_executables = [
-            self.__ExecutableDetails('hived', 'programs/hived/hived'),
-            self.__ExecutableDetails('cli_wallet', 'programs/cli_wallet/cli_wallet'),
-            self.__ExecutableDetails('get_dev_key', 'programs/util/get_dev_key'),
-            self.__ExecutableDetails('compress_block_log', 'programs/util/compress_block_log'),
+            self.__ExecutableDetails("hived", "programs/hived/hived"),
+            self.__ExecutableDetails("cli_wallet", "programs/cli_wallet/cli_wallet"),
+            self.__ExecutableDetails("get_dev_key", "programs/util/get_dev_key"),
+            self.__ExecutableDetails("compress_block_log", "programs/util/compress_block_log"),
         ]
 
         self.parse_command_line_arguments()
@@ -38,15 +38,15 @@ class _PathsToExecutables:
 
     def get_configuration_hint(self):
         return (
-            f'Edit and add following line to /etc/environment and restart computer.\n'
-            f'{self.BUILD_ROOT_PATH_ENVIRONMENT_VARIABLE}= # Should be something like: \"/home/dev/hive/build\"'
+            f"Edit and add following line to /etc/environment and restart computer.\n"
+            f'{self.BUILD_ROOT_PATH_ENVIRONMENT_VARIABLE}= # Should be something like: "/home/dev/hive/build"'
         )
 
     def print_paths_in_use(self):
         entries = []
         for executable in self.supported_executables:
-            entries += [f'Name: {executable.name}\n' f'Path: {self.get_path_of(executable.name)}\n']
-        print('\n'.join(entries))
+            entries += [f"Name: {executable.name}\n" f"Path: {self.get_path_of(executable.name)}\n"]
+        print("\n".join(entries))
 
     def get_paths_in_use(self):
         paths = {}
@@ -80,14 +80,14 @@ class _PathsToExecutables:
         if executable_name in self.installed_executables and self.installed_executables[executable_name] is not None:
             return self.installed_executables[executable_name]
 
-        raise MissingPathToExecutable(f'Missing path to {executable_name}\n' + self.get_configuration_hint())
+        raise MissingPathToExecutable(f"Missing path to {executable_name}\n" + self.get_configuration_hint())
 
     def __get_executable_details(self, executable_name):
         for executable in self.supported_executables:
             if executable.name == executable_name:
                 return executable
 
-        raise NotSupported(f'Executable {executable_name} is not supported')
+        raise NotSupported(f"Executable {executable_name} is not supported")
 
     def __is_build_root_set_as_command_line_argument(self):
         return self.command_line_arguments.build_root is not None
@@ -105,14 +105,14 @@ class _PathsToExecutables:
 
     def set_path_of(self, executable_name, executable_path):
         if not self.__is_supported(executable_name):
-            raise NotSupported(f'Executable {executable_name} is not supported')
+            raise NotSupported(f"Executable {executable_name} is not supported")
 
         self.paths[executable_name] = executable_path
 
     def parse_command_line_arguments(self, arguments=None):
         parser = ArgumentParser()
 
-        parser.add_argument(self.BUILD_ROOT_PATH_COMMAND_LINE_ARGUMENT, dest='build_root')
+        parser.add_argument(self.BUILD_ROOT_PATH_COMMAND_LINE_ARGUMENT, dest="build_root")
         for executable in self.supported_executables:
             parser.add_argument(executable.argument, dest=executable.name)
 

@@ -7,8 +7,8 @@ if TYPE_CHECKING:
 
 
 class LoggerUserInterface(LoggerInterfaceBase):
-    def __init__(self, instance: Optional['LoggerWrapper'] = None):
-        super().__init__(instance, message_prefix='')
+    def __init__(self, instance: Optional["LoggerWrapper"] = None):
+        super().__init__(instance, message_prefix="")
 
 
 logger = LoggerUserInterface()

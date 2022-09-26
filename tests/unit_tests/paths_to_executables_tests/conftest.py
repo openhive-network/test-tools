@@ -22,20 +22,20 @@ def __executables():
     class Executable:
         def __init__(self, name, command_line_argument, environment_variable, default_relative_path):
             self.name = name
-            self.path = f'{self.name}_path'
+            self.path = f"{self.name}_path"
             self.argument = command_line_argument
             self.environment_variable = environment_variable
             self.default_relative_path = default_relative_path
 
     return [
-        Executable('hived', '--hived-path', 'HIVED_PATH', 'programs/hived/hived'),
-        Executable('cli_wallet', '--cli-wallet-path', 'CLI_WALLET_PATH', 'programs/cli_wallet/cli_wallet'),
-        Executable('get_dev_key', '--get-dev-key-path', 'GET_DEV_KEY_PATH', 'programs/util/get_dev_key'),
+        Executable("hived", "--hived-path", "HIVED_PATH", "programs/hived/hived"),
+        Executable("cli_wallet", "--cli-wallet-path", "CLI_WALLET_PATH", "programs/cli_wallet/cli_wallet"),
+        Executable("get_dev_key", "--get-dev-key-path", "GET_DEV_KEY_PATH", "programs/util/get_dev_key"),
         Executable(
-            'compress_block_log',
-            '--compress-block-log-path',
-            'COMPRESS_BLOCK_LOG_PATH',
-            'programs/util/compress_block_log',
+            "compress_block_log",
+            "--compress-block-log-path",
+            "COMPRESS_BLOCK_LOG_PATH",
+            "programs/util/compress_block_log",
         ),
     ]
 

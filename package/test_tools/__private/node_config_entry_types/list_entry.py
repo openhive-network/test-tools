@@ -18,7 +18,7 @@ class List(ConfigEntry, list):  # Shouldn't inherit from `list`, this is workaro
                 f'Operator += is removed. Use methods "{self.append.__name__}" or "{self.extend.__name__}" instead.'
             )
 
-    def __init__(self, item_type, separator=' ', begin='', end='', single_line=True):
+    def __init__(self, item_type, separator=" ", begin="", end="", single_line=True):
         self.__item_type = item_type
 
         super().__init__(self.__ListWithoutAdditionOperator())
@@ -32,7 +32,7 @@ class List(ConfigEntry, list):  # Shouldn't inherit from `list`, this is workaro
         self.set_value([])
 
     def parse_from_text(self, text):
-        match_result = re.match(fr'^\s*{re.escape(self.__begin)}(.*){re.escape(self.__end)}\s*$', text)
+        match_result = re.match(rf"^\s*{re.escape(self.__begin)}(.*){re.escape(self.__end)}\s*$", text)
 
         if not match_result:
             raise ParseError(f'Line "{text}" doesn\'t match excepted format.')
@@ -56,7 +56,7 @@ class List(ConfigEntry, list):  # Shouldn't inherit from `list`, this is workaro
     def _validate(self, value):
         def check_single_value(single_value, item_type):
             if single_value is None:
-                raise ValueError('You cannot store None in list')
+                raise ValueError("You cannot store None in list")
             item_type.validate(single_value)
 
         if isinstance(value, list):
@@ -67,10 +67,10 @@ class List(ConfigEntry, list):  # Shouldn't inherit from `list`, this is workaro
                 check_single_value(value, self.__item_type)
             except ValueError as error:
                 raise ValueError(
-                    'To clear a list entry you have to write:\n'
-                    '  config.entry = []\n'
-                    'instead of:\n'
-                    '  config.entry = None'
+                    "To clear a list entry you have to write:\n"
+                    "  config.entry = []\n"
+                    "instead of:\n"
+                    "  config.entry = None"
                 ) from error
 
     def _set_value(self, value):

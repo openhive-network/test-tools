@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class Network(UserHandleImplementation):
-    def __init__(self, name: str = 'Network', handle: Optional[NetworkHandle] = None):
+    def __init__(self, name: str = "Network", handle: Optional[NetworkHandle] = None):
         super().__init__(handle=handle)
 
         self.name = context.names.register_numbered_name(name)
@@ -36,7 +36,7 @@ class Network(UserHandleImplementation):
             if node.get_name() == name:
                 return node
 
-        raise RuntimeError(f'There is no node with name {name} in network {self}')
+        raise RuntimeError(f"There is no node with name {name} in network {self}")
 
     def run(self, wait_for_live: Optional[bool] = None, environment_variables: Optional[Dict[str, str]] = None):
         if self.network_to_connect_with is None:
@@ -56,7 +56,7 @@ class Network(UserHandleImplementation):
 
     def connect_with(self, network):
         if not self.nodes or not network.nodes:
-            raise Exception('Unable to connect empty network')
+            raise Exception("Unable to connect empty network")
 
         if any(node.is_running() for node in self.nodes):
             self.__connect_with_earlier_disconnected_network(network)
@@ -66,7 +66,7 @@ class Network(UserHandleImplementation):
 
     def __connect_with_earlier_disconnected_network(self, network: Network) -> None:
         if network not in self.disconnected_networks:
-            raise Exception('Unsupported: cannot connect networks when were already run and not disconnected before')
+            raise Exception("Unsupported: cannot connect networks when were already run and not disconnected before")
 
         self.connected_networks.add(network)
         self.__update_connected_networks_in_child_networks()
@@ -93,7 +93,7 @@ class Network(UserHandleImplementation):
 
     def disconnect_from(self, network):
         if not self.nodes or not network.nodes:
-            raise Exception('Unable to disconnect empty network')
+            raise Exception("Unable to disconnect empty network")
 
         self.connected_networks.remove(network)
         self.disconnected_networks.add(network)
@@ -104,22 +104,22 @@ class Network(UserHandleImplementation):
         for network in self.connected_networks:
             allowed_nodes.update(network.nodes)
 
-        self.logger.info(f'Allowing connections only with: {allowed_nodes}')
+        self.logger.info(f"Allowing connections only with: {allowed_nodes}")
         for node in self.nodes:
             node.set_allowed_nodes(allowed_nodes)
 
     def disconnect_from_all(self):
         if not self.nodes:
-            raise Exception('Unable to disconnect empty network')
+            raise Exception("Unable to disconnect empty network")
 
         self.disconnected_networks.update(self.connected_networks)
         self.connected_networks.clear()
 
-        self.logger.info(f'Allowing connections only with nodes in my network: {self.nodes}')
+        self.logger.info(f"Allowing connections only with nodes in my network: {self.nodes}")
         for node in self.nodes:
             node.set_allowed_nodes(self.nodes)
 
     def allow_for_connections_with_anyone(self):
-        self.logger.info('Allowing connections with anyone')
+        self.logger.info("Allowing connections with anyone")
         for node in self.nodes:
             node.set_allowed_nodes([])

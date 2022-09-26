@@ -12,7 +12,7 @@ def entry():
 @pytest.fixture
 def values():
     return [
-        '5JcCHFFWPW2DryUFDVd7ZXVj2Zo67rqMcvcq5inygZGBAPR1JoR',
+        "5JcCHFFWPW2DryUFDVd7ZXVj2Zo67rqMcvcq5inygZGBAPR1JoR",
     ]
 
 
@@ -30,7 +30,7 @@ def test_serializing_from_string(entry, values):
 
 @pytest.mark.requires_hived_executables
 def test_serializing_from_private_key_object(entry):
-    private_key = tt.PrivateKey('example')
+    private_key = tt.PrivateKey("example")
     entry.set_value(private_key)
     assert entry.serialize_to_text() == str(private_key)
 

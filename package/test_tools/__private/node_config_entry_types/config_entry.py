@@ -32,15 +32,15 @@ class ConfigEntry:
 
     @classmethod
     def _validate(cls, value):
-        '''Raises exception if value or its type is incorrect.
+        """Raises exception if value or its type is incorrect.
 
-        Must be overriden by derived classes.'''
+        Must be overriden by derived classes."""
         raise NotImplementedError()
 
     @classmethod
     def _validate_type(cls, value, valid_types):
         if type(value) not in valid_types:
-            raise TypeError(f'{valid_types} were expected, but {repr(value)} with type {type(value)} was passed')
+            raise TypeError(f"{valid_types} were expected, but {repr(value)} with type {type(value)} was passed")
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.get_value()!r})'
+        return f"{self.__class__.__name__}({self.get_value()!r})"

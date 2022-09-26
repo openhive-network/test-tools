@@ -15,25 +15,25 @@ class WitnessNode(PreconfiguredNode):
     def __init__(
         self,
         *,
-        name: str = 'WitnessNode',
+        name: str = "WitnessNode",
         witnesses: Optional[List[str]] = None,
         network: Optional[Network] = None,
         handle: Optional[NodeHandle] = None,
     ):
         super().__init__(name=name, network=network, handle=handle)
 
-        assert 'witness' in self.config.plugin
+        assert "witness" in self.config.plugin
 
         if witnesses is None:
             warnings.warn(
-                f'You are creating witness node without setting witnesses. Probably you forget to define them like:\n'
-                f'\n'
-                f'  {self.__class__.__name__}(witnesses=[\'witness0\', \'witness1\'])\n'
-                f'\n'
-                f'If you really want to create witness node without witnesses, then create node with explicit empty\n'
-                f'list as argument, like this:\n'
-                f'\n'
-                f'  {self.__class__.__name__}(witnesses=[])'
+                f"You are creating witness node without setting witnesses. Probably you forget to define them like:\n"
+                f"\n"
+                f"  {self.__class__.__name__}(witnesses=['witness0', 'witness1'])\n"
+                f"\n"
+                f"If you really want to create witness node without witnesses, then create node with explicit empty\n"
+                f"list as argument, like this:\n"
+                f"\n"
+                f"  {self.__class__.__name__}(witnesses=[])"
             )
             witnesses = []
 

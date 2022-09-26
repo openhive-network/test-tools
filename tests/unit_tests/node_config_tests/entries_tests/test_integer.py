@@ -14,9 +14,9 @@ def entry():
 @pytest.fixture
 def values():
     return [
-        ('0', 0),
-        ('123', 123),
-        ('-1', -1),
+        ("0", 0),
+        ("123", 123),
+        ("-1", -1),
     ]
 
 
@@ -33,7 +33,7 @@ def test_serializing(entry, values):
 
 
 def test_different_type_assignments(entry):
-    for incorrect_value in ['123', True, 2.718]:
+    for incorrect_value in ["123", True, 2.718]:
         with pytest.raises(ValueError):
             entry.set_value(incorrect_value)
 
@@ -47,7 +47,7 @@ def test_if_returned_value_behaves_like_int(entry):
     assert value < 10
     assert 2**value == 32
     assert bool(value)
-    assert str(value) == '5'
+    assert str(value) == "5"
 
 
 def test_if_get_value_returns_copy(entry):

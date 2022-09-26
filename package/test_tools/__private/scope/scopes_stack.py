@@ -22,7 +22,7 @@ class ScopesStack:
             self.name = name
 
         def __repr__(self):
-            return f'<Scope \'{self.name}\'>'
+            return f"<Scope '{self.name}'>"
 
     class __ScopeContextManager:
         def __init__(self, scope):
@@ -36,10 +36,10 @@ class ScopesStack:
 
     def __init__(self):
         self.__scopes_stack: List[ScopesStack.__NamedScope] = []
-        self.create_new_scope('root')
+        self.create_new_scope("root")
 
         root_scope = self.__current_scope
-        logger = LoggerWrapper('root', parent=None)
+        logger = LoggerWrapper("root", parent=None)
         root_scope.context.set_logger(logger)
 
         atexit.register(self.__terminate)
@@ -55,18 +55,18 @@ class ScopesStack:
             module_path = pkgutil.get_loader(module_name).path
             return Path(module_path).absolute()
 
-        scope_fixtures_definitions_path = get_module_path('test_tools.__private.scope.scope_fixtures_definitions')
-        pytest_fixtures_caller_path = get_module_path('_pytest.fixtures')
-        pytest_test_runner_path = get_module_path('_pytest.python')
+        scope_fixtures_definitions_path = get_module_path("test_tools.__private.scope.scope_fixtures_definitions")
+        pytest_fixtures_caller_path = get_module_path("_pytest.fixtures")
+        pytest_test_runner_path = get_module_path("_pytest.python")
 
         for frame in inspect.stack():
             if Path(frame.filename).absolute() == scope_fixtures_definitions_path:
                 break  # We are in special TestTools fixtures, which handles scopes creation.
 
             if Path(frame.filename).absolute() == pytest_fixtures_caller_path:
-                if frame.frame.f_locals['request'].scope == 'package':
+                if frame.frame.f_locals["request"].scope == "package":
                     for scope in self.__scopes_stack:
-                        if scope.name.startswith('package'):
+                        if scope.name.startswith("package"):
                             # We are in fixture, which is NOT handled correctly with default behavior.
                             # When test requests fixture with package scope and fixture wasn't initialized earlier,
                             # TestTools' scopes stack thinks that we are in module scope and pass it to requests from
@@ -86,7 +86,7 @@ class ScopesStack:
         self.__scopes_stack.append(new_scope)
         return self.__ScopeContextManager(self)
 
-    def register(self, scoped_object: 'ScopedObject'):
+    def register(self, scoped_object: "ScopedObject"):
         self.__current_scope.register(scoped_object)
 
     def exit(self):
@@ -101,7 +101,7 @@ class ScopesStack:
     def __terminate(self):
         with DisabledKeyboardInterrupt():
             if len(self.__scopes_stack) != 1:
-                warnings.warn('You forgot to exit from some scope')
+                warnings.warn("You forgot to exit from some scope")
 
             while len(self.__scopes_stack) != 0:
                 self.exit()

@@ -22,21 +22,21 @@ class AssetBase:
 
         if abs(amount - rounded_value) > acceptable_error:
             warnings.warn(
-                f'Precision lost during asset creation.\n'
-                f'\n'
-                f'Asset with amount {amount} was requested, but this value was rounded to {rounded_value},\n'
-                f'because precision of this asset is {precision} ({pow(0.1, precision):.3f}).'
+                f"Precision lost during asset creation.\n"
+                f"\n"
+                f"Asset with amount {amount} was requested, but this value was rounded to {rounded_value},\n"
+                f"because precision of this asset is {precision} ({pow(0.1, precision):.3f})."
             )
 
     def as_nai(self):
         return {
-            'amount': str(self.amount),
-            'precision': self.precision,
-            'nai': self.nai,
+            "amount": str(self.amount),
+            "precision": self.precision,
+            "nai": self.nai,
         }
 
     def __add__(self, other):
-        self.__assert_same_operands_type(other, 'Can\'t add assets with different tokens or nai')
+        self.__assert_same_operands_type(other, "Can't add assets with different tokens or nai")
         result = deepcopy(self)
         result.amount += other.amount
         return result
@@ -47,16 +47,16 @@ class AssetBase:
         return result
 
     def __sub__(self, other):
-        self.__assert_same_operands_type(other, 'Can\'t subtract assets with different tokens or nai')
+        self.__assert_same_operands_type(other, "Can't subtract assets with different tokens or nai")
         return self + -other
 
     def __iadd__(self, other):
-        self.__assert_same_operands_type(other, 'Can\'t add assets with different tokens or nai')
+        self.__assert_same_operands_type(other, "Can't add assets with different tokens or nai")
         self.amount += other.amount
         return self
 
     def __isub__(self, other):
-        self.__assert_same_operands_type(other, 'Can\'t subtract assets with different tokens or nai')
+        self.__assert_same_operands_type(other, "Can't subtract assets with different tokens or nai")
         self.amount -= other.amount
         return self
 
@@ -76,38 +76,38 @@ class AssetBase:
                 return self.as_nai() == other
 
             raise KeyError(
-                f'The keys did not match.\n' f'Expected: {set(self.as_nai().keys())}.\n' f'Actual: {set(other.keys())}'
+                f"The keys did not match.\n" f"Expected: {set(self.as_nai().keys())}.\n" f"Actual: {set(other.keys())}"
             )
 
-        raise TypeError(f'Assets can\'t be compared with objects of type {type(other)}')
+        raise TypeError(f"Assets can't be compared with objects of type {type(other)}")
 
     def __str__(self):
         if self.token is None:
-            raise RuntimeError(f'Asset with nai={self.nai} hasn\'t string representaion')
+            raise RuntimeError(f"Asset with nai={self.nai} hasn't string representaion")
 
-        return f'{self.amount / (10 ** self.precision):.{self.precision}f} {self.token}'
+        return f"{self.amount / (10 ** self.precision):.{self.precision}f} {self.token}"
 
     def __repr__(self):
-        return f'Asset({self.as_nai()})'
+        return f"Asset({self.as_nai()})"
 
 
 class Asset:
     class Hbd(AssetBase):
         def __init__(self, amount):
-            super().__init__(amount, token='HBD', precision=3, nai='@@000000013')
+            super().__init__(amount, token="HBD", precision=3, nai="@@000000013")
 
     class Tbd(AssetBase):
         def __init__(self, amount):
-            super().__init__(amount, token='TBD', precision=3, nai='@@000000013')
+            super().__init__(amount, token="TBD", precision=3, nai="@@000000013")
 
     class Hive(AssetBase):
         def __init__(self, amount):
-            super().__init__(amount, token='HIVE', precision=3, nai='@@000000021')
+            super().__init__(amount, token="HIVE", precision=3, nai="@@000000021")
 
     class Test(AssetBase):
         def __init__(self, amount):
-            super().__init__(amount, token='TESTS', precision=3, nai='@@000000021')
+            super().__init__(amount, token="TESTS", precision=3, nai="@@000000021")
 
     class Vest(AssetBase):
         def __init__(self, amount):
-            super().__init__(amount, token='VESTS', precision=6, nai='@@000000037')
+            super().__init__(amount, token="VESTS", precision=6, nai="@@000000037")

@@ -16,19 +16,19 @@ class NodeConfig:
         self.__define_entries()
 
     def __enter_initialization_stage(self):
-        super().__setattr__('_initialization_stage', None)
+        super().__setattr__("_initialization_stage", None)
 
     def __exit_initialization_stage(self):
-        super().__delattr__('_initialization_stage')
+        super().__delattr__("_initialization_stage")
 
     def __is_initialization_stage(self):
-        return '_initialization_stage' in self.__dict__
+        return "_initialization_stage" in self.__dict__
 
     def __define_entries(self):
         # pylint: disable=too-many-statements
         # Config contains so many entries and all of them must be defined here
 
-        super().__setattr__('__entries', {})
+        super().__setattr__("__entries", {})
 
         # pylint: disable=attribute-defined-outside-init
         # This method is called in __init__
@@ -116,21 +116,21 @@ class NodeConfig:
             try:
                 entries[key].set_value(value)
             except KeyError as error:
-                raise KeyError(f'There is no such entry like \"{key}\"') from error
+                raise KeyError(f'There is no such entry like "{key}"') from error
 
     def __getattr__(self, key):
         entries = self.__get_entries()
         try:
             return entries[key].get_value()
         except KeyError as error:
-            raise KeyError(f'There is no such entry like \"{key}\"') from error
+            raise KeyError(f'There is no such entry like "{key}"') from error
 
     def __get_entries(self):
-        return self.__getattribute__('__entries')
+        return self.__getattribute__("__entries")
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
-            raise Exception('Comparison with unsupported type')
+            raise Exception("Comparison with unsupported type")
         return not self.get_differences_between(other, stop_at_first_difference=True)
 
     def __ne__(self, other):
@@ -177,8 +177,8 @@ class NodeConfig:
     def write_to_file(self, file_path):
         self.validate()
 
-        with open(file_path, 'w', encoding='utf-8') as file:
-            file.write('\n'.join(self.write_to_lines()))
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write("\n".join(self.write_to_lines()))
 
     def validate(self):
         self.__assert_no_plugins_duplicates()
@@ -191,17 +191,17 @@ class NodeConfig:
         duplicated_plugins = [plugin for plugin, occurences in plugin_occurences.items() if occurences > 1]
         if duplicated_plugins:
             raise RuntimeError(
-                f'Following plugins are included more than once:\n'
-                f'{duplicated_plugins}\n'
-                f'\n'
-                f'Remove places from code where you added them manually.'
+                f"Following plugins are included more than once:\n"
+                f"{duplicated_plugins}\n"
+                f"\n"
+                f"Remove places from code where you added them manually."
             )
 
     def load_from_lines(self, lines):
         assert isinstance(lines, list)
 
         def parse_entry_line(line):
-            result = re.match(r'^\s*([\w\-]+)\s*=\s*(.*?)\s*$', line)
+            result = re.match(r"^\s*([\w\-]+)\s*=\s*(.*?)\s*$", line)
             return (result[1], result[2]) if result is not None else None
 
         def is_entry_line(line):
@@ -214,16 +214,16 @@ class NodeConfig:
 
                 self.__check_if_key_from_file_is_valid(key)
 
-                if value != '':
+                if value != "":
                     entries = self.__get_entries()
-                    entries[key.replace('-', '_')].parse_from_text(value)
+                    entries[key.replace("-", "_")].parse_from_text(value)
 
     def __check_if_key_from_file_is_valid(self, key_to_check):
         """Keys from file have hyphens instead of underscores"""
-        valid_keys = [key.replace('_', '-') for key in self.__get_entries().keys()]
+        valid_keys = [key.replace("_", "-") for key in self.__get_entries().keys()]
 
         if key_to_check not in valid_keys:
-            raise KeyError('Wrong config entry name')
+            raise KeyError("Wrong config entry name")
 
     def __clear_values(self):
         entries = self.__get_entries()
@@ -231,5 +231,5 @@ class NodeConfig:
             entry.clear()
 
     def load_from_file(self, file_path):
-        with open(file_path, encoding='utf-8') as file:
+        with open(file_path, encoding="utf-8") as file:
             self.load_from_lines(file.readlines())

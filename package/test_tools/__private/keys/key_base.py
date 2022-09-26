@@ -5,7 +5,7 @@ from typing import Optional, Union
 
 
 class KeyBase(ABC):
-    def __init__(self, name: str, *, secret: str = 'secret'):
+    def __init__(self, name: str, *, secret: str = "secret"):
         self.__name = name
         self.__secret = secret
         self.__value: Optional[str] = None
@@ -38,7 +38,7 @@ class KeyBase(ABC):
         if isinstance(other, str):
             return self._value == other
 
-        raise TypeError(f'{self.__class__.__name__} can be compared only with keys and strings.')
+        raise TypeError(f"{self.__class__.__name__} can be compared only with keys and strings.")
 
     def __hash__(self) -> int:
         # Counting hash of string which holds hash seems stupid, but it covers a case, where we

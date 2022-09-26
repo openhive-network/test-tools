@@ -20,19 +20,19 @@ class RemoteNode(UserHandleImplementation):
         super().__init__(handle=handle)
 
         self.api = Apis(self)
-        self.name = context.names.register_numbered_name('RemoteNode')
-        self.__http_endpoint: Url = Url(http_endpoint, protocol='http')
-        self.__ws_endpoint: Optional[Url] = Url(ws_endpoint, protocol='ws') if ws_endpoint is not None else None
+        self.name = context.names.register_numbered_name("RemoteNode")
+        self.__http_endpoint: Url = Url(http_endpoint, protocol="http")
+        self.__ws_endpoint: Optional[Url] = Url(ws_endpoint, protocol="ws") if ws_endpoint is not None else None
 
     def __str__(self) -> str:
         return self.name
 
-    def send(self, method, params=None, jsonrpc='2.0', id_=1, *, only_result: bool = True):
+    def send(self, method, params=None, jsonrpc="2.0", id_=1, *, only_result: bool = True):
         response = communication.request(
             self.__http_endpoint.as_string(), NodeMessage(method, params, jsonrpc, id_).as_json()
         )
 
-        return response['result'] if only_result else response
+        return response["result"] if only_result else response
 
     def get_ws_endpoint(self):
         if self.__ws_endpoint is None:
