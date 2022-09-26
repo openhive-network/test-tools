@@ -5,8 +5,7 @@ from typing import Iterable
 
 import pytest
 
-import test_tools as tt  # pylint: disable=wrong-import-order
-
+import test_tools as tt
 from local_tools.network import get_head_block_number, get_head_block_numbers_for_networks
 from test_tools.__private.wait_for import wait_for
 
