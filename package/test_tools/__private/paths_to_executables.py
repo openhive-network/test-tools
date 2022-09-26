@@ -45,10 +45,7 @@ class _PathsToExecutables:
     def print_paths_in_use(self):
         entries = []
         for executable in self.supported_executables:
-            entries += [
-                f'Name: {executable.name}\n'
-                f'Path: {self.get_path_of(executable.name)}\n'
-            ]
+            entries += [f'Name: {executable.name}\n' f'Path: {self.get_path_of(executable.name)}\n']
         print('\n'.join(entries))
 
     def get_paths_in_use(self):

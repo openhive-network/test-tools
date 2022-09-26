@@ -30,8 +30,7 @@ class Method:
 class WalletApiTranslator:
     """Translates C++ wallet API, retrieved from wallet help, to Python."""
 
-    TYPE_TRANSLATIONS = {
-    }
+    TYPE_TRANSLATIONS = {}
 
     RESTRICTED_NAMES = {*keyword.kwlist, *dir(builtins)}
 
@@ -69,11 +68,13 @@ class WalletApiTranslator:
     def generate_python_api(self) -> List[str]:
         api = []
         for method in self.api_methods:
-            api.extend([
-                f'def {method.name}(self{self.__generate_python_method_parameters(method)}):',
-                f'    return self.__send(\'{method.name}\'{self.__generate_python_call_parameters(method)})',
-                '',
-            ])
+            api.extend(
+                [
+                    f'def {method.name}(self{self.__generate_python_method_parameters(method)}):',
+                    f'    return self.__send(\'{method.name}\'{self.__generate_python_call_parameters(method)})',
+                    '',
+                ]
+            )
         return api[:-1]
 
     @classmethod
@@ -147,7 +148,7 @@ def replace_file_content_between_tags(file_path: Path, new_content: List[str], b
     else:
         raise RuntimeError('Begin and end tags were not found')
 
-    file_content[begin_tag_index + 1:end_tag_index] = [indentation + line if line else line for line in new_content]
+    file_content[begin_tag_index + 1 : end_tag_index] = [indentation + line if line else line for line in new_content]
 
     with open(file_path, 'w', encoding='utf-8') as file:
         file.write('\n'.join(file_content))
@@ -159,6 +160,7 @@ if __name__ == '__main__':
     python_api = translator.generate_python_api()
 
     from test_tools.__private import wallet as wallet_module
+
     replace_file_content_between_tags(
         file_path=Path(wallet_module.__file__),
         new_content=python_api,

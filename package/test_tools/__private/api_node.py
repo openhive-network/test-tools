@@ -10,8 +10,9 @@ if TYPE_CHECKING:
 
 
 class ApiNode(PreconfiguredNode):
-    def __init__(self, *, name: str = 'ApiNode', network: Optional[Network] = None,
-                 handle: Optional[NodeHandle] = None):
+    def __init__(
+        self, *, name: str = 'ApiNode', network: Optional[Network] = None, handle: Optional[NodeHandle] = None
+    ):
         super().__init__(name=name, network=network, handle=handle)
 
         self.config.plugin.remove('witness')

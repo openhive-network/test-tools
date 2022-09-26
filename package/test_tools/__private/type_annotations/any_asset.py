@@ -6,7 +6,9 @@ if TYPE_CHECKING:
     from test_tools.__private.asset import Asset
 
     AnyAsset = Union[
-        Asset.Hive, Asset.Test,
-        Asset.Hbd, Asset.Tbd,
+        Asset.Hive,
+        Asset.Test,
+        Asset.Hbd,
+        Asset.Tbd,
         Asset.Vest,
     ]

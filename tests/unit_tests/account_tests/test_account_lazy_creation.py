@@ -5,6 +5,7 @@ import test_tools as tt
 # pylint: disable=unused-import
 # Imported fixture is automatically used, so it's false positive.
 from ..key_generation_tests.local_tools import ensure_that_key_generator_executable_is_missing
+
 # pylint: enable=unused-import
 
 

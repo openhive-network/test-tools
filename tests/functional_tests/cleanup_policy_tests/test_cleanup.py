@@ -24,10 +24,9 @@ def unneeded_files_are_removed(node):
     return all(not node.directory.joinpath(path).exists() for path in paths_of_unneeded_files)
 
 
-def check_if_node_files_are_removed(policy: Optional[tt.constants.CleanupPolicy] = None,
-                                    *,
-                                    remove_important_files: bool,
-                                    remove_unneeded_files: bool):
+def check_if_node_files_are_removed(
+    policy: Optional[tt.constants.CleanupPolicy] = None, *, remove_important_files: bool, remove_unneeded_files: bool
+):
     with current_scope.create_new_scope('test-scope'):
         init_node = tt.InitNode()
         init_node.run()
@@ -39,10 +38,9 @@ def check_if_node_files_are_removed(policy: Optional[tt.constants.CleanupPolicy]
     assert unneeded_files_are_removed(init_node) == remove_unneeded_files
 
 
-def check_if_everyone_files_are_removed(policy: Optional[tt.constants.CleanupPolicy] = None,
-                                        *,
-                                        remove_important_files: bool,
-                                        remove_unneeded_files: bool):
+def check_if_everyone_files_are_removed(
+    policy: Optional[tt.constants.CleanupPolicy] = None, *, remove_important_files: bool, remove_unneeded_files: bool
+):
     with current_scope.create_new_scope('test-scope'):
         # Create some nodes outside of a network
         init_node = tt.InitNode()
@@ -73,40 +71,31 @@ run_for_all_cases = pytest.mark.parametrize(
     [
         check_if_node_files_are_removed,
         check_if_everyone_files_are_removed,
-    ]
+    ],
 )
 
 
 @run_for_all_cases
 def test_default_policy(check_if_files_are_removed):
-    check_if_files_are_removed(
-        remove_important_files=False,
-        remove_unneeded_files=True
-    )
+    check_if_files_are_removed(remove_important_files=False, remove_unneeded_files=True)
 
 
 @run_for_all_cases
 def test_do_not_remove_files_cleanup_policy(check_if_files_are_removed):
     check_if_files_are_removed(
-        tt.constants.CleanupPolicy.DO_NOT_REMOVE_FILES,
-        remove_important_files=False,
-        remove_unneeded_files=False
+        tt.constants.CleanupPolicy.DO_NOT_REMOVE_FILES, remove_important_files=False, remove_unneeded_files=False
     )
 
 
 @run_for_all_cases
 def test_remove_only_unneeded_files_cleanup_policy(check_if_files_are_removed):
     check_if_files_are_removed(
-        tt.constants.CleanupPolicy.REMOVE_ONLY_UNNEEDED_FILES,
-        remove_important_files=False,
-        remove_unneeded_files=True
+        tt.constants.CleanupPolicy.REMOVE_ONLY_UNNEEDED_FILES, remove_important_files=False, remove_unneeded_files=True
     )
 
 
 @run_for_all_cases
 def test_remove_everything_cleanup_policy(check_if_files_are_removed):
     check_if_files_are_removed(
-        tt.constants.CleanupPolicy.REMOVE_EVERYTHING,
-        remove_important_files=True,
-        remove_unneeded_files=True
+        tt.constants.CleanupPolicy.REMOVE_EVERYTHING, remove_important_files=True, remove_unneeded_files=True
     )
