@@ -1114,8 +1114,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
             timeout -= wait_for(
                 self.__is_communication_established,
                 timeout=timeout,
-                timeout_error_message=f"Problem with starting wallet. "
-                f"See {self.get_stderr_file_path()} for more details.",
+                timeout_error_message=(
+                    f"Problem with starting wallet. See {self.get_stderr_file_path()} for more details."
+                ),
             )
 
         if preconfigure:
@@ -1306,7 +1307,12 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
     def send(self, method, *params, jsonrpc="2.0", id_=0):
         endpoint = f"http://127.0.0.1:{self.http_server_port}"
-        message = {"jsonrpc": jsonrpc, "id": id_, "method": method, "params": list(params)}
+        message = {
+            "jsonrpc": jsonrpc,
+            "id": id_,
+            "method": method,
+            "params": list(params),
+        }
 
         return communication.request(endpoint, message, self.__use_nai_assets)
 

@@ -6,9 +6,9 @@ from test_tools.__private.node_config_entry_types import Boolean
 @pytest.fixture
 def data_sets():
     return [
-        {"entry": Boolean(), True: "1", False: "0"},
+        {"entry": Boolean(),                       True: "1",   False: "0"},
         {"entry": Boolean(true="yes", false="no"), True: "yes", False: "no"},
-    ]
+    ]  # fmt: skip
 
 
 def test_parsing(data_sets):
