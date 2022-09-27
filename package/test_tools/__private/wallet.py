@@ -1231,8 +1231,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         accounts = Account.create_multiple(number_of_accounts, name_base, secret=secret)
 
+        key = accounts[0].public_key
         transaction_pattern = self.api.create_account_with_keys(
-            "initminer", accounts[0].name, "{}", *(4 * [accounts[0].public_key]), broadcast=False
+            "initminer", accounts[0].name, "{}", key, key, key, key, broadcast=False
         )
 
         operation_pattern: Final = transaction_pattern["operations"][0]
