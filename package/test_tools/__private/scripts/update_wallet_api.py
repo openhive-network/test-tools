@@ -39,7 +39,7 @@ class WalletApiTranslator:
 
     def parse_wallet_methods(self) -> None:
         wallet = tt.Wallet()
-        method_signatures = wallet.api.help()["result"].split("\n")[:-1]
+        method_signatures = wallet.api.help().split("\n")[:-1]
         wallet_directory = wallet.directory
         wallet.close()
 
