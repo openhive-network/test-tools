@@ -75,8 +75,8 @@ class AssetBase:
             if set(self.as_nai().keys()) == set(other.keys()):
                 return self.as_nai() == other
 
-            raise KeyError(f'The keys did not match. '
-                           f'Expected: {set(self.as_nai().keys())}. '
+            raise KeyError(f'The keys did not match.\n'
+                           f'Expected: {set(self.as_nai().keys())}.\n'
                            f'Actual: {set(other.keys())}')
 
         raise TypeError(f'Assets can\'t be compared with objects of type {type(other)}')
