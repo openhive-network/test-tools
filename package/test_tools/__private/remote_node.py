@@ -29,7 +29,8 @@ class RemoteNode(UserHandleImplementation):
 
     def send(self, method, params=None, jsonrpc="2.0", id_=1, *, only_result: bool = True):
         response = communication.request(
-            self.__http_endpoint.as_string(), NodeMessage(method, params, jsonrpc, id_).as_json()
+            self.__http_endpoint.as_string(),
+            NodeMessage(method, params, jsonrpc, id_).as_json(),
         )
 
         return response["result"] if only_result else response

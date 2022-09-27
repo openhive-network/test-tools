@@ -79,7 +79,7 @@ def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=
                 raise CommunicationError(f"Unknown response format from {url}: ", message, response)
         else:
             logger.debug(
-                f"Received bad status code {status_code} != 200 from {url}, " f"message={message}, response={response}"
+                f"Received bad status code {status_code} != 200 from {url}, message={message}, response={response}"
             )
 
         if attempts_left > 0:

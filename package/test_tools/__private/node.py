@@ -63,8 +63,7 @@ class Node(UserHandleImplementation, ScopedObject):
         def is_test_net_build(self):
             error_message = self.__run_and_get_output("--chain-id")
             return (
-                error_message == "Error parsing command line: "
-                "the required argument for option '--chain-id' is missing"
+                error_message == "Error parsing command line: the required argument for option '--chain-id' is missing"
             )
 
         def is_main_net_build(self):
@@ -167,7 +166,10 @@ class Node(UserHandleImplementation, ScopedObject):
                 )
                 fake_time_path = ubuntu_package_installation_path
             else:
-                raise RuntimeError(f"Missing path to libfaketime.\n\n" f"{installation_manual}")
+                raise RuntimeError(
+                    f"Missing path to libfaketime.\n\n"
+                    f"{installation_manual}"
+                )  # fmt: skip
 
             assert fake_time_path.is_file(), f'LIBFAKETIME_PATH (with value "{fake_time_path}") is not path of file.'
             return fake_time_path
