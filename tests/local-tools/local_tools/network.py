@@ -11,7 +11,7 @@ def get_head_block_number(*, node: Optional[tt.AnyNode] = None, network: Optiona
     if not node and not network:
         raise ValueError("Either node or network must be provided")
 
-    _node = node or network.nodes[0]
+    _node = node or network.nodes[0]  # type: ignore # mypy doesn't understand that node or network must be provided
     return _node.api.database.get_dynamic_global_properties()["head_block_number"]
 
 
