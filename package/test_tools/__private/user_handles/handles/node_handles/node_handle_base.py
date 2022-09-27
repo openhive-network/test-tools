@@ -23,7 +23,7 @@ class NodeHandleBase(Handle):
     __DEFAULT_WAIT_FOR_LIVE_TIMEOUT = Node.DEFAULT_WAIT_FOR_LIVE_TIMEOUT
 
     @property
-    def __implementation(self) -> Node:
+    def _implementation(self) -> Node:
         return typing.cast(Node, get_implementation(self))
 
     @property
@@ -36,28 +36,28 @@ class NodeHandleBase(Handle):
         e.g.:
           node.api.database.get_version()
         """
-        return self.__implementation.api
+        return self._implementation.api
 
     def close(self) -> None:
         """
         Stops node's process with SIGINT (same as Ctrl+C in terminal). If node doesn't stop within 10 seconds, is
         stopped with SIGKILL and warning about problems with closing is emitted.
         """
-        return self.__implementation.close()
+        return self._implementation.close()
 
     @property
     def config(self) -> NodeConfig:
         """Provides way to edit node's configuration file."""
-        return self.__implementation.config
+        return self._implementation.config
 
     @property
     def directory(self) -> Path:
         """Returns path to directory, where node runs and generates its files."""
-        return self.__implementation.directory
+        return self._implementation.directory
 
     def dump_config(self) -> None:
         """Saves node's config to file. Requires that node is not running."""
-        return self.__implementation.dump_config()
+        return self._implementation.dump_config()
 
     def dump_snapshot(self, *, close: bool = False) -> Snapshot:
         """
@@ -67,7 +67,7 @@ class NodeHandleBase(Handle):
         :param close: If set to True, closes node after snapshot dumping. Otherwise, restarts node after dumping.
         :return: Snapshot object, which can be used by another node to load it at startup.
         """
-        return self.__implementation.dump_snapshot(close=close)
+        return self._implementation.dump_snapshot(close=close)
 
     def get_block_log(self, *, include_index: bool = True) -> BlockLog:
         """
@@ -78,11 +78,11 @@ class NodeHandleBase(Handle):
         :param include_index: When set to True, block log object will contain block log index path.
         :return: Block log object, which can be used by another node to perform replay.
         """
-        return self.__implementation.get_block_log(include_index)
+        return self._implementation.get_block_log(include_index)
 
     def get_last_block_number(self) -> int:
         """Returns number of the newest block known to node."""
-        return self.__implementation.get_last_block_number()
+        return self._implementation.get_last_block_number()
 
     @property
     def http_endpoint(self) -> str:
@@ -91,11 +91,11 @@ class NodeHandleBase(Handle):
         configured with special values like 0.0.0.0 address or 0 port, special values are replaced with actually
         selected by node.
         """
-        return self.__implementation.get_http_endpoint()
+        return self._implementation.get_http_endpoint()
 
     def is_running(self) -> bool:
         """Returns True if node's process is running, False if process is closed."""
-        return self.__implementation.is_running()
+        return self._implementation.is_running()
 
     def run(
         self,
@@ -145,7 +145,7 @@ class NodeHandleBase(Handle):
             `FAKETIME` environment variable. For details and examples see libfaketime official documentation:
             https://github.com/wolfcw/libfaketime.
         """
-        return self.__implementation.run(
+        return self._implementation.run(
             load_snapshot_from=load_snapshot_from,
             replay_from=replay_from,
             stop_at_block=stop_at_block,
@@ -175,7 +175,7 @@ class NodeHandleBase(Handle):
         :param time_offset:
             See parameter ``time_offset`` in :func:`run`.
         """
-        return self.__implementation.restart(wait_for_live=wait_for_live, timeout=timeout, time_offset=time_offset)
+        return self._implementation.restart(wait_for_live=wait_for_live, timeout=timeout, time_offset=time_offset)
 
     def set_cleanup_policy(self, policy: CleanupPolicy) -> None:
         """
@@ -184,7 +184,7 @@ class NodeHandleBase(Handle):
 
         :param policy: Cleanup is performed according to given policy.
         """
-        return self.__implementation.set_cleanup_policy(policy)
+        return self._implementation.set_cleanup_policy(policy)
 
     def wait_number_of_blocks(self, blocks_to_wait: int, *, timeout: float = math.inf) -> None:
         """
@@ -198,7 +198,7 @@ class NodeHandleBase(Handle):
 
         See also similar method: `wait_for_block_with_number`.
         """
-        return self.__implementation.wait_number_of_blocks(blocks_to_wait, timeout=timeout)
+        return self._implementation.wait_number_of_blocks(blocks_to_wait, timeout=timeout)
 
     def wait_for_block_with_number(self, number: int, *, timeout: float = math.inf) -> None:
         """
@@ -211,7 +211,7 @@ class NodeHandleBase(Handle):
 
         See also similar method: `wait_number_of_blocks`.
         """
-        return self.__implementation.wait_for_block_with_number(number, timeout=timeout)
+        return self._implementation.wait_for_block_with_number(number, timeout=timeout)
 
     @property
     def ws_endpoint(self) -> str:
@@ -219,4 +219,4 @@ class NodeHandleBase(Handle):
         Returns opened WS endpoint. Blocks program execution if WS endpoint is not ready. When endpoint is configured
         with special values like 0.0.0.0 address or 0 port, special values are replaced with actually selected by node.
         """
-        return self.__implementation.get_ws_endpoint()
+        return self._implementation.get_ws_endpoint()

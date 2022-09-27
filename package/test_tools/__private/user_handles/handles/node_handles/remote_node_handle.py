@@ -10,8 +10,8 @@ class RemoteNodeHandle(Handle):
     def __init__(self, http_endpoint: str, *, ws_endpoint: Optional[str] = None):
         super().__init__(implementation=RemoteNode(http_endpoint, ws_endpoint=ws_endpoint))
 
-        self.api = self.__implementation.api
+        self.api = self._implementation.api
 
     @property
-    def __implementation(self) -> RemoteNode:
+    def _implementation(self) -> RemoteNode:
         return typing.cast(RemoteNode, get_implementation(self))

@@ -14,7 +14,7 @@ class NetworkHandle(Handle):
         super().__init__(implementation=Network(handle=self))
 
     @property
-    def __implementation(self) -> Network:
+    def _implementation(self) -> Network:
         return typing.cast(Network, get_implementation(self))
 
     def connect_with(self, network: NetworkHandle) -> None:
@@ -26,7 +26,7 @@ class NetworkHandle(Handle):
 
         :param network: Network to connect with.
         """
-        return self.__implementation.connect_with(get_implementation(network))
+        return self._implementation.connect_with(get_implementation(network))
 
     def disconnect_from(self, network: NetworkHandle) -> None:
         """
@@ -35,13 +35,13 @@ class NetworkHandle(Handle):
 
         :param network: Network to disconnect from.
         """
-        return self.__implementation.disconnect_from(get_implementation(network))
+        return self._implementation.disconnect_from(get_implementation(network))
 
     def disconnect_from_all(self) -> None:
         """
         Separates from all other networks. Allows for communication only between nodes in this network.
         """
-        return self.__implementation.disconnect_from_all()
+        return self._implementation.disconnect_from_all()
 
     def node(self, name: str) -> Node:
         """
@@ -49,13 +49,13 @@ class NetworkHandle(Handle):
 
         :param name: Name of node to retrieve.
         """
-        node = self.__implementation.node(name)
+        node = self._implementation.node(name)
         return typing.cast(Node, get_handle(node))
 
     @property
     def nodes(self) -> List[Node]:
         """Returns all nodes within network."""
-        return [typing.cast(Node, get_handle(node)) for node in self.__implementation.nodes]
+        return [typing.cast(Node, get_handle(node)) for node in self._implementation.nodes]
 
     def run(self, environment_variables: Optional[Dict[str, str]] = None) -> None:
         """
@@ -63,4 +63,4 @@ class NetworkHandle(Handle):
 
         :param environment_variables: Additional environment variables passed to each node before start.
         """
-        return self.__implementation.run(environment_variables=environment_variables)
+        return self._implementation.run(environment_variables=environment_variables)
