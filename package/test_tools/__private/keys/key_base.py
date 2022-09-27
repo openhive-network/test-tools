@@ -12,7 +12,7 @@ class KeyBase(ABC):
 
     @property
     def _value(self) -> str:
-        if not self.__is_generated():
+        if not self.__value:
             self.__value = self._generate_value(self.__name, self.__secret)
 
         return self.__value
@@ -48,6 +48,3 @@ class KeyBase(ABC):
         # So hashes of key object and key expressed as string have to be equal:
         # hash(tt.PrivateKey('initminer')) == hash('5JNHfZYKGaomSFvd4NUdQ9qMcEAC43kujbfjueTHpVapX1Kzq2n')
         return hash(self._value)
-
-    def __is_generated(self) -> bool:
-        return self.__value is not None
