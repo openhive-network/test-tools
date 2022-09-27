@@ -7,15 +7,17 @@ from test_tools.__private.user_handles.handles.node_handles.node_handle_base imp
 from test_tools.__private.witness_node import WitnessNode
 
 if TYPE_CHECKING:
-    from test_tools.__private.user_handles.handles.network_handle import NetworkHandle as Network
+    from test_tools.__private.network import Network
+    from test_tools.__private.user_handles.handles.network_handle import NetworkHandle
 
 
 class WitnessNodeHandle(NodeHandleBase):
-    def __init__(self, *, witnesses: Optional[List[str]] = None, network: Optional[Network] = None):
+    def __init__(self, *, witnesses: Optional[List[str]] = None, network: Optional[NetworkHandle] = None):
+        network_implementation: Optional[Network] = get_implementation(network)  # type: ignore
         super().__init__(
             implementation=WitnessNode(
                 witnesses=witnesses,
-                network=get_implementation(network),
+                network=network_implementation,
                 handle=self,
             )
         )
