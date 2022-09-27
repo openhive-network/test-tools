@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 import sys
-from typing import Optional
+from typing import Optional, Type
 
 
 class LoggerWrapper:
@@ -24,7 +24,7 @@ class LoggerWrapper:
     def __repr__(self):
         return f"<LoggerWrapper: {self.internal_logger.name}>"
 
-    def create_child_logger(self, name: str, child_type: "LoggerWrapper" = None):
+    def create_child_logger(self, name: str, child_type: Type["LoggerWrapper"] = None):
         if child_type is None:
             child_type = LoggerWrapper
 
