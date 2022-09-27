@@ -30,8 +30,6 @@ class Method:
 class WalletApiTranslator:
     """Translates C++ wallet API, retrieved from wallet help, to Python."""
 
-    TYPE_TRANSLATIONS = {}
-
     RESTRICTED_NAMES = {*keyword.kwlist, *dir(builtins)}
 
     def __init__(self):
@@ -93,10 +91,6 @@ class WalletApiTranslator:
         for parameter in method.parameters:
             result += f", {cls.__sanitize_name(parameter.name)}"
 
-            translated_type = cls.__translate_type(parameter.type)
-            if translated_type is not None:
-                result += f": {translated_type}"
-
             # Handle special case with 'broadcast' parameter
             if parameter.name == "broadcast":
                 result += "=None"
@@ -109,10 +103,6 @@ class WalletApiTranslator:
     @classmethod
     def __sanitize_name(cls, name: str) -> str:
         return f"{name}_" if name in cls.RESTRICTED_NAMES else name
-
-    @classmethod
-    def __translate_type(cls, type_: str) -> str:
-        return cls.TYPE_TRANSLATIONS[type_] if type_ in cls.TYPE_TRANSLATIONS else None
 
     @classmethod
     def __generate_python_call_parameters(cls, method: Method) -> str:
