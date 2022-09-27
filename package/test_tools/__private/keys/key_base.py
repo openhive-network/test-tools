@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Union
+from typing import Optional
 
 
 class KeyBase(ABC):
@@ -31,7 +31,7 @@ class KeyBase(ABC):
     def __str__(self) -> str:
         return self._value
 
-    def __eq__(self, other: Union[str, KeyBase]) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, KeyBase):
             return self._value == other._value
 
