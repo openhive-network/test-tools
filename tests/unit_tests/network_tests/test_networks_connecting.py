@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 @pytest.mark.requires_hived_executables
 def test_connecting_two_networks(two_networks_connected: Iterable[NetworkHandle]):
     # ARRANGE AND ACT is done in two_networks_connected fixture
-    networks: List[Network] = [get_implementation(network) for network in two_networks_connected]
+    networks: List[Network] = [get_implementation(network) for network in two_networks_connected]  # type: ignore
 
     # ASSERT
     assert networks[0].connected_networks == {networks[1]}
@@ -29,7 +29,7 @@ def test_connecting_two_networks(two_networks_connected: Iterable[NetworkHandle]
 )
 def test_connecting_three_networks(broadcast: bool, three_networks_connected: Iterable[NetworkHandle]):
     # ARRANGE AND ACT is partly done in two_networks_connected fixture
-    networks: List[Network] = [get_implementation(network) for network in three_networks_connected]
+    networks: List[Network] = [get_implementation(network) for network in three_networks_connected]  # type: ignore
 
     # ACT
     # we don't have to connect second network with third network, because first network will broadcast the connections
@@ -45,7 +45,7 @@ def test_connecting_three_networks(broadcast: bool, three_networks_connected: It
 @pytest.mark.requires_hived_executables
 def test_connecting_four_networks(four_networks_connected: Iterable[NetworkHandle]):
     # ARRANGE AND ACT is partly done in four_networks_connected fixture
-    networks: List[Network] = [get_implementation(network) for network in four_networks_connected]
+    networks: List[Network] = [get_implementation(network) for network in four_networks_connected]  # type: ignore
 
     # ASSERT
     assert networks[0].connected_networks == {networks[i] for i in [1, 2, 3]}
