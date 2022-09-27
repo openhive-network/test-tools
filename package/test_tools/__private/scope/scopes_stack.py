@@ -52,8 +52,8 @@ class ScopesStack:
     @property
     def __current_scope(self) -> Scope:
         def get_module_path(module_name: str) -> Path:
-            module_path = pkgutil.get_loader(module_name).path
-            return Path(module_path).absolute()
+            module_path = pkgutil.get_loader(module_name).path  # type: ignore
+            return Path(module_path).absolute()  # type: ignore
 
         scope_fixtures_definitions_path = get_module_path("test_tools.__private.scope.scope_fixtures_definitions")
         pytest_fixtures_caller_path = get_module_path("_pytest.fixtures")
