@@ -1,6 +1,6 @@
 from pathlib import Path
 import re
-from typing import Final, Optional
+from typing import Final
 
 import pytest
 
@@ -64,7 +64,11 @@ def package_scope(request):
 
 
 def __is_run_in_package(request) -> bool:
-    return __get_pytest_package_object(request) is not None
+    try:
+        __get_pytest_package_object(request)
+        return True
+    except AttributeError:
+        return False
 
 
 def __get_package_name(request) -> str:
@@ -116,7 +120,7 @@ def __get_function_name(request) -> str:
     return request.node.name
 
 
-def __get_pytest_package_object(request) -> Optional[pytest.Package]:
+def __get_pytest_package_object(request) -> pytest.Package:
     assert request.scope == "package"
 
     if isinstance(request.node, pytest.Package):
@@ -129,7 +133,7 @@ def __get_pytest_package_object(request) -> Optional[pytest.Package]:
 
         pytest_scope = pytest_scope.parent
 
-    return None
+    raise AttributeError("Package scope was not found")
 
 
 def __get_logger_name(request):
