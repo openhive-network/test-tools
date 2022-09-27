@@ -581,7 +581,7 @@ class Node(UserHandleImplementation, ScopedObject):
     def __handle_loading_snapshot(self, snapshot_source: Union[str, Path, Snapshot], additional_arguments: list):
         if not isinstance(snapshot_source, Snapshot):
             snapshot_source = Snapshot(
-                snapshot_source,
+                Path(snapshot_source),
                 Path(snapshot_source).joinpath("../blockchain/block_log"),
                 Path(snapshot_source).joinpath("../blockchain/block_log.index"),
             )
