@@ -4,5 +4,5 @@ from test_tools.__private.logger.package_logger import PackageLogger
 
 class ModuleLogger(LoggerWrapper):
     def __init__(self, name: str, parent: LoggerWrapper, propagate=True):
-        parent = parent if not isinstance(parent, PackageLogger) else parent.parent
-        super().__init__(name, parent=parent, propagate=propagate)
+        parent_ = parent if not isinstance(parent, PackageLogger) else parent.parent
+        super().__init__(name, parent=parent_, propagate=propagate)
