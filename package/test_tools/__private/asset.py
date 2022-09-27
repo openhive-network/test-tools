@@ -77,8 +77,8 @@ class AssetBase:
 
         if isinstance(other, dict):
             if set(self.as_nai().keys()) != set(other.keys()):
-                raise TypeError(f'The keys did not match. '
-                           f'Expected: {set(self.as_nai().keys())}. '
+                raise TypeError(f'The keys did not match.\n'
+                           f'Expected: {set(self.as_nai().keys())}.\n'
                            f'Actual: {set(other.keys())}')
 
             if self.nai != other['nai']:
@@ -110,8 +110,8 @@ class AssetBase:
 
         if isinstance(other, dict):
             if set(self.as_nai().keys()) != set(other.keys()):
-                raise TypeError(f'The keys did not match. '
-                           f'Expected: {set(self.as_nai().keys())}. '
+                raise TypeError(f'The keys did not match.\n'
+                           f'Expected: {set(self.as_nai().keys())}.\n'
                            f'Actual: {set(other.keys())}')
 
             if self.nai != other['nai']:
