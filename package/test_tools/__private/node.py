@@ -79,7 +79,7 @@ class Node(UserHandleImplementation, ScopedObject):
 
         def get_build_commit_hash(self):
             output = self.__run_and_get_output('--version')
-            return json.loads(f'{{{output}}}')['version']['hive_git_revision']
+            return json.loads(f'{{{output}}}')['version']['hive_revision']
 
         def get_supported_plugins(self) -> List[str]:
             output = self.__run_and_get_output('--list-plugins')
