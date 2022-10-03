@@ -13,7 +13,7 @@ class Handle:
         # Multiple inheritance friendly, passes arguments to next object in MRO.
         super().__init__(*args, **kwargs)
 
-        self.__implementation: Implementation = implementation
+        self.__implementation = implementation
 
     def __str__(self) -> str:
         return str(self.__implementation)
