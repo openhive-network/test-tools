@@ -13,8 +13,7 @@ class Handle:
         # Multiple inheritance friendly, passes arguments to next object in MRO.
         super().__init__(*args, **kwargs)
 
-        self.__implementation: Implementation = implementation  # pylint: disable=unused-private-member
-        # unused-private-member is disabled, because __implementation is used in `user_handles.get_implementation`.
+        self.__implementation: Implementation = implementation
 
     def __str__(self) -> str:
         return str(self.__implementation)
