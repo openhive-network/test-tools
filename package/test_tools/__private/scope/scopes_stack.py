@@ -50,7 +50,7 @@ class ScopesStack:
         return f'<ScopesStack: {", ".join(repr(scope) for scope in self.__scopes_stack)}>'
 
     @property
-    def __current_scope(self) -> Scope:
+    def __current_scope(self) -> Optional[Scope]:
         def get_module_path(module_name: str) -> Path:
             module_path = pkgutil.get_loader(module_name).path  # type: ignore
             return Path(module_path).absolute()  # type: ignore
@@ -87,6 +87,7 @@ class ScopesStack:
         return self.__ScopeContextManager(self)
 
     def register(self, scoped_object: "ScopedObject"):
+        assert self.__current_scope is not None
         self.__current_scope.register(scoped_object)
 
     def exit(self):
