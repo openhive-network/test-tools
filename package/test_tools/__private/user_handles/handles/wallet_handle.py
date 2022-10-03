@@ -33,12 +33,10 @@ class WalletHandle(Handle):
         :param preconfigure: If set to True, after run wallet will be unlocked with password DEFAULT_PASSWORD and
             initminer's keys imported.
         """
-        if isinstance(attach_to, (NodeHandleBase, RemoteNode)):
-            attach_to = get_implementation(attach_to)
-
+        attach_to_ = get_implementation(attach_to) if isinstance(attach_to, (NodeHandleBase, RemoteNode)) else attach_to
         super().__init__(
             implementation=Wallet(
-                attach_to=attach_to,
+                attach_to=attach_to_,
                 additional_arguments=additional_arguments,
                 preconfigure=preconfigure,
             )
