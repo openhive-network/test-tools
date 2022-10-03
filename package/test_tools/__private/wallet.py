@@ -1066,7 +1066,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
             self.executable_file_path = paths_to_executables.get_path_of("cli_wallet")
 
         if self.__is_online():
-            if not self.connected_node.is_running():
+            if not self.connected_node.is_running():  # type: ignore
                 raise NodeIsNotRunning("Before attaching wallet you have to run node")
         else:
             run_parameters.append("--offline")
@@ -1092,7 +1092,8 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.stderr_file = open(self.get_stderr_file_path(), "w", encoding="utf-8")
 
         if self.__is_online():
-            run_parameters.extend([f"--server-rpc-endpoint=ws://{self.connected_node.get_ws_endpoint()}"])
+            ws_endpoint = self.connected_node.get_ws_endpoint()  # type: ignore
+            run_parameters.extend([f"--server-rpc-endpoint=ws://{ws_endpoint}"])
 
         run_parameters.extend(self.additional_arguments)
 
