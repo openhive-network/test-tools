@@ -211,6 +211,23 @@ class Node(UserHandleImplementation, ScopedObject):
             return Path(stderr_file.name) if stderr_file is not None else None
 
     class __NotificationsServer:
+        class __NotificationsBuffer:
+            def __init__(self):
+                self.__buffer: Dict[str, Queue] = {}
+
+            def __ensure_key_exists(self, key: str):
+                assert isinstance(key, str)
+                if key not in self.__buffer:
+                    self.__buffer[key] = Queue()
+
+            def __getitem__(self, key: str) -> Queue:
+                self.__ensure_key_exists(key)
+                return self.__buffer[key]
+
+            def __setitem__(self, key: str, item: object):
+                self.__ensure_key_exists(key)
+                self.__buffer[key] = item
+
         def __init__(self, node: 'Node', logger):
             self.node: 'Node' = node
             self.server = NodeHttpServer(self)
@@ -235,7 +252,7 @@ class Node(UserHandleImplementation, ScopedObject):
             self.switch_fork_event = Event()
             self.number_of_forks = 0
 
-            self.other_events_buffer : Dict[str, Queue] = {}
+            self.other_events_buffer = self.__NotificationsBuffer()
 
         def listen(self):
             self.node.config.notifications_endpoint = f'127.0.0.1:{self.server.port}'
@@ -279,15 +296,20 @@ class Node(UserHandleImplementation, ScopedObject):
                     exceptions.InternalNodeError(f'{self.node}: {message["value"]["message"]}')
                 )
             else:
-                self.ensure_notification_name_in_buffer(name)
-                self.other_events_buffer[name].put_nowait(message['value'])
+                self.__put_notification_in_buffer(name, details)
 
 
             self.__logger.info(f'Received message: {message}')
 
-        def ensure_notification_name_in_buffer(self, name : str):
-            if name not in self.other_events_buffer:
-                self.other_events_buffer[name] = Queue()
+        def __put_notification_in_buffer(self, name: str, notification_content: dict):
+            notification_content.pop('name')
+            self.other_events_buffer[name] = notification_content
+
+        def was_notified_about(self, name: str):
+            return not self.other_events_buffer[name].empty()
+
+        def wait_for_notification(self, name: str,* , timeout: float = math.inf):
+            return self.other_events_buffer[name].get(block=True, timeout=(timeout if timeout != math.inf else None))
 
         def close(self):
             self.server.close()
@@ -302,35 +324,6 @@ class Node(UserHandleImplementation, ScopedObject):
             self.switch_fork_event.clear()
 
             self.__logger.debug('Notifications server closed')
-
-    class __CustomEventHandler:
-        class __QueueReadOnlyWrapper:
-            def __init__(self, queue : Queue):
-                self.__queue = queue
-
-            def get(self, *, timeout : Optional[float] = None) -> dict:
-                """
-                Blocks execution of for maximum of $timeout seconds,
-                waiting for any element in queue
-
-                :param timeout:  specifies amount of seconds to wait for any element in queue
-                :return dict:    first element in queue
-                """
-                return self.__queue.get(True, timeout=timeout)
-
-            def empty(self) -> bool:
-                """
-                Checks are there any elements in queue
-                """
-                return self.__queue.empty()
-
-        def __init__(self, notification_server : Node.__NotificationsServer):
-            self.__server = notification_server
-
-        def __getattribute__(self, __name: str) -> __QueueReadOnlyWrapper:
-            assert isinstance(__name, str)
-            self.__server.ensure_notification_name_in_buffer(__name)
-            return self.__QueueReadOnlyWrapper(self.__server.other_events_buffer[__name])
 
     def __init__(self, *, name, network: Optional[Network] = None, handle: Optional[NodeHandle] = None):
         super().__init__(handle=handle)
@@ -349,7 +342,6 @@ class Node(UserHandleImplementation, ScopedObject):
         self.__executable = self.__Executable()
         self.__process = self.__Process(self.directory, self.__executable, self.__logger)
         self.__notifications = self.__NotificationsServer(self, self.__logger)
-        self.event = self.__CustomEventHandler(self.__notifications)
         self.__cleanup_policy = None
 
         self.config = create_default_config()
@@ -404,6 +396,12 @@ class Node(UserHandleImplementation, ScopedObject):
     def get_last_block_number(self):
         response = self.api.database.get_dynamic_global_properties()
         return response['head_block_number']
+
+    def wait_for_notification(self, notification_name: str, *, timeout: float = math.inf):
+        return self.__notifications.wait_for_notification(name=notification_name, timeout=timeout)
+
+    def was_notified_about(self, notification_name: str):
+        return self.__notifications.was_notified_about(name=notification_name)
 
     def __wait_for_p2p_plugin_start(self, timeout=10):
         if not self.__notifications.p2p_plugin_started_event.wait(timeout=timeout):

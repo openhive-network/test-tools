@@ -37,15 +37,28 @@ class NodeHandleBase(Handle):
         """
         return self.__implementation.api
 
-    @property
-    def event(self):
+    def wait_for_notification(self, notification_name: str, *, timeout: float = math.inf):
         """
-        Returns accessor for event queues
+        Blocks program, waits for notification with given name and returns data
+
+        :param notification_name: Name of notification to wait for
+        :param timeout: Amount of seconds to wait for new notification, by default infinity
 
         :example:
-            node.event.benchmark.get()
+            node.wait_for_notification('benchmark', timeout=5.5)
         """
-        return self.__implementation.event
+        return self.__implementation.wait_for_notification(notification_name=notification_name, timeout=timeout)
+
+    def was_notified_about(self, notification_name: str):
+        """
+        Without blocking, checks is notification occur
+
+        :param notification_name: Name of notification to wait for
+
+        :example:
+            node.was_notified_about('benchmark')
+        """
+        return self.__implementation.was_notified_about(notification_name=notification_name)
 
     def close(self) -> None:
         """
