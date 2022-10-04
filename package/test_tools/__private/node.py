@@ -262,8 +262,8 @@ class Node(UserHandleImplementation, ScopedObject):
 
         def notify(self, message):
             name = message['name']
+            details = message['value']
             if name == 'webserver listening':
-                details = message['value']
                 if details['type'] == 'HTTP':
                     endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
                     self.http_endpoint = Url(endpoint, protocol='http').as_string(with_protocol=False)
@@ -273,7 +273,6 @@ class Node(UserHandleImplementation, ScopedObject):
                     self.ws_endpoint = Url(endpoint, protocol='ws').as_string(with_protocol=False)
                     self.ws_listening_event.set()
             elif name == 'hived_status':
-                details = message['value']
                 if details['current_status'] == 'finished replaying':
                     self.replay_finished_event.set()
                 elif details['current_status'] == 'finished dumping snapshot':
@@ -283,7 +282,6 @@ class Node(UserHandleImplementation, ScopedObject):
                 elif details['current_status'] == 'entering live mode':
                     self.live_mode_entered_event.set()
             elif name == 'P2P listening':
-                details = message['value']
                 endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
                 self.p2p_endpoint = Url(endpoint).as_string(with_protocol=False)
                 self.p2p_plugin_started_event.set()
