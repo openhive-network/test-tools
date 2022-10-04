@@ -111,6 +111,13 @@ SET_WITH_SECOND_NAI_VALUE_AND_NOT_MATCHING_KEYS = [
 
 
 @pytest.mark.parametrize(
+    'first_amount, second_amount', AMOUNT_SET_FIRST_EQUAL_SECOND
+)
+def test__eq__operator(first_amount, second_amount):
+    assert first_amount == second_amount
+
+
+@pytest.mark.parametrize(
     'first_amount, second_amount', AMOUNT_SET_FIRST_LESS_THAN_SECOND
 )
 def test__lt__operator(first_amount, second_amount):
@@ -140,6 +147,13 @@ def test__ge__operator(first_amount, second_amount):
 
 
 @pytest.mark.parametrize(
+    'first_amount, second_amount', AMOUNT_SET_FIRST_GREATER_THAN_SECOND + AMOUNT_SET_FIRST_LESS_THAN_SECOND
+)
+def test_negative__eq__operator(first_amount, second_amount):
+    assert not first_amount == second_amount
+
+
+@pytest.mark.parametrize(
     'first_amount, second_amount', AMOUNT_SET_FIRST_GREATER_THAN_SECOND + AMOUNT_SET_FIRST_EQUAL_SECOND
 )
 def test_negative__lt__operator(first_amount, second_amount):
@@ -166,6 +180,14 @@ def test_negative__le__operator(first_amount, second_amount):
 )
 def test_negative__ge__operator(first_amount, second_amount):
     assert not first_amount >= second_amount
+
+
+@pytest.mark.parametrize(
+    'first_amount, second_amount', SET_WITH_SECOND_NAI_VALUE_AND_NOT_MATCHING_KEYS
+)
+def test_eq_operator_with_invalid_nai_amount(first_amount, second_amount):
+    with pytest.raises(TypeError):
+        assert first_amount == second_amount
 
 
 @pytest.mark.parametrize(
@@ -203,6 +225,14 @@ def test_ge_operator_with_invalid_nai_amount(first_amount, second_amount):
 @pytest.mark.parametrize(
     'first_amount, second_amount', SET_WITH_SECOND_STRING_VALUE_AND_NOT_MATCHING_TOKENS
 )
+def test_eq_operator_with_invalid_string_amount(first_amount, second_amount):
+    with pytest.raises(TypeError):
+        assert first_amount == second_amount
+
+
+@pytest.mark.parametrize(
+    'first_amount, second_amount', SET_WITH_SECOND_STRING_VALUE_AND_NOT_MATCHING_TOKENS
+)
 def test_lt_operator_with_with_invalid_string_amount(first_amount, second_amount):
     with pytest.raises(TypeError):
         assert first_amount < second_amount
@@ -230,6 +260,15 @@ def test_gt_operator_with_with_invalid_string_amount(first_amount, second_amount
 def test_ge_operator_with_with_invalid_string_amount(first_amount, second_amount):
     with pytest.raises(TypeError):
         assert first_amount >= second_amount
+
+
+@pytest.mark.parametrize(
+    'first_amount, second_amount',
+    list(combinations((tt.Asset.Vest(1), tt.Asset.Test(1), tt.Asset.Hive(1), tt.Asset.Hbd(1), tt.Asset.Tbd(1)), 2))
+)
+def test_eq_operator_with_mixed_asset_types(first_amount, second_amount):
+    with pytest.raises(TypeError):
+        assert first_amount == second_amount
 
 
 @pytest.mark.parametrize(

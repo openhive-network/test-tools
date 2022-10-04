@@ -99,18 +99,25 @@ class AssetBase:
 
     def __eq__(self, other):
         if isinstance(other, str):
+            _amount, token = other.split()
+            if self.token != token:
+                raise TypeError(f"Can't compare assets with different tokens ({self.token} and {token}).")
             return str(self) == other
 
-        if type(self) is type(other):
+        if isinstance(other, AssetBase):
+            self.__assert_same_operands_type(other, 'Can\'t compare assets with different tokens or nai')
             return self.amount == other.amount
 
         if isinstance(other, dict):
-            if set(self.as_nai().keys()) == set(other.keys()):
-                return self.as_nai() == other
-
-            raise KeyError(f'The keys did not match. '
+            if set(self.as_nai().keys()) != set(other.keys()):
+                raise TypeError(f'The keys did not match. '
                            f'Expected: {set(self.as_nai().keys())}. '
                            f'Actual: {set(other.keys())}')
+
+            if self.nai != other['nai']:
+                raise TypeError(f"Can't compare assets with different NAIs ({self.nai} and {other['nai']}).")
+
+            return self.as_nai() == other
 
         raise TypeError(f'Assets can\'t be compared with objects of type {type(other)}')
 
