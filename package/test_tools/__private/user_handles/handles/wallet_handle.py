@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from test_tools.__private.account import Account
 
 
-class WalletHandle(Handle):
+class WalletHandle(Handle[Wallet]):
     DEFAULT_PASSWORD = Wallet.DEFAULT_PASSWORD
 
     def __init__(
@@ -43,10 +43,6 @@ class WalletHandle(Handle):
         )
 
         self.api = self._implementation.api
-
-    @property
-    def _implementation(self) -> Wallet:
-        return typing.cast(Wallet, get_implementation(self))
 
     def in_single_transaction(self, *, broadcast: bool = None):
         """

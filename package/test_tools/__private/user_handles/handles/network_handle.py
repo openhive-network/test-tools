@@ -9,13 +9,9 @@ from test_tools.__private.user_handles.handle import Handle
 from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as Node
 
 
-class NetworkHandle(Handle):
+class NetworkHandle(Handle[Network]):
     def __init__(self):
         super().__init__(implementation=Network(handle=self))
-
-    @property
-    def _implementation(self) -> Network:
-        return typing.cast(Network, get_implementation(self))
 
     def connect_with(self, network: NetworkHandle) -> None:
         """

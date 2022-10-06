@@ -19,12 +19,8 @@ if TYPE_CHECKING:
     from test_tools.node_api.node_apis import Apis
 
 
-class NodeHandleBase(Handle):
+class NodeHandleBase(Handle[Node]):
     __DEFAULT_WAIT_FOR_LIVE_TIMEOUT = Node.DEFAULT_WAIT_FOR_LIVE_TIMEOUT
-
-    @property
-    def _implementation(self) -> Node:
-        return typing.cast(Node, get_implementation(self))
 
     @property
     def api(self) -> Apis:

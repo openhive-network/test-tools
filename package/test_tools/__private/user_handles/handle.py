@@ -1,28 +1,22 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from abc import ABC
+from typing import Generic, TypeVar
 
-if TYPE_CHECKING:
-    from test_tools.__private.user_handles.implementation import Implementation
+T = TypeVar("T")
 
 
-class Handle(ABC):
+class Handle(ABC, Generic[T]):
     """Base class for all objects pointed by handles. Contains handle by which is pointed."""
 
-    def __init__(self, *args, implementation: Implementation, **kwargs):
+    def __init__(self, *args, implementation: T, **kwargs):
         # Multiple inheritance friendly, passes arguments to next object in MRO.
         super().__init__(*args, **kwargs)
 
-        self.__implementation = implementation
+        self._implementation = implementation
 
     def __str__(self) -> str:
-        return str(self.__implementation)
+        return str(self._implementation)
 
     def __repr__(self) -> str:
-        return repr(self.__implementation)
-
-    @property
-    @abstractmethod
-    def _implementation(self):
-        """All handles should have implementation property with proper type annotation."""
+        return repr(self._implementation)

@@ -1,41 +1,26 @@
 from __future__ import annotations
 
-from typing import overload, TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
+
+from test_tools.__private.type_annotations.handle_implementations import UserHandleImplementation
 
 if TYPE_CHECKING:
+    from typing import Optional
+
     from test_tools.__private.user_handles.handle import Handle
-    from test_tools.__private.user_handles.implementation import Implementation
+
+T = TypeVar("T")
 
 
-@overload
-def get_implementation(handle: None) -> None:
-    ...
-
-
-@overload
-def get_implementation(handle: Handle) -> Implementation:
-    ...
-
-
-def get_implementation(handle):
+def get_implementation(handle: Handle) -> Optional[UserHandleImplementation]:
     if handle is None:
         return None
 
-    return handle._Handle__implementation  # pylint: disable=protected-access
+    return handle._implementation  # pylint: disable=protected-access
 
 
-@overload
-def get_handle(implementation: None) -> None:
-    ...
-
-
-@overload
-def get_handle(implementation: Implementation) -> Handle:
-    ...
-
-
-def get_handle(implementation):
+def get_handle(implementation: UserHandleImplementation) -> Optional[Handle]:
     if implementation is None:
         return None
 
-    return implementation._Implementation__handle  # pylint: disable=protected-access
+    return implementation.__handle  # pylint: disable=protected-access

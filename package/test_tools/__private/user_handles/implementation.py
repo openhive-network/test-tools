@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from abc import ABC
+from typing import Generic, Optional, TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
     from test_tools.__private.user_handles.handle import Handle
 
 
-class Implementation:
+class Implementation(ABC):
     """Base class for all objects pointed by handles. Contains handle by which is pointed."""
 
     def __init__(self, *args, handle: Optional[Handle], **kwargs):
