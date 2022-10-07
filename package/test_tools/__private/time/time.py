@@ -18,6 +18,10 @@ class Time:
         return datetime.strftime(time, format_)
 
     @staticmethod
+    def milliseconds(milliseconds: float) -> timedelta:
+        return timedelta(milliseconds=milliseconds)
+
+    @staticmethod
     def seconds(amount: float) -> timedelta:
         return timedelta(seconds=amount)
 
