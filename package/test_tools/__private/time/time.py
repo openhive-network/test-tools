@@ -18,19 +18,19 @@ class Time:
         return datetime.strftime(time, format_)
 
     @staticmethod
-    def seconds(amount: int) -> timedelta:
+    def seconds(amount: float) -> timedelta:
         return timedelta(seconds=amount)
 
     @staticmethod
-    def minutes(amount: int) -> timedelta:
+    def minutes(amount: float) -> timedelta:
         return timedelta(minutes=amount)
 
     @staticmethod
-    def hours(amount: int) -> timedelta:
+    def hours(amount: float) -> timedelta:
         return timedelta(hours=amount)
 
     @staticmethod
-    def days(amount: int) -> timedelta:
+    def days(amount: float) -> timedelta:
         return timedelta(days=amount)
 
     @classmethod
