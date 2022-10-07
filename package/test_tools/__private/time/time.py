@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 class Time:
     DEFAULT_FORMAT: Final[str] = "%Y-%m-%dT%H:%M:%S"
+    DEFAULT_FORMAT_WITH_MILLIS: Final[str] = "%Y-%m-%dT%H:%M:%S.%f"
     TIME_OFFSET_FORMAT: Final[str] = "@%Y-%m-%d %H:%M:%S.%f"
 
     def __new__(cls, *_args, **_kwargs):
@@ -51,17 +52,23 @@ class Time:
         return abs(first - second) <= absolute_tolerance
 
     @classmethod
-    def get_time_offset_from_file(
-        cls, file_path: Union[str, bytes, PathLike], offset: Optional[timedelta] = None
+    def save_to_file(cls, file_path: Union[str, PathLike], time: datetime, *, format_: str = DEFAULT_FORMAT) -> None:
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write(cls.serialize(time, format_=format_))
+
+    @classmethod
+    def read_from_file(
+        cls, file_path: Union[str, bytes, PathLike], *, format_: str = TIME_OFFSET_FORMAT, offset: Optional[timedelta] = None
     ) -> str:
         if offset is None:
             offset = cls.seconds(0)
 
         with open(file_path, encoding="utf-8") as file:
-            content = file.read().strip()
+            time_string = file.read().strip()
 
-        datetime_ = cls.parse(content)
+        if "." not in time_string:
+            time_string += ".0"
 
-        time = datetime_ + offset
+        time = cls.parse(time_string, format_=cls.DEFAULT_FORMAT_WITH_MILLIS) + offset
 
-        return cls.serialize(time, format_=cls.TIME_OFFSET_FORMAT)
+        return cls.serialize(time, format_=format_)
