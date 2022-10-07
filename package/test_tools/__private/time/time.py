@@ -1,5 +1,11 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta
-from typing import Final, Optional
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from os import PathLike
+    from typing import Final, Optional, Union
 
 
 class Time:
@@ -43,3 +49,19 @@ class Time:
             absolute_tolerance = cls.seconds(0)
 
         return abs(first - second) <= absolute_tolerance
+
+    @classmethod
+    def get_time_offset_from_file(
+        cls, file_path: Union[str, bytes, PathLike], offset: Optional[timedelta] = None
+    ) -> str:
+        if offset is None:
+            offset = cls.seconds(0)
+
+        with open(file_path, encoding="utf-8") as file:
+            content = file.read().strip()
+
+        datetime_ = cls.parse(content)
+
+        time = datetime_ + offset
+
+        return cls.serialize(time, format_=cls.TIME_OFFSET_FORMAT)
