@@ -62,7 +62,7 @@ class AssetBase:
 
     def __assert_same_operands_type(self, other, error):
         if type(self) is not type(other):
-            raise RuntimeError(error)
+            raise TypeError(error)
 
     def __eq__(self, other):
         if isinstance(other, str):

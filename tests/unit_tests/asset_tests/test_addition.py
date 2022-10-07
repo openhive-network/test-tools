@@ -14,7 +14,7 @@ def test_addition_of_same_tokens():
 
 
 def test_addition_of_different_tokens():
-    with pytest.raises(RuntimeError):
+    with pytest.raises(TypeError):
         _ = tt.Asset.Hive(2) + tt.Asset.Test(2)
 
 
@@ -31,5 +31,5 @@ def test_addition_and_assignment_of_different_tokens():
     first = tt.Asset.Hive(2)
     second = tt.Asset.Test(2)
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(TypeError):
         first += second
