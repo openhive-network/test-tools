@@ -4,7 +4,7 @@ from typing import Final, Optional
 
 class Time:
     DEFAULT_FORMAT: Final[str] = "%Y-%m-%dT%H:%M:%S"
-    TIME_OFFSET_FORMAT: Final[str] = "@%Y-%m-%d %H:%M:%S"
+    TIME_OFFSET_FORMAT: Final[str] = "@%Y-%m-%d %H:%M:%S.%f"
 
     def __new__(cls, *_args, **_kwargs):
         raise TypeError(f"Creation object of {Time.__name__} class is forbidden.")
