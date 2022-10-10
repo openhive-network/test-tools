@@ -64,6 +64,39 @@ class AssetBase:
         if type(self) is not type(other):
             raise TypeError(error)
 
+    def __lt__(self, other):
+        if isinstance(other, AssetBase):
+            self.__assert_same_operands_type(other, 'Can\'t compare assets with different tokens or nai')
+            return self.amount < other.amount
+
+        if isinstance(other, str):
+            amount, token = other.split()
+            if self.token != token:
+                raise TypeError(f"Can't compare assets with different tokens ({self.token} and {token}).")
+            return self.amount < float(amount) * pow(10, self.precision)
+
+        if isinstance(other, dict):
+            if set(self.as_nai().keys()) != set(other.keys()):
+                raise TypeError(f'The keys did not match. '
+                           f'Expected: {set(self.as_nai().keys())}. '
+                           f'Actual: {set(other.keys())}')
+
+            if self.nai != other['nai']:
+                raise TypeError(f"Can't compare assets with different NAIs ({self.nai} and {other['nai']}).")
+
+            return self.amount < int(other['amount'])
+
+        raise TypeError(f'Assets can\'t be compared with objects of type {type(other)}')
+
+    def __le__(self, other):
+        return self == other or self < other
+
+    def __gt__(self, other):
+        return not self < other and self != other
+
+    def __ge__(self, other):
+        return self == other or self > other
+
     def __eq__(self, other):
         if isinstance(other, str):
             return str(self) == other
