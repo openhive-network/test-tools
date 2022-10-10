@@ -4,6 +4,7 @@ from typing import Final, Optional
 
 class Time:
     DEFAULT_FORMAT: Final[str] = "%Y-%m-%dT%H:%M:%S"
+    DEFAULT_FORMAT_WITH_MILLIS: Final[str] = "%Y-%m-%dT%H:%M:%S.%f"
     TIME_OFFSET_FORMAT: Final[str] = "@%Y-%m-%d %H:%M:%S.%f"
 
     def __new__(cls, *_args, **_kwargs):
