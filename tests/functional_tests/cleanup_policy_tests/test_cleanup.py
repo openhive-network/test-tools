@@ -11,6 +11,7 @@ def important_files_are_removed(node):
         ".",
         "config.ini",
         "stderr.txt",
+        "blockchain/block_log",
     ]
 
     return all(not node.directory.joinpath(path).exists() for path in paths_of_important_files)
@@ -18,7 +19,8 @@ def important_files_are_removed(node):
 
 def unneeded_files_are_removed(node):
     paths_of_unneeded_files = [
-        "blockchain/block_log",
+        "blockchain/shared_memory.bin",
+        "blockchain/block_log.artifacts",
     ]
 
     return all(not node.directory.joinpath(path).exists() for path in paths_of_unneeded_files)

@@ -678,7 +678,8 @@ class Node(UserHandleImplementation, ScopedObject):
 
     def __remove_unneeded_files(self):
         unneeded_files_or_directories = [
-            "blockchain/",
+            "blockchain/shared_memory.bin",
+            "blockchain/block_log.artifacts",
             "snapshot/",
         ]
 
@@ -692,15 +693,9 @@ class Node(UserHandleImplementation, ScopedObject):
         if not rocksdb_directory:
             return
 
-        # Do not remove blockchain directory
-        unneeded_files_or_directories.remove("blockchain/")
-
         # All files below will be removed
         unneeded_files_or_directories.extend(
             [
-                "blockchain/block_log",
-                "blockchain/block_log.index",
-                "blockchain/shared_memory.bin",
                 *rocksdb_directory.glob("*.sst"),
             ]
         )
