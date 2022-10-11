@@ -17,7 +17,7 @@ class PreconfiguredNode(RawNode):
 
         self.__enable_all_api_plugins()
         self.config.log_logger = (
-            '{"name":"default","level":"info","appender":"stderr"} '
+            '{"name":"default","level":"debug","appender":"stderr"} '
             '{"name":"user","level":"debug","appender":"stderr"} '
             '{"name":"chainlock","level":"debug","appender":"p2p"} '
             '{"name":"sync","level":"debug","appender":"p2p"} '
