@@ -1221,9 +1221,6 @@ class Wallet(UserHandleImplementation, ScopedObject):
             if file is not None:
                 file.close()
 
-    # pylint: disable=all
-    # The handle method of this implementation has the same signature, and this is an allowed behavior
-    # Also, only `duplicate-code` should be disabled, but pylint supports this feature since 2.13.0 version
     def create_account(
         self,
         name: str,
@@ -1237,7 +1234,6 @@ class Wallet(UserHandleImplementation, ScopedObject):
         The `transfer_to_vesting` operation can be only done by sending the Asset.Test type, that's why method in place
         of `vests` accepts the Asset.Test and numeric types instead of Asset.Vest.
         """
-        # pylint: enable=all
         account = Account(name)
         create_account_transaction = self.api.create_account_with_keys(
             creator, account.name, "{}", account.public_key, account.public_key, account.public_key, account.public_key
