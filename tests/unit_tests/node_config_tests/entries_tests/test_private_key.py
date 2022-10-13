@@ -16,6 +16,9 @@ def values():
     ]
 
 
+# pylint: disable=duplicate-code
+
+
 def test_parsing(entry, values):
     for value in values:
         entry.parse_from_text(value)
@@ -26,6 +29,9 @@ def test_serializing_from_string(entry, values):
     for value in values:
         entry.set_value(value)
         assert entry.serialize_to_text() == value
+
+
+# pylint: enable=duplicate-code
 
 
 @pytest.mark.requires_hived_executables
