@@ -64,6 +64,14 @@ class AssetBase:
         if type(self) is not type(other):
             raise TypeError(error)
 
+    def __assert_same_keys(self, other):
+        if set(self.as_nai().keys()) != set(other.keys()):
+            raise TypeError(
+                f"The keys did not match.\n"
+                f"Expected: {set(self.as_nai().keys())}.\n"
+                f"Actual: {set(other.keys())}"
+            )  # fmt: skip
+
     def __lt__(self, other):
         if isinstance(other, AssetBase):
             self.__assert_same_operands_type(other, "Can't compare assets with different tokens or nai")
@@ -76,12 +84,7 @@ class AssetBase:
             return self.amount < float(amount) * pow(10, self.precision)
 
         if isinstance(other, dict):
-            if set(self.as_nai().keys()) != set(other.keys()):
-                raise TypeError(
-                    f"The keys did not match.\n"
-                    f"Expected: {set(self.as_nai().keys())}.\n"
-                    f"Actual: {set(other.keys())}"
-                )
+            self.__assert_same_keys(other)
 
             if self.nai != other["nai"]:
                 raise TypeError(f"Can't compare assets with different NAIs ({self.nai} and {other['nai']}).")
@@ -111,12 +114,7 @@ class AssetBase:
             return self.amount == other.amount
 
         if isinstance(other, dict):
-            if set(self.as_nai().keys()) != set(other.keys()):
-                raise TypeError(
-                    f"The keys did not match.\n"
-                    f"Expected: {set(self.as_nai().keys())}.\n"
-                    f"Actual: {set(other.keys())}"
-                )
+            self.__assert_same_keys(other)
 
             if self.nai != other["nai"]:
                 raise TypeError(f"Can't compare assets with different NAIs ({self.nai} and {other['nai']}).")
