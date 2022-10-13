@@ -542,11 +542,7 @@ class Node(UserHandleImplementation, ScopedObject):
             )
 
             if wait_for_live:
-                wait_for_event(
-                    self.__notifications.live_mode_entered_event,
-                    deadline=deadline,
-                    exception_message="Live mode not activated on time.",
-                )
+                self.wait_for_live_mode(timeout=timeout)
 
         self.__log_run_summary()
 
@@ -706,6 +702,15 @@ class Node(UserHandleImplementation, ScopedObject):
         deadline = time.time() + timeout
         wait_for_event(
             self.__notifications.switch_fork_event, deadline=deadline, exception_message="Fork did not happen on time."
+        )
+
+    def wait_for_live_mode(self, timeout=math.inf):
+        assert timeout >= 0
+        deadline = time.time() + timeout
+        wait_for_event(
+            self.__notifications.live_mode_entered_event,
+            deadline=deadline,
+            exception_message="Live mode not activated on time.",
         )
 
     def get_number_of_forks(self):
