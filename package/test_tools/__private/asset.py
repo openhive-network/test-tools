@@ -31,6 +31,10 @@ class AssetBase(acp.Abstract):
                 f"because precision of this asset is {precision} ({pow(0.1, precision):.3f})."
             )
 
+    @staticmethod
+    def __convert_string_to_decimal(amount: str, precision: int) -> Decimal:
+        return Decimal(amount).quantize(Decimal(10) ** -precision)
+
     def as_nai(self):
         return {
             "amount": str(self.amount),
@@ -84,7 +88,7 @@ class AssetBase(acp.Abstract):
             amount, token = other.split()
             if self.token != token:
                 raise TypeError(f"Can't compare assets with different tokens ({self.token} and {token}).")
-            return self.amount < float(amount) * pow(10, self.precision)
+            return self.amount < self.__convert_string_to_decimal(amount, self.precision) * pow(10, self.precision)
 
         if isinstance(other, dict):
             self.__assert_same_keys(other)
