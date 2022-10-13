@@ -1,6 +1,3 @@
-# pylint: disable=all
-# Check git blame for details
-
 import pytest
 
 from test_tools.__private.node_config_entry_types import StringQuoted
@@ -18,6 +15,9 @@ def values():
     ]
 
 
+# pylint: disable=duplicate-code
+
+
 def test_parsing(entry, values):
     for input_text, expected in values:
         entry.parse_from_text(input_text)
@@ -28,6 +28,9 @@ def test_serializing(entry, values):
     for expected, input_value in values:
         entry.set_value(input_value)
         assert entry.serialize_to_text() == expected
+
+
+# pylint: enable=duplicate-code
 
 
 def test_different_type_assignments(entry):
