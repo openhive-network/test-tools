@@ -70,6 +70,7 @@ class NodeConfig:
         self.market_history_bucket_size = String()  # Set correct type
         self.market_history_buckets_per_size = String()  # Set correct type
         self.notifications_endpoint = List(String, single_line=False)
+        self.notifications_filter = String()
         self.p2p_endpoint = String()
         self.p2p_max_connections = String()  # Set correct type
         self.seed_node = String()  # Set correct type
@@ -78,9 +79,6 @@ class NodeConfig:
         self.rc_stats_report_type = String()
         self.rc_stats_report_output = String()
         self.snapshot_root_dir = StringQuoted()
-        self.statsd_endpoint = String()  # Set correct type
-        self.statsd_whitelist = String()  # Set correct type
-        self.statsd_blacklist = String()  # Set correct type
         self.tags_start_promoted = String()  # Set correct type
         self.tags_skip_startup_update = String()  # Set correct type
         self.transaction_status_block_depth = String()  # Set correct type
