@@ -11,8 +11,9 @@ class Time:
         raise TypeError(f"Creation object of {Time.__name__} class is forbidden.")
 
     @staticmethod
-    def parse(time: str, *, format_: str = DEFAULT_FORMAT) -> datetime:
-        return datetime.strptime(time, format_)
+    def parse(time: str, *, format_: str = DEFAULT_FORMAT, time_zone: Optional[timezone] = timezone.utc) -> datetime:
+        parsed = datetime.strptime(time, format_)
+        return parsed.replace(tzinfo=time_zone) if time_zone else parsed
 
     @staticmethod
     def serialize(time: datetime, *, format_: str = DEFAULT_FORMAT) -> str:
@@ -43,7 +44,13 @@ class Time:
         if absolute_tolerance is None:
             absolute_tolerance = cls.seconds(0)
 
-        return abs(first - second) <= absolute_tolerance
+        try:
+            return abs(first - second) <= absolute_tolerance
+        except TypeError as exception:
+            raise ValueError(
+                "The time zones of the two dates differ.\n"
+                "Note, that time zones can be modified (e.g.: `.replace(tzinfo=datetime.timezone.utc)`)."
+            ) from exception
 
     @staticmethod
     def now(time_zone: Optional[timezone] = timezone.utc) -> datetime:
