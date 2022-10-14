@@ -1,14 +1,16 @@
 from copy import deepcopy
-from typing import Union
+import typing
+from typing import Final, Union
 import warnings
 
 
 class AssetBase:
-    def __init__(self, amount, *, token=None, precision: int, nai: str):
-        self.amount = self.__convert_amount_to_internal_representation(amount, precision)
-        self.token = token
-        self.precision = precision
-        self.nai = nai
+    token: str = typing.cast(str, None)
+    precision: int = typing.cast(int, None)
+    nai: str = typing.cast(str, None)
+
+    def __init__(self, amount):
+        self.amount = self.__convert_amount_to_internal_representation(amount, self.precision)
 
     @staticmethod
     def __convert_amount_to_internal_representation(amount: Union[int, float], precision: int) -> int:
@@ -135,21 +137,26 @@ class AssetBase:
 
 class Asset:
     class Hbd(AssetBase):
-        def __init__(self, amount):
-            super().__init__(amount, token="HBD", precision=3, nai="@@000000013")
+        token: Final[str] = "HBD"
+        precision: Final[int] = 3
+        nai: Final[str] = "@@000000013"
 
     class Tbd(AssetBase):
-        def __init__(self, amount):
-            super().__init__(amount, token="TBD", precision=3, nai="@@000000013")
+        token: Final[str] = "TBD"
+        precision: Final[int] = 3
+        nai: Final[str] = "@@000000013"
 
     class Hive(AssetBase):
-        def __init__(self, amount):
-            super().__init__(amount, token="HIVE", precision=3, nai="@@000000021")
+        token: Final[str] = "HIVE"
+        precision: Final[int] = 3
+        nai: Final[str] = "@@000000021"
 
     class Test(AssetBase):
-        def __init__(self, amount):
-            super().__init__(amount, token="TESTS", precision=3, nai="@@000000021")
+        token: Final[str] = "TESTS"
+        precision: Final[int] = 3
+        nai: Final[str] = "@@000000021"
 
     class Vest(AssetBase):
-        def __init__(self, amount):
-            super().__init__(amount, token="VESTS", precision=6, nai="@@000000037")
+        token: Final[str] = "VESTS"
+        precision: Final[int] = 6
+        nai: Final[str] = "@@000000037"
