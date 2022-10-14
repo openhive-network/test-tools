@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Final, Optional
 
 
@@ -44,3 +44,7 @@ class Time:
             absolute_tolerance = cls.seconds(0)
 
         return abs(first - second) <= absolute_tolerance
+
+    @staticmethod
+    def now(time_zone: Optional[timezone] = timezone.utc) -> datetime:
+        return datetime.now(time_zone)
