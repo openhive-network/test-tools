@@ -396,6 +396,9 @@ class Node(UserHandleImplementation, ScopedObject):
     def set_allowed_nodes(self, nodes):
         return self.api.network_node.set_allowed_peers(allowed_peers=[node.get_id() for node in nodes])
 
+    def get_version(self):
+        return self.__executable.get_version()
+
     def dump_config(self):
         assert not self.is_running()
 
