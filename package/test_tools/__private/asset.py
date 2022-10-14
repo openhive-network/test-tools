@@ -99,10 +99,10 @@ class AssetBase:
             return self.amount < other.amount
 
         if isinstance(other, str):
-            amount, token = other.split()
-            if self.token != token:
-                raise TypeError(f"Can't compare assets with different tokens ({self.token} and {token}).")
-            return self.amount < self.__convert_string_to_decimal(amount, self.precision) * pow(10, self.precision)
+            other = self.__convert_string_to_asset(other)
+            if self.token != other.token:
+                raise TypeError(f"Can't compare assets with different tokens ({self.token} and {other.token}).")
+            return self.amount < other.amount
 
         if isinstance(other, dict):
             self.__assert_same_keys(other)
