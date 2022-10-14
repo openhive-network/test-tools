@@ -9,7 +9,7 @@ import signal
 import subprocess
 from threading import Event
 import time
-from typing import Dict, Final, List, Optional, Tuple, TYPE_CHECKING, Union
+from typing import Dict, Final, List, Literal, Optional, Tuple, TYPE_CHECKING, Union
 import warnings
 
 from test_tools.__private import cleanup_policy, communication, exceptions, paths_to_executables
@@ -49,23 +49,28 @@ class Node(UserHandleImplementation, ScopedObject):
             self.__path = path
 
         def get_build_version(self):
-            if self.is_test_net_build():
+            if self.is_testnet_build():
                 return "testnet"
 
-            if self.is_main_net_build():
+            if self.is_mainnet_build():
                 return "mainnet"
 
             return "unrecognised"
 
-        def is_test_net_build(self):
-            error_message = self.__run_and_get_output("--chain-id")
-            return (
-                error_message == "Error parsing command line: the required argument for option '--chain-id' is missing"
-            )
+        def is_testnet_build(self):
+            return self.__check_executable_version() == "testnet"
 
-        def is_main_net_build(self):
-            error_message = self.__run_and_get_output("--chain-id")
-            return error_message == "Error parsing command line: unrecognised option '--chain-id'"
+        def is_mainnet_build(self):
+            return self.__check_executable_version() == "mainnet"
+
+        def __check_executable_version(self) -> Literal["testnet", "mainnet"]:
+            return self.get_version()["version"]["node_type"]
+
+        def get_build_commit_hash(self):
+            return self.get_version()["version"]["hive_revision"]
+
+        def get_version(self):
+            return json.loads(self.__run_and_get_output("--version"))
 
         def __run_and_get_output(self, *arguments):
             result = subprocess.check_output(
@@ -74,10 +79,6 @@ class Node(UserHandleImplementation, ScopedObject):
             )
 
             return result.decode("utf-8").strip()
-
-        def get_build_commit_hash(self):
-            output = self.__run_and_get_output("--version")
-            return json.loads(f"{{{output}}}")["version"]["hive_revision"]
 
         def get_supported_plugins(self) -> List[str]:
             output = self.__run_and_get_output("--list-plugins")
@@ -492,7 +493,7 @@ class Node(UserHandleImplementation, ScopedObject):
         assert timeout >= 0
         deadline = time.time() + timeout
 
-        if not self.__executable.is_test_net_build():
+        if not self.__executable.is_testnet_build():
             raise NotImplementedError(
                 f"You have configured path to non-testnet hived build.\n"
                 f"At the moment only testnet build is supported.\n"
