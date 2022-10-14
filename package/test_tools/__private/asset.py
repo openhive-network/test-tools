@@ -4,6 +4,8 @@ import typing
 from typing import Final, Union
 import warnings
 
+import test_tools as tt
+
 
 class AssetBase:
     token: str = typing.cast(str, None)
@@ -37,6 +39,15 @@ class AssetBase:
     @staticmethod
     def __convert_string_to_decimal(amount: str, precision: int) -> Decimal:
         return Decimal(amount).quantize(Decimal(10) ** -precision)
+
+    @classmethod
+    def __convert_string_to_asset(cls, asset_as_string: str):
+        amount, token = asset_as_string.split()
+        assets = [tt.Asset.Hbd, tt.Asset.Hive, tt.Asset.Vest, tt.Asset.Tbd, tt.Asset.Test]
+        for asset in assets:
+            if token == asset.token:
+                return asset(cls.__convert_string_to_decimal(amount, asset.precision))
+        raise TypeError(f'Asset with token "{token}" do not exist.')
 
     def as_nai(self):
         return {
