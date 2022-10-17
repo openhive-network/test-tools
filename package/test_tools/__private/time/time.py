@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta, timezone
 from typing import Final, Optional
 
+from test_tools.__private.exceptions import ParseError
+
 
 class Time:
     DEFAULT_FORMAT: Final[str] = "%Y-%m-%dT%H:%M:%S"
@@ -10,10 +12,34 @@ class Time:
     def __new__(cls, *_args, **_kwargs):
         raise TypeError(f"Creation object of {Time.__name__} class is forbidden.")
 
-    @staticmethod
-    def parse(time: str, *, format_: str = DEFAULT_FORMAT, time_zone: Optional[timezone] = timezone.utc) -> datetime:
-        parsed = datetime.strptime(time, format_)
-        return parsed.replace(tzinfo=time_zone) if time_zone else parsed
+    @classmethod
+    def parse(
+        cls, time: str, *, format_: Optional[str] = None, time_zone: Optional[timezone] = timezone.utc
+    ) -> datetime:
+        """
+        By default, when `format_` parameter is specified as None - the ISO format (tt.Time.DEFAULT_FORMAT)
+        and ISO format including milliseconds (tt.Time.DEFAULT_FORMAT_WITH_MILLIS) could be parsed.
+        """
+
+        def __parse_in_specified_format(_format: str) -> datetime:
+            try:
+                parsed = datetime.strptime(time, _format)
+                return parsed.replace(tzinfo=time_zone) if time_zone else parsed
+            except ValueError as exception:
+                format_info = (
+                    f"`{_format}` custom format."
+                    if _format is not cls.DEFAULT_FORMAT_WITH_MILLIS
+                    else f"`{cls.DEFAULT_FORMAT}` or `{cls.DEFAULT_FORMAT_WITH_MILLIS}` default formats."
+                )
+                raise ParseError(f"Could not be parse the `{time}` string using the {format_info}") from exception
+
+        if format_ is not None:
+            return __parse_in_specified_format(format_)
+
+        try:
+            return __parse_in_specified_format(cls.DEFAULT_FORMAT)
+        except ParseError:
+            return __parse_in_specified_format(cls.DEFAULT_FORMAT_WITH_MILLIS)
 
     @staticmethod
     def serialize(time: datetime, *, format_: str = DEFAULT_FORMAT) -> str:
