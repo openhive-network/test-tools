@@ -92,10 +92,10 @@ class AssetBase(acp.Abstract):
             return self.amount < other.amount
 
         if isinstance(other, str):
-            amount, token = other.split()
-            if self.token != token:
-                raise TypeError(f"Can't compare assets with different tokens ({self.token} and {token}).")
-            return self.amount < float(amount) * pow(10, self.precision)
+            other = Asset.from_string(other)
+            if self.token != other.token:
+                raise TypeError(f"Can't compare assets with different tokens ({self.token} and {other.token}).")
+            return self.amount < other.amount
 
         if isinstance(other, dict):
             self.__assert_same_keys(other)
@@ -118,10 +118,10 @@ class AssetBase(acp.Abstract):
 
     def __eq__(self, other):
         if isinstance(other, str):
-            _amount, token = other.split()
-            if self.token != token:
-                raise TypeError(f"Can't compare assets with different tokens ({self.token} and {token}).")
-            return str(self) == other
+            other = Asset.from_string(other)
+            if self.token != other.token:
+                raise TypeError(f"Can't compare assets with different tokens ({self.token} and {other.token}).")
+            return self.amount == other.amount
 
         if isinstance(other, AssetBase):
             self.__assert_same_operands_type(other, "Can't compare assets with different tokens or nai")
@@ -172,3 +172,15 @@ class Asset:
         token: Final[str] = "VESTS"
         precision: Final[int] = 6
         nai: Final[str] = "@@000000037"
+
+    @classmethod
+    def from_string(cls, asset_as_string: str) -> AssetBase:
+        """
+        The function allows you to convert an asset from string to the appropriate Asset type.
+        """
+        amount, token = asset_as_string.split()
+        assets = [cls.Hbd, cls.Hive, cls.Vest, cls.Tbd, cls.Test]
+        for asset in assets:
+            if token == asset.token:
+                return asset(float(amount))
+        raise TypeError(f'Asset with token "{token}" do not exist.')
