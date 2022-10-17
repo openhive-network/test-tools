@@ -35,6 +35,15 @@ class AssetBase(acp.Abstract):
     def __convert_string_to_decimal(amount: str, precision: int) -> Decimal:
         return Decimal(amount).quantize(Decimal(10) ** -precision)
 
+    @classmethod
+    def __convert_string_to_asset(cls, asset_as_string: str):
+        amount, token = asset_as_string.split()
+        assets = [Asset.Hbd, Asset.Hive, Asset.Vest, Asset.Tbd, Asset.Test]
+        for asset in assets:
+            if token == asset.token:
+                return asset(cls.__convert_string_to_decimal(amount, asset.precision))
+        raise TypeError(f'Asset with token "{token}" do not exist.')
+
     def as_nai(self):
         return {
             "amount": str(self.amount),
@@ -85,10 +94,10 @@ class AssetBase(acp.Abstract):
             return self.amount < other.amount
 
         if isinstance(other, str):
-            amount, token = other.split()
-            if self.token != token:
-                raise TypeError(f"Can't compare assets with different tokens ({self.token} and {token}).")
-            return self.amount < self.__convert_string_to_decimal(amount, self.precision) * pow(10, self.precision)
+            other = self.__convert_string_to_asset(other)
+            if self.token != other.token:
+                raise TypeError(f"Can't compare assets with different tokens ({self.token} and {other.token}).")
+            return self.amount < other.amount
 
         if isinstance(other, dict):
             self.__assert_same_keys(other)
@@ -111,10 +120,10 @@ class AssetBase(acp.Abstract):
 
     def __eq__(self, other):
         if isinstance(other, str):
-            _amount, token = other.split()
-            if self.token != token:
-                raise TypeError(f"Can't compare assets with different tokens ({self.token} and {token}).")
-            return str(self) == other
+            other = self.__convert_string_to_asset(other)
+            if self.token != other.token:
+                raise TypeError(f"Can't compare assets with different tokens ({self.token} and {other.token}).")
+            return self.amount == other.amount
 
         if isinstance(other, AssetBase):
             self.__assert_same_operands_type(other, "Can't compare assets with different tokens or nai")
