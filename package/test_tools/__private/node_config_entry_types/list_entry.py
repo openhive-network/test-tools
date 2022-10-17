@@ -53,7 +53,7 @@ class List(ConfigEntry, list):  # Shouldn't inherit from `list`, this is workaro
         values = [serialize_value(value) for value in self._value]
         return self.__begin + self.__separator.join(values) + self.__end if self.__single_line else values
 
-    def _validate(self, value):
+    def validate(self, value):
         def check_single_value(single_value, item_type):
             if single_value is None:
                 raise ValueError("You cannot store None in list")

@@ -17,7 +17,7 @@ class ConfigEntry:
 
     def set_value(self, value):
         try:
-            self._validate(value)
+            self.validate(value)
         except TypeError as error:
             raise ValueError(str(error)) from error
 
@@ -28,10 +28,6 @@ class ConfigEntry:
 
     @classmethod
     def validate(cls, value):
-        return cls._validate(value)
-
-    @classmethod
-    def _validate(cls, value):
         """Raises exception if value or its type is incorrect.
 
         Must be overriden by derived classes."""

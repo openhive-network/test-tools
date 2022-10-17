@@ -18,5 +18,5 @@ class StringQuoted(ConfigEntry):
         return f'"{self._value}"'
 
     @classmethod
-    def _validate(cls, value):
+    def validate(cls, value):
         cls._validate_type(value, [str, type(None)])

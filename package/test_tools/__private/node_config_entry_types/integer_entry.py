@@ -10,5 +10,5 @@ class Integer(ConfigEntry):
         return str(self._value)
 
     @classmethod
-    def _validate(cls, value):
+    def validate(cls, value):
         cls._validate_type(value, [int, type(None)])

@@ -25,5 +25,5 @@ class Boolean(ConfigEntry):
         return self.__true_serialized if self._value else self.__false_serialized
 
     @classmethod
-    def _validate(cls, value):
+    def validate(cls, value):
         cls._validate_type(value, [bool, type(None)])

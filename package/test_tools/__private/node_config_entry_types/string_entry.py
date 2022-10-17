@@ -18,5 +18,5 @@ class String(ConfigEntry):
         return self._value
 
     @classmethod
-    def _validate(cls, value):
+    def validate(cls, value):
         cls._validate_type(value, [str, type(None)])
