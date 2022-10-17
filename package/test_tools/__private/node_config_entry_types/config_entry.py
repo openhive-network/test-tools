@@ -1,4 +1,7 @@
-class ConfigEntry:
+from abc import ABC, abstractmethod
+
+
+class ConfigEntry(ABC):
     def __init__(self, value=None):
         self._value = None  # To disable the warning about definition outside of __init__
         self.set_value(value)
@@ -6,11 +9,13 @@ class ConfigEntry:
     def clear(self):
         self.set_value(None)
 
+    @abstractmethod
     def parse_from_text(self, text):
-        raise NotImplementedError()
+        ...
 
+    @abstractmethod
     def serialize_to_text(self):
-        raise NotImplementedError()
+        ...
 
     def get_value(self):
         return self._value
@@ -26,11 +31,9 @@ class ConfigEntry:
     def _set_value(self, value):
         self._value = value
 
+    @abstractmethod
     def validate(self, value):
-        """Raises exception if value or its type is incorrect.
-
-        Must be overriden by derived classes."""
-        raise NotImplementedError()
+        """Raises exception if value or its type is incorrect"""
 
     @classmethod
     def _validate_type(cls, value, valid_types):
