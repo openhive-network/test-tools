@@ -17,6 +17,5 @@ class StringQuoted(ConfigEntry):
     def serialize_to_text(self) -> str:
         return f'"{self._value}"'
 
-    @classmethod
-    def validate(cls, value):
-        cls._validate_type(value, [str, type(None)])
+    def validate(self, value):
+        self._validate_type(value, [str, type(None)])

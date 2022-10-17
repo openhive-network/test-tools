@@ -26,8 +26,7 @@ class ConfigEntry:
     def _set_value(self, value):
         self._value = value
 
-    @classmethod
-    def validate(cls, value):
+    def validate(self, value):
         """Raises exception if value or its type is incorrect.
 
         Must be overriden by derived classes."""
