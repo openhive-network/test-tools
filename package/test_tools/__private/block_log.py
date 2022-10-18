@@ -29,6 +29,20 @@ class BlockLog:
     def copy_to(
         self, destination, *, artifacts: Optional[Literal["required", "optional", "excluded"]] = None
     ) -> BlockLog:
+        """
+        Copies block log and its artifacts (if requested via `artifacts` parameter) to specified `destination`. By
+        default, only block log is copied and artifacts are excluded.
+
+        It is unsafe to copy block log or use it for replay when node, which is source if block log, is run. It might
+        lead to problems, because files referenced by block log object might be modified at the same time by its owner.
+
+        :param destination: Path to directory, where block log (and optionally artifacts) will be copied.
+        :param artifacts: Decides how artifacts are handled during block log copying. Allowed values:
+            - "required" -- Artifacts are always copied. Missing artifacts are treated as error.
+            - "optional" -- Artifacts are copied if exists. This is not a problem when artifacts are missing.
+            - "excluded" -- Artifacts are never copied.
+        :return: Copy of source block log.
+        """
         assert self.__path.exists()
 
         artifacts = artifacts if artifacts is not None else self.__artifacts
