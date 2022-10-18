@@ -218,7 +218,7 @@ if __name__ == '__main__':
     node = tt.InitNode()
     node.run()
 
-    wallet = Wallet(attach_to=node)
+    wallet = tt.Wallet(attach_to=node)
 ```
 
 ### Node and wallet APIs
