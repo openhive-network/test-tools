@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 import shutil
 import subprocess
+import typing
 from typing import Literal, NoReturn
 
 from test_tools.__private import paths_to_executables
@@ -41,6 +42,12 @@ class BlockLog:
         :return: Copy of source block log.
         """
         assert self.__path.exists()
+
+        # Assert that `artifacts` parameter have allowed value, defined in its type hint.
+        artifacts_type_hint = typing.get_type_hints(self.copy_to)["artifacts"]
+        artifacts_allowed_values = typing.get_args(artifacts_type_hint)
+        if artifacts not in artifacts_allowed_values:
+            raise ValueError(f"{artifacts=}, but supported values are: {', '.join(artifacts_allowed_values)}.")
 
         if artifacts != "excluded":
             if self.artifacts_path.exists():

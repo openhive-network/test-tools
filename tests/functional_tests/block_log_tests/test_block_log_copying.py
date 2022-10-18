@@ -83,6 +83,11 @@ def test_copying_when_excluded_artifacts_are_missing(block_log_stub, destination
     __assert_files_were_copied(copied_block_log, require_artifacts=False)
 
 
+def test_error_reporting_when_artifacts_have_unsupported_value(block_log_stub, destination_directory):
+    with pytest.raises(ValueError):
+        __prepare_copy(block_log_stub, destination_directory, artifacts="unsupported_value")
+
+
 def __is_empty(directory: Path) -> bool:
     assert directory.is_dir()
     return not any(directory.iterdir())
