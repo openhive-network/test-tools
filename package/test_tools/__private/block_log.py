@@ -3,17 +3,16 @@ from __future__ import annotations
 from pathlib import Path
 import shutil
 import subprocess
-from typing import Literal, NoReturn, Optional
+from typing import Literal, NoReturn
 
 from test_tools.__private import paths_to_executables
 from test_tools.__private.exceptions import MissingBlockLogArtifactsError
 
 
 class BlockLog:
-    def __init__(self, owner, path, *, artifacts: Literal["required", "optional", "excluded"]):
+    def __init__(self, owner, path):
         self.__owner = owner
         self.__path = Path(path)
-        self.__artifacts = artifacts
 
     def __repr__(self):
         return f"<BlockLog: path={self.__path}>"
@@ -26,9 +25,7 @@ class BlockLog:
     def artifacts_path(self) -> Path:
         return self.path.with_suffix(".artifacts")
 
-    def copy_to(
-        self, destination, *, artifacts: Optional[Literal["required", "optional", "excluded"]] = None
-    ) -> BlockLog:
+    def copy_to(self, destination, *, artifacts: Literal["required", "optional", "excluded"] = "excluded") -> BlockLog:
         """
         Copies block log and its artifacts (if requested via `artifacts` parameter) to specified `destination`. By
         default, only block log is copied and artifacts are excluded.
@@ -45,8 +42,6 @@ class BlockLog:
         """
         assert self.__path.exists()
 
-        artifacts = artifacts if artifacts is not None else self.__artifacts
-
         if artifacts != "excluded":
             if self.artifacts_path.exists():
                 shutil.copy(self.artifacts_path, destination)
@@ -56,7 +51,7 @@ class BlockLog:
                 assert artifacts == "optional"
 
         copied_block_log_path = shutil.copy(self.__path, destination)
-        return BlockLog(self.__owner, copied_block_log_path, artifacts=artifacts)
+        return BlockLog(self.__owner, copied_block_log_path)
 
     def truncate(self, output_block_log_path: str, block_number: int):
         subprocess.run(
@@ -69,7 +64,7 @@ class BlockLog:
             ],
             check=True,
         )
-        return BlockLog(None, output_block_log_path, artifacts="optional")
+        return BlockLog(None, output_block_log_path)
 
     @staticmethod
     def __raise_missing_artifacts_error(block_log_artifacts_path) -> NoReturn:

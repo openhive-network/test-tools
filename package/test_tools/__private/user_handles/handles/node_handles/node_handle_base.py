@@ -73,20 +73,15 @@ class NodeHandleBase(Handle):
         """
         return self.__implementation.dump_snapshot(close=close)
 
-    def get_block_log(self, *, artifacts: Literal["required", "optional", "excluded"] = "required") -> BlockLog:
+    def get_block_log(self) -> BlockLog:
         """
-        Returns block log object, containing paths to block log and optionally block log artifacts. Presence of
-        artifacts can be configured with `artifacts` parameter. By default, artifacts are required. It is safe to get
-        block log object when node is running, but copying or using for replay might lead to problems, because files
-        referenced by block log object might be modified.
+        Returns block log object, containing paths to block log and block log artifacts. It is safe to get block log
+        object when node is running, but copying or using for replay might lead to problems, because files referenced by
+        block log object might be modified.
 
-        :param artifacts: Decides how artifacts are handled during block log copying. Allowed values:
-            - "required" -- Artifacts are always copied. Missing artifacts are treated as error.
-            - "optional" -- Artifacts are copied if exists. This is not a problem when artifacts are missing.
-            - "excluded" -- Artifacts are never copied.
         :return: Block log object, which can be used by another node to perform replay.
         """
-        return self.__implementation.get_block_log(artifacts=artifacts)
+        return self.__implementation.get_block_log()
 
     def get_last_block_number(self) -> int:
         """Returns number of the newest block known to node."""

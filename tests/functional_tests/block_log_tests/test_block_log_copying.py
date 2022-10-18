@@ -91,8 +91,8 @@ def __is_empty(directory: Path) -> bool:
 def __prepare_copy(
     source: Path, destination_directory: Path, *, artifacts: Literal["required", "optional", "excluded"]
 ) -> tt.BlockLog:
-    source_block_log = tt.BlockLog(None, source, artifacts=artifacts)
-    return source_block_log.copy_to(destination_directory)
+    source_block_log = tt.BlockLog(None, source)
+    return source_block_log.copy_to(destination_directory, artifacts=artifacts)
 
 
 def __assert_files_were_copied(
