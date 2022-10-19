@@ -11,8 +11,7 @@ from test_tools.__private.exceptions import MissingBlockLogArtifactsError
 
 
 class BlockLog:
-    def __init__(self, owner, path):
-        self.__owner = owner
+    def __init__(self, path):
         self.__path = Path(path)
 
     def __repr__(self):
@@ -58,7 +57,7 @@ class BlockLog:
                 assert artifacts == "optional"
 
         copied_block_log_path = shutil.copy(self.__path, destination)
-        return BlockLog(self.__owner, copied_block_log_path)
+        return BlockLog(copied_block_log_path)
 
     def truncate(self, output_block_log_path: str, block_number: int):
         subprocess.run(
@@ -71,7 +70,7 @@ class BlockLog:
             ],
             check=True,
         )
-        return BlockLog(None, output_block_log_path)
+        return BlockLog(output_block_log_path)
 
     @staticmethod
     def __raise_missing_artifacts_error(block_log_artifacts_path) -> NoReturn:

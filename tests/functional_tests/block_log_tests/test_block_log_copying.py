@@ -123,7 +123,7 @@ def __is_empty(directory: Path) -> bool:
 def __prepare_copy(
     source: Path, destination_directory: Path, *, artifacts: Literal["required", "optional", "excluded"]
 ) -> tt.BlockLog:
-    source_block_log = tt.BlockLog(None, source)
+    source_block_log = tt.BlockLog(source)
     return source_block_log.copy_to(destination_directory, artifacts=artifacts)
 
 
