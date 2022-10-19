@@ -88,6 +88,33 @@ def test_error_reporting_when_artifacts_have_unsupported_value(block_log_stub, d
         __prepare_copy(block_log_stub, destination_directory, artifacts="unsupported_value")
 
 
+def test_copying_with_specified_destination_directory(destination_directory):
+    block_log = __generate_block_log()
+
+    copied_block_log = block_log.copy_to(destination_directory)
+
+    __assert_files_were_copied(copied_block_log, require_artifacts=False)
+    assert copied_block_log.path == destination_directory / block_log.path.name
+
+
+def test_copying_with_specified_target_block_log_name(destination_directory):
+    block_log = __generate_block_log()
+    destination_block_log_path = destination_directory / "block_log_with_changed_name"
+
+    copied_block_log = block_log.copy_to(destination_block_log_path)
+
+    __assert_files_were_copied(copied_block_log, require_artifacts=False)
+    assert copied_block_log.path == destination_block_log_path
+
+
+def __generate_block_log() -> tt.BlockLog:
+    node = tt.InitNode()
+    node.run()  # To generate block log.
+    node.close()  # Close node to copy block log in a safe way.
+
+    return node.get_block_log()
+
+
 def __is_empty(directory: Path) -> bool:
     assert directory.is_dir()
     return not any(directory.iterdir())
