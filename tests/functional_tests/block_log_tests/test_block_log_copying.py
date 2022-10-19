@@ -111,7 +111,7 @@ def __generate_block_log() -> tt.BlockLog:
     node.run()  # To generate block log.
     node.close()  # Close node to copy block log in a safe way.
 
-    return node.get_block_log()
+    return node.block_log
 
 
 def __is_empty(directory: Path) -> bool:

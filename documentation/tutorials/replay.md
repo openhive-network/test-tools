@@ -19,8 +19,7 @@ Now we know, that Alice doesn't have enough coins to perform a transfer and we w
 
 To perform a replay you need to specify which block log should be used to do it. If you have block log generated in same test case in which you want to use it, you can replay node with following syntax:
 ```python
-block_log = first_node.get_block_log()
-second_node.run(replay_from=block_log)
+second_node.run(replay_from=first_node.block_log)
 ```
 
 You can also perform replay from block log from outside of test case. Then you should pass path to `block_log` file as `replay_from` parameter:
@@ -39,14 +38,4 @@ Replay can be accelerated by appending `block_log.artifacts` file. Then node don
 └─ 📂 blockchain
    ├─ block_log
    └─ block_log.artifacts
-```
-
-If you don't have artifacts file or just want to perform replay without it, set `include_artifacts` to `False`. If you are getting block log from node in same test case:
-```python
-block_log = node.get_block_log(include_artifacts=False)
-```
-or if block log comes from custom directory:
-```python
-import test_tools as tt
-block_log = tt.BlockLog('~/blockchain/block_log', include_artifacts=False)
 ```

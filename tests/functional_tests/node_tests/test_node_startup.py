@@ -64,7 +64,7 @@ def test_replay_from_other_node_block_log():
     init_node.close()
 
     replaying_node = tt.ApiNode()
-    replaying_node.run(replay_from=init_node.get_block_log(), wait_for_live=False)
+    replaying_node.run(replay_from=init_node.block_log, wait_for_live=False)
     assert_that_transaction_for_test_has_effect(replaying_node)
 
 
@@ -75,7 +75,7 @@ def test_replay_until_specified_block():
     init_node.close()
 
     replaying_node = tt.ApiNode()
-    replaying_node.run(replay_from=init_node.get_block_log(), stop_at_block=50, wait_for_live=False)
+    replaying_node.run(replay_from=init_node.block_log, stop_at_block=50, wait_for_live=False)
     assert replaying_node.get_last_block_number() == 50
 
 
@@ -85,7 +85,7 @@ def test_replay_from_external_block_log():
     generate_blocks(init_node, 100)
     init_node.close()
 
-    external_block_log_path = init_node.get_block_log().path
+    external_block_log_path = init_node.block_log.path
 
     replaying_node = tt.ApiNode()
     replaying_node.run(replay_from=external_block_log_path, stop_at_block=50, wait_for_live=False)

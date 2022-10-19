@@ -324,7 +324,8 @@ class Node(UserHandleImplementation, ScopedObject):
     def get_name(self):
         return self.__name
 
-    def get_block_log(self) -> BlockLog:
+    @property
+    def block_log(self) -> BlockLog:
         return BlockLog(self.directory.joinpath("blockchain/block_log"))
 
     def get_supported_plugins(self) -> List[str]:

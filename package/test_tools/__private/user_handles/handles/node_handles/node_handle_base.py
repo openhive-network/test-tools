@@ -73,7 +73,8 @@ class NodeHandleBase(Handle):
         """
         return self.__implementation.dump_snapshot(close=close)
 
-    def get_block_log(self) -> BlockLog:
+    @property
+    def block_log(self) -> BlockLog:
         """
         Returns block log object, containing paths to block log and block log artifacts. It is safe to get block log
         object when node is running, but copying or using for replay might lead to problems, because files referenced by
@@ -81,7 +82,7 @@ class NodeHandleBase(Handle):
 
         :return: Block log object, which can be used by another node to perform replay.
         """
-        return self.__implementation.get_block_log()
+        return self.__implementation.block_log
 
     def get_last_block_number(self) -> int:
         """Returns number of the newest block known to node."""
