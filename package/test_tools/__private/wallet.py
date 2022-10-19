@@ -543,8 +543,8 @@ class Wallet(UserHandleImplementation, ScopedObject):
         def get_accounts(self, account_names, only_result: bool = True):
             return self.__send("get_accounts", account_names=account_names, only_result=only_result)
 
-        def get_active_witnesses(self, only_result: bool = True):
-            return self.__send("get_active_witnesses", only_result=only_result)
+        def get_active_witnesses(self, include_future, only_result: bool = True):
+            return self.__send("get_active_witnesses", include_future=include_future, only_result=only_result)
 
         def get_block(self, num, only_result: bool = True):
             return self.__send("get_block", num=num, only_result=only_result)
