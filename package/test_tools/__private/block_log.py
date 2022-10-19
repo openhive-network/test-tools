@@ -33,7 +33,9 @@ class BlockLog:
         It is unsafe to copy block log or use it for replay when node, which is source if block log, is run. It might
         lead to problems, because files referenced by block log object might be modified at the same time by its owner.
 
-        :param destination: Path to directory, where block log (and optionally artifacts) will be copied.
+        :param destination: Path to existing directory, where block log (and optionally artifacts) will be copied or
+            path to destination block log file, which should be created when copy will be performed. Second option can
+            be used to change name of destination block log.
         :param artifacts: Decides how artifacts are handled during block log copying. Allowed values:
             - "required" -- Artifacts are always copied. Missing artifacts are treated as error.
             - "optional" -- Artifacts are copied if exists. This is not a problem when artifacts are missing.
@@ -41,6 +43,7 @@ class BlockLog:
         :return: Copy of source block log.
         """
         assert self.__path.exists()
+        destination = Path(destination)
 
         # Assert that `artifacts` parameter have allowed value, defined in its type hint.
         artifacts_type_hint = typing.get_type_hints(self.copy_to)["artifacts"]
@@ -50,7 +53,10 @@ class BlockLog:
 
         if artifacts != "excluded":
             if self.artifacts_path.exists():
-                shutil.copy(self.artifacts_path, destination)
+                shutil.copy(
+                    self.artifacts_path,
+                    destination if destination.is_dir() else destination.with_suffix(".artifacts"),
+                )
             elif artifacts == "required":
                 self.__raise_missing_artifacts_error(self.artifacts_path)
             else:
