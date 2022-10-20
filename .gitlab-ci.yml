@@ -32,6 +32,8 @@ pre_commit_checks:
   stage: static_code_analysis
   extends: .configuration
   script:
+    - pip install rich
+    - python -m rich
     - echo -e "${TXT_BLUE}Check all files with pre-commit hooks${TXT_CLEAR}" &&
       pre-commit run --all-files
   tags: *shared_tags
