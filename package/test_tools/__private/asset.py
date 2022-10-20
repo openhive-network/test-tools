@@ -119,25 +119,21 @@ class AssetBase(acp.Abstract):
         return self == other or self > other
 
     def __eq__(self, other):
-        if isinstance(other, str):
-            other = self.__convert_string_to_asset(other)
-            if self.token != other.token:
-                raise TypeError(f"Can't compare assets with different tokens ({self.token} and {other.token}).")
-            return self.amount == other.amount
-
-        if isinstance(other, AssetBase):
-            self.__assert_same_operands_type(other, "Can't compare assets with different tokens or nai")
-            return self.amount == other.amount
-
         if isinstance(other, dict):
             self.__assert_same_keys(other)
-
             if self.nai != other["nai"]:
                 raise TypeError(f"Can't compare assets with different NAIs ({self.nai} and {other['nai']}).")
-
             return self.as_nai() == other
 
-        raise TypeError(f"Assets can't be compared with objects of type {type(other)}")
+        if isinstance(other, str):
+            other = self.__convert_string_to_asset(other)
+
+        if not isinstance(other, AssetBase):
+            raise TypeError(f"Assets can't be compared with objects of type {type(other)}")
+
+        if self.token != other.token:
+            raise TypeError(f"Can't compare assets with different tokens ({self.token} and {other.token}).")
+        return self.amount == other.amount
 
     def __str__(self):
         if self.token is None:
