@@ -3,6 +3,8 @@ from pathlib import Path
 import sys
 from typing import Optional
 
+from test_tools.__private.logger.levels import Level
+
 
 class LoggerWrapper:
     __FORMATTER = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)s)")
@@ -51,6 +53,12 @@ class LoggerWrapper:
         self.__stream_handler.setFormatter(self.__FORMATTER)
         self.__stream_handler.setLevel(logging.INFO)
         logging.root.addHandler(self.__stream_handler)
+
+    def set_stream_handler_level(self, level: Level) -> None:
+        self.__stream_handler.setLevel(level.value)
+
+    def set_file_handler_level(self, level: Level) -> None:
+        self.__file_handler.setLevel(level.value)
 
     def debug(self, message, stacklevel=1):
         self.internal_logger.debug(message, stacklevel=stacklevel + 1)

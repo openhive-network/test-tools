@@ -1,5 +1,6 @@
 from typing import Optional, TYPE_CHECKING
 
+from test_tools.__private.logger.levels import Level as PredefinedLevels
 from test_tools.__private.scope.scope_singleton import context
 
 if TYPE_CHECKING:
@@ -7,6 +8,8 @@ if TYPE_CHECKING:
 
 
 class LoggerInterfaceBase:
+    level = PredefinedLevels
+
     def __init__(self, instance: Optional["LoggerWrapper"] = None, *, message_prefix: str = ""):
         self.__message_prefix = message_prefix
         self.__instance: Optional["LoggerWrapper"] = instance
@@ -29,3 +32,13 @@ class LoggerInterfaceBase:
 
     def critical(self, message: str, stacklevel: int = 1):
         self._logger.critical(f"{self.__message_prefix}{message}", stacklevel=stacklevel + 1)
+
+    def set_level(self, level_: level) -> None:
+        """
+        Allow to select, which logs should be printed on stdout and to file. All logs with importance lower than given
+        in `level_` parameter will be ignored; all with equal or higher will be registered.
+
+        For example this is how logs level can be set to debug: `tt.logger.set_level(tt.logger.level.DEBUG)`.
+        """
+        self._logger.set_stream_handler_level(level_)
+        self._logger.set_file_handler_level(level_)
