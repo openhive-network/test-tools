@@ -19,10 +19,7 @@ def test_parsing_time_in_default_formats(time: str, expected: datetime):
 
 
 def test_parsing_time_in_custom_format():
-    time = "01.01.1970"
-    format_ = "%d.%m.%Y"
-
-    assert tt.Time.parse(time, format_=format_) == datetime.strptime(time, format_).replace(tzinfo=timezone.utc)
+    assert tt.Time.parse("01.01.1970", format_="%d.%m.%Y") == datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
 def test_parsing_invalid_time_in_default_formats():
