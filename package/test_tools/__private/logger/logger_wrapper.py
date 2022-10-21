@@ -60,6 +60,9 @@ class LoggerWrapper:
     def set_file_handler_level(self, level: Level) -> None:
         self.__file_handler.setLevel(level.value)
 
+    def trace(self, message, stacklevel=1):
+        self.internal_logger.log(Level.TRACE.value, message, stacklevel=stacklevel + 1)
+
     def debug(self, message, stacklevel=1):
         self.internal_logger.debug(message, stacklevel=stacklevel + 1)
 

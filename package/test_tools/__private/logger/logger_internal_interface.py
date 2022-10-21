@@ -12,5 +12,8 @@ class LoggerInternalInterface(LoggerInterfaceBase):
         logger_wrapper = LoggerWrapper(name, parent=self._logger)
         return LoggerInternalInterface(name, logger_wrapper)
 
+    def trace(self, message: str, stacklevel: int = 1):
+        self._logger.trace(f"{self._message_prefix}{message}", stacklevel=stacklevel + 1)
+
 
 logger = LoggerInternalInterface()
