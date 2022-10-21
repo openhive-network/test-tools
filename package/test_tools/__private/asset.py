@@ -31,19 +31,6 @@ class AssetBase(acp.Abstract):
                 f"because precision of this asset is {precision} ({pow(0.1, precision):.3f})."
             )
 
-    @staticmethod
-    def __convert_string_to_decimal(amount: str, precision: int) -> Decimal:
-        return Decimal(amount).quantize(Decimal(10) ** -precision)
-
-    @classmethod
-    def __convert_string_to_asset(cls, asset_as_string: str):
-        amount, token = asset_as_string.split()
-        assets = [Asset.Hbd, Asset.Hive, Asset.Vest, Asset.Tbd, Asset.Test]
-        for asset in assets:
-            if token == asset.token:
-                return asset(cls.__convert_string_to_decimal(amount, asset.precision))
-        raise TypeError(f'Asset with token "{token}" do not exist.')
-
     def as_nai(self):
         return {
             "amount": str(self.amount),
@@ -96,7 +83,7 @@ class AssetBase(acp.Abstract):
             return self.amount < int(other["amount"])
 
         if isinstance(other, str):
-            other = self.__convert_string_to_asset(other)
+            other = Asset.convert_string_to_asset(other)
 
         if not isinstance(other, AssetBase):
             raise TypeError(f"Assets can't be compared with objects of type {type(other)}")
@@ -122,7 +109,7 @@ class AssetBase(acp.Abstract):
             return self.as_nai() == other
 
         if isinstance(other, str):
-            other = self.__convert_string_to_asset(other)
+            other = Asset.convert_string_to_asset(other)
 
         if not isinstance(other, AssetBase):
             raise TypeError(f"Assets can't be compared with objects of type {type(other)}")
@@ -166,3 +153,16 @@ class Asset:
         token: Final[str] = "VESTS"
         precision: Final[int] = 6
         nai: Final[str] = "@@000000037"
+
+    @staticmethod
+    def __convert_string_to_decimal(amount: str, precision: int) -> Decimal:
+        return Decimal(amount).quantize(Decimal(10) ** -precision)
+
+    @classmethod
+    def convert_string_to_asset(cls, asset_as_string: str):
+        amount, token = asset_as_string.split()
+        assets = [Asset.Hbd, Asset.Hive, Asset.Vest, Asset.Tbd, Asset.Test]
+        for asset in assets:
+            if token == asset.token:
+                return asset(cls.__convert_string_to_decimal(amount, asset.precision))
+        raise TypeError(f'Asset with token "{token}" do not exist.')
