@@ -85,10 +85,11 @@ def test_replay_from_external_block_log():
     generate_blocks(init_node, 100)
     init_node.close()
 
-    external_block_log_path = init_node.block_log.path
+    # Rename block log, to check if block logs with changed names are also handled.
+    external_block_log = init_node.block_log.copy_to(tt.context.get_current_directory() / "external_block_log")
 
     replaying_node = tt.ApiNode()
-    replaying_node.run(replay_from=external_block_log_path, stop_at_block=50, wait_for_live=False)
+    replaying_node.run(replay_from=external_block_log.path, stop_at_block=50, wait_for_live=False)
     assert replaying_node.get_last_block_number() == 50
 
 

@@ -583,7 +583,7 @@ class Node(UserHandleImplementation, ScopedObject):
 
         block_log_directory = self.directory.joinpath("blockchain")
         block_log_directory.mkdir()
-        replay_source.copy_to(block_log_directory, artifacts="optional")
+        replay_source.copy_to(block_log_directory / "block_log", artifacts="optional")
 
     def __log_run_summary(self):
         if self.is_running():
