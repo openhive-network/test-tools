@@ -4,14 +4,14 @@ from pathlib import Path
 import shutil
 import subprocess
 import typing
-from typing import Literal, NoReturn
+from typing import Literal, NoReturn, Union
 
 from test_tools.__private import paths_to_executables
 from test_tools.__private.exceptions import MissingBlockLogArtifactsError
 
 
 class BlockLog:
-    def __init__(self, path):
+    def __init__(self, path: Union[Path, str]):
         self.__path = Path(path)
 
     def __repr__(self):
@@ -25,7 +25,12 @@ class BlockLog:
     def artifacts_path(self) -> Path:
         return self.path.with_suffix(".artifacts")
 
-    def copy_to(self, destination, *, artifacts: Literal["required", "optional", "excluded"] = "excluded") -> BlockLog:
+    def copy_to(
+        self,
+        destination: Union[Path, str],
+        *,
+        artifacts: Literal["required", "optional", "excluded"] = "excluded",
+    ) -> BlockLog:
         """
         Copies block log and its artifacts (if requested via `artifacts` parameter) to specified `destination`. By
         default, only block log is copied and artifacts are excluded.
@@ -65,7 +70,7 @@ class BlockLog:
         copied_block_log_path = shutil.copy(self.__path, destination)
         return BlockLog(copied_block_log_path)
 
-    def truncate(self, output_block_log_path: str, block_number: int):
+    def truncate(self, output_block_log_path: Union[Path, str], block_number: int):
         subprocess.run(
             [
                 paths_to_executables.get_path_of("compress_block_log"),
