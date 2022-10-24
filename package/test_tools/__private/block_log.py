@@ -70,18 +70,27 @@ class BlockLog:
         copied_block_log_path = shutil.copy(self.__path, destination)
         return BlockLog(copied_block_log_path)
 
-    def truncate(self, output_block_log_path: Union[Path, str], block_number: int):
+    def truncate(self, output_directory: Union[Path, str], block_number: int) -> BlockLog:
+        """
+        Shorten block log to `block_number` blocks and stores result in `output_directory` as:
+        - `output_directory` / block_log,
+        - `output_directory` / block_log.artifacts.
+
+        :param output_directory: In this directory truncated `block_log` and `block_log.artifacts` will be stored.
+        :param block_number: Limit number of blocks in the output block log.
+        :return: Truncated block log.
+        """
         subprocess.run(
             [
                 paths_to_executables.get_path_of("compress_block_log"),
                 f"--input-block-log={self.__path.parent.absolute()}",
-                f"--output-block-log={Path(output_block_log_path).parent.absolute()}",
+                f"--output-block-log={Path(output_directory).absolute()}",
                 f"--block-count={block_number}",
                 "--decompress",
             ],
             check=True,
         )
-        return BlockLog(output_block_log_path)
+        return BlockLog(output_directory / "block_log")
 
     @staticmethod
     def __raise_missing_artifacts_error(block_log_artifacts_path) -> NoReturn:
