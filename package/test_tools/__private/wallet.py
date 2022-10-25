@@ -513,11 +513,11 @@ class Wallet(UserHandleImplementation, ScopedObject):
         def exit(self, only_result: bool = True):
             return self.__send("exit", only_result=only_result)
 
-        def find_rc_accounts(self, accounts, only_result: bool = True):
-            return self.__send("find_rc_accounts", accounts=accounts, only_result=only_result)
-
         def find_proposals(self, proposal_ids, only_result: bool = True):
             return self.__send("find_proposals", proposal_ids=proposal_ids, only_result=only_result)
+
+        def find_rc_accounts(self, accounts, only_result: bool = True):
+            return self.__send("find_rc_accounts", accounts=accounts, only_result=only_result)
 
         def find_recurrent_transfers(self, from_, only_result: bool = True):
             return self.__send("find_recurrent_transfers", from_=from_, only_result=only_result)
@@ -943,10 +943,8 @@ class Wallet(UserHandleImplementation, ScopedObject):
                 only_result=only_result,
             )
 
-        def use_authority(self, authority_type, account_name, only_result: bool = True):
-            return self.__send(
-                "use_authority", authority_type=authority_type, account_name=account_name, only_result=only_result
-            )
+        def use_authority(self, type_, account_name, only_result: bool = True):
+            return self.__send("use_authority", type_=type_, account_name=account_name, only_result=only_result)
 
         def use_automatic_authority(self, only_result: bool = True):
             return self.__send("use_automatic_authority", only_result=only_result)
