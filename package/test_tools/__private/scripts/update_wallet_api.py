@@ -38,8 +38,8 @@ class WalletApiTranslator:
         self.api_methods: List[Method] = []
 
     def parse_wallet_methods(self) -> None:
-        wallet = tt.Wallet()
-        method_signatures = wallet.api.help()["result"].split("\n")[:-1]
+        wallet = tt.Wallet(additional_arguments=["--output-formatter=json"])
+        method_signatures = wallet.api.help()
         wallet_directory = wallet.directory
         wallet.close()
 
