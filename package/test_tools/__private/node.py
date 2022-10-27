@@ -49,22 +49,7 @@ class Node(UserHandleImplementation, ScopedObject):
             self.__path = path
 
         @property
-        def build_version(self):
-            if self.is_testnet_build():
-                return "testnet"
-
-            if self.is_mainnet_build():
-                return "mainnet"
-
-            return "unrecognised"
-
-        def is_testnet_build(self):
-            return self.__check_executable_version() == "testnet"
-
-        def is_mainnet_build(self):
-            return self.__check_executable_version() == "mainnet"
-
-        def __check_executable_version(self) -> Literal["testnet", "mainnet"]:
+        def build_version(self) -> Literal["testnet", "mainnet"]:
             return self.get_version()["version"]["node_type"]
 
         def get_build_commit_hash(self):
@@ -497,7 +482,7 @@ class Node(UserHandleImplementation, ScopedObject):
         assert timeout >= 0
         deadline = time.time() + timeout
 
-        if not self.__executable.is_testnet_build():
+        if self.__executable.build_version not in ["testnet"]:
             raise NotImplementedError(
                 f"You have configured path to non-testnet hived build.\n"
                 f"At the moment only testnet build is supported.\n"
