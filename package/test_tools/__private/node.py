@@ -48,7 +48,8 @@ class Node(UserHandleImplementation, ScopedObject):
         def set_path(self, path):
             self.__path = path
 
-        def get_build_version(self):
+        @property
+        def build_version(self):
             if self.is_testnet_build():
                 return "testnet"
 
@@ -618,7 +619,7 @@ class Node(UserHandleImplementation, ScopedObject):
         else:
             message = "Run completed"
 
-        message += f", {self.__executable.get_build_version()} build"
+        message += f", {self.__executable.build_version} build"
         message += f" commit={self.__executable.get_build_commit_hash()[:8]}"
         self.__logger.info(message)
 
