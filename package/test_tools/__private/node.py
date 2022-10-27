@@ -9,7 +9,7 @@ import signal
 import subprocess
 from threading import Event
 import time
-from typing import Dict, Final, List, Literal, Optional, Tuple, TYPE_CHECKING, Union
+from typing import Dict, Final, List, Literal, NoReturn, Optional, Tuple, TYPE_CHECKING, Union
 import warnings
 
 from test_tools.__private import cleanup_policy, communication, exceptions, paths_to_executables
@@ -482,15 +482,7 @@ class Node(UserHandleImplementation, ScopedObject):
         assert timeout >= 0
         deadline = time.time() + timeout
 
-        if self.__executable.build_version not in ["testnet"]:
-            raise NotImplementedError(
-                f"You have configured path to non-testnet hived build.\n"
-                f"At the moment only testnet build is supported.\n"
-                f'Your current hived path is: {paths_to_executables.get_path_of("hived")}\n'
-                f"\n"
-                f"Please check following page if you need help with paths configuration:\n"
-                f"https://gitlab.syncad.com/hive/test-tools/-/blob/master/documentation/paths_to_executables.md"
-            )
+        self.__check_if_executable_is_built_in_supported_versions()
 
         if not self.__produced_files and self.directory.exists():
             shutil.rmtree(self.directory)
@@ -626,6 +618,17 @@ class Node(UserHandleImplementation, ScopedObject):
 
         if self.config.webserver_ws_endpoint is None:
             self.config.webserver_ws_endpoint = "0.0.0.0:0"
+
+    def __check_if_executable_is_built_in_supported_versions(self) -> Optional[NoReturn]:
+        if self.__executable.build_version not in ["testnet"]:
+            raise NotImplementedError(
+                f"You have configured path to non-testnet hived build.\n"
+                f"At the moment only testnet build is supported.\n"
+                f'Your current hived path is: {paths_to_executables.get_path_of("hived")}\n'
+                f"\n"
+                f"Please check following page if you need help with paths configuration:\n"
+                f"https://gitlab.syncad.com/hive/test-tools/-/blob/master/documentation/paths_to_executables.md"
+            )
 
     def get_p2p_endpoint(self):
         self.__wait_for_p2p_plugin_start()
