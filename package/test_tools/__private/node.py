@@ -49,7 +49,7 @@ class Node(UserHandleImplementation, ScopedObject):
             self.__path = path
 
         @property
-        def build_version(self) -> Literal["testnet", "mainnet"]:
+        def build_version(self) -> Literal["testnet", "mirrornet", "mainnet"]:
             return self.get_version()["version"]["node_type"]
 
         def get_build_commit_hash(self):
@@ -620,13 +620,14 @@ class Node(UserHandleImplementation, ScopedObject):
             self.config.webserver_ws_endpoint = "0.0.0.0:0"
 
     def __check_if_executable_is_built_in_supported_versions(self) -> Optional[NoReturn]:
-        if self.__executable.build_version not in ["testnet"]:
+        supported_builds = ["testnet", "mirrornet"]
+        if self.__executable.build_version not in supported_builds:
             raise NotImplementedError(
-                f"You have configured path to non-testnet hived build.\n"
-                f"At the moment only testnet build is supported.\n"
+                f"You have configured a path to an unsupported version of the hived build.\n"
+                f"At this moment only {supported_builds} builds are supported.\n"
                 f'Your current hived path is: {paths_to_executables.get_path_of("hived")}\n'
                 f"\n"
-                f"Please check following page if you need help with paths configuration:\n"
+                f"Please check the following page if you need help with paths configuration:\n"
                 f"https://gitlab.syncad.com/hive/test-tools/-/blob/master/documentation/paths_to_executables.md"
             )
 
