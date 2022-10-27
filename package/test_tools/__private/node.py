@@ -351,6 +351,10 @@ class Node(UserHandleImplementation, ScopedObject):
         response = self.api.database.get_dynamic_global_properties()
         return response["head_block_number"]
 
+    def get_current_witness(self) -> str:
+        response = self.api.database.get_dynamic_global_properties()
+        return response["current_witness"]
+
     def __wait_for_p2p_plugin_start(self, timeout=10):
         if not self.__notifications.p2p_plugin_started_event.wait(timeout=timeout):
             raise TimeoutError(f"Waiting too long for start of {self} p2p plugin")
