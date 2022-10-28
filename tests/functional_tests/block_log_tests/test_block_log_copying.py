@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Literal
 
 import pytest
 
@@ -23,10 +22,10 @@ def source_directory(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def block_log_stub(source_directory) -> Path:
+def block_log_stub(source_directory) -> tt.BlockLog:
     block_log_stub_path = source_directory / "block_log"
     block_log_stub_path.touch()
-    return block_log_stub_path
+    return tt.BlockLog(block_log_stub_path)
 
 
 @pytest.fixture
@@ -39,7 +38,7 @@ def artifacts_stub(source_directory) -> Path:
 def test_paths_in_copied_block_log(
     block_log_stub, artifacts_stub, destination_directory
 ):  # pylint: disable=unused-argument
-    copied_block_log = __prepare_copy(block_log_stub, destination_directory, artifacts="required")
+    copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="required")
 
     assert copied_block_log.path == destination_directory / "block_log"
     assert copied_block_log.artifacts_path == destination_directory / "block_log.artifacts"
@@ -48,13 +47,13 @@ def test_paths_in_copied_block_log(
 def test_copying_when_required_artifacts_exists(
     block_log_stub, artifacts_stub, destination_directory
 ):  # pylint: disable=unused-argument
-    copied_block_log = __prepare_copy(block_log_stub, destination_directory, artifacts="required")
+    copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="required")
     __assert_files_were_copied(copied_block_log, require_artifacts=True)
 
 
 def test_copying_when_required_artifacts_are_missing(block_log_stub, destination_directory):
     with pytest.raises(tt.exceptions.MissingBlockLogArtifactsError):
-        __prepare_copy(block_log_stub, destination_directory, artifacts="required")
+        block_log_stub.copy_to(destination_directory, artifacts="required")
 
     assert __is_empty(destination_directory)  # When error occurs nothing should be copied.
 
@@ -62,30 +61,30 @@ def test_copying_when_required_artifacts_are_missing(block_log_stub, destination
 def test_copying_when_optional_artifacts_exists(
     block_log_stub, artifacts_stub, destination_directory
 ):  # pylint: disable=unused-argument
-    copied_block_log = __prepare_copy(block_log_stub, destination_directory, artifacts="optional")
+    copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="optional")
     __assert_files_were_copied(copied_block_log, require_artifacts=True)
 
 
 def test_copying_when_optional_artifacts_are_missing(block_log_stub, destination_directory):
-    copied_block_log = __prepare_copy(block_log_stub, destination_directory, artifacts="optional")
+    copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="optional")
     __assert_files_were_copied(copied_block_log, require_artifacts=False)
 
 
 def test_copying_when_excluded_artifacts_exists(
     block_log_stub, artifacts_stub, destination_directory
 ):  # pylint: disable=unused-argument
-    copied_block_log = __prepare_copy(block_log_stub, destination_directory, artifacts="excluded")
+    copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="excluded")
     __assert_files_were_copied(copied_block_log, require_artifacts=False)
 
 
 def test_copying_when_excluded_artifacts_are_missing(block_log_stub, destination_directory):
-    copied_block_log = __prepare_copy(block_log_stub, destination_directory, artifacts="excluded")
+    copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="excluded")
     __assert_files_were_copied(copied_block_log, require_artifacts=False)
 
 
 def test_error_reporting_when_artifacts_have_unsupported_value(block_log_stub, destination_directory):
     with pytest.raises(ValueError):
-        __prepare_copy(block_log_stub, destination_directory, artifacts="unsupported_value")
+        block_log_stub.copy_to(destination_directory, artifacts="unsupported_value")
 
 
 def test_copying_with_specified_destination_directory(destination_directory):
@@ -118,13 +117,6 @@ def __generate_block_log() -> tt.BlockLog:
 def __is_empty(directory: Path) -> bool:
     assert directory.is_dir()
     return not any(directory.iterdir())
-
-
-def __prepare_copy(
-    source: Path, destination_directory: Path, *, artifacts: Literal["required", "optional", "excluded"]
-) -> tt.BlockLog:
-    source_block_log = tt.BlockLog(source)
-    return source_block_log.copy_to(destination_directory, artifacts=artifacts)
 
 
 def __assert_files_were_copied(
