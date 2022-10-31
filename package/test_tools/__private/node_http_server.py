@@ -18,9 +18,10 @@ class NodeHttpServer:
         def notify(self, message):
             self.parent.notify(message)
 
-    def __init__(self, observer):
+    def __init__(self, observer, *, name: str):
         self.__observer = observer
 
+        self.__name = name
         self.__server = None
         self.__thread: Optional[threading.Thread] = None
 
@@ -38,7 +39,7 @@ class NodeHttpServer:
         if self.__server is None:
             self.__server = self.__HttpServer(self.__ADDRESS, HttpRequestHandler, self)
 
-        self.__thread = threading.Thread(target=self.__thread_function, daemon=True)
+        self.__thread = threading.Thread(target=self.__thread_function, name=self.__name, daemon=True)
         self.__thread.start()
 
     def __thread_function(self):
