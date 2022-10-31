@@ -199,7 +199,7 @@ class Node(UserHandleImplementation, ScopedObject):
     class __NotificationsServer:
         def __init__(self, node: "Node", logger):
             self.node: "Node" = node
-            self.server = NodeHttpServer(self)
+            self.server = NodeHttpServer(self, name=f"{self.node}.NotificationsServer")
             self.__logger = logger
 
             self.http_listening_event = Event()
