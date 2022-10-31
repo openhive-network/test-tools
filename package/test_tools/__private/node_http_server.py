@@ -38,7 +38,7 @@ class NodeHttpServer:
         if self.__server is None:
             self.__server = self.__HttpServer(self.__ADDRESS, HttpRequestHandler, self)
 
-        self.__thread = threading.Thread(target=self.__thread_function)
+        self.__thread = threading.Thread(target=self.__thread_function, daemon=True)
         self.__thread.start()
 
     def __thread_function(self):
