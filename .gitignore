@@ -7,3 +7,4 @@ generated_by_*/
 generated_during_*/
 logs/
 *.pyc
+*venv*
