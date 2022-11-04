@@ -1,4 +1,5 @@
 from copy import deepcopy
+from decimal import Decimal
 from typing import Final, Union
 import warnings
 
@@ -10,17 +11,27 @@ class AssetBase(acp.Abstract):
     precision: int = acp.abstract_class_property(int)
     nai: str = acp.abstract_class_property(str)
 
-    def __init__(self, amount):
-        self.amount = self.__convert_amount_to_internal_representation(amount, self.precision)
+    def __init__(self, amount: Union[int, float]):
+        self.amount = self.__convert_amount_to_internal_representation(amount)
 
-    @staticmethod
-    def __convert_amount_to_internal_representation(amount: Union[int, float], precision: int) -> int:
-        AssetBase.__warn_if_precision_might_be_lost(amount, precision)
-        return int(round(amount, precision) * pow(10, precision))
+    def __convert_amount_to_internal_representation(self, amount: Union[int, float]) -> int:
+        self.__warn_if_precision_might_be_lost(amount)
 
-    @staticmethod
-    def __warn_if_precision_might_be_lost(amount: Union[int, float], precision: int):
-        rounded_value = round(amount, precision)
+        amount_decimal = self.__convert_to_decimal(amount)
+        return int(amount_decimal * Decimal(10) ** self.precision)
+
+    def __convert_to_decimal(self, amount: Union[int, float, str]) -> Decimal:
+        # We could not pass float variable directly to Decimal initializer as from the nature of floats it won't result
+        # in the exact decimal value. We need to convert float to string first like https://stackoverflow.com/a/18886013
+        # For example: `str(Decimal(0.1)) == '0.1000000000000000055511151231257827021181583404541015625'` is True
+        if isinstance(amount, float):
+            amount = repr(amount)
+
+        precision = Decimal(10) ** (-1 * self.precision)
+        return Decimal(amount).quantize(precision).normalize()
+
+    def __warn_if_precision_might_be_lost(self, amount: Union[int, float]) -> None:
+        rounded_value = round(amount, self.precision)
         acceptable_error = 0.1**10
 
         if abs(amount - rounded_value) > acceptable_error:
@@ -28,7 +39,7 @@ class AssetBase(acp.Abstract):
                 f"Precision lost during asset creation.\n"
                 f"\n"
                 f"Asset with amount {amount} was requested, but this value was rounded to {rounded_value},\n"
-                f"because precision of this asset is {precision} ({pow(0.1, precision):.3f})."
+                f"because precision of this asset is {self.precision} ({pow(0.1, self.precision):.3f})."
             )
 
     def as_nai(self):
@@ -154,15 +165,11 @@ class Asset:
         precision: Final[int] = 6
         nai: Final[str] = "@@000000037"
 
-    @staticmethod
-    def __convert_string_to_decimal(amount: str, precision: int) -> Decimal:
-        return Decimal(amount).quantize(Decimal(10) ** -precision)
-
     @classmethod
     def convert_string_to_asset(cls, asset_as_string: str):
         amount, token = asset_as_string.split()
         assets = [Asset.Hbd, Asset.Hive, Asset.Vest, Asset.Tbd, Asset.Test]
         for asset in assets:
             if token == asset.token:
-                return asset(cls.__convert_string_to_decimal(amount, asset.precision))
+                return asset(float(amount))
         raise TypeError(f'Asset with token "{token}" do not exist.')
