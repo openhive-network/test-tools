@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from copy import deepcopy
 from decimal import Decimal
+import operator
 from typing import Final, Union
 import warnings
 
@@ -49,29 +52,47 @@ class AssetBase(acp.Abstract):
             "nai": self.nai,
         }
 
-    def __add__(self, other):
-        self.__assert_same_operands_type(other, "Can't add assets with different tokens or nai")
-        result = deepcopy(self)
-        result.amount += other.amount
+    @staticmethod
+    def __operate_on_assets(
+        first: AssetBase, second: Union[str, dict, AssetBase], operator_: Union[operator.add, operator.sub]
+    ) -> AssetBase:
+        if isinstance(second, dict):
+            first.__assert_same_keys(second)
+            if first.nai != second["nai"]:
+                raise TypeError(f"Can't add assets with different NAIs ({first.nai} and {second['nai']}).")
+            result = deepcopy(first)
+            result.amount = operator_(result.amount, int(second["amount"]))
+            return result
+
+        if isinstance(second, str):
+            second = Asset.convert_string_to_asset(second)
+
+        if not isinstance(second, AssetBase):
+            raise TypeError(f"Assets can't be added with objects of type {type(second)}")
+
+        if first.token != second.token:
+            raise TypeError(f"Can't add assets with different tokens ({first.token} and {second.token}).")
+        result = deepcopy(first)
+        result.amount = operator_(result.amount, second.amount)
         return result
+
+    def __add__(self, other: Union[str, dict, AssetBase]) -> AssetBase:
+        return self.__operate_on_assets(self, other, operator.add)
 
     def __neg__(self):
         result = deepcopy(self)
         result.amount = -self.amount
         return result
 
-    def __sub__(self, other):
-        self.__assert_same_operands_type(other, "Can't subtract assets with different tokens or nai")
-        return self + -other
+    def __sub__(self, other: Union[str, dict, AssetBase]) -> AssetBase:
+        return self.__operate_on_assets(self, other, operator.sub)
 
-    def __iadd__(self, other):
-        self.__assert_same_operands_type(other, "Can't add assets with different tokens or nai")
-        self.amount += other.amount
+    def __iadd__(self, other: Union[str, dict, AssetBase]) -> AssetBase:
+        self.amount = self.__operate_on_assets(self, other, operator.add).amount
         return self
 
-    def __isub__(self, other):
-        self.__assert_same_operands_type(other, "Can't subtract assets with different tokens or nai")
-        self.amount -= other.amount
+    def __isub__(self, other: Union[str, dict, AssetBase]) -> AssetBase:
+        self.amount = self.__operate_on_assets(self, other, operator.sub).amount
         return self
 
     def __assert_same_operands_type(self, other, error):
