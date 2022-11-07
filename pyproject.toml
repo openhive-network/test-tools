@@ -18,6 +18,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.8"
 requests = "2.27.1"
+abstractcp = "0.9.9"
 
 
 [tool.poetry.group.dev.dependencies]
