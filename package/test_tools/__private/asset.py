@@ -1,18 +1,16 @@
 from copy import deepcopy
-import typing
 from typing import Final, Union
 import warnings
 
+import abstractcp as acp
 
-class AssetBase:
-    token: str = typing.cast(str, None)
-    precision: int = typing.cast(int, None)
-    nai: str = typing.cast(str, None)
+
+class AssetBase(acp.Abstract):
+    token: str = acp.abstract_class_property(str)
+    precision: int = acp.abstract_class_property(int)
+    nai: str = acp.abstract_class_property(str)
 
     def __init__(self, amount):
-        # Following constants have to be defined in derived class:
-        assert all(constant is not None for constant in [self.token, self.precision, self.nai])
-
         self.amount = self.__convert_amount_to_internal_representation(amount, self.precision)
 
     @staticmethod
