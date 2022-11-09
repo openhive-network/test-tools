@@ -3,7 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from decimal import Decimal
 import operator
-from typing import Final, Union
+from typing import Final, NoReturn, Optional, Union
 import warnings
 
 import abstractcp as acp
@@ -14,7 +14,7 @@ class AssetBase(acp.Abstract):
     precision: int = acp.abstract_class_property(int)
     nai: str = acp.abstract_class_property(str)
 
-    def __init__(self, amount: Union[int, float]):
+    def __init__(self, amount: Union[int, float]) -> None:
         self.amount = self.__convert_amount_to_internal_representation(amount)
 
     def __convert_amount_to_internal_representation(self, amount: Union[int, float]) -> int:
@@ -45,7 +45,7 @@ class AssetBase(acp.Abstract):
                 f"because precision of this asset is {self.precision} ({pow(0.1, self.precision):.3f})."
             )
 
-    def as_nai(self):
+    def as_nai(self) -> dict:
         return {
             "amount": str(self.amount),
             "precision": self.precision,
@@ -78,7 +78,7 @@ class AssetBase(acp.Abstract):
     def __add__(self, other: Union[str, dict, AssetBase]) -> AssetBase:
         return self.__combine_with(other, operator.add)
 
-    def __neg__(self):
+    def __neg__(self) -> AssetBase:
         result = deepcopy(self)
         result.amount = -self.amount
         return result
@@ -96,7 +96,7 @@ class AssetBase(acp.Abstract):
         self.amount = new_asset.amount
         return self
 
-    def __assert_same_keys(self, other):
+    def __assert_same_keys(self, other: dict) -> Optional[NoReturn]:
         if set(self.as_nai().keys()) != set(other.keys()):
             raise TypeError(
                 f"The keys did not match.\n"
@@ -104,7 +104,7 @@ class AssetBase(acp.Abstract):
                 f"Actual: {set(other.keys())}"
             )  # fmt: skip
 
-    def __lt__(self, other):
+    def __lt__(self, other: Union[str, dict, AssetBase]) -> bool:
         if isinstance(other, dict):
             self.__assert_same_keys(other)
             if self.nai != other["nai"]:
@@ -121,16 +121,16 @@ class AssetBase(acp.Abstract):
             raise TypeError(f"Can't compare assets with different tokens ({self.token} and {other.token}).")
         return self.amount < other.amount
 
-    def __le__(self, other):
+    def __le__(self, other: Union[str, dict, AssetBase]) -> bool:
         return self == other or self < other
 
-    def __gt__(self, other):
+    def __gt__(self, other: Union[str, dict, AssetBase]) -> bool:
         return not self < other and self != other
 
-    def __ge__(self, other):
+    def __ge__(self, other: Union[str, dict, AssetBase]) -> bool:
         return self == other or self > other
 
-    def __eq__(self, other):
+    def __eq__(self, other: Union[str, dict, AssetBase]) -> bool:
         if isinstance(other, dict):
             self.__assert_same_keys(other)
             if self.nai != other["nai"]:
@@ -147,13 +147,13 @@ class AssetBase(acp.Abstract):
             raise TypeError(f"Can't compare assets with different tokens ({self.token} and {other.token}).")
         return self.amount == other.amount
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.token is None:
             raise RuntimeError(f"Asset with nai={self.nai} hasn't string representaion")
 
         return f"{self.amount / (10 ** self.precision):.{self.precision}f} {self.token}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Asset({self.as_nai()})"
 
 
