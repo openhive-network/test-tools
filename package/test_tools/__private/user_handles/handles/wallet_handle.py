@@ -145,18 +145,18 @@ class WalletHandle(Handle):
         name: str,
         *,
         creator: str = "initminer",
-        hives: Optional[Asset.Test] = None,
-        vests: Optional[Asset.Test] = None,
-        hbds: Optional[Asset.Tbd] = None,
+        hives: Optional[Union[Asset.Test, float, int]] = None,
+        vests: Optional[Union[Asset.Test, float, int]] = None,
+        hbds: Optional[Union[Asset.Tbd, float, int]] = None,
     ) -> dict:
         """
         Creates account in blockchain and optionally fund it with given amount of hives, vests and HBDs.
 
         :param name: Name of new account that will be created and broadcasted to blockchain.
         :param creator: Name of account, which requests creation of another account.
-        :param hives: Amount of hives that will be transferred to new account.
-        :param vests: Amount of vests that will be transferred to new account.
-        :param hbds: Amount of HBDs that will be transferred to new account.
+        :param hives: Hives that will be transferred to the newly created account.
+        :param vests: Vests that will be transferred to the newly created account.
+        :param hbds: HBDs that will be transferred to the newly created account.
         :return: Transaction which created account.
         """
 

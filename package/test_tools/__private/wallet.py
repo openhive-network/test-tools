@@ -1205,16 +1205,27 @@ class Wallet(UserHandleImplementation, ScopedObject):
         name: str,
         *,
         creator: str = "initminer",
-        hives: Optional[Asset.Test] = None,
-        vests: Optional[Asset.Test] = None,
-        hbds: Optional[Asset.Tbd] = None,
+        hives: Optional[Union[Asset.Test, float, int]] = None,
+        vests: Optional[Union[Asset.Test, float, int]] = None,
+        hbds: Optional[Union[Asset.Tbd, float, int]] = None,
     ) -> dict:
+        """
+        The `transfer_to_vesting` operation can be only done by sending the Asset.Test type, that's why method in place
+        of `vests` accepts the Asset.Test and numeric types instead of Asset.Vest.
+        """
         # pylint: enable=all
         account = Account(name)
         create_account_transaction = self.api.create_account_with_keys(
             creator, account.name, "{}", account.public_key, account.public_key, account.public_key, account.public_key
         )
         self.api.import_key(account.private_key)
+
+        if isinstance(hives, (float, int)):
+            hives = Asset.Test(hives)
+        if isinstance(vests, (float, int)):
+            vests = Asset.Test(vests)
+        if isinstance(hbds, (float, int)):
+            hbds = Asset.Tbd(hbds)
 
         with self.in_single_transaction():
             if hives is not None:
