@@ -52,32 +52,31 @@ class AssetBase(acp.Abstract):
             "nai": self.nai,
         }
 
-    @staticmethod
-    def __operate_on_assets(
-        first: AssetBase, second: Union[str, dict, AssetBase], operator_: Union[operator.add, operator.sub]
+    def __combine_with(
+        self, asset: Union[str, dict, AssetBase], operator_: Union[operator.add, operator.sub]
     ) -> AssetBase:
-        if isinstance(second, dict):
-            first.__assert_same_keys(second)
-            if first.nai != second["nai"]:
-                raise TypeError(f"Can't add assets with different NAIs ({first.nai} and {second['nai']}).")
-            result = deepcopy(first)
-            result.amount = operator_(result.amount, int(second["amount"]))
+        if isinstance(asset, dict):
+            self.__assert_same_keys(asset)
+            if self.nai != asset["nai"]:
+                raise TypeError(f"Can't add assets with different NAIs ({self.nai} and {asset['nai']}).")
+            result = deepcopy(self)
+            result.amount = operator_(result.amount, int(asset["amount"]))
             return result
 
-        if isinstance(second, str):
-            second = Asset.convert_string_to_asset(second)
+        if isinstance(asset, str):
+            asset = Asset.convert_string_to_asset(asset)
 
-        if not isinstance(second, AssetBase):
-            raise TypeError(f"Assets can't be added with objects of type {type(second)}")
+        if not isinstance(asset, AssetBase):
+            raise TypeError(f"Assets can't be added with objects of type {type(asset)}")
 
-        if first.token != second.token:
-            raise TypeError(f"Can't add assets with different tokens ({first.token} and {second.token}).")
-        result = deepcopy(first)
-        result.amount = operator_(result.amount, second.amount)
+        if self.token != asset.token:
+            raise TypeError(f"Can't add assets with different tokens ({self.token} and {asset.token}).")
+        result = deepcopy(self)
+        result.amount = operator_(result.amount, asset.amount)
         return result
 
     def __add__(self, other: Union[str, dict, AssetBase]) -> AssetBase:
-        return self.__operate_on_assets(self, other, operator.add)
+        return self.__combine_with(other, operator.add)
 
     def __neg__(self):
         result = deepcopy(self)
@@ -85,19 +84,18 @@ class AssetBase(acp.Abstract):
         return result
 
     def __sub__(self, other: Union[str, dict, AssetBase]) -> AssetBase:
-        return self.__operate_on_assets(self, other, operator.sub)
+        return self.__combine_with(other, operator.sub)
 
     def __iadd__(self, other: Union[str, dict, AssetBase]) -> AssetBase:
-        self.amount = self.__operate_on_assets(self, other, operator.add).amount
+        new_asset = self.__combine_with(other, operator.add)
+        self.amount = new_asset.amount
         return self
 
     def __isub__(self, other: Union[str, dict, AssetBase]) -> AssetBase:
-        self.amount = self.__operate_on_assets(self, other, operator.sub).amount
+        new_asset = self.__combine_with(other, operator.sub)
+        self.amount = new_asset.amount
         return self
 
-    def __assert_same_operands_type(self, other, error):
-        if type(self) is not type(other):
-            raise TypeError(error)
 
     def __assert_same_keys(self, other):
         if set(self.as_nai().keys()) != set(other.keys()):
