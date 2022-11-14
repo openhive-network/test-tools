@@ -305,7 +305,8 @@ class Node(UserHandleImplementation, ScopedObject):
     def __repr__(self) -> str:
         return str(self)
 
-    def __get_config_file_path(self):
+    @property
+    def config_file_path(self):
         return self.directory / "config.ini"
 
     def is_running(self):
@@ -398,7 +399,7 @@ class Node(UserHandleImplementation, ScopedObject):
         config_was_modified = self.config != create_default_config()
         self.__run_process(blocking=True, with_arguments=["--dump-config"], write_config_before_run=config_was_modified)
 
-        self.config.load_from_file(self.__get_config_file_path())
+        self.config.load_from_file(self.config_file_path)
 
         self.__logger.info("Config dumped")
 
@@ -446,7 +447,7 @@ class Node(UserHandleImplementation, ScopedObject):
         self.__notifications.listen()
 
         if write_config_before_run:
-            self.config.write_to_file(self.__get_config_file_path())
+            self.config.write_to_file(self.config_file_path)
 
         self.__process.run(
             blocking=blocking,

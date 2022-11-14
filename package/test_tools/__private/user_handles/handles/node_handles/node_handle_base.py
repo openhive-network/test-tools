@@ -51,6 +51,11 @@ class NodeHandleBase(Handle):
         return self.__implementation.config
 
     @property
+    def config_file_path(self) -> Path:
+        """Returns path to node's configuration file."""
+        return self.__implementation.config_file_path
+
+    @property
     def directory(self) -> Path:
         """Returns path to directory, where node runs and generates its files."""
         return self.__implementation.directory
