@@ -223,7 +223,7 @@ class NodeConfig:
         valid_keys = [key.replace("_", "-") for key in self.__get_entries().keys()]
 
         if key_to_check not in valid_keys:
-            raise KeyError("Wrong config entry name")
+            raise KeyError(f'Unknown config entry name: "{key_to_check}".')
 
     def __clear_values(self):
         entries = self.__get_entries()

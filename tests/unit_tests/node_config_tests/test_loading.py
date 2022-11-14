@@ -75,3 +75,14 @@ def test_if_entries_without_value_not_clears_previous(config):
     )
 
     assert config.plugin == ["account_by_key", "condenser_api"]
+
+
+def test_unknown_entry_loading(config):
+    # ARRANGE
+    unknown_entry_name = "unknown_entry"
+
+    # ACT & ASSERT
+    with pytest.raises(KeyError) as exception:
+        config.load_from_lines([f"{unknown_entry_name} = 1"])
+
+    assert str(exception.value.args[0]) == f'Unknown config entry name: "{unknown_entry_name}".'
