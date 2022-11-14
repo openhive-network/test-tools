@@ -47,3 +47,10 @@ def test_url_parsing_without_port_given(input_url: str, expected_protocol: int):
     assert url.protocol == expected_protocol
     assert url.address == DEFAULT_ADDRESS
     assert url.port is None
+
+
+def test_url_parsing_without_address_given():
+    with pytest.raises(ValueError) as exception:
+        Url(f":{DEFAULT_PORT}")
+
+    assert str(exception.value) == "Address was not specified."
