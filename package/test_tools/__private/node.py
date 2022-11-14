@@ -426,6 +426,12 @@ class Node(UserHandleImplementation, ScopedObject):
         if not close:
             self.__notifications.snapshot_dumped_event.wait()
 
+            # Each time the node is restarted, the first operation may not be possible to create because of expiration
+            # time being checked. This is due to the loss of reversible blocks when the node is closed and the HEAD
+            # block after restart is set to last irreversible.
+            # The new operation fails because expiration time is compared to the last irreversible and may be exceeded.
+            self.wait_number_of_blocks(1)
+
         self.__logger.info("Snapshot dumped")
 
         return Snapshot(
