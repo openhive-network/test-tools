@@ -399,7 +399,12 @@ class Node(UserHandleImplementation, ScopedObject):
         config_was_modified = self.config != create_default_config()
         self.__run_process(blocking=True, with_arguments=["--dump-config"], write_config_before_run=config_was_modified)
 
-        self.config.load_from_file(self.config_file_path)
+        try:
+            self.config.load_from_file(self.config_file_path)
+        except KeyError as exception:
+            raise exceptions.ConfigError(
+                f"{self.get_name()} config dump failed because of entry not known to TestTools."
+            ) from exception
 
         self.__logger.info("Config dumped")
 

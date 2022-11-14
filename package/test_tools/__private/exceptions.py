@@ -31,3 +31,7 @@ class NotSupported(Exception):
 
 class ParseError(Exception):
     pass
+
+
+class ConfigError(Exception):
+    pass
