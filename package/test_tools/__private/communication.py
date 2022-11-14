@@ -68,7 +68,18 @@ def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=
     for attempts_left in reversed(range(max_attempts)):
         response = requests.post(url, data=message)
         status_code = response.status_code
-        response = json.loads(response.content.decode("utf-8"))
+        try:
+            decoded_content = response.content.decode("utf-8")
+        except UnicodeDecodeError as exception:
+            logger.error(
+                "An error occurred while decoding the response content.\n\n"
+                "Response content:\n"
+                f"{response.content}"
+            )  # fmt: skip
+            raise exception
+
+        response = json.loads(decoded_content)
+
         if status_code == 200:
             if "result" in response:
                 return response
