@@ -14,4 +14,6 @@ class Url:
 
     def as_string(self, *, with_protocol=True) -> str:
         protocol_prefix = f"{self.protocol}://" if with_protocol else ""
-        return f"{protocol_prefix}{self.address}:{self.port}"
+        port_suffix = f":{self.port}" if self.port else ""
+
+        return f"{protocol_prefix}{self.address}{port_suffix}"
