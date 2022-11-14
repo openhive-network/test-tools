@@ -90,7 +90,7 @@ class NodeConfig:
         self.webserver_http_endpoint = String()
         self.webserver_unix_endpoint = String()
         self.webserver_ws_endpoint = String()
-        self.webserver_enable_permessage_deflate = String()  # Set correct type
+        self.webserver_ws_deflate = Boolean()
         self.rpc_endpoint = String()  # Set correct type
         self.webserver_thread_pool_size = String()  # Set correct type
         self.enable_stale_production = Boolean()
