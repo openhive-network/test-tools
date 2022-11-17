@@ -1017,7 +1017,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.__produced_files = False
         self.logger = logger.create_child_logger(self.name)
 
-        self.run(timeout=self.DEFAULT_RUN_TIMEOUT, preconfigure=preconfigure)
+        self.run(preconfigure=preconfigure)
 
     def __str__(self):
         return self.name
@@ -1045,7 +1045,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         return False
 
-    def run(self, *, timeout, preconfigure=True, clean: Optional[bool] = None):
+    def run(self, timeout: float = DEFAULT_RUN_TIMEOUT, *, preconfigure: bool = True, clean: Optional[bool] = None):
         """
         Starts wallet. Blocks until wallet will be ready for use.
 
@@ -1175,7 +1175,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
     def restart(self, *, preconfigure=True):
         self.close()
-        self.run(timeout=self.DEFAULT_RUN_TIMEOUT, preconfigure=preconfigure, clean=False)
+        self.run(preconfigure=preconfigure, clean=False)
 
     def close(self):
         self.__close_process()

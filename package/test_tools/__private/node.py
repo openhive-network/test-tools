@@ -459,7 +459,7 @@ class Node(UserHandleImplementation, ScopedObject):
 
     def __run_wallets(self):
         for wallet in self.__wallets:
-            wallet.run(timeout=15)
+            wallet.run()
 
     def __run_process(
         self,
