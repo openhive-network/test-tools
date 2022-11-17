@@ -409,12 +409,12 @@ class Node(UserHandleImplementation, ScopedObject):
         self.__logger.info("Config dumped")
 
     def dump_snapshot(self, *, close=False):
+        self.__logger.info("Snapshot dumping started...")
+        self.__ensure_that_plugin_required_for_snapshot_is_included()
+
         self.close()
 
-        self.__logger.info("Snapshot dumping started...")
-
         snapshot_path = Path(".")
-        self.__ensure_that_plugin_required_for_snapshot_is_included()
         self.__run_process(
             blocking=close,
             with_arguments=[
