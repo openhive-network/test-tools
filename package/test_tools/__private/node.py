@@ -688,8 +688,10 @@ class Node(UserHandleImplementation, ScopedObject):
         self.__remove_files()
 
     def restart(self, wait_for_live=True, timeout=DEFAULT_WAIT_FOR_LIVE_TIMEOUT, time_offset: Optional[str] = None):
+        self.__close_wallets()
         self.close()
         self.run(wait_for_live=wait_for_live, timeout=timeout, time_offset=time_offset)
+        self.__run_wallets()
 
     def __remove_files(self):
         policy = cleanup_policy.get_default() if self.__cleanup_policy is None else self.__cleanup_policy
