@@ -24,13 +24,13 @@ from test_tools.__private.snapshot import Snapshot
 from test_tools.__private.url import Url
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
 from test_tools.__private.wait_for import wait_for, wait_for_event
-from test_tools.__private.wallet import Wallet
 from test_tools.node_api.node_apis import Apis
 from test_tools.node_configs.default import create_default_config
 
 if TYPE_CHECKING:
     from test_tools.__private.network import Network
     from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
+    from test_tools.__private.wallet import Wallet
 
 
 class Node(UserHandleImplementation, ScopedObject):
@@ -459,7 +459,7 @@ class Node(UserHandleImplementation, ScopedObject):
 
     def __run_wallets(self):
         for wallet in self.__wallets:
-            wallet.run(timeout=Wallet.DEFAULT_RUN_TIMEOUT)
+            wallet.run(timeout=15)
 
     def __run_process(
         self,

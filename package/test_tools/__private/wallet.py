@@ -16,6 +16,7 @@ from test_tools.__private.account import Account
 from test_tools.__private.asset import Asset
 from test_tools.__private.exceptions import CommunicationError, NodeIsNotRunning
 from test_tools.__private.logger.logger_internal_interface import logger
+from test_tools.__private.node import Node
 from test_tools.__private.remote_node import RemoteNode
 from test_tools.__private.scope import context, ScopedObject
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
@@ -996,9 +997,6 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.http_server_port = None
         self.connected_node: Union[None, "Node", "RemoteNode"] = attach_to
         self.password = None
-
-        # Break imports cycle
-        from test_tools.__private.node import Node   # pylint: disable=import-outside-toplevel, cyclic-import
 
         if isinstance(self.connected_node, Node):
             self.name = context.names.register_numbered_name(f"{self.connected_node}.Wallet")
