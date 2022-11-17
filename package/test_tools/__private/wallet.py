@@ -16,7 +16,6 @@ from test_tools.__private.account import Account
 from test_tools.__private.asset import Asset
 from test_tools.__private.exceptions import CommunicationError, NodeIsNotRunning
 from test_tools.__private.logger.logger_internal_interface import logger
-from test_tools.__private.node import Node
 from test_tools.__private.remote_node import RemoteNode
 from test_tools.__private.scope import context, ScopedObject
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
@@ -998,9 +997,13 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.connected_node: Union[None, "Node", "RemoteNode"] = attach_to
         self.password = None
 
+        # Break imports cycle
+        from test_tools.__private.node import Node   # pylint: disable=import-outside-toplevel, cyclic-import
+
         if isinstance(self.connected_node, Node):
             self.name = context.names.register_numbered_name(f"{self.connected_node}.Wallet")
             self.directory = self.connected_node.directory.parent / self.name
+            self.connected_node.register_wallet(self)
         elif isinstance(self.connected_node, RemoteNode):
             self.name = context.names.register_numbered_name(f"{self.connected_node}.Wallet")
             self.directory = context.get_current_directory() / self.name
@@ -1165,7 +1168,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
         return not self.api.is_new()
 
     def connect_to(self, node):
+        self.connected_node.unregister_wallet(self)
         self.connected_node = node
+        self.connected_node.register_wallet(self)
 
     def at_exit_from_scope(self):
         self.close()

@@ -24,6 +24,7 @@ from test_tools.__private.snapshot import Snapshot
 from test_tools.__private.url import Url
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
 from test_tools.__private.wait_for import wait_for, wait_for_event
+from test_tools.__private.wallet import Wallet
 from test_tools.node_api.node_apis import Apis
 from test_tools.node_configs.default import create_default_config
 
@@ -299,6 +300,8 @@ class Node(UserHandleImplementation, ScopedObject):
 
         self.config = create_default_config()
 
+        self.__wallets: List[Wallet] = []
+
     def __str__(self):
         return self.__name
 
@@ -412,6 +415,9 @@ class Node(UserHandleImplementation, ScopedObject):
         self.__logger.info("Snapshot dumping started...")
         self.__ensure_that_plugin_required_for_snapshot_is_included()
 
+        if not close:
+            self.__close_wallets()
+
         self.close()
 
         snapshot_path = Path(".")
@@ -425,6 +431,7 @@ class Node(UserHandleImplementation, ScopedObject):
 
         if not close:
             self.__notifications.snapshot_dumped_event.wait()
+            self.__run_wallets()
 
             # Each time the node is restarted, the first operation may not be possible to create because of expiration
             # time being checked. This is due to the loss of reversible blocks when the node is closed and the HEAD
@@ -445,6 +452,14 @@ class Node(UserHandleImplementation, ScopedObject):
         plugin_required_for_snapshots = "state_snapshot"
         if plugin_required_for_snapshots not in self.config.plugin:
             self.config.plugin.append(plugin_required_for_snapshots)
+
+    def __close_wallets(self):
+        for wallet in self.__wallets:
+            wallet.close()
+
+    def __run_wallets(self):
+        for wallet in self.__wallets:
+            wallet.run(timeout=Wallet.DEFAULT_RUN_TIMEOUT)
 
     def __run_process(
         self,
@@ -735,3 +750,11 @@ class Node(UserHandleImplementation, ScopedObject):
 
     def get_number_of_forks(self):
         return self.__notifications.number_of_forks
+
+    def register_wallet(self, wallet: Wallet) -> None:
+        if wallet not in self.__wallets:
+            self.__wallets.append(wallet)
+
+    def unregister_wallet(self, wallet: Wallet) -> None:
+        if wallet in self.__wallets:
+            self.__wallets.remove(wallet)
