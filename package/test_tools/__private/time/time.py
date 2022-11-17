@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta, timezone
 from typing import Final, Optional
 
+from dateutil.relativedelta import relativedelta
+
 from test_tools.__private.exceptions import ParseError
 
 
@@ -64,6 +66,18 @@ class Time:
     @staticmethod
     def days(amount: float) -> timedelta:
         return timedelta(days=amount)
+
+    @staticmethod
+    def weeks(amount: float) -> timedelta:
+        return timedelta(days=amount * 7)
+
+    @staticmethod
+    def months(amount: int) -> relativedelta:
+        return relativedelta(months=amount)
+
+    @staticmethod
+    def years(amount: int) -> relativedelta:
+        return relativedelta(years=amount)
 
     @classmethod
     def are_close(cls, first: datetime, second: datetime, *, absolute_tolerance: Optional[timedelta] = None) -> bool:
