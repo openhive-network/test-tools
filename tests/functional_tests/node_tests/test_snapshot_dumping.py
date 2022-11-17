@@ -29,9 +29,7 @@ def test_if_operation_could_be_created_right_after_dumping_snapshot():
     # wait for the block with the transaction to become irreversible, and will be saved in block_log
     init_node.wait_number_of_blocks(21)
 
-    wallet.close()
     init_node.dump_snapshot()
-    wallet.run()
 
     wallet.create_account("bob")
 
