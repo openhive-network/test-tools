@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class NodeHandleBase(Handle):
-    __DEFAULT_WAIT_FOR_LIVE_TIMEOUT = Node.DEFAULT_WAIT_FOR_LIVE_TIMEOUT
+    DEFAULT_WAIT_FOR_LIVE_TIMEOUT = Node.DEFAULT_WAIT_FOR_LIVE_TIMEOUT
 
     @property
     def __implementation(self) -> Node:
@@ -120,7 +120,7 @@ class NodeHandleBase(Handle):
         wait_for_live: Optional[bool] = None,
         arguments: Union[List[str], Tuple[str, ...]] = (),
         environment_variables: Optional[Dict] = None,
-        timeout: float = __DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
+        timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
         time_offset: Optional[str] = None,
     ) -> None:
         """
@@ -173,7 +173,7 @@ class NodeHandleBase(Handle):
     def restart(
         self,
         wait_for_live: bool = True,
-        timeout: float = __DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
+        timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
         time_offset: Optional[str] = None,
     ) -> None:
         """
