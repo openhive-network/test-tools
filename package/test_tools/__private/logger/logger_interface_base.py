@@ -1,6 +1,6 @@
 from typing import Optional, TYPE_CHECKING
 
-from test_tools.__private.logger.levels import Level as PredefinedLevels
+from test_tools.__private.logger.levels import UserLevel as PredefinedLevels
 from test_tools.__private.scope.scope_singleton import context
 
 if TYPE_CHECKING:
@@ -16,7 +16,9 @@ class LoggerInterfaceBase:
 
     @property
     def _logger(self) -> "LoggerWrapper":
-        return self.__instance if self.__instance is not None else context.get_logger()
+
+        x = self.__instance if self.__instance is not None else context.get_logger()
+        return x
 
     def debug(self, message: str, stacklevel: int = 1):
         self._logger.debug(f"{self._message_prefix}{message}", stacklevel=stacklevel + 1)

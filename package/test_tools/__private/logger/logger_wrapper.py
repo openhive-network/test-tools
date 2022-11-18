@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 from pathlib import Path
 import sys
@@ -9,7 +11,7 @@ from test_tools.__private.logger.levels import Level
 class LoggerWrapper:
     __FORMATTER = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)s)")
 
-    def __init__(self, name, *, parent: Optional["LoggerWrapper"], level=logging.DEBUG, propagate=True):
+    def __init__(self, name, *, parent: Optional["LoggerWrapper"], level=Level.TRACE, propagate=True):
         self.parent = parent
 
         self.internal_logger: logging.Logger
@@ -26,7 +28,7 @@ class LoggerWrapper:
     def __repr__(self):
         return f"<LoggerWrapper: {self.internal_logger.name}>"
 
-    def create_child_logger(self, name: str, child_type: "LoggerWrapper" = None):
+    def create_child_logger(self, name: str, child_type: LoggerWrapper = None):
         if child_type is None:
             child_type = LoggerWrapper
 
@@ -49,19 +51,20 @@ class LoggerWrapper:
         self.set_file_handler(context.get_current_directory().joinpath("last_run.log"))
 
     def log_to_stdout(self):
+        pass
         self.__stream_handler = logging.StreamHandler(sys.stdout)
-        self.__stream_handler.setFormatter(self.__FORMATTER)
-        self.__stream_handler.setLevel(logging.INFO)
-        logging.root.addHandler(self.__stream_handler)
+        # self.__stream_handler.setFormatter(self.__FORMATTER)
+        # self.__stream_handler.setLevel(logging.INFO)
+        # logging.root.addHandler(self.__stream_handler)
 
     def set_stream_handler_level(self, level: Level) -> None:
-        self.__stream_handler.setLevel(level.value)
+        self.__stream_handler.setLevel(level)
 
     def set_file_handler_level(self, level: Level) -> None:
-        self.__file_handler.setLevel(level.value)
+        self.__file_handler.setLevel(level)
 
     def trace(self, message, stacklevel=1):
-        self.internal_logger.log(Level.TRACE.value, message, stacklevel=stacklevel + 1)
+        self.internal_logger.log(Level.TRACE, message, stacklevel=stacklevel + 1)
 
     def debug(self, message, stacklevel=1):
         self.internal_logger.debug(message, stacklevel=stacklevel + 1)

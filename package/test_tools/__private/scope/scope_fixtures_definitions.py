@@ -5,6 +5,8 @@ from typing import Final, Optional
 import pytest
 
 import test_tools as tt
+from test_tools.__private.logger.function_logger import FunctionLogger
+from test_tools.__private.logger.levels import Level
 from test_tools.__private.logger.module_logger import ModuleLogger
 from test_tools.__private.logger.package_logger import PackageLogger
 from test_tools.__private.scope import current_scope, ScopedCleanupPolicy, ScopedCurrentDirectory
@@ -20,11 +22,15 @@ def function_scope(request):
         ScopedCleanupPolicy(tt.cleanup_policy.get_default())
 
         current_logger = current_scope.context.get_logger()
-        function_logger = current_logger.create_child_logger(__get_logger_name(request))
+        function_logger = current_logger.create_child_logger(__get_logger_name(request), child_type=FunctionLogger)
+        function_logger.log_to_stdout()
         function_logger.log_to_file()
         current_scope.context.set_logger(function_logger)
 
+        function_logger.set_file_handler_level(Level.TRACE)
+        function_logger.trace("Entering function scope")
         yield
+        function_logger.trace("Leaving function scope")
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -36,9 +42,13 @@ def module_scope(request):
 
         current_logger = current_scope.context.get_logger()
         module_logger = current_logger.create_child_logger(__get_logger_name(request), child_type=ModuleLogger)
+        module_logger.log_to_file()
         current_scope.context.set_logger(module_logger)
 
+        # module_logger.set_file_handler_level(Level.TRACE)
+        module_logger.trace("Entering module scope")
         yield
+        module_logger.trace("Leaving module scope")
 
 
 @pytest.fixture(autouse=True, scope="package")
@@ -60,7 +70,9 @@ def package_scope(request):
             package_logger.log_to_file()
             current_scope.context.set_logger(package_logger)
 
+            package_logger.trace("Entering package scope")
             yield
+            package_logger.trace("Leaving package scope")
 
 
 def __is_run_in_package(request) -> bool:

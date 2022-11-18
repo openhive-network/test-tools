@@ -1,9 +1,16 @@
-from enum import Enum
+from enum import IntEnum
 import logging
 
 
-class Level(Enum):
-    NOTSET = logging.NOTSET
+class UserLevel(IntEnum):
+    DEBUG = logging.DEBUG
+    INFO = logging.INFO
+    WARNING = logging.WARNING
+    ERROR = logging.ERROR
+    CRITICAL = logging.CRITICAL
+
+
+class Level(IntEnum):
     TRACE = (logging.NOTSET + logging.DEBUG) // 2
     DEBUG = logging.DEBUG
     INFO = logging.INFO
@@ -12,4 +19,6 @@ class Level(Enum):
     CRITICAL = logging.CRITICAL
 
 
-assert Level.NOTSET.value < Level.TRACE.value < Level.DEBUG.value
+assert logging.NOTSET < Level.TRACE < Level.DEBUG
+
+logging.addLevelName(Level.TRACE, "TRACE")
