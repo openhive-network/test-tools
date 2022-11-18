@@ -226,6 +226,15 @@ class NodeHandleBase(Handle):
         """
         return self.__implementation.wait_for_block_with_number(number, timeout=timeout)
 
+    def wait_for_live_mode(self, timeout: float = math.inf) -> None:
+        """
+        Blocks program execution until node is in live mode. It's detected by waiting for `hive_status` notification
+
+        :param timeout: Time limit for wait. When timeout is reached, `TimeoutError` exception is thrown. Expressed in
+            seconds.
+        """
+        self.__implementation.wait_for_live_mode(timeout=timeout)
+
     @property
     def ws_endpoint(self) -> str:
         """
