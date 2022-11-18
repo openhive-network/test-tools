@@ -242,3 +242,11 @@ class NodeHandleBase(Handle):
         with special values like 0.0.0.0 address or 0 port, special values are replaced with actually selected by node.
         """
         return self.__implementation.get_ws_endpoint()
+
+    @property
+    def p2p_endpoint(self) -> str:
+        """
+        Returns opened P2P endpoint. Blocks program execution if WS endpoint is not ready. When endpoint is configured
+        with special values like 0.0.0.0 address or 0 port, special values are replaced with actually selected by node.
+        """
+        return self.__implementation.get_p2p_endpoint()
