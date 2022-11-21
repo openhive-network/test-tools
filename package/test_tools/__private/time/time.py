@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Final, Optional
+from typing import Final, Optional, Union
 
 from dateutil.relativedelta import relativedelta
 
@@ -92,6 +92,13 @@ class Time:
                 "Note, that time zones can be modified (e.g.: `.replace(tzinfo=datetime.timezone.utc)`)."
             ) from exception
 
-    @staticmethod
-    def now(time_zone: Optional[timezone] = timezone.utc) -> datetime:
-        return datetime.now(time_zone)
+    @classmethod
+    def now(
+        cls,
+        *,
+        time_zone: Optional[timezone] = timezone.utc,
+        serialize: bool = True,
+        serialize_format: str = DEFAULT_FORMAT,
+    ) -> Union[str, datetime]:
+        time = datetime.now(time_zone)
+        return cls.serialize(time, format_=serialize_format) if serialize else time
