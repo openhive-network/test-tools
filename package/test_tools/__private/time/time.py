@@ -102,3 +102,39 @@ class Time:
     ) -> Union[str, datetime]:
         time = datetime.now(time_zone)
         return cls.serialize(time, format_=serialize_format) if serialize else time
+
+    @classmethod
+    def from_now(
+        cls,
+        *,
+        milliseconds: int = 0,
+        seconds: int = 0,
+        minutes: int = 0,
+        hours: int = 0,
+        days: int = 0,
+        weeks: int = 0,
+        months: int = 0,
+        years: int = 0,
+        time_zone: Optional[timezone] = timezone.utc,
+        serialize: bool = True,
+        serialize_format: str = DEFAULT_FORMAT,
+    ) -> Union[str, datetime]:
+        if not any([milliseconds, seconds, minutes, hours, days, weeks, months, years]):
+            raise ValueError(
+                "At least one keyword argument is required.\n"
+                "If you want to get the current datetime, please use `tt.Time.now()` instead."
+            )
+
+        delta = relativedelta(
+            microseconds=milliseconds * 10**3,
+            seconds=seconds,
+            minutes=minutes,
+            hours=hours,
+            days=days,
+            weeks=weeks,
+            months=months,
+            years=years,
+        )
+
+        time = cls.now(time_zone=time_zone, serialize=False) + delta
+        return cls.serialize(time, format_=serialize_format) if serialize else time
