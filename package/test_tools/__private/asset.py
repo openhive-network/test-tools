@@ -3,7 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from decimal import Decimal
 import operator
-from typing import Final, NoReturn, Optional, Union
+from typing import Final, Union
 import warnings
 
 import abstractcp as acp
@@ -56,12 +56,7 @@ class AssetBase(acp.Abstract):
         self, asset: Union[str, dict, AssetBase], operator_: Union[operator.add, operator.sub]
     ) -> AssetBase:
         if isinstance(asset, dict):
-            self.__assert_same_keys(asset)
-            if self.nai != asset["nai"]:
-                raise TypeError(f"Can't add assets with different NAIs ({self.nai} and {asset['nai']}).")
-            result = deepcopy(self)
-            result.amount = operator_(result.amount, int(asset["amount"]))
-            return result
+            asset = self.__convert_asset_from_dict(asset)
 
         if isinstance(asset, str):
             asset = Asset.from_string(asset)
@@ -96,20 +91,18 @@ class AssetBase(acp.Abstract):
         self.amount = new_asset.amount
         return self
 
-    def __assert_same_keys(self, other: dict) -> Optional[NoReturn]:
-        if set(self.as_nai().keys()) != set(other.keys()):
-            raise TypeError(
-                f"The keys did not match.\n"
-                f"Expected: {set(self.as_nai().keys())}.\n"
-                f"Actual: {set(other.keys())}"
-            )  # fmt: skip
+    def __convert_asset_from_dict(self, asset_as_dict: dict):
+        """
+        The function detects whether the operation takes place in testnet or mainnet assets and automatically
+        uses "from_dict" with testnet currencies or mainnet currencies.
+        """
+        if self.token in ("HIVE", "HBD"):
+            return Asset.from_dict(asset_as_dict, testnet_currencies=False)
+        return Asset.from_dict(asset_as_dict)
 
     def __lt__(self, other: Union[str, dict, AssetBase]) -> bool:
         if isinstance(other, dict):
-            self.__assert_same_keys(other)
-            if self.nai != other["nai"]:
-                raise TypeError(f"Can't compare assets with different NAIs ({self.nai} and {other['nai']}).")
-            return self.amount < int(other["amount"])
+            other = self.__convert_asset_from_dict(other)
 
         if isinstance(other, str):
             other = Asset.from_string(other)
@@ -132,10 +125,7 @@ class AssetBase(acp.Abstract):
 
     def __eq__(self, other: Union[str, dict, AssetBase]) -> bool:
         if isinstance(other, dict):
-            self.__assert_same_keys(other)
-            if self.nai != other["nai"]:
-                raise TypeError(f"Can't compare assets with different NAIs ({self.nai} and {other['nai']}).")
-            return self.as_nai() == other
+            other = self.__convert_asset_from_dict(other)
 
         if isinstance(other, str):
             other = Asset.from_string(other)
@@ -194,3 +184,30 @@ class Asset:
             if token == asset.token:
                 return asset(float(amount))
         raise TypeError(f'Asset with token "{token}" do not exist.')
+
+    @classmethod
+    def from_dict(cls, asset_as_dict: dict, *, testnet_currencies: bool = True) -> AssetBase:
+        """
+        The function allows you to convert an asset from JSON to the appropriate Asset type.
+        In default state of testnet_currencies parameter, function return Asset object in
+        testnet form eg: Test, Tbd, Vest.
+        """
+        asset_as_dict_template = {"amount": None, "precision": None, "nai": None}
+        if set(asset_as_dict.keys()) != set(asset_as_dict_template.keys()):
+            raise TypeError(
+                f"The keys did not match.\n"
+                f"Expected: {set(asset_as_dict_template)}.\n"
+                f"Actual: {set(asset_as_dict.keys())}"
+            )  # fmt: skip
+        try:
+            asset_as_dict["amount"] = int(asset_as_dict["amount"])
+        except ValueError as error:
+            raise ValueError("Value of 'amount' have to be integer.") from error
+        if testnet_currencies:
+            assets = [cls.Tbd, cls.Test, cls.Vest]
+        else:
+            assets = [cls.Hbd, cls.Hive, cls.Vest]
+        for asset in assets:
+            if asset_as_dict["nai"] == asset.nai:
+                return asset(asset_as_dict["amount"] / 10 ** asset_as_dict["precision"])
+        raise TypeError(f'Asset with nai "{asset_as_dict["nai"]}" do not exist.')
