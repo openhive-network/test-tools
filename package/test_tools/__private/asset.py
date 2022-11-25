@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from decimal import Decimal
+from functools import total_ordering
 import operator
 from typing import Final, Union
 import warnings
@@ -9,6 +10,7 @@ import warnings
 import abstractcp as acp
 
 
+@total_ordering
 class AssetBase(acp.Abstract):
     token: str = acp.abstract_class_property(str)
     precision: int = acp.abstract_class_property(int)
@@ -113,15 +115,6 @@ class AssetBase(acp.Abstract):
         if self.token != other.token:
             raise TypeError(f"Can't compare assets with different tokens ({self.token} and {other.token}).")
         return self.amount < other.amount
-
-    def __le__(self, other: Union[str, dict, AssetBase]) -> bool:
-        return self == other or self < other
-
-    def __gt__(self, other: Union[str, dict, AssetBase]) -> bool:
-        return not self < other and self != other
-
-    def __ge__(self, other: Union[str, dict, AssetBase]) -> bool:
-        return self == other or self > other
 
     def __eq__(self, other: Union[str, dict, AssetBase]) -> bool:
         if isinstance(other, dict):
