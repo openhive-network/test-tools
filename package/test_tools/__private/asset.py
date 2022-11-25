@@ -4,10 +4,12 @@ from copy import deepcopy
 from decimal import Decimal
 from functools import total_ordering
 import operator
-from typing import Final, Union
+from typing import Any, Final, NoReturn, Optional, Union
 import warnings
 
 import abstractcp as acp
+
+from test_tools.__private.exceptions import ParseError
 
 
 @total_ordering
@@ -47,32 +49,27 @@ class AssetBase(acp.Abstract):
                 f"because precision of this asset is {self.precision} ({pow(0.1, self.precision):.3f})."
             )
 
-    def as_nai(self) -> dict:
+    @classmethod
+    def __template(cls) -> dict:
         return {
-            "amount": str(self.amount),
-            "precision": self.precision,
-            "nai": self.nai,
+            "amount": None,
+            "precision": cls.precision,
+            "nai": cls.nai,
         }
 
-    def __combine_with(
-        self, asset: Union[str, dict, AssetBase], operator_: Union[operator.add, operator.sub]
-    ) -> AssetBase:
-        if isinstance(asset, dict):
-            asset = self.__convert_asset_from_dict(asset)
+    def as_nai(self) -> dict:
+        template = self.__template().copy()
+        template["amount"] = str(self.amount)
+        return template
 
-        if isinstance(asset, str):
-            asset = Asset.from_string(asset)
+    def __combine_with(self, other: Any, operator_: Union[operator.add, operator.sub]) -> AssetBase:
+        other: AssetBase = self.__convert_to_asset(other, error_detail=operator_.__name__)
 
-        if not isinstance(asset, AssetBase):
-            raise TypeError(f"Assets can't be added with objects of type {type(asset)}")
-
-        if self.token != asset.token:
-            raise TypeError(f"Can't add assets with different tokens ({self.token} and {asset.token}).")
         result = deepcopy(self)
-        result.amount = operator_(result.amount, asset.amount)
+        result.amount = operator_(result.amount, other.amount)
         return result
 
-    def __add__(self, other: Union[str, dict, AssetBase]) -> AssetBase:
+    def __add__(self, other: Any) -> AssetBase:
         return self.__combine_with(other, operator.add)
 
     def __neg__(self) -> AssetBase:
@@ -80,64 +77,80 @@ class AssetBase(acp.Abstract):
         result.amount = -self.amount
         return result
 
-    def __sub__(self, other: Union[str, dict, AssetBase]) -> AssetBase:
+    def __sub__(self, other: Any) -> AssetBase:
         return self.__combine_with(other, operator.sub)
 
-    def __iadd__(self, other: Union[str, dict, AssetBase]) -> AssetBase:
+    def __iadd__(self, other: Any) -> AssetBase:
         new_asset = self.__combine_with(other, operator.add)
         self.amount = new_asset.amount
         return self
 
-    def __isub__(self, other: Union[str, dict, AssetBase]) -> AssetBase:
+    def __isub__(self, other: Any) -> AssetBase:
         new_asset = self.__combine_with(other, operator.sub)
         self.amount = new_asset.amount
         return self
 
-    def __convert_asset_from_dict(self, asset_as_dict: dict):
-        """
-        The function detects whether the operation takes place in testnet or mainnet assets and automatically
-        uses "from_dict" with testnet currencies or mainnet currencies.
-        """
-        if self.token in ("HIVE", "HBD"):
-            return Asset.from_dict(asset_as_dict, testnet_currencies=False)
-        return Asset.from_dict(asset_as_dict)
+    @classmethod
+    def __assert_same_template(cls, other: dict) -> Optional[NoReturn]:
+        if cls.__template().keys() != other.keys():
+            raise ParseError(f"Asset dict keys differ: {other.keys()}, when expected {cls.__template().keys()}.")
 
-    def __lt__(self, other: Union[str, dict, AssetBase]) -> bool:
-        if isinstance(other, dict):
-            other = self.__convert_asset_from_dict(other)
+        if cls.nai != other["nai"]:
+            raise ParseError(f"Asset dict nai differ: `{other['nai']}`, when expected `{cls.nai}`.")
 
-        if isinstance(other, str):
-            other = Asset.from_string(other)
+        if cls.precision != other["precision"]:
+            raise ParseError(f"Asset dict precision differ: `{other['precision']}`, when expected `{cls.precision}`.")
 
-        if not isinstance(other, AssetBase):
-            raise TypeError(f"Assets can't be compared with objects of type {type(other)}")
-
+    def __assert_same_token(self, other: AssetBase, *, error_detail: str) -> Optional[NoReturn]:
         if self.token != other.token:
-            raise TypeError(f"Can't compare assets with different tokens ({self.token} and {other.token}).")
+            raise TypeError(f"Can't {error_detail} assets with different tokens: `{self.token}` and `{other.token}`.")
+
+    def __lt__(self, other: Any) -> bool:
+        other: AssetBase = self.__convert_to_asset(other, error_detail="compare")
         return self.amount < other.amount
 
-    def __eq__(self, other: Union[str, dict, AssetBase]) -> bool:
-        if isinstance(other, dict):
-            other = self.__convert_asset_from_dict(other)
-
-        if isinstance(other, str):
-            other = Asset.from_string(other)
-
-        if not isinstance(other, AssetBase):
-            raise TypeError(f"Assets can't be compared with objects of type {type(other)}")
-
-        if self.token != other.token:
-            raise TypeError(f"Can't compare assets with different tokens ({self.token} and {other.token}).")
+    def __eq__(self, other: Any) -> bool:
+        other: AssetBase = self.__convert_to_asset(other, error_detail="compare")
         return self.amount == other.amount
 
     def __str__(self) -> str:
-        if self.token is None:
-            raise RuntimeError(f"Asset with nai={self.nai} hasn't string representaion")
-
         return f"{self.amount / (10 ** self.precision):.{self.precision}f} {self.token}"
 
     def __repr__(self) -> str:
         return f"Asset({self.as_nai()})"
+
+    def __convert_to_asset(self, other: Any, *, error_detail: Optional[str] = None) -> AssetBase:
+        error_detail = "operate on" if error_detail is None else error_detail
+
+        try:
+            other = self.__handle_asset_conversion(other, error_detail)
+        except ParseError as exception:
+            raise TypeError(f"Can't {error_detail} asset: `{self}` and `{other}`.") from exception
+
+        self.__assert_same_token(other, error_detail=error_detail)
+        return other
+
+    def __handle_asset_conversion(self, other: Any, error_detail: str) -> AssetBase:
+        is_testnet = self.token in ("TESTS", "TBD")  # nai json does not store token info, so we assume it is our type
+
+        if isinstance(other, (str, dict)):
+            other = Asset.from_(other, treat_dict_as_testnet_currencies=is_testnet)
+
+        if not isinstance(other, AssetBase):
+            raise TypeError(f"Can't {error_detail} objects of type `{type(other)}`.")
+        return other
+
+    @classmethod
+    def _from_dict(cls, asset_as_dict: dict) -> AssetBase:
+        cls.__assert_same_template(asset_as_dict)
+
+        try:
+            amount = int(asset_as_dict["amount"])
+            precision = int(asset_as_dict["precision"])
+        except ValueError as exception:
+            raise ParseError("Amount and precision have to be integers.") from exception
+
+        return cls(amount / 10**precision)
 
 
 class Asset:
@@ -167,40 +180,47 @@ class Asset:
         nai: Final[str] = "@@000000037"
 
     @classmethod
-    def from_string(cls, asset_as_string: str) -> AssetBase:
-        """
-        The function allows you to convert an asset from string to the appropriate Asset type.
-        """
+    def __from_sting(cls, asset_as_string: str) -> AssetBase:
         amount, token = asset_as_string.split()
         assets = [cls.Hbd, cls.Hive, cls.Vest, cls.Tbd, cls.Test]
         for asset in assets:
             if token == asset.token:
                 return asset(float(amount))
-        raise TypeError(f'Asset with token "{token}" do not exist.')
+        raise ParseError(
+            f"Asset with token `{token}` does not exist.\n"
+            f"Supported tokens are: {[asset.token for asset in assets]}."
+        )
 
     @classmethod
-    def from_dict(cls, asset_as_dict: dict, *, testnet_currencies: bool = True) -> AssetBase:
-        """
-        The function allows you to convert an asset from JSON to the appropriate Asset type.
-        In default state of testnet_currencies parameter, function return Asset object in
-        testnet form eg: Test, Tbd, Vest.
-        """
-        asset_as_dict_template = {"amount": None, "precision": None, "nai": None}
-        if set(asset_as_dict.keys()) != set(asset_as_dict_template.keys()):
-            raise TypeError(
-                f"The keys did not match.\n"
-                f"Expected: {set(asset_as_dict_template)}.\n"
-                f"Actual: {set(asset_as_dict.keys())}"
-            )  # fmt: skip
-        try:
-            asset_as_dict["amount"] = int(asset_as_dict["amount"])
-        except ValueError as error:
-            raise ValueError("Value of 'amount' have to be integer.") from error
-        if testnet_currencies:
-            assets = [cls.Tbd, cls.Test, cls.Vest]
-        else:
-            assets = [cls.Hbd, cls.Hive, cls.Vest]
+    def __from_dict(cls, asset_as_dict: dict, *, testnet_currencies: bool = True) -> AssetBase:
+        if "nai" not in asset_as_dict:
+            raise ParseError("Asset dictionary has no nai.")
+
+        assets = [cls.Vest]
+        assets += [cls.Tbd, cls.Test] if testnet_currencies else [cls.Hbd, cls.Hive]
+
         for asset in assets:
             if asset_as_dict["nai"] == asset.nai:
-                return asset(asset_as_dict["amount"] / 10 ** asset_as_dict["precision"])
-        raise TypeError(f'Asset with nai "{asset_as_dict["nai"]}" do not exist.')
+                # When it will be implemented according to the Handle's practice  should be removed
+                return asset._from_dict(asset_as_dict)  # pylint: disable=protected-access
+        raise ParseError(
+            f"Asset with nai `{asset_as_dict['nai']}` does not exist.\n"
+            f"Supported nai's are: {[asset.nai for asset in assets]}."
+        )
+
+    @classmethod
+    def from_(cls, data: Union[str, dict], *, treat_dict_as_testnet_currencies: bool = True) -> AssetBase:
+        """
+        This function allows you to convert an asset from string or JSON format to the appropriate object of Asset type.
+
+        * In case of dict:
+            Nai dictionary does not hold the information about token type.
+
+            By default, treat_dict_as_testnet_currencies parameter is set to True. As a result, an Asset object will be
+            created in the testnet format. If you want to create an object in mainnet form, set it to False.
+        """
+        if isinstance(data, str):
+            return cls.__from_sting(data)
+        if isinstance(data, dict):
+            return cls.__from_dict(data, testnet_currencies=treat_dict_as_testnet_currencies)
+        raise ParseError(f"Can't convert `{type(data)}` to Asset object.")
