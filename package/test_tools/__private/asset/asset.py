@@ -1,37 +1,37 @@
 from typing import Final, Union
 
-from test_tools.__private.asset.asset_base import AssetBase
+from test_tools.__private.asset.token import Token
 from test_tools.__private.exceptions import ParseError
 
 
 class Asset:
-    class Hbd(AssetBase):
+    class Hbd(Token):
         token: Final[str] = "HBD"
         precision: Final[int] = 3
         nai: Final[str] = "@@000000013"
 
-    class Tbd(AssetBase):
+    class Tbd(Token):
         token: Final[str] = "TBD"
         precision: Final[int] = 3
         nai: Final[str] = "@@000000013"
 
-    class Hive(AssetBase):
+    class Hive(Token):
         token: Final[str] = "HIVE"
         precision: Final[int] = 3
         nai: Final[str] = "@@000000021"
 
-    class Test(AssetBase):
+    class Test(Token):
         token: Final[str] = "TESTS"
         precision: Final[int] = 3
         nai: Final[str] = "@@000000021"
 
-    class Vest(AssetBase):
+    class Vest(Token):
         token: Final[str] = "VESTS"
         precision: Final[int] = 6
         nai: Final[str] = "@@000000037"
 
     @classmethod
-    def from_(cls, data: Union[str, dict], *, treat_dict_as_testnet_currencies: bool = True) -> AssetBase:
+    def from_(cls, data: Union[str, dict], *, treat_dict_as_testnet_currencies: bool = True) -> Token:
         """
         This function allows you to convert an asset from string or JSON format to the appropriate object of Asset type.
 
@@ -48,7 +48,7 @@ class Asset:
         raise ParseError(f"Can't convert `{type(data)}` to Asset object.")
 
     @classmethod
-    def __from_sting(cls, asset_as_string: str) -> AssetBase:
+    def __from_sting(cls, asset_as_string: str) -> Token:
         amount, token = asset_as_string.split()
         assets = [cls.Hbd, cls.Hive, cls.Vest, cls.Tbd, cls.Test]
         for asset in assets:
@@ -60,7 +60,7 @@ class Asset:
         )
 
     @classmethod
-    def __from_dict(cls, asset_as_dict: dict, *, testnet_currencies: bool = True) -> AssetBase:
+    def __from_dict(cls, asset_as_dict: dict, *, testnet_currencies: bool = True) -> Token:
         if "nai" not in asset_as_dict:
             raise ParseError("Asset dictionary has no nai.")
 
