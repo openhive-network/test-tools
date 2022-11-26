@@ -1,13 +1,11 @@
 from decimal import Decimal
-from typing import Optional, Union
+from typing import NoReturn, Optional, Union
 import warnings
 
 
 class DecimalConverter:
     @classmethod
     def convert(cls, amount: Union[int, float, str], *, precision: Optional[int] = None) -> Decimal:
-        if precision is not None:
-            cls.__warn_if_precision_might_be_lost(amount, precision)
 
         # We could not pass float variable directly to Decimal initializer as from the nature of floats it won't result
         # in the exact decimal value. We need to convert float to string first like https://stackoverflow.com/a/18886013
@@ -15,21 +13,32 @@ class DecimalConverter:
         if isinstance(amount, float):
             amount = repr(amount)
 
-        if precision is None:
-            return Decimal(amount).normalize()
+        converted = Decimal(amount)
 
-        exponent = Decimal(10) ** (-1 * precision)
-        return Decimal(amount).quantize(exponent).normalize()
+        if precision is not None:
+            cls.__assert_precision_is_positive(precision)
+            cls.__warn_if_precision_might_be_lost(converted, precision)
+            converted = cls.__round_to_precision(converted, precision)
+
+        return converted.normalize()
 
     @staticmethod
-    def __warn_if_precision_might_be_lost(amount: Union[int, float], precision: int) -> None:
-        rounded_value = round(amount, precision)
-        acceptable_error = 0.1**10
+    def __assert_precision_is_positive(precision: int) -> Optional[NoReturn]:
+        if precision < 0:
+            raise ValueError("Precision must be a positive integer.")
 
-        if abs(amount - rounded_value) > acceptable_error:
+    @staticmethod
+    def __round_to_precision(amount: Decimal, precision: int) -> Decimal:
+        exponent = Decimal(10) ** (-1 * precision)
+        return amount.quantize(exponent)
+
+    @classmethod
+    def __warn_if_precision_might_be_lost(cls, amount: Decimal, precision: int) -> None:
+        rounded_amount = cls.__round_to_precision(amount, precision)
+        if rounded_amount != amount:
             warnings.warn(
-                f"Precision lost during asset creation.\n"
+                f"Precision lost during value creation.\n"
                 f"\n"
-                f"Asset with amount {amount} was requested, but this value was rounded to {rounded_value},\n"
-                f"because precision of this asset is {precision} ({pow(0.1, precision):.3f})."
+                f"Value of {amount} was requested, but it was rounded to {rounded_amount},\n"
+                f"because precision of this value is {precision} ({pow(0.1, precision):.3f})."
             )
