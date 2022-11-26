@@ -22,7 +22,7 @@ class AssetBase(acp.Abstract):
         self.amount = self.__convert_amount_to_internal_representation(amount)
 
     def __convert_amount_to_internal_representation(self, amount: Union[int, float]) -> int:
-        amount_decimal = DecimalConverter.convert(amount, self.precision)
+        amount_decimal = DecimalConverter.convert(amount, precision=self.precision)
         return int(amount_decimal * Decimal(10) ** self.precision)
 
     @classmethod
