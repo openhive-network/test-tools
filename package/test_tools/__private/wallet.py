@@ -13,7 +13,7 @@ import warnings
 
 from test_tools.__private import communication, paths_to_executables
 from test_tools.__private.account import Account
-from test_tools.__private.asset import Asset
+from test_tools.__private.asset.asset import Asset
 from test_tools.__private.exceptions import CommunicationError, NodeIsNotRunning
 from test_tools.__private.logger.logger_internal_interface import logger
 from test_tools.__private.node import Node
