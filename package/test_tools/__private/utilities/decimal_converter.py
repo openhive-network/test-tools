@@ -5,7 +5,7 @@ import warnings
 
 class DecimalConverter:
     @classmethod
-    def convert(cls, amount: Union[int, float, str], precision: Optional[int] = None) -> Decimal:
+    def convert(cls, amount: Union[int, float, str], *, precision: Optional[int] = None) -> Decimal:
         if precision is not None:
             cls.__warn_if_precision_might_be_lost(amount, precision)
 
