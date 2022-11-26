@@ -5,11 +5,11 @@ from decimal import Decimal
 from functools import total_ordering
 import operator
 from typing import Any, Final, NoReturn, Optional, Union
-import warnings
 
 import abstractcp as acp
 
 from test_tools.__private.exceptions import ParseError
+from test_tools.__private.utilities.decimal_converter import DecimalConverter
 
 
 @total_ordering
@@ -22,32 +22,8 @@ class AssetBase(acp.Abstract):
         self.amount = self.__convert_amount_to_internal_representation(amount)
 
     def __convert_amount_to_internal_representation(self, amount: Union[int, float]) -> int:
-        self.__warn_if_precision_might_be_lost(amount)
-
-        amount_decimal = self.__convert_to_decimal(amount)
+        amount_decimal = DecimalConverter.convert(amount, self.precision)
         return int(amount_decimal * Decimal(10) ** self.precision)
-
-    def __convert_to_decimal(self, amount: Union[int, float, str]) -> Decimal:
-        # We could not pass float variable directly to Decimal initializer as from the nature of floats it won't result
-        # in the exact decimal value. We need to convert float to string first like https://stackoverflow.com/a/18886013
-        # For example: `str(Decimal(0.1)) == '0.1000000000000000055511151231257827021181583404541015625'` is True
-        if isinstance(amount, float):
-            amount = repr(amount)
-
-        precision = Decimal(10) ** (-1 * self.precision)
-        return Decimal(amount).quantize(precision).normalize()
-
-    def __warn_if_precision_might_be_lost(self, amount: Union[int, float]) -> None:
-        rounded_value = round(amount, self.precision)
-        acceptable_error = 0.1**10
-
-        if abs(amount - rounded_value) > acceptable_error:
-            warnings.warn(
-                f"Precision lost during asset creation.\n"
-                f"\n"
-                f"Asset with amount {amount} was requested, but this value was rounded to {rounded_value},\n"
-                f"because precision of this asset is {self.precision} ({pow(0.1, self.precision):.3f})."
-            )
 
     @classmethod
     def __template(cls) -> dict:
