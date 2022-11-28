@@ -1,4 +1,5 @@
 # Other handles
+from test_tools.__private.user_handles.handles.asset_handles.asset_handle import AssetHandle
 from test_tools.__private.user_handles.handles.context_singleton import context_singleton as context
 from test_tools.__private.user_handles.handles.network_handle import NetworkHandle
 

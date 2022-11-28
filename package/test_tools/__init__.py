@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING as __TYPE_CHECKING
 
 from test_tools.__private import cleanup_policy, constants, exceptions, paths_to_executables
 from test_tools.__private.account import Account
-from test_tools.__private.asset.asset import Asset
 from test_tools.__private.block_log import BlockLog
 from test_tools.__private.keys import PrivateKey, PublicKey
 from test_tools.__private.logger.logger_user_interface import logger
@@ -10,6 +9,7 @@ from test_tools.__private.time import Time
 
 # User handles
 from test_tools.__private.user_handles import ApiNodeHandle as ApiNode
+from test_tools.__private.user_handles import AssetHandle as Asset
 from test_tools.__private.user_handles import context
 from test_tools.__private.user_handles import InitNodeHandle as InitNode
 from test_tools.__private.user_handles import NetworkHandle as Network
