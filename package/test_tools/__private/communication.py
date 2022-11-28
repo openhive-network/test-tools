@@ -8,6 +8,7 @@ from test_tools.__private.asset.token import Token
 from test_tools.__private.exceptions import CommunicationError
 from test_tools.__private.keys.key_base import KeyBase
 from test_tools.__private.logger.logger_internal_interface import logger
+from test_tools.__private.user_handles.handles.asset_handles.token_handle import TokenHandleBase
 
 
 class CustomJsonEncoder(json.JSONEncoder):
@@ -20,7 +21,7 @@ class CustomJsonEncoder(json.JSONEncoder):
 
 class JsonEncoderWithLegacyAssets(CustomJsonEncoder):
     def default(self, o):
-        if isinstance(o, Token):
+        if isinstance(o, (Token, TokenHandleBase)):
             return str(o)
 
         return super().default(o)
@@ -28,7 +29,7 @@ class JsonEncoderWithLegacyAssets(CustomJsonEncoder):
 
 class JsonEncoderWithNaiAssets(CustomJsonEncoder):
     def default(self, o):
-        if isinstance(o, Token):
+        if isinstance(o, (Token, TokenHandleBase)):
             return o.as_nai()
 
         return super().default(o)
