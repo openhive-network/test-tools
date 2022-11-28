@@ -4,21 +4,26 @@ from copy import deepcopy
 from decimal import Decimal
 from functools import total_ordering
 import operator
-from typing import Any, NoReturn, Optional, Union
+from typing import Any, NoReturn, Optional, TYPE_CHECKING, Union
 
 import abstractcp as acp
 
 from test_tools.__private.exceptions import ParseError
+from test_tools.__private.user_handles.implementation import Implementation
 from test_tools.__private.utilities.decimal_converter import DecimalConverter
+
+if TYPE_CHECKING:
+    from test_tools.__private.user_handles.handles.asset_handles.token_handle import TokenHandleBase
 
 
 @total_ordering
-class Token(acp.Abstract):
+class Token(Implementation, acp.Abstract):
     token: str = acp.abstract_class_property(str)
     precision: int = acp.abstract_class_property(int)
     nai: str = acp.abstract_class_property(str)
 
-    def __init__(self, amount: Union[int, float]) -> None:
+    def __init__(self, amount: Union[int, float], handle: Optional[TokenHandleBase] = None) -> None:
+        super().__init__(handle=handle)
         self.amount = self.__convert_amount_to_internal_representation(amount)
 
     def __str__(self) -> str:
