@@ -10,4 +10,3 @@ from test_tools.__private.user_handles.handles.node_handles.raw_node_handle impo
 from test_tools.__private.user_handles.handles.node_handles.remote_node_handle import RemoteNodeHandle
 from test_tools.__private.user_handles.handles.node_handles.witness_node_handle import WitnessNodeHandle
 from test_tools.__private.user_handles.handles.wallet_handle import WalletHandle
-from test_tools.__private.user_handles.implementation import Implementation
