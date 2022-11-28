@@ -48,6 +48,17 @@ class AssetHandle(StaticHandle):
                created in the testnet format.
         :return: TokenHandleBase-based object, which represents the token.
         """
+        # 1 - problem z ponownym tworzeniem obiektu:
+        # token = cls.__implementation.from_(data=data, treat_dict_as_testnet_currencies=treat_dict_as_testnet_currencies)
+        # handle = HiveHandle(amount=token.amount)
+        # return handle
+
+        # 2 - problem z inna nazwa klasy np w debugu:
+        # token = cls.__implementation.from_(data=data, treat_dict_as_testnet_currencies=treat_dict_as_testnet_currencies)
+        # handle = HiveHandleExisting(implementation=token)
+        # return handle
+
+        # 3:
         token = cls._implementation.from_(data=data, treat_dict_as_testnet_currencies=treat_dict_as_testnet_currencies)
         handle_type = cls.__TOKENS[token.token]
         handle = handle_type(__implementation=token)
