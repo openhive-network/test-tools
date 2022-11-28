@@ -72,4 +72,5 @@ class TokenHandleBase(InsideStaticHandle):
         return my_type(__implementation=implementation)
 
     def as_nai(self) -> dict:
+        """Returns the token in the NAI representation (JSON format as a dictionary)."""
         return self.__implementation.as_nai()

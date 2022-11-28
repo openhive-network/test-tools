@@ -32,15 +32,6 @@ class Asset:
 
     @classmethod
     def from_(cls, data: Union[str, dict], *, treat_dict_as_testnet_currencies: bool = True) -> Token:
-        """
-        This function allows you to convert an asset from string or JSON format to the appropriate object of Asset type.
-
-        * In case of dict:
-            Nai dictionary does not hold the information about token type.
-
-            By default, treat_dict_as_testnet_currencies parameter is set to True. As a result, an Asset object will be
-            created in the testnet format. If you want to create an object in mainnet form, set it to False.
-        """
         if isinstance(data, str):
             return cls.__from_sting(data)
         if isinstance(data, dict):
