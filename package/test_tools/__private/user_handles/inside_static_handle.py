@@ -5,6 +5,7 @@ from test_tools.__private.user_handles.handle import Handle
 from test_tools.__private.user_handles.implementation import Implementation
 
 
+# rename - not insidestatic, but it is a handle which could be created with just assigning implementation ( not creating it everytime in init)
 class InsideStaticHandle(Handle, ABC):
     """
     Base class which should be used in classes derived from `StaticHandle` class, when some of their methods are
