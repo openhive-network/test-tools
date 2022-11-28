@@ -69,8 +69,7 @@ class Asset:
 
         for asset in assets:
             if asset_as_dict["nai"] == asset.nai:
-                # When it will be implemented according to the Handle's practice  should be removed
-                return asset._from_dict(asset_as_dict)  # pylint: disable=protected-access
+                return asset.from_dict(asset_as_dict)
         raise ParseError(
             f"Asset with nai `{asset_as_dict['nai']}` does not exist.\n"
             f"Supported nai's are: {[asset.nai for asset in assets]}."

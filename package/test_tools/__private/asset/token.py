@@ -75,7 +75,7 @@ class Token(Implementation, acp.Abstract):
         return template
 
     @classmethod
-    def _from_dict(cls, asset_as_dict: dict) -> Token:
+    def from_dict(cls, asset_as_dict: dict) -> Token:
         cls.__assert_same_template(asset_as_dict)
 
         try:
