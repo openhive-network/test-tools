@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from functools import total_ordering
 import typing
-from typing import Any, Type, Union
+from typing import Any, Type, TYPE_CHECKING, Union
 
 from test_tools.__private.asset.token import Token
 from test_tools.__private.user_handles.get_implementation import get_handle, get_implementation
 from test_tools.__private.user_handles.inside_static_handle import InsideStaticHandle
+
+if TYPE_CHECKING:
+    from test_tools.__private.type_annotations.typed_dicts.nai import NaiDict
 
 
 @total_ordering
@@ -67,6 +70,6 @@ class TokenHandleBase(InsideStaticHandle):
             return get_implementation(other)
         return other
 
-    def as_nai(self) -> dict:
+    def as_nai(self) -> NaiDict:
         """Returns the token in the NAI representation (JSON format as a dictionary)."""
         return self.__implementation.as_nai()

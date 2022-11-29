@@ -13,6 +13,7 @@ from test_tools.__private.user_handles.implementation import Implementation
 from test_tools.__private.utilities.decimal_converter import DecimalConverter
 
 if TYPE_CHECKING:
+    from test_tools.__private.type_annotations.typed_dicts.nai import NaiDict
     from test_tools.__private.user_handles.handles.asset_handles.token_handle import TokenHandleBase
 
 
@@ -69,7 +70,7 @@ class Token(Implementation, acp.Abstract):
             "nai": cls.nai,
         }
 
-    def as_nai(self) -> dict:
+    def as_nai(self) -> NaiDict:
         template = self.__template().copy()
         template["amount"] = str(self.amount)
         return template
