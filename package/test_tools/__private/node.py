@@ -9,7 +9,7 @@ import signal
 import subprocess
 from threading import Event
 import time
-from typing import Dict, Final, List, Literal, NoReturn, Optional, Tuple, TYPE_CHECKING, Union
+from typing import Dict, List, Literal, NoReturn, Optional, Tuple, TYPE_CHECKING, Union
 import warnings
 
 from test_tools.__private import cleanup_policy, communication, exceptions, paths_to_executables
@@ -23,6 +23,7 @@ from test_tools.__private.scope import context, ScopedObject
 from test_tools.__private.snapshot import Snapshot
 from test_tools.__private.url import Url
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
+from test_tools.__private.utilities.fake_time import configure_fake_time
 from test_tools.__private.wait_for import wait_for, wait_for_event
 from test_tools.node_api.node_apis import Apis
 from test_tools.node_configs.default import create_default_config
@@ -95,7 +96,7 @@ class Node(UserHandleImplementation, ScopedObject):
                 environment_variables.update(with_environment_variables)
 
             if with_time_offset is not None:
-                self.__configure_fake_time(environment_variables, with_time_offset)
+                configure_fake_time(self.__logger, environment_variables, with_time_offset)
 
             if blocking:
                 subprocess.run(
@@ -117,47 +118,6 @@ class Node(UserHandleImplementation, ScopedObject):
 
         def get_id(self):
             return self.__process.pid
-
-        def __configure_fake_time(self, env, time_offset):
-            self.__logger.info(f"Using time_offset {time_offset}")
-
-            env["LD_PRELOAD"] = self.__get_fake_time_path()
-            env["FAKETIME"] = time_offset
-            env["FAKETIME_DONT_RESET"] = "1"
-            env["TZ"] = "UTC"
-
-        def __get_fake_time_path(self) -> Path:
-            installation_manual: Final[str] = (
-                "To install libfaketime perform following operations:\n"
-                "\n"
-                "    git clone https://github.com/wolfcw/libfaketime.git\n"
-                "    cd libfaketime/src/\n"
-                "    sudo make install"
-            )
-
-            default_installation_path = Path("/usr/local/lib/faketime/libfaketimeMT.so.1")
-            ubuntu_package_installation_path = Path("/usr/lib/x86_64-linux-gnu/faketime/libfaketimeMT.so.1")
-
-            if "LIBFAKETIME_PATH" in os.environ:
-                fake_time_path = Path(os.getenv("LIBFAKETIME_PATH"))
-                assert fake_time_path.exists(), f'File defined in LIBFAKETIME_PATH ("{fake_time_path}") does not exist.'
-            elif default_installation_path.exists():
-                fake_time_path = default_installation_path
-            elif ubuntu_package_installation_path.exists():
-                self.__logger.warning(
-                    f"You are using libfaketime from Ubuntu package repository, which is not supported.\n"
-                    f"Recommended way is to build them from sources.\n\n"
-                    f"{installation_manual}"
-                )
-                fake_time_path = ubuntu_package_installation_path
-            else:
-                raise RuntimeError(
-                    f"Missing path to libfaketime.\n\n"
-                    f"{installation_manual}"
-                )  # fmt: skip
-
-            assert fake_time_path.is_file(), f'LIBFAKETIME_PATH (with value "{fake_time_path}") is not path of file.'
-            return fake_time_path
 
         def __prepare_files_for_streams(self):
             for name, file in self.__files.items():
