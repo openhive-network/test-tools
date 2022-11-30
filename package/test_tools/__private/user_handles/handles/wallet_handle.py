@@ -65,16 +65,26 @@ class WalletHandle(Handle):
 
         return self.__implementation.in_single_transaction(broadcast=broadcast)
 
-    def run(self, *, timeout: float = Wallet.DEFAULT_RUN_TIMEOUT, preconfigure: bool = True):
+    def run(
+        self,
+        *,
+        timeout: float = Wallet.DEFAULT_RUN_TIMEOUT,
+        preconfigure: bool = True,
+        time_offset: Optional[str] = None,
+    ):
         """
         Runs wallet's process and blocks until wallet will be ready to use.
 
         :param timeout: TimeoutError will be raised, if wallet won't start before specified timeout.
         :param preconfigure: If set to True, after run wallet will be unlocked with password DEFAULT_PASSWORD and
             initminer's keys imported.
+        :param time_offset: Allows to change system date and time a node sees (without changing real OS time).
+            Can be specified either absolutely, relatively and speed up or slow down clock. Value passed in
+            `time_offset` is written to `FAKETIME` environment variable. For details and examples see libfaketime
+            official documentation: https://github.com/wolfcw/libfaketime.
         """
 
-        self.__implementation.run(timeout=timeout, preconfigure=preconfigure)
+        self.__implementation.run(timeout=timeout, preconfigure=preconfigure, with_time_offset=time_offset)
 
     def restart(self, *, preconfigure: bool = True):
         """

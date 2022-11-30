@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 import concurrent.futures
 import copy
 import math
+import os
 import re
 import shutil
 import signal
@@ -20,6 +21,7 @@ from test_tools.__private.node import Node
 from test_tools.__private.remote_node import RemoteNode
 from test_tools.__private.scope import context, ScopedObject
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
+from test_tools.__private.utilities.fake_time import configure_fake_time
 from test_tools.__private.wait_for import wait_for
 
 if TYPE_CHECKING:
@@ -1045,7 +1047,14 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         return False
 
-    def run(self, timeout: float = DEFAULT_RUN_TIMEOUT, *, preconfigure: bool = True, clean: Optional[bool] = None):
+    def run(
+        self,
+        timeout: float = DEFAULT_RUN_TIMEOUT,
+        *,
+        preconfigure: bool = True,
+        clean: Optional[bool] = None,
+        time_offset: Optional[str] = None,
+    ):
         """
         Starts wallet. Blocks until wallet will be ready for use.
 
@@ -1099,9 +1108,16 @@ class Wallet(UserHandleImplementation, ScopedObject):
         command = [str(self.executable_file_path), *run_parameters]
         self.logger.debug(" ".join(item for item in command))
 
+        environment_variables = dict(os.environ)
+
+        if time_offset is not None:
+            configure_fake_time(self.logger, environment_variables, time_offset)
+
         # pylint: disable=consider-using-with
         # Process created here have to exist longer than current scope
-        self.process = subprocess.Popen(command, cwd=self.directory, stdout=self.stdout_file, stderr=self.stderr_file)
+        self.process = subprocess.Popen(
+            command, cwd=self.directory, stdout=self.stdout_file, stderr=self.stderr_file, env=environment_variables
+        )
 
         self.__produced_files = True
 
