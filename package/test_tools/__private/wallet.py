@@ -992,6 +992,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         additional_arguments: Iterable = (),
         preconfigure: bool = True,
         handle: Optional[WalletHandle] = None,
+        time_offset: Optional[str] = None,
     ):
         super().__init__(handle=handle)
 
@@ -1019,7 +1020,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.__produced_files = False
         self.logger = logger.create_child_logger(self.name)
 
-        self.run(preconfigure=preconfigure)
+        self.run(preconfigure=preconfigure, time_offset=time_offset)
 
     def __str__(self):
         return self.name
@@ -1062,6 +1063,10 @@ class Wallet(UserHandleImplementation, ScopedObject):
         :param preconfigure: If set to True, wallet will be unlocked with password Wallet.DEFAULT_PASSWORD and initminer
                              key imported.
         :param clean: If set to True, wallet directory with all its files will be removed before run.
+        :param time_offset: Allows to change system date and time a node sees (without changing real OS time).
+            Can be specified either absolutely, relatively and speed up or slow down clock. Value passed in
+            `time_offset` is written to `FAKETIME` environment variable. For details and examples see libfaketime
+            official documentation: https://github.com/wolfcw/libfaketime.
         """
         run_parameters = [
             "--daemon",
@@ -1189,9 +1194,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
     def at_exit_from_scope(self):
         self.close()
 
-    def restart(self, *, preconfigure=True):
+    def restart(self, *, preconfigure=True, time_offset: Optional[str] = None):
         self.close()
-        self.run(preconfigure=preconfigure, clean=False)
+        self.run(preconfigure=preconfigure, clean=False, time_offset=time_offset)
 
     def close(self):
         self.__close_process()

@@ -24,6 +24,7 @@ class WalletHandle(Handle):
         attach_to: Union[None, NodeHandleBase, RemoteNode] = None,
         additional_arguments: Iterable[str] = (),
         preconfigure: bool = True,
+        time_offset: Optional[str] = None,
     ):
         """
         Creates wallet, runs its process and blocks until wallet will be ready to use.
@@ -33,6 +34,7 @@ class WalletHandle(Handle):
         :param additional_arguments: Command line arguments which will be applied during running wallet.
         :param preconfigure: If set to True, after run wallet will be unlocked with password DEFAULT_PASSWORD and
             initminer's keys imported.
+        :param time_offset: See parameter ``time_offset`` in :func:`run`.
         """
         if isinstance(attach_to, (NodeHandleBase, RemoteNode)):
             attach_to = get_implementation(attach_to)
@@ -42,6 +44,7 @@ class WalletHandle(Handle):
                 attach_to=attach_to,
                 additional_arguments=additional_arguments,
                 preconfigure=preconfigure,
+                time_offset=time_offset,
             )
         )
 
@@ -84,17 +87,18 @@ class WalletHandle(Handle):
             official documentation: https://github.com/wolfcw/libfaketime.
         """
 
-        self.__implementation.run(timeout=timeout, preconfigure=preconfigure, with_time_offset=time_offset)
+        self.__implementation.run(timeout=timeout, preconfigure=preconfigure, time_offset=time_offset)
 
-    def restart(self, *, preconfigure: bool = True):
+    def restart(self, *, preconfigure: bool = True, time_offset: Optional[str] = None):
         """
         Closes wallet's process, runs it again and blocks until wallet will be ready to use.
 
         :param preconfigure: If set to True, after run wallet will be unlocked with password DEFAULT_PASSWORD and
             initminer's keys imported.
+        :param time_offset: See parameter ``time_offset`` in :func:`run`.
         """
 
-        self.__implementation.restart(preconfigure=preconfigure)
+        self.__implementation.restart(preconfigure=preconfigure, time_offset=time_offset)
 
     @property
     def transaction_serialization(self) -> Literal["legacy", "hf26"]:
