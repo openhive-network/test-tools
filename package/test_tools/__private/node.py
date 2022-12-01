@@ -483,8 +483,6 @@ class Node(UserHandleImplementation, ScopedObject):
         self.__set_unset_endpoints()
 
         log_message = f"Running {self}"
-        if time_offset is not None:
-            log_message += f" with time offset {time_offset}"
 
         additional_arguments = [*arguments]
         if load_snapshot_from is not None:
