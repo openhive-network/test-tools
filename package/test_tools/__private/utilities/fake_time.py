@@ -1,6 +1,11 @@
+from __future__ import annotations
+
 import os
 from pathlib import Path
-from typing import Final
+from typing import Final, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from test_tools.__private.logger.logger_wrapper import LoggerWrapper
 
 
 def configure_fake_time(logger: LoggerWrapper, env: dict, time_offset: str):
