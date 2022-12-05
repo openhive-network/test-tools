@@ -21,7 +21,7 @@ class PreconfiguredNode(RawNode):
             '{"name":"user","level":"debug","appender":"stderr"} '
             '{"name":"chainlock","level":"debug","appender":"p2p"} '
             '{"name":"sync","level":"debug","appender":"p2p"} '
-            '{"name":"p2p","level":"debug","appender":"p2p"}'
+            '{"name":"p2p","level":"info","appender":"p2p"}'
         )
         self.config.shared_file_size = "128M"
 
