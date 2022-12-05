@@ -18,6 +18,7 @@ from test_tools.__private.constants import CleanupPolicy
 from test_tools.__private.logger.logger_internal_interface import logger
 from test_tools.__private.node_http_server import NodeHttpServer
 from test_tools.__private.node_message import NodeMessage
+from test_tools.__private.node_option import NodeOption
 from test_tools.__private.raise_exception_helper import RaiseExceptionHelper
 from test_tools.__private.scope import context, ScopedObject
 from test_tools.__private.snapshot import Snapshot
@@ -71,6 +72,16 @@ class Node(UserHandleImplementation, ScopedObject):
         def get_supported_plugins(self) -> List[str]:
             output = self.__run_and_get_output("--list-plugins")
             return output.split("\n")
+
+        @property
+        def config_options(self) -> List[NodeOption]:
+            output = self.__run_and_get_output("--dump-options")
+            return list(map(NodeOption.from_dict, json.loads(output)["config_file"]))
+
+        @property
+        def cli_options(self) -> List[NodeOption]:
+            output = self.__run_and_get_output("--dump-options")
+            return list(map(NodeOption.from_dict, json.loads(output)["command_line"]))
 
     class __Process:
         def __init__(self, directory, executable, logger):
@@ -294,6 +305,14 @@ class Node(UserHandleImplementation, ScopedObject):
 
     def get_supported_plugins(self) -> List[str]:
         return self.__executable.get_supported_plugins()
+
+    @property
+    def config_options(self) -> List[NodeOption]:
+        return self.__executable.config_options
+
+    @property
+    def cli_options(self) -> List[NodeOption]:
+        return self.__executable.cli_options
 
     def wait_number_of_blocks(self, blocks_to_wait, *, timeout=math.inf):
         assert blocks_to_wait > 0

@@ -15,10 +15,12 @@ if TYPE_CHECKING:
     from test_tools.__private.block_log import BlockLog
     from test_tools.__private.cleanup_policy import CleanupPolicy
     from test_tools.__private.node_config import NodeConfig
+    from test_tools.__private.node_option import NodeOption
     from test_tools.__private.snapshot import Snapshot
     from test_tools.node_api.node_apis import Apis
 
 
+# pylint: disable=too-many-public-methods
 class NodeHandleBase(Handle):
     __DEFAULT_WAIT_FOR_LIVE_TIMEOUT = Node.DEFAULT_WAIT_FOR_LIVE_TIMEOUT
 
@@ -96,6 +98,16 @@ class NodeHandleBase(Handle):
     def get_current_witness(self) -> str:
         """Returns current witness."""
         return self.__implementation.get_current_witness()
+
+    @property
+    def config_options(self) -> List[NodeOption]:
+        """Returns a list of options that can be specified in config file."""
+        return self.__implementation.config_options
+
+    @property
+    def cli_options(self) -> List[NodeOption]:
+        """Returns a list of options that can be specified as command line arguments."""
+        return self.__implementation.config_options
 
     @property
     def http_endpoint(self) -> str:
