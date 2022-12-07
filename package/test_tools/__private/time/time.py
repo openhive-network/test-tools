@@ -145,18 +145,19 @@ class Time:
     def wait_for(
         predicate: Callable[[], bool],
         *,
-        timeout: float = math.inf,
+        timeout: Union[float, timedelta] = math.inf,
         timeout_error_message: Optional[str] = None,
         poll_time: float = 1.0,
     ) -> float:
-        assert timeout >= 0, "The `timeout` argument must be non-negative value."
+        timeout_secs: float = timeout.total_seconds() if isinstance(timeout, timedelta) else timeout
+        assert timeout_secs >= 0, "The `timeout` argument must be non-negative value."
 
         already_waited = 0
         while not predicate():
-            if timeout - already_waited <= 0:
+            if timeout_secs - already_waited <= 0:
                 raise TimeoutError(timeout_error_message or "Waited too long, timeout was reached")
 
-            sleep_time = min(poll_time, timeout)
+            sleep_time = min(poll_time, timeout_secs)
             time.sleep(sleep_time)
             already_waited += sleep_time
 
