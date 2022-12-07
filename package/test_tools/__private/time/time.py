@@ -149,7 +149,7 @@ class Time:
         timeout_error_message: Optional[str] = None,
         poll_time: float = 1.0,
     ) -> float:
-        assert timeout >= 0
+        assert timeout >= 0, "The `timeout` argument must be non-negative value."
 
         already_waited = 0
         while not predicate():
