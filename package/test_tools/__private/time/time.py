@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import math
 import time
-from typing import Final, Optional, Union
+from typing import Callable, Final, Optional, Union
 
 from dateutil.relativedelta import relativedelta
 
@@ -142,7 +142,13 @@ class Time:
         return cls.serialize(time, format_=serialize_format) if serialize else time
 
     @staticmethod
-    def wait_for(predicate, *, timeout=math.inf, timeout_error_message=None, poll_time=1.0):
+    def wait_for(
+        predicate: Callable[[], bool],
+        *,
+        timeout: float = math.inf,
+        timeout_error_message: Optional[str] = None,
+        poll_time: float = 1.0,
+    ) -> float:
         assert timeout >= 0
 
         already_waited = 0
