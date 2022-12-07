@@ -149,6 +149,15 @@ class Time:
         timeout_error_message: Optional[str] = None,
         poll_time: float = 1.0,
     ) -> float:
+        """
+        Waits for the predicate to return True in the given timeout and raises TimeoutError if it was exceeded.
+
+        :param predicate: Callable that returns boolean value.
+        :param timeout: Timeout in seconds or preferably timedelta (e.g. tt.Time.minutes(1)).
+        :param timeout_error_message: Message that will be displayed if timeout is reached.
+        :param poll_time: Time between predicate calls.
+        :return: Time in seconds that was spent on waiting.
+        """
         timeout_secs: float = timeout.total_seconds() if isinstance(timeout, timedelta) else timeout
         assert timeout_secs >= 0, "The `timeout` argument must be non-negative value."
 
