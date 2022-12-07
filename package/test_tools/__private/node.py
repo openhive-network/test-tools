@@ -21,10 +21,11 @@ from test_tools.__private.node_message import NodeMessage
 from test_tools.__private.raise_exception_helper import RaiseExceptionHelper
 from test_tools.__private.scope import context, ScopedObject
 from test_tools.__private.snapshot import Snapshot
+from test_tools.__private.time.time import Time
 from test_tools.__private.url import Url
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
 from test_tools.__private.utilities.fake_time import configure_fake_time
-from test_tools.__private.wait_for import wait_for, wait_for_event
+from test_tools.__private.wait_for import wait_for_event
 from test_tools.node_api.node_apis import Apis
 from test_tools.node_configs.default import create_default_config
 
@@ -300,7 +301,7 @@ class Node(UserHandleImplementation, ScopedObject):
         self.wait_for_block_with_number(self.get_last_block_number() + blocks_to_wait, timeout=timeout)
 
     def wait_for_block_with_number(self, number, *, timeout=math.inf):
-        wait_for(
+        Time.wait_for(
             lambda: self.__is_block_with_number_reached(number),
             timeout=timeout,
             timeout_error_message=f"Waiting too long for block {number}",

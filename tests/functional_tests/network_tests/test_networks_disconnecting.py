@@ -7,7 +7,7 @@ import pytest
 
 from local_tools.network import get_head_block_number, get_head_block_numbers_for_networks
 import test_tools as tt
-from test_tools.__private.wait_for import wait_for
+from test_tools.__private.time.time import Time
 
 
 class DisconnectionType(Enum):
@@ -48,7 +48,7 @@ def prepare_witness(node: tt.AnyNode, account: tt.Account) -> int:
     # we need to wait for witness schedule update twice to make sure that the witness is listed in the schedule.
     tt.logger.info(f"Waiting for witness {account.name} to be listed in the schedule")
     maximum_time_when_witness_should_be_capable_of_producing_blocks = 2 * 21 * 3
-    wait_for(
+    Time.wait_for(
         lambda: account.name in node.api.database.get_witness_schedule()["current_shuffled_witnesses"],
         timeout=maximum_time_when_witness_should_be_capable_of_producing_blocks,
     )

@@ -20,9 +20,9 @@ from test_tools.__private.logger.logger_internal_interface import logger
 from test_tools.__private.node import Node
 from test_tools.__private.remote_node import RemoteNode
 from test_tools.__private.scope import context, ScopedObject
+from test_tools.__private.time.time import Time
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
 from test_tools.__private.utilities.fake_time import configure_fake_time
-from test_tools.__private.wait_for import wait_for
 
 if TYPE_CHECKING:
     from test_tools.__private.user_handles.handles.wallet_handle import WalletHandle
@@ -1126,7 +1126,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         self.__produced_files = True
 
-        timeout -= wait_for(
+        timeout -= Time.wait_for(
             self.__is_ready, timeout=timeout, timeout_error_message=f"{self} was not ready on time.", poll_time=0.1
         )
 
@@ -1134,7 +1134,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.http_server_port = endpoint.split(":")[1]
 
         if self.__is_online():
-            timeout -= wait_for(
+            timeout -= Time.wait_for(
                 self.__is_communication_established,
                 timeout=timeout,
                 timeout_error_message=(

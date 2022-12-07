@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta, timezone
+import math
+import time
 from typing import Final, Optional, Union
 
 from dateutil.relativedelta import relativedelta
@@ -138,3 +140,18 @@ class Time:
 
         time = cls.now(time_zone=time_zone, serialize=False) + delta
         return cls.serialize(time, format_=serialize_format) if serialize else time
+
+    @staticmethod
+    def wait_for(predicate, *, timeout=math.inf, timeout_error_message=None, poll_time=1.0):
+        assert timeout >= 0
+
+        already_waited = 0
+        while not predicate():
+            if timeout - already_waited <= 0:
+                raise TimeoutError(timeout_error_message or "Waited too long, timeout was reached")
+
+            sleep_time = min(poll_time, timeout)
+            time.sleep(sleep_time)
+            already_waited += sleep_time
+
+        return already_waited
