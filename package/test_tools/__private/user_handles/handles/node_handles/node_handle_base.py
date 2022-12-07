@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
 
 class NodeHandleBase(Handle):
+    # pylint: disable=too-many-public-methods
     DEFAULT_WAIT_FOR_LIVE_TIMEOUT = Node.DEFAULT_WAIT_FOR_LIVE_TIMEOUT
 
     @property
