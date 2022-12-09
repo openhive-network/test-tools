@@ -4,7 +4,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import typing
-from typing import Literal, NoReturn, Union
+from typing import Literal, NoReturn, Optional, Union
 
 from test_tools.__private import paths_to_executables
 from test_tools.__private.exceptions import MissingBlockLogArtifactsError
@@ -18,6 +18,7 @@ class BlockLog:
         self.__logger = logger.create_child_logger(self.__name)
 
         self.__path = Path(path)
+        self.__assert_path_exists()
 
         self.__logger.info(f"Created with path reference to: {self.__path}")
 
@@ -104,3 +105,7 @@ class BlockLog:
         raise MissingBlockLogArtifactsError(
             f"Block log artifacts with following path are missing:\n{block_log_artifacts_path}"
         )
+
+    def __assert_path_exists(self) -> Optional[NoReturn]:
+        if not self.__path.exists():
+            raise FileNotFoundError(f"Following path does not exists: {self.__path}")
