@@ -27,6 +27,7 @@ class _PathsToExecutables:
             self.__ExecutableDetails("cli_wallet", "programs/cli_wallet/cli_wallet"),
             self.__ExecutableDetails("get_dev_key", "programs/util/get_dev_key"),
             self.__ExecutableDetails("compress_block_log", "programs/util/compress_block_log"),
+            self.__ExecutableDetails("block_log_util", "programs/util/block_log_util"),
         ]
 
         self.parse_command_line_arguments()
