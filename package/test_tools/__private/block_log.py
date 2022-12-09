@@ -8,10 +8,13 @@ from typing import Literal, NoReturn, Union
 
 from test_tools.__private import paths_to_executables
 from test_tools.__private.exceptions import MissingBlockLogArtifactsError
+from test_tools.__private.scope import context
 
 
 class BlockLog:
     def __init__(self, path: Union[Path, str]):
+        self.__name = context.names.register_numbered_name(self.__class__.__name__)
+
         self.__path = Path(path)
 
     def __repr__(self):
