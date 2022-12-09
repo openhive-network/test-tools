@@ -33,6 +33,14 @@ class BlockLog:
     def artifacts_path(self) -> Path:
         return self.path.with_suffix(".artifacts")
 
+    @property
+    def length(self) -> int:
+        output = subprocess.check_output(
+            [paths_to_executables.get_path_of("block_log_util"), "get-head-block-number", self.__path],
+            encoding="utf-8",
+        )
+        return int(output)
+
     def copy_to(
         self,
         destination: Union[Path, str],
