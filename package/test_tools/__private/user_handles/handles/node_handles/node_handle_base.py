@@ -94,6 +94,10 @@ class NodeHandleBase(Handle):
         """Returns number of the newest block known to node."""
         return self.__implementation.get_last_block_number()
 
+    def get_last_irreversible_block_number(self) -> int:
+        """Returns number of the last irreversible block known to node."""
+        return self.__implementation.get_last_irreversible_block_number()
+
     def get_current_witness(self) -> str:
         """Returns current witness."""
         return self.__implementation.get_current_witness()
