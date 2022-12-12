@@ -312,6 +312,21 @@ class Node(UserHandleImplementation, ScopedObject):
         last = self.get_last_block_number()
         return last >= number
 
+    def wait_for_irreversible_block(self, number: Optional[int] = None, *, timeout=math.inf) -> None:
+        target_block_number = number if number is not None else self.get_last_block_number()
+
+        self.__logger.info(f"Waiting for block with number `{target_block_number}` to become irreversible...")
+        Time.wait_for(
+            lambda: self.__is_block_with_number_irreversible(target_block_number),
+            timeout=timeout,
+            timeout_error_message=f"Waiting too long for irreversible block {target_block_number}",
+            poll_time=2.0,
+        )
+
+    def __is_block_with_number_irreversible(self, number: int) -> bool:
+        last_irreversible = self.get_last_irreversible_block_number()
+        return last_irreversible >= number
+
     def get_last_block_number(self):
         response = self.api.database.get_dynamic_global_properties()
         return response["head_block_number"]

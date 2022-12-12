@@ -231,6 +231,18 @@ class NodeHandleBase(Handle):
         """
         return self.__implementation.wait_for_block_with_number(number, timeout=timeout)
 
+    def wait_for_irreversible_block(self, number: Optional[int] = None, *, timeout: float = math.inf) -> None:
+        """
+        Blocks program execution until block with specified `number` is considered as irreversible.
+        Maximum wait time can be limited with `timeout` parameter.
+
+        :param number: The number of the irreversible block to wait for. If not specified, the function will wait for
+            the current head block to become irreversible.
+        :param timeout: Time limit for wait. When timeout is reached, `TimeoutError` exception is thrown. Expressed in
+            seconds.
+        """
+        return self.__implementation.wait_for_irreversible_block(number, timeout=timeout)
+
     def wait_for_live_mode(self, timeout: float = math.inf) -> None:
         """
         Blocks program execution until node is in live mode. It's detected by waiting for `hive_status` notification
