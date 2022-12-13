@@ -1,7 +1,7 @@
+from dataclasses import dataclass
 import json
 import time
 from typing import Callable
-from dataclasses import dataclass
 
 import requests
 
@@ -9,6 +9,7 @@ from test_tools.__private.asset import AssetBase
 from test_tools.__private.exceptions import CommunicationError
 from test_tools.__private.keys.key_base import KeyBase
 from test_tools.__private.logger.logger_internal_interface import logger
+
 
 @dataclass
 class ConnectionOptions:
@@ -67,7 +68,7 @@ def __workaround_communication_problem_with_node(send_request: Callable) -> Call
 
 
 @__workaround_communication_problem_with_node
-def request(url: str, message: dict, use_nai_assets: bool = False, *, options = ConnectionOptions()):
+def request(url: str, message: dict, use_nai_assets: bool = False, *, options=ConnectionOptions()):
     assert options.max_attempts > 0
 
     json_encoder = JsonEncoderWithNaiAssets if use_nai_assets else JsonEncoderWithLegacyAssets
@@ -92,7 +93,7 @@ def request(url: str, message: dict, use_nai_assets: bool = False, *, options = 
             if "result" in response:
                 return response
 
-            if 'error' in response:
+            if "error" in response:
                 logger.debug(f"Error in response from {url}: message={message}, response={response}")
                 if options.allow_error:
                     return response

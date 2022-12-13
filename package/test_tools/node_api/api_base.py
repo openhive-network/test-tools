@@ -4,9 +4,11 @@ import os
 
 from test_tools.__private.communication import ConnectionOptions
 
+
 @dataclass
 class RequestOptions(ConnectionOptions):
     only_result: bool = True
+
 
 class NodeApiCallProxy:
     def __init__(self, node, method, params=None, jsonrpc="2.0", id_=1):
@@ -25,7 +27,7 @@ class NodeApiCallProxy:
             self.__message["params"],
             jsonrpc=self.__message["jsonrpc"],
             id_=self.__message["id"],
-            options=options
+            options=options,
         )
 
         def schemas_should_be_automatically_validated() -> bool:

@@ -13,7 +13,6 @@ from typing import Dict, List, Literal, NoReturn, Optional, Tuple, TYPE_CHECKING
 import warnings
 
 from test_tools.__private import cleanup_policy, communication, exceptions, paths_to_executables
-from test_tools.node_api.api_base import RequestOptions
 from test_tools.__private.block_log import BlockLog
 from test_tools.__private.constants import CleanupPolicy
 from test_tools.__private.logger.logger_internal_interface import logger
@@ -27,6 +26,7 @@ from test_tools.__private.url import Url
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
 from test_tools.__private.utilities.fake_time import configure_fake_time
 from test_tools.__private.wait_for import wait_for_event
+from test_tools.node_api.api_base import RequestOptions
 from test_tools.node_api.node_apis import Apis
 from test_tools.node_configs.default import create_default_config
 
@@ -325,7 +325,7 @@ class Node(UserHandleImplementation, ScopedObject):
         if not self.__notifications.p2p_plugin_started_event.wait(timeout=timeout):
             raise TimeoutError(f"Waiting too long for start of {self} p2p plugin")
 
-    def send(self, method, params=None, jsonrpc='2.0', id_=1, *, options = RequestOptions()):
+    def send(self, method, params=None, jsonrpc="2.0", id_=1, *, options=RequestOptions()):
         if self.config.webserver_http_endpoint is None:
             raise Exception("Webserver http endpoint is unknown")
 
@@ -336,7 +336,7 @@ class Node(UserHandleImplementation, ScopedObject):
         message = NodeMessage(method, params, jsonrpc, id_).as_json()
         response = communication.request(endpoint, message, options=options)
 
-        return response['result'] if options.only_result else response
+        return response["result"] if options.only_result else response
 
     def __wait_for_http_listening(self, timeout=10):
         if not self.__notifications.http_listening_event.wait(timeout):

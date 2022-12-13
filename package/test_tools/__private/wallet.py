@@ -15,7 +15,6 @@ import subprocess
 from typing import Final, Iterable, List, Literal, Optional, TYPE_CHECKING, Union
 import warnings
 
-from test_tools.node_api.api_base import RequestOptions
 from test_tools.__private import communication, paths_to_executables
 from test_tools.__private.account import Account
 from test_tools.__private.asset import Asset
@@ -27,6 +26,7 @@ from test_tools.__private.scope import context, ScopedObject
 from test_tools.__private.time.time import Time
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
 from test_tools.__private.utilities.fake_time import configure_fake_time
+from test_tools.node_api.api_base import RequestOptions
 
 if TYPE_CHECKING:
     from test_tools.__private.user_handles.handles.wallet_handle import WalletHandle
