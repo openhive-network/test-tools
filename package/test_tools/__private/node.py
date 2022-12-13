@@ -312,20 +312,58 @@ class Node(UserHandleImplementation, ScopedObject):
         last = self.get_last_block_number()
         return last >= number
 
-    def wait_for_irreversible_block(self, number: Optional[int] = None, *, timeout=math.inf) -> None:
-        target_block_number = number if number is not None else self.get_last_block_number()
+    def wait_for_irreversible_block(
+        self, number: Optional[int] = None, *, max_blocks_to_wait: Optional[int] = None, timeout=math.inf
+    ) -> None:
+        def __is_number_param_given() -> bool:
+            return number is not None
 
-        self.__logger.info(f"Waiting for block with number `{target_block_number}` to become irreversible...")
+        def __is_max_blocks_to_wait_param_given() -> bool:
+            return max_blocks_to_wait is not None
+
+        last_block_number = self.get_last_block_number()
+        target_block_number = number if __is_number_param_given() else last_block_number
+        max_wait_block_number = (
+            last_block_number + max_blocks_to_wait if __is_max_blocks_to_wait_param_given() else None
+        )
+
+        log_message = f"Waiting for block with number `{target_block_number}` to become irreversible..."
+
+        if __is_max_blocks_to_wait_param_given():
+            log_message += f" (max wait block number: `{max_wait_block_number}`)"
+
+        self.__logger.info(log_message)
+
         Time.wait_for(
-            lambda: self.__is_block_with_number_irreversible(target_block_number),
+            lambda: self.__is_block_with_number_irreversible(target_block_number, max_wait_block_number),
             timeout=timeout,
             timeout_error_message=f"Waiting too long for irreversible block {target_block_number}",
             poll_time=2.0,
         )
 
-    def __is_block_with_number_irreversible(self, number: int) -> bool:
-        last_irreversible = self.get_last_irreversible_block_number()
-        return last_irreversible >= number
+    def __is_block_with_number_irreversible(self, number: int, max_wait_block_number: Optional[int]) -> bool:
+        if max_wait_block_number is not None:
+            self.__assert_block_with_number_reached_irreversibility_before_limit(number, max_wait_block_number)
+
+        last_irreversible_block_number = self.get_last_irreversible_block_number()
+        return last_irreversible_block_number >= number
+
+    def __assert_block_with_number_reached_irreversibility_before_limit(
+        self, number: int, max_wait_block_number: int
+    ) -> Optional[NoReturn]:
+        def __expected_block_was_reached_but_is_still_not_irreversible() -> bool:
+            return last_block_number >= max_wait_block_number and last_irreversible_block_number < number
+
+        response = self.api.database.get_dynamic_global_properties()  # to avoid 2 calls to the node
+        last_block_number = response["head_block_number"]
+        last_irreversible_block_number = response["last_irreversible_block_num"]
+
+        if __expected_block_was_reached_but_is_still_not_irreversible():
+            raise exceptions.BlockWaitTimeoutError(
+                f"Block with number `{last_block_number}` was just reached but expected `{number}` is still not"
+                f" irreversible.\n"
+                f"Last irreversible block number is `{last_irreversible_block_number}`."
+            )
 
     def get_last_block_number(self):
         response = self.api.database.get_dynamic_global_properties()
