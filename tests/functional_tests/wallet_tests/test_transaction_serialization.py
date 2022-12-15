@@ -9,11 +9,8 @@ def test_transaction_serialization_getter(transaction_serialization):
     assert wallet.transaction_serialization == transaction_serialization
 
 
-def test_default_serialization():
-    init_node = tt.InitNode()
-    init_node.run()
-
-    wallet = tt.Wallet(attach_to=init_node)
+def test_default_serialization(node: tt.InitNode):
+    wallet = tt.Wallet(attach_to=node)
 
     assert wallet.transaction_serialization == "legacy"
 

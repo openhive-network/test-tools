@@ -4,11 +4,8 @@ import test_tools as tt
 
 
 @pytest.fixture
-def wallet():
-    init_node = tt.InitNode()
-    init_node.run()
-
-    return tt.Wallet(attach_to=init_node)
+def wallet(node: tt.InitNode):
+    return tt.Wallet(attach_to=node)
 
 
 def test_if_raise_when_parameters_are_bad(wallet):

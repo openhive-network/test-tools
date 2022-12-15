@@ -87,8 +87,8 @@ def test_error_reporting_when_artifacts_have_unsupported_value(block_log_stub, d
         block_log_stub.copy_to(destination_directory, artifacts="unsupported_value")
 
 
-def test_copying_with_specified_destination_directory(destination_directory):
-    block_log = __generate_block_log()
+def test_copying_with_specified_destination_directory(destination_directory, node: tt.InitNode):
+    block_log = __generate_block_log(node)
 
     copied_block_log = block_log.copy_to(destination_directory)
 
@@ -96,8 +96,8 @@ def test_copying_with_specified_destination_directory(destination_directory):
     assert copied_block_log.path == destination_directory / block_log.path.name
 
 
-def test_copying_with_specified_target_block_log_name(destination_directory):
-    block_log = __generate_block_log()
+def test_copying_with_specified_target_block_log_name(destination_directory, node: tt.InitNode):
+    block_log = __generate_block_log(node)
     destination_block_log_path = destination_directory / "block_log_with_changed_name"
 
     copied_block_log = block_log.copy_to(destination_block_log_path)
@@ -106,9 +106,8 @@ def test_copying_with_specified_target_block_log_name(destination_directory):
     assert copied_block_log.path == destination_block_log_path
 
 
-def __generate_block_log() -> tt.BlockLog:
-    node = tt.InitNode()
-    node.run()  # To generate block log.
+def __generate_block_log(node: tt.InitNode) -> tt.BlockLog:
+    # Run node to generate a block log.
     node.close()  # Close node to copy block log in a safe way.
 
     return node.block_log

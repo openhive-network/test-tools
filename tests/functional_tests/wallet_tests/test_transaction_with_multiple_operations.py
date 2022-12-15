@@ -4,10 +4,7 @@ import test_tools as tt
 
 
 @pytest.fixture
-def wallet():
-    node = tt.InitNode()
-    node.run()
-
+def wallet(node: tt.InitNode):
     return tt.Wallet(attach_to=node)
 
 
