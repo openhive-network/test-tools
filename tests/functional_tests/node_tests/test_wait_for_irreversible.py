@@ -5,13 +5,6 @@ import pytest
 import test_tools as tt
 
 
-@pytest.fixture(name="node")
-def _node():
-    node = tt.InitNode()
-    node.run()
-    return node
-
-
 def test_raising_timeout(node: tt.InitNode):
     # ACT & ASSERT
     with pytest.raises(TimeoutError):
