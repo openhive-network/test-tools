@@ -39,3 +39,7 @@ class ParseError(TestToolsException):
 
 class ConfigError(TestToolsException):
     pass
+
+
+class BlockWaitTimeoutError(TestToolsException):
+    """Raised when the maximum amount of time to wait for a block on a blockchain is reached."""
