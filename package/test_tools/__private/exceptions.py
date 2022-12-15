@@ -1,37 +1,41 @@
-class CommunicationError(Exception):
+class TestToolsException(Exception):
+    """Base exception class for test-tools package."""
+
+
+class CommunicationError(TestToolsException):
     def __init__(self, description, request, response):
         super().__init__(f"{description}.\nSent: {request}.\nReceived: {response}")
         self.request = request
         self.response = response
 
 
-class InternalNodeError(Exception):
+class InternalNodeError(TestToolsException):
     pass
 
 
-class MissingBlockLogArtifactsError(RuntimeError):
+class MissingBlockLogArtifactsError(TestToolsException):
     pass
 
 
-class MissingPathToExecutable(Exception):
+class MissingPathToExecutable(TestToolsException):
     pass
 
 
-class NameAlreadyInUse(Exception):
+class NameAlreadyInUse(TestToolsException):
     pass
 
 
-class NodeIsNotRunning(Exception):
+class NodeIsNotRunning(TestToolsException):
     pass
 
 
-class NotSupported(Exception):
+class NotSupported(TestToolsException):
     pass
 
 
-class ParseError(Exception):
+class ParseError(TestToolsException):
     pass
 
 
-class ConfigError(Exception):
+class ConfigError(TestToolsException):
     pass
