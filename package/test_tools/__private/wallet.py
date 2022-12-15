@@ -1055,7 +1055,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         preconfigure: bool = True,
         clean: Optional[bool] = None,
         time_offset: Optional[str] = None,
-    ):
+    ):  # pylint: disable=too-many-branches
         """
         Starts wallet. Blocks until wallet will be ready for use.
 
