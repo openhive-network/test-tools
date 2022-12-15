@@ -1,4 +1,4 @@
-image: "$CI_REGISTRY_IMAGE/ci-cd-base-image:2"
+image: "$CI_REGISTRY_IMAGE/ci-cd-base-image:5"
 
 
 stages:
@@ -19,7 +19,7 @@ variables:
 
 .configuration:
   before_script:
-    - pip install poetry
+    - curl -sSL https://install.python-poetry.org | python3 -  # install poetry in isolated environment
     - poetry install
     - poetry env info
     - source `poetry env info --path`/bin/activate
