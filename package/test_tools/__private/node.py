@@ -74,12 +74,10 @@ class Node(UserHandleImplementation, ScopedObject):
             output = self.__run_and_get_output("--list-plugins")
             return output.split("\n")
 
-        @property
         def config_options(self) -> List[NodeOption]:
             output = self.__run_and_get_output("--dump-options")
             return list(map(NodeOption.from_dict, json.loads(output)["config_file"]))
 
-        @property
         def cli_options(self) -> List[NodeOption]:
             output = self.__run_and_get_output("--dump-options")
             return list(map(NodeOption.from_dict, json.loads(output)["command_line"]))
@@ -307,13 +305,11 @@ class Node(UserHandleImplementation, ScopedObject):
     def get_supported_plugins(self) -> List[str]:
         return self.__executable.get_supported_plugins()
 
-    @property
     def config_options(self) -> List[NodeOption]:
-        return self.__executable.config_options
+        return self.__executable.config_options()
 
-    @property
     def cli_options(self) -> List[NodeOption]:
-        return self.__executable.cli_options
+        return self.__executable.cli_options()
 
     def wait_number_of_blocks(self, blocks_to_wait, *, timeout=math.inf):
         assert blocks_to_wait > 0

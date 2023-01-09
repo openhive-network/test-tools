@@ -8,14 +8,14 @@ from typing import Optional, Union
 class NodeOption:
     @dataclass
     class Value:
-        multiple_allowed: bool
+        required: bool
+        multitoken: bool
         composed: bool
         value_type: str
         default_value: Union[str, list[str]]
 
     name: str
     description: str
-    required: bool
     value: Optional[Value]
 
     @classmethod
@@ -23,9 +23,9 @@ class NodeOption:
         return cls(
             data["name"],
             data["description"],
-            data["required"],
             cls.Value(
-                data["value"]["multiple_allowed"],
+                data["value"]["required"],
+                data["value"]["multitoken"],
                 data["value"]["composed"],
                 data["value"]["value_type"],
                 data["value"]["default_value"],

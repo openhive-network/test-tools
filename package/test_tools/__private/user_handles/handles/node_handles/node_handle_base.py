@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from test_tools.node_api.node_apis import Apis
 
 
-# pylint: disable=too-many-public-methods
 class NodeHandleBase(Handle):
     # pylint: disable=too-many-public-methods
     DEFAULT_WAIT_FOR_LIVE_TIMEOUT = Node.DEFAULT_WAIT_FOR_LIVE_TIMEOUT
@@ -104,15 +103,13 @@ class NodeHandleBase(Handle):
         """Returns current witness."""
         return self.__implementation.get_current_witness()
 
-    @property
     def config_options(self) -> List[NodeOption]:
         """Returns a list of options that can be specified in config file."""
-        return self.__implementation.config_options
+        return self.__implementation.config_options()
 
-    @property
     def cli_options(self) -> List[NodeOption]:
         """Returns a list of options that can be specified as command line arguments."""
-        return self.__implementation.config_options
+        return self.__implementation.cli_options()
 
     @property
     def http_endpoint(self) -> str:
