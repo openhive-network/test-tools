@@ -1,112 +1,14 @@
 import re
 
-from test_tools.__private.node_config_entry_types import Boolean, Integer, List, PrivateKey, String, StringQuoted
+from test_tools.__private.node_config_attributes import NodeConfigAttributes
 
 
-class NodeConfig:
+class NodeConfig(NodeConfigAttributes):
     # pylint: disable=too-many-instance-attributes
     # Config contains so many entries and all of them must be defined here
 
-    def __init__(self):
-        self.__enter_initialization_stage()
-        self.__initialize()
-        self.__exit_initialization_stage()
-
-    def __initialize(self):
-        self.__define_entries()
-
-    def __enter_initialization_stage(self):
-        super().__setattr__("_initialization_stage", None)
-
-    def __exit_initialization_stage(self):
-        super().__delattr__("_initialization_stage")
-
     def __is_initialization_stage(self):
         return "_initialization_stage" in self.__dict__
-
-    def __define_entries(self):
-        # pylint: disable=too-many-statements
-        # Config contains so many entries and all of them must be defined here
-
-        super().__setattr__(f"_{self.__class__.__name__}__entries", {})
-
-        # pylint: disable=attribute-defined-outside-init
-        # This method is called in __init__
-        self.log_appender = String()  # Set correct type
-        self.log_console_appender = String()  # Set correct type
-        self.log_file_appender = String()  # Set correct type
-        self.log_logger = String()  # Set correct type
-        self.backtrace = String()  # Set correct type
-        self.plugin = List(String)
-        self.account_history_track_account_range = String()  # Set correct type
-        self.track_account_range = String()  # Set correct type
-        self.account_history_whitelist_ops = String()  # Set correct type
-        self.history_whitelist_ops = String()  # Set correct type
-        self.account_history_blacklist_ops = String()  # Set correct type
-        self.history_blacklist_ops = String()  # Set correct type
-        self.account_history_rocksdb_path = StringQuoted()
-        self.account_history_rocksdb_track_account_range = String()  # Set correct type
-        self.account_history_rocksdb_whitelist_ops = String()  # Set correct type
-        self.account_history_rocksdb_blacklist_ops = String()  # Set correct type
-        self.block_data_export_file = String()  # Set correct type
-        self.block_data_skip_empty = Boolean()
-        self.block_log_info_print_interval_seconds = String()  # Set correct type
-        self.block_log_info_print_irreversible = String()  # Set correct type
-        self.block_log_info_print_file = String()  # Set correct type
-        self.shared_file_dir = StringQuoted()
-        self.shared_file_size = String()  # Set correct type
-        self.shared_file_full_threshold = String()  # Set correct type
-        self.shared_file_scale_rate = String()  # Set correct type
-        self.checkpoint = String()  # Set correct type
-        self.flush_state_interval = String()  # Set correct type
-        self.cashout_logging_starting_block = String()  # Set correct type
-        self.cashout_logging_ending_block = String()  # Set correct type
-        self.cashout_logging_log_path_dir = String()  # Set correct type
-        self.debug_node_edit_script = String()  # Set correct type
-        self.edit_script = String()  # Set correct type
-        self.follow_max_feed_size = String()  # Set correct type
-        self.follow_start_feeds = String()  # Set correct type
-        self.log_json_rpc = String()  # Set correct type
-        self.market_history_bucket_size = String()  # Set correct type
-        self.market_history_buckets_per_size = String()  # Set correct type
-        self.notifications_endpoint = String()
-        self.p2p_endpoint = String()
-        self.p2p_max_connections = String()  # Set correct type
-        self.seed_node = String()  # Set correct type
-        self.p2p_seed_node = List(String)
-        self.p2p_parameters = String()  # Set correct type
-        self.rc_skip_reject_not_enough_rc = String()  # Set correct type
-        self.rc_stats_report_type = String()
-        self.rc_stats_report_output = String()
-        self.snapshot_root_dir = StringQuoted()
-        self.statsd_endpoint = String()  # Set correct type
-        self.statsd_batchsize = String()  # Set correct type
-        self.statsd_whitelist = String()  # Set correct type
-        self.statsd_blacklist = String()  # Set correct type
-        self.tags_start_promoted = String()  # Set correct type
-        self.tags_skip_startup_update = String()  # Set correct type
-        self.transaction_status_block_depth = String()  # Set correct type
-        self.transaction_status_track_after_block = String()  # Set correct type
-        self.webserver_http_endpoint = String()
-        self.webserver_unix_endpoint = String()
-        self.webserver_ws_endpoint = String()
-        self.webserver_ws_deflate = Boolean()
-        self.rpc_endpoint = String()  # Set correct type
-        self.webserver_thread_pool_size = String()  # Set correct type
-        self.enable_stale_production = Boolean()
-        self.required_participation = Integer()
-        self.witness = List(StringQuoted, single_line=False)
-        self.private_key = List(PrivateKey, single_line=False)
-        self.witness_skip_enforce_bandwidth = String()  # Set correct type
-        self.psql_url = String()
-        self.psql_index_threshold = Integer()
-        self.psql_operations_threads_number = Integer()
-        self.psql_transactions_threads_number = Integer()
-        self.enable_block_log_compression = Boolean()
-        self.block_log_compression_level = Integer()
-        self.blockchain_thread_pool_size = Integer()
-        self.block_stats_report_type = String()
-        self.block_stats_report_output = String()
 
     def __setattr__(self, key, value):
         if self.__is_initialization_stage():
