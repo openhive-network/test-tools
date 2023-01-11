@@ -8,7 +8,7 @@ from test_tools.__private.node_option import NodeOption
 
 class NodeConfigGenerator:
     @staticmethod
-    def convert_type(type: str, multitoken: bool):
+    def convert_type(name: str, type: str, multitoken: bool):
         if type == "string" or type == "ubyte" or type == "ushort" or type == "uint" or type == "ulong":
             return "=String()"
         elif type == "byte" or type == "short" or type == "int" or type == "long":
@@ -17,7 +17,10 @@ class NodeConfigGenerator:
             return "=StringQuoted()"
         elif type == "string_array":
             if multitoken:
-                return "=List(String, single_line=False)"
+                if name == "witness":  # This is an exception: witnesses are given with quotes
+                    return "=List(StringQuoted, single_line=False)"
+                else:
+                    return "=List(String, single_line=False)"
             else:
                 return "=List(String)"
         elif type == "bool":
@@ -33,7 +36,7 @@ class NodeConfigGenerator:
         _result += "self."
 
         _result += node.name.replace("-", "_")
-        _result += NodeConfigGenerator.convert_type(node.value.value_type, node.value.multitoken)
+        _result += NodeConfigGenerator.convert_type(node.name, node.value.value_type, node.value.multitoken)
         if len(node.description) > 0:
             _result += "#"
             _result += node.description

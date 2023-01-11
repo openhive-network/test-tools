@@ -141,7 +141,9 @@ class NodeConfigAttributes:
         self.required_participation = (
             String()
         )  # Percent of witnesses (0-99) that must be participating in order to produce blocks
-        self.witness = List(String, single_line=False)  # name of witness controlled by this node (e.g. initwitness )
+        self.witness = List(
+            StringQuoted, single_line=False
+        )  # name of witness controlled by this node (e.g. initwitness )
         self.private_key = List(
             String, single_line=False
         )  # WIF PRIVATE KEY to be used by one or more witnesses or miners
