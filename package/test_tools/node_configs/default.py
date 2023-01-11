@@ -1,18 +1,20 @@
+"""Begin of machine generated code"""
+
 from test_tools.__private.node_config import NodeConfig
 
 
 def create_default_config():
     config = NodeConfig()
 
-    config.log_appender = (
-        '{"appender":"stderr","stream":"std_error","time_format":"iso_8601_microseconds"} '
-        '{"appender":"p2p","file":"logs/p2p/p2p.log","time_format":"iso_8601_milliseconds", "delta_times": false}'
-    )
-    config.log_logger = (
-        '{"name":"default","level":"info","appender":"stderr"} '
-        '{"name":"user","level":"debug","appender":"stderr"} '
-        '{"name":"p2p","level":"warn","appender":"p2p"}'
-    )
+    config.log_appender = [
+        '{"appender":"stderr","stream":"std_error","time_format":"iso_8601_microseconds"}',
+        '{"appender":"p2p","file":"logs/p2p/p2p.log","time_format":"iso_8601_milliseconds", "delta_times": false}',
+    ]
+    config.log_logger = [
+        '{"name":"default","level":"info","appender":"stderr"}',
+        '{"name":"user","level":"debug","appender":"stderr"}',
+        '{"name":"p2p","level":"warn","appender":"p2p"}',
+    ]
     config.backtrace = "yes"
     config.plugin = ["witness", "account_by_key", "account_by_key_api"]
     config.account_history_rocksdb_path = "blockchain/account-history-rocksdb-storage"
@@ -25,6 +27,11 @@ def create_default_config():
     config.shared_file_size = "24G"
     config.shared_file_full_threshold = "0"
     config.shared_file_scale_rate = "0"
+    config.enable_block_log_compression = True
+    config.block_log_compression_level = 15
+    config.blockchain_thread_pool_size = "8"
+    config.block_stats_report_type = "FULL"
+    config.block_stats_report_output = "ILOG"
     config.follow_max_feed_size = "500"
     config.follow_start_feeds = "0"
     config.market_history_bucket_size = "[15,60,300,3600,86400]"
@@ -38,15 +45,12 @@ def create_default_config():
     config.tags_skip_startup_update = False
     config.transaction_status_block_depth = "64000"
     config.transaction_status_track_after_block = "0"
+    config.webserver_ws_deflate = False
     config.webserver_thread_pool_size = "32"
     config.enable_stale_production = False
     config.required_participation = "33"
     config.witness_skip_enforce_bandwidth = True
-    config.enable_block_log_compression = True
-    config.block_log_compression_level = 15
-    config.blockchain_thread_pool_size = "8"
-    config.block_stats_report_type = "FULL"
-    config.block_stats_report_output = "ILOG"
-    config.webserver_ws_deflate = False
-
     return config
+
+
+# End of machine generated code
