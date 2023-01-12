@@ -8,7 +8,7 @@ def create_default_config():
 
     config.log_appender = [
         '{"appender":"stderr","stream":"std_error","time_format":"iso_8601_microseconds"}',
-        '{"appender":"p2p","file":"logs/p2p/p2p.log","time_format":"iso_8601_milliseconds", "delta_times": false}',
+        '{"appender":"p2p","file":"logs/p2p/p2p.log","time_format":"iso_8601_milliseconds","delta_times":false}',
     ]
     config.log_logger = [
         '{"name":"default","level":"info","appender":"stderr"}',
