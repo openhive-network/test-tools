@@ -11,9 +11,18 @@ from test_tools.node_configs import default
 class NodeConfigGenerator:
     @staticmethod
     def convert_type(name: str, type: str, multitoken: bool):
-        if type == "string" or type == "ubyte" or type == "ushort" or type == "uint" or type == "ulong":
+        if type == "string":
             return "=String()"
-        elif type == "byte" or type == "short" or type == "int" or type == "long":
+        elif (
+            type == "byte"
+            or type == "short"
+            or type == "int"
+            or type == "long"
+            or type == "ubyte"
+            or type == "ushort"
+            or type == "uint"
+            or type == "ulong"
+        ):
             return "=Integer()"
         elif type == "path":
             return "=StringQuoted()"
@@ -21,6 +30,8 @@ class NodeConfigGenerator:
             if multitoken:
                 if name == "witness":  # This is an exception: witnesses are given with quotes
                     return "=List(StringQuoted, single_line=False)"
+                elif name == "private-key":  # This is an exception: witnesses are given with quotes
+                    return "=List(PrivateKey, single_line=False)"
                 else:
                     return "=List(String, single_line=False)"
             else:
@@ -54,7 +65,7 @@ class NodeConfigGenerator:
 # pylint: disable=line-too-long too-many-instance-attributes too-many-statements too-few-public-methods
 
 from test_tools.__private.node_config_entry_types import (
-    Boolean, Integer, List, String, StringQuoted
+    Boolean, Integer, List, PrivateKey, String, StringQuoted
 )
 
 class NodeConfigAttributes:
@@ -94,7 +105,17 @@ class NodeConfigAttributes:
 class NodeDefaultConfigGenerator:
     @staticmethod
     def convert_value(type: str, default_value: str):
-        if type == "byte" or type == "short" or type == "int" or type == "long" or type == "path":
+        if (
+            type == "byte"
+            or type == "short"
+            or type == "int"
+            or type == "long"
+            or type == "ubyte"
+            or type == "ushort"
+            or type == "uint"
+            or type == "ulong"
+            or type == "path"
+        ):
             return default_value
         else:
             if type == "bool":

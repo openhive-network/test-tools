@@ -1,5 +1,5 @@
 def test_single_entry_serialization(config):
-    config.required_participation = "0"
+    config.required_participation = 0
     lines = config.write_to_lines()
     assert "required-participation = 0" in lines
 

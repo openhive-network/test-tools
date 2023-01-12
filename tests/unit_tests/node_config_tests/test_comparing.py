@@ -20,8 +20,8 @@ def test_different_shared_file_size_values(configs):
 def test_different_required_participation_values(configs):
     first, second, empty = configs
 
-    first.required_participation = "1"
-    second.required_participation = "2"
+    first.required_participation = 1
+    second.required_participation = 2
 
     assert first != second and first != empty and second != empty
 

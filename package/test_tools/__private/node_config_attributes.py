@@ -2,7 +2,7 @@
 
 # pylint: disable=line-too-long too-many-instance-attributes too-many-statements too-few-public-methods
 
-from test_tools.__private.node_config_entry_types import Boolean, Integer, List, String, StringQuoted
+from test_tools.__private.node_config_entry_types import Boolean, Integer, List, PrivateKey, String, StringQuoted
 
 
 class NodeConfigAttributes:
@@ -58,42 +58,42 @@ class NodeConfigAttributes:
             String()
         )  # Size of the shared memory file. Default: 24G. If running with many plugins, increase this value to 28G.
         self.shared_file_full_threshold = (
-            String()
+            Integer()
         )  # A 2 precision percentage (0-10000) that defines the threshold for when to autoscale the shared memory file. Setting this to 0 disables autoscaling. Recommended value for consensus node is 9500 (95%).
         self.shared_file_scale_rate = (
-            String()
+            Integer()
         )  # A 2 precision percentage (0-10000) that defines how quickly to scale the shared memory file. When autoscaling occurs the file's size will be increased by this percent. Setting this to 0 disables autoscaling. Recommended value is between 1000-2000 (10-20%)
         self.checkpoint = List(String)  # Pairs of [BLOCK_NUM,BLOCK_ID] that should be enforced as checkpoints.
-        self.flush_state_interval = String()  # flush shared memory changes to disk every N blocks
+        self.flush_state_interval = Integer()  # flush shared memory changes to disk every N blocks
         self.enable_block_log_compression = Boolean()  # Compress blocks using zstd as they're added to the block log
         self.block_log_compression_level = (
             Integer()
         )  # Block log zstd compression level 0 (fast, low compression) - 22 (slow, high compression)
         self.blockchain_thread_pool_size = (
-            String()
+            Integer()
         )  # Number of worker threads used to pre-validate transactions and blocks
         self.block_stats_report_type = (
             String()
         )  # Level of detail of block stat reports: NONE, MINIMAL, REGULAR, FULL. Default FULL (recommended for API nodes).
         self.block_stats_report_output = String()  # Where to put block stat reports: DLOG, ILOG, NOTIFY. Default ILOG.
-        self.cashout_logging_starting_block = String()  # Starting block for comment cashout log
-        self.cashout_logging_ending_block = String()  # Ending block for comment cashout log
+        self.cashout_logging_starting_block = Integer()  # Starting block for comment cashout log
+        self.cashout_logging_ending_block = Integer()  # Ending block for comment cashout log
         self.cashout_logging_log_path_dir = StringQuoted()  # Path to log file
         self.debug_node_edit_script = List(String)  # Database edits to apply on startup (may specify multiple times)
         self.edit_script = List(
             String
         )  # Database edits to apply on startup (may specify multiple times). Deprecated in favor of debug-node-edit-script.
-        self.follow_max_feed_size = String()  # Set the maximum size of cached feed for an account
-        self.follow_start_feeds = String()  # Block time (in epoch seconds) when to start calculating feeds
+        self.follow_max_feed_size = Integer()  # Set the maximum size of cached feed for an account
+        self.follow_start_feeds = Integer()  # Block time (in epoch seconds) when to start calculating feeds
         self.log_json_rpc = String()  # json-rpc log directory name.
         self.market_history_bucket_size = (
             String()
         )  # Track market history by grouping orders into buckets of equal size measured in seconds specified as a JSON array of numbers
         self.market_history_buckets_per_size = (
-            String()
+            Integer()
         )  # How far back in time to track history for each bucket size, measured in the number of buckets (default: 5760)
         self.p2p_endpoint = String()  # The local IP address and port to listen for incoming connections.
-        self.p2p_max_connections = String()  # Maxmimum number of incoming connections on P2P endpoint.
+        self.p2p_max_connections = Integer()  # Maxmimum number of incoming connections on P2P endpoint.
         self.seed_node = List(
             String
         )  # The IP address and port of a remote peer to sync with. Deprecated in favor of p2p-seed-node.
@@ -112,20 +112,20 @@ class NodeConfigAttributes:
             StringQuoted()
         )  # The location (root-dir) of the snapshot storage, to save/read portable state dumps
         self.statsd_endpoint = String()  # Endpoint to send statsd messages to.
-        self.statsd_batchsize = String()  # Size to batch statsd messages.
+        self.statsd_batchsize = Integer()  # Size to batch statsd messages.
         self.statsd_whitelist = List(String)  # Whitelist of statistics to capture.
         self.statsd_blacklist = List(String)  # Blacklist of statistics to capture.
         self.tags_start_promoted = (
-            String()
+            Integer()
         )  # Block time (in epoch seconds) when to start calculating promoted content. Should be 1 week prior to current time.
         self.tags_skip_startup_update = (
             Boolean()
         )  # Skip updating tags on startup. Can safely be skipped when starting a previously running node. Should not be skipped when reindexing.
         self.transaction_status_block_depth = (
-            String()
+            Integer()
         )  # Defines the number of blocks from the head block that transaction statuses will be tracked.
         self.transaction_status_track_after_block = (
-            String()
+            Integer()
         )  # Defines the block number the transaction status plugin will begin tracking.
         self.webserver_http_endpoint = String()  # Local http endpoint for webserver requests.
         self.webserver_unix_endpoint = String()  # Local unix http endpoint for webserver requests.
@@ -136,16 +136,16 @@ class NodeConfigAttributes:
         self.rpc_endpoint = (
             String()
         )  # Local http and websocket endpoint for webserver requests. Deprecated in favor of webserver-http-endpoint and webserver-ws-endpoint
-        self.webserver_thread_pool_size = String()  # Number of threads used to handle queries. Default: 32.
+        self.webserver_thread_pool_size = Integer()  # Number of threads used to handle queries. Default: 32.
         self.enable_stale_production = Boolean()  # Enable block production, even if the chain is stale.
         self.required_participation = (
-            String()
+            Integer()
         )  # Percent of witnesses (0-99) that must be participating in order to produce blocks
         self.witness = List(
             StringQuoted, single_line=False
         )  # name of witness controlled by this node (e.g. initwitness )
         self.private_key = List(
-            String, single_line=False
+            PrivateKey, single_line=False
         )  # WIF PRIVATE KEY to be used by one or more witnesses or miners
         self.witness_skip_enforce_bandwidth = (
             Boolean()

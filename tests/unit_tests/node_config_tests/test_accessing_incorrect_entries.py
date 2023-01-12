@@ -20,7 +20,7 @@ def test_getting_incorrect_entry(config):
 
 
 def test_setting_correct_entry(config):
-    config.required_participation = "33"
+    config.required_participation = 33
 
 
 def test_setting_incorrect_entry(config):
