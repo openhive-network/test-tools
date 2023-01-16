@@ -56,6 +56,17 @@ class AssetBase(acp.Abstract):
         self.amount = new_asset.amount
         return self
 
+    def __mul__(self, other: Any) -> AssetBase:
+        return self.__combine_with_numeric(other, operator.mul)
+
+    def __rmul__(self, other: Any) -> AssetBase:
+        return self.__combine_with_numeric(other, operator.mul)
+
+    def __imul__(self, other: Any) -> AssetBase:
+        new_asset = self.__combine_with_numeric(other, operator.mul)
+        self.amount = new_asset.amount
+        return self
+
     def as_nai(self) -> dict:
         return self.__nai_template(amount=str(self.amount))
 
