@@ -90,6 +90,14 @@ class AssetBase(acp.Abstract):
         result.amount = operator_(result.amount, other.amount)
         return result
 
+    def __combine_with_numeric(self, other: Any, operator_: Union[operator.mul, operator.truediv]) -> AssetBase:
+        if not isinstance(other, (int, float)):
+            raise TypeError(f"Asset {operator_.__name__} is only possible with numeric values.")
+
+        result = deepcopy(self)
+        result.amount = int(operator_(result.amount, other))
+        return result
+
     def __convert_to_asset(self, other: Any, *, error_detail: Optional[str] = None) -> AssetBase:
         error_detail = "operate on" if error_detail is None else error_detail
 
