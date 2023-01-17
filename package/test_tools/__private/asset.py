@@ -67,6 +67,17 @@ class AssetBase(acp.Abstract):
         self.amount = new_asset.amount
         return self
 
+    def __truediv__(self, other: Any) -> AssetBase:
+        return self.__combine_with_numeric(other, operator.truediv)
+
+    def __rtruediv__(self, other: Any) -> AssetBase:
+        return self.__combine_with_numeric(other, operator.truediv)
+
+    def __itruediv__(self, other: Any) -> AssetBase:
+        new_asset = self.__combine_with_numeric(other, operator.itruediv)
+        self.amount = new_asset.amount
+        return self
+
     def as_nai(self) -> dict:
         return self.__nai_template(amount=str(self.amount))
 
