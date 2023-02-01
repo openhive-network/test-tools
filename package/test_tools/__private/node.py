@@ -224,7 +224,7 @@ class Node(UserHandleImplementation, ScopedObject):
                     exceptions.InternalNodeError(f'{self.node}: {message["value"]["message"]}')
                 )
 
-            self.__logger.info(f"Received message: {message}")
+            self.__logger.debug(f"Received message: {message}")
 
         def close(self):
             self.server.close()
