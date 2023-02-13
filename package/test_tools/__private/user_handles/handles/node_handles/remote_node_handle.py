@@ -15,3 +15,8 @@ class RemoteNodeHandle(Handle):
     @property
     def __implementation(self) -> RemoteNode:
         return typing.cast(RemoteNode, get_implementation(self))
+
+    def get_last_block_number(self) -> int:
+        """Returns number of the newest block known to node."""
+        response = self.api.database.get_dynamic_global_properties()
+        return response["head_block_number"]
