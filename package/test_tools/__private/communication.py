@@ -63,11 +63,11 @@ def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=
     assert max_attempts > 0
 
     json_encoder = JsonEncoderWithNaiAssets if use_nai_assets else JsonEncoderWithLegacyAssets
-    message = bytes(json.dumps(message, cls=json_encoder), "utf-8") + b"\r\n"
+    body = json.dumps(message, cls=json_encoder)
     headers = {"Content-Type": "application/json"}
 
     for attempts_left in reversed(range(max_attempts)):
-        response = requests.post(url, data=message, headers=headers)  # pylint: disable=missing-timeout
+        response = requests.post(url, data=body, headers=headers)  # pylint: disable=missing-timeout
         status_code = response.status_code
         try:
             decoded_content = response.content.decode("utf-8")
@@ -86,15 +86,15 @@ def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=
                 return response
 
             if "error" in response:
-                logger.debug(f"Error in response from {url}: message={message}, response={response}")
+                logger.debug(f"Error in response from {url}: message={body}, response={response}")
             else:
-                raise CommunicationError(f"Unknown response format from {url}: ", message, response)
+                raise CommunicationError(f"Unknown response format from {url}: ", body, response)
         else:
             logger.debug(
-                f"Received bad status code {status_code} != 200 from {url}, message={message}, response={response}"
+                f"Received bad status code {status_code} != 200 from {url}, message={body}, response={response}"
             )
 
         if attempts_left > 0:
             time.sleep(seconds_between_attempts)
 
-    raise CommunicationError(f"Problem occurred during communication with {url}", message, response)
+    raise CommunicationError(f"Problem occurred during communication with {url}", body, response)
