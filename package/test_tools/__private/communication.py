@@ -64,9 +64,10 @@ def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=
 
     json_encoder = JsonEncoderWithNaiAssets if use_nai_assets else JsonEncoderWithLegacyAssets
     message = bytes(json.dumps(message, cls=json_encoder), "utf-8") + b"\r\n"
+    headers = {"Content-Type": "application/json"}
 
     for attempts_left in reversed(range(max_attempts)):
-        response = requests.post(url, data=message)  # pylint: disable=missing-timeout
+        response = requests.post(url, data=message, headers=headers)  # pylint: disable=missing-timeout
         status_code = response.status_code
         try:
             decoded_content = response.content.decode("utf-8")
