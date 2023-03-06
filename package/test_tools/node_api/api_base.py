@@ -1,5 +1,6 @@
-from distutils.util import strtobool
 import os
+
+from test_tools.__private.utilities.strtobool import strtobool
 
 
 class NodeApiCallProxy:
