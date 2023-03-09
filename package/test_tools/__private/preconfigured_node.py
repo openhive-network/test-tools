@@ -25,8 +25,5 @@ class PreconfiguredNode(RawNode):
         )
         self.config.shared_file_size = "128M"
 
-    def __enable_all_api_plugins(self) -> None:
-        self.config.plugin.append("account_history_rocksdb")  # Required by account_history_api
-
-        all_api_plugins = [plugin for plugin in self.get_supported_plugins() if plugin.endswith("_api")]
-        self.config.plugin.extend([plugin for plugin in all_api_plugins if plugin not in self.config.plugin])
+    def _enable_api_plugins(self, *, plugins: list[str]) -> None:
+        self.config.plugin.extend([plugin for plugin in plugins if plugin not in self.config.plugin])
