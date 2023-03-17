@@ -5,10 +5,10 @@ from typing import Optional, Union
 
 
 class KeyBase(ABC):
-    def __init__(self, name: str, *, secret: str = "secret"):
+    def __init__(self, name: str, *, secret: str = "secret", key: str | None = None):
         self.__name = name
         self.__secret = secret
-        self.__value: Optional[str] = None
+        self.__value: Optional[str] = key
 
     @property
     def _value(self) -> str:
@@ -17,9 +17,9 @@ class KeyBase(ABC):
 
         return self.__value
 
-    @_value.setter
-    def _value(self, value: str) -> None:
-        self.__value = value
+    @property
+    def secret(self) -> str:
+        return self.__secret
 
     @abstractmethod
     def _generate_value(self, name: str, secret: str) -> str:
