@@ -10,7 +10,6 @@ import subprocess
 from threading import Event
 import time
 from typing import Dict, List, Literal, NoReturn, Optional, Tuple, TYPE_CHECKING, Union
-import warnings
 
 from test_tools.__private import cleanup_policy, communication, exceptions, paths_to_executables
 from test_tools.__private.block_log import BlockLog
@@ -138,7 +137,7 @@ class Node(UserHandleImplementation, ScopedObject):
             except subprocess.TimeoutExpired:
                 self.__process.kill()
                 self.__process.wait()
-                warnings.warn("Process was force-closed with SIGKILL, because didn't close before timeout")
+                self.__logger.warning("Process was force-closed with SIGKILL, because didn't close before timeout")
 
             self.__process = None
 
