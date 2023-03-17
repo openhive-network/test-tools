@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import math
 import typing
 from typing import TYPE_CHECKING
@@ -97,6 +98,10 @@ class NodeHandleBase(Handle):
     def get_last_irreversible_block_number(self) -> int:
         """Returns number of the last irreversible block known to node."""
         return self.__implementation.get_last_irreversible_block_number()
+
+    def get_head_block_time(self) -> datetime.datetime:
+        """Returns head block time."""
+        return self.__implementation.get_head_block_time()
 
     def get_current_witness(self) -> str:
         """Returns current witness."""

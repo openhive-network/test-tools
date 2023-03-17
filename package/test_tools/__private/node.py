@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import json
 import math
 import os
@@ -372,6 +373,10 @@ class Node(UserHandleImplementation, ScopedObject):
     def get_last_irreversible_block_number(self) -> int:
         response = self.api.database.get_dynamic_global_properties()
         return response["last_irreversible_block_num"]
+
+    def get_head_block_time(self) -> datetime.datetime:
+        response = self.api.database.get_dynamic_global_properties()
+        return Time.parse(response["time"])
 
     def get_current_witness(self) -> str:
         response = self.api.database.get_dynamic_global_properties()
