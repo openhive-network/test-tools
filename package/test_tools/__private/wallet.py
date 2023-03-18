@@ -714,7 +714,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
             )
 
         def recurrent_transfer(
-            self, from_, to, amount, memo, recurrence, executions, broadcast=None, only_result: bool = True
+            self, from_, to, amount, memo, recurrence, executions, pair_id, broadcast=None, only_result: bool = True
         ):
             return self.__send(
                 "recurrent_transfer",
@@ -724,6 +724,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
                 memo=memo,
                 recurrence=recurrence,
                 executions=executions,
+                pair_id=pair_id,
                 broadcast=broadcast,
                 only_result=only_result,
             )
