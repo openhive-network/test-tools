@@ -11,6 +11,7 @@ from test_tools.__private.time import Time
 # User handles
 from test_tools.__private.user_handles import ApiNodeHandle as ApiNode
 from test_tools.__private.user_handles import context
+from test_tools.__private.user_handles import HafNodeHandle as HafNode
 from test_tools.__private.user_handles import InitNodeHandle as InitNode
 from test_tools.__private.user_handles import NetworkHandle as Network
 from test_tools.__private.user_handles import RawNodeHandle as RawNode
