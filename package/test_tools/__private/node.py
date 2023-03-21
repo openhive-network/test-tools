@@ -271,6 +271,9 @@ class Node(UserHandleImplementation, ScopedObject):
     def __repr__(self) -> str:
         return str(self)
 
+    def get_session(self):
+        return self.session
+
     @property
     def config_file_path(self):
         return self.directory / "config.ini"
@@ -575,7 +578,7 @@ class Node(UserHandleImplementation, ScopedObject):
 
         exit_before_synchronization = exit_before_synchronization or "--exit-after-replay" in additional_arguments
 
-        self.make_database()
+        session = self.make_database()
 
         self.__run_process(
             blocking=exit_before_synchronization,

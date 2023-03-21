@@ -58,6 +58,11 @@ class NodeHandleBase(Handle):
         return self.__implementation.config_file_path
 
     @property
+    def get_session(self):
+        """Returns path to node's configuration file."""
+        return self.__implementation.get_session()
+
+    @property
     def directory(self) -> Path:
         """Returns path to directory, where node runs and generates its files."""
         return self.__implementation.directory
