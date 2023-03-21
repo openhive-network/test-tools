@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import abc
 import datetime
 import json
 import math
@@ -573,6 +574,9 @@ class Node(UserHandleImplementation, ScopedObject):
             self.__logger.info(f"{log_message} and NOT waiting for live...")
 
         exit_before_synchronization = exit_before_synchronization or "--exit-after-replay" in additional_arguments
+
+        self.make_database()
+
         self.__run_process(
             blocking=exit_before_synchronization,
             with_arguments=additional_arguments,
@@ -608,6 +612,9 @@ class Node(UserHandleImplementation, ScopedObject):
                 self.wait_for_live_mode(timeout=timeout)
 
         self.__log_run_summary()
+
+    @abc.abstractmethod
+    def make_database(self): ...
 
     def __handle_loading_snapshot(self, snapshot_source: Union[str, Path, Snapshot], additional_arguments: list):
         if not isinstance(snapshot_source, Snapshot):
