@@ -1149,7 +1149,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
                 self.api.set_password(password)
 
             self.api.unlock(password)
-            self.api.import_key(Account("initminer").private_key)
+            self.api.import_key(Account("initminer").keys.private)
 
         self.logger.info(f'Started{"" if self.__is_online() else " in offline mode"}, listening on {endpoint}')
 
@@ -1236,9 +1236,15 @@ class Wallet(UserHandleImplementation, ScopedObject):
         """
         account = Account(name)
         create_account_transaction = self.api.create_account_with_keys(
-            creator, account.name, "{}", account.public_key, account.public_key, account.public_key, account.public_key
+            creator,
+            account.name,
+            "{}",
+            account.keys.public,
+            account.keys.public,
+            account.keys.public,
+            account.keys.public,
         )
-        self.api.import_key(account.private_key)
+        self.api.import_key(account.keys.private)
 
         if isinstance(hives, (float, int)):
             hives = Asset.Test(hives)
@@ -1270,9 +1276,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
                 operation = copy.deepcopy(operation_pattern)
 
                 operation[1]["new_account_name"] = account.name
-                operation[1]["memo_key"] = account.public_key
+                operation[1]["memo_key"] = account.keys.public
                 for key_type in ("owner", "active", "posting"):
-                    operation[1][key_type]["key_auths"] = [[account.public_key, 1]]
+                    operation[1][key_type]["key_auths"] = [[account.keys.public, 1]]
 
                 transaction["operations"].append(operation)
 
@@ -1293,7 +1299,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         accounts = Account.create_multiple(number_of_accounts, name_base, secret=secret)
 
         transaction_pattern = self.api.create_account_with_keys(
-            "initminer", accounts[0].name, "{}", *(4 * [accounts[0].public_key]), broadcast=False
+            "initminer", accounts[0].name, "{}", *(4 * [accounts[0].keys.public]), broadcast=False
         )
 
         operation_pattern: Final = transaction_pattern["operations"][0]
@@ -1315,7 +1321,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
             private_keys_per_transaction: Final = 10_000
             for i in range(0, len(accounts), private_keys_per_transaction):
                 self.api.import_keys(
-                    [account.private_key for account in accounts[i : i + private_keys_per_transaction]]
+                    [account.keys.private for account in accounts[i : i + private_keys_per_transaction]]
                 )
 
         return accounts

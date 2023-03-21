@@ -20,7 +20,7 @@ def test_keys_import_during_account_creation(wallet):
     accounts = wallet.create_accounts(3)
     imported_private_keys = set(key_pair[1] for key_pair in wallet.api.list_keys())
 
-    assert all(account.private_key in imported_private_keys for account in accounts)
+    assert all(account.keys.private in imported_private_keys for account in accounts)
 
 
 @pytest.mark.node_shared_file_size("16G")

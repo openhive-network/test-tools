@@ -43,4 +43,4 @@ class WitnessNode(PreconfiguredNode):
     def __register_witness(self, witness_name):
         witness = Account(witness_name)
         self.config.witness.append(witness.name)
-        self.config.private_key.append(witness.private_key)
+        self.config.private_key.append(witness.keys.private)

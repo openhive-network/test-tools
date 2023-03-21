@@ -27,20 +27,20 @@ def prepare_witness(node: tt.AnyNode, account: tt.Account) -> int:
         "initminer",
         account.name,
         "",
-        account.public_key,
-        account.public_key,
-        account.public_key,
-        account.public_key,
+        account.keys.public,
+        account.keys.public,
+        account.keys.public,
+        account.keys.public,
     )
 
     wallet.api.transfer_to_vesting("initminer", account.name, tt.Asset.Test(1000))
 
-    wallet.api.import_key(tt.Account("witness0").private_key)
+    wallet.api.import_key(tt.Account("witness0").keys.private)
 
     wallet.api.update_witness(
         account.name,
         "https://" + account.name,
-        account.public_key,
+        account.keys.public,
         {"account_creation_fee": tt.Asset.Test(3), "maximum_block_size": 65536, "sbd_interest_rate": 0},
     )
 

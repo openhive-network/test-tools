@@ -110,7 +110,7 @@ def assert_that_transaction_for_test_has_effect(node):
 def generate_blocks(node, number_of_blocks):
     tt.logger.info(f"Generation of {number_of_blocks} blocks started...")
     node.api.debug_node.debug_generate_blocks(
-        debug_key=tt.Account("initminer").private_key,
+        debug_key=tt.Account("initminer").keys.private,
         count=number_of_blocks,
         skip=0,
         miss_blocks=0,

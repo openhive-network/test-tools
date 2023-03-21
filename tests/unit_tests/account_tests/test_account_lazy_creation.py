@@ -18,7 +18,7 @@ def test_if_account_object_can_be_created_without_key_generator():
 
 def test_if_keys_can_be_accessed_without_generator():
     account = tt.Account("example")
-    _ = account.public_key, account.private_key
+    _ = account.keys.public, account.keys.private
 
     # Generation of public_key and private_key is postponed even more, until
     # value will be really required (e.g. to compare with something, to send
@@ -29,6 +29,6 @@ def test_if_keys_can_be_accessed_without_generator():
 def test_if_serialization_fails_due_to_missing_key_generator_executable():  # pylint: disable=invalid-name
     account = tt.Account("example")
 
-    for key in ["private_key", "public_key"]:
+    for key in ["private", "public"]:
         with pytest.raises(FileNotFoundError):
-            str(getattr(account, key))  # Run serialization, but it requires key generator, so should fail
+            str(getattr(account.keys, key))  # Run serialization, but it requires key generator, so should fail
