@@ -103,7 +103,7 @@ def make_transaction_for_test(node):
 
 
 def assert_that_transaction_for_test_has_effect(node):
-    response = node.api.database.find_accounts(accounts=["alice"], delayed_votes_active=False)
+    response = node.api.get_session.find_accounts(accounts=["alice"], delayed_votes_active=False)
     assert response["accounts"][0]["name"] == "alice"
 
 

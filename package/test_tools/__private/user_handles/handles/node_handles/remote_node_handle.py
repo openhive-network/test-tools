@@ -18,5 +18,5 @@ class RemoteNodeHandle(Handle):
 
     def get_last_block_number(self) -> int:
         """Returns number of the newest block known to node."""
-        response = self.api.database.get_dynamic_global_properties()
+        response = self.api.get_session.get_dynamic_global_properties()
         return response["head_block_number"]

@@ -229,7 +229,7 @@ following syntax:
 ```python
 # Example node calls
 node.api.condenser.get_key_references(['TST5P8syqoj7itoDjbtDvCMCb5W3BNJtUjws9v7TDNZKqBLmp3pQW'])
-node.api.database.list_witnesses(start=None, limit=100, order='by_name')
+node.api.get_session.list_witnesses(start=None, limit=100, order='by_name')
 
 # Example wallet calls
 wallet.api.create_account('initminer', 'john', '{}')

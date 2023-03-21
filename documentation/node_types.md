@@ -51,7 +51,7 @@ wallet = tt.Wallet(attach_to=init_node)
 print(wallet.api.list_witnesses())
 
 # ...and send api calls
-init_node.api.database.list_witnesses(start=0, limit=100, order='by_name')
+init_node.api.get_session.list_witnesses(start=0, limit=100, order='by_name')
 ```
 
 ### Witness node
@@ -101,7 +101,7 @@ api_node = tt.ApiNode(network=network)
 network.run()
 
 # Send api calls
-response = api_node.api.database.get_dynamic_global_properties()
+response = api_node.api.get_session.get_dynamic_global_properties()
 print(response)
 ```
 </details>

@@ -246,7 +246,6 @@ class Node(UserHandleImplementation, ScopedObject):
         super().__init__(handle=handle)
 
         self.api = Apis(self)
-
         self.__name = context.names.register_numbered_name(name)
         self.directory = context.get_current_directory().joinpath(self.__name).absolute()
         self.__produced_files = False

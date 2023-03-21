@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing
 from typing import Optional, TYPE_CHECKING
 
 from test_tools.__private.haf_node import HafNode
@@ -8,6 +9,7 @@ from test_tools.__private.user_handles.handles.node_handles.node_handle_base imp
 
 if TYPE_CHECKING:
     from test_tools.__private.user_handles.handles.network_handle import NetworkHandle as Network
+from test_tools.__private.haf_node import HafNode
 
 
 class HafNodeHandle(NodeHandleBase):
@@ -18,3 +20,11 @@ class HafNodeHandle(NodeHandleBase):
                 handle=self,
             )
         )
+
+    @property
+    def __implementation(self) -> HafNode:
+        return typing.cast(HafNode, get_implementation(self))
+
+    @property
+    def session(self):
+        return self.__implementation.directory
