@@ -325,7 +325,7 @@ version = "0.0.0"
 description = "Tools shared by tests in test-tools project"
 category = "dev"
 optional = false
-python-versions = "^3.8"
+python-versions = "^3.10"
 files = []
 develop = true
 
