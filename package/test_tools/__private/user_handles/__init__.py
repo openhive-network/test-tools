@@ -4,6 +4,7 @@ from test_tools.__private.user_handles.handles.network_handle import NetworkHand
 
 # Node handles
 from test_tools.__private.user_handles.handles.node_handles.api_node_handle import ApiNodeHandle
+from test_tools.__private.user_handles.handles.node_handles.full_api_node_handle import FullApiNodeHandle
 from test_tools.__private.user_handles.handles.node_handles.init_node_handle import InitNodeHandle
 from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase
 from test_tools.__private.user_handles.handles.node_handles.raw_node_handle import RawNodeHandle
