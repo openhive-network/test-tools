@@ -21,7 +21,6 @@ class WitnessNode(PreconfiguredNode):
         handle: Optional[NodeHandle] = None,
     ):
         super().__init__(name=name, network=network, handle=handle)
-
         assert "witness" in self.config.plugin
 
         if witnesses is None:

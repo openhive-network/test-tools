@@ -14,6 +14,5 @@ class InitNode(WitnessNode):
 
     def __init__(self, *, name: str = "InitNode", network: Optional[Network], handle: Optional[NodeHandle] = None):
         super().__init__(name=name, network=network, witnesses=["initminer"], handle=handle)
-
         self.config.enable_stale_production = True
         self.config.required_participation = 0

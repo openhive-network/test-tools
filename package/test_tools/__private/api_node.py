@@ -14,5 +14,10 @@ class ApiNode(PreconfiguredNode):
         self, *, name: str = "ApiNode", network: Optional[Network] = None, handle: Optional[NodeHandle] = None
     ):
         super().__init__(name=name, network=network, handle=handle)
-
+        api_plugins = [
+            plugin
+            for plugin in self.get_supported_plugins()
+            if plugin.endswith("_api") and plugin != "account_history_api"
+        ]
+        self._enable_api_plugins(plugins=api_plugins)
         self.config.plugin.remove("witness")

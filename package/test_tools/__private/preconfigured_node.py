@@ -15,7 +15,9 @@ class PreconfiguredNode(RawNode):
     def __init__(self, name: str, network: Optional[Network] = None, handle: Optional[NodeHandle] = None):
         super().__init__(name=name, network=network, handle=handle)
 
-        self.__enable_all_api_plugins()
+        self._enable_api_plugins(
+            plugins=["block_api", "database_api", "debug_node_api", "network_node_api", "wallet_bridge_api"]
+        )
         self.config.log_logger = (
             '{"name":"default","level":"debug","appender":"stderr"} '
             '{"name":"user","level":"debug","appender":"stderr"} '
