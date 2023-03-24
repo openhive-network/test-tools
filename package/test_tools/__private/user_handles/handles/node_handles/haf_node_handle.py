@@ -13,10 +13,11 @@ if TYPE_CHECKING:
 
 
 class HafNodeHandle(NodeHandleBase):
-    def __init__(self, network: Optional[Network] = None) -> None:
+    def __init__(self, network: Optional[Network] = None, database_url: str = HafNode.DEFAULT_DATABASE_URL) -> None:
         super().__init__(
             implementation=HafNode(
                 network=get_implementation(network),
+                database_url=database_url,
                 handle=self,
             )
         )
@@ -29,3 +30,8 @@ class HafNodeHandle(NodeHandleBase):
     def session(self) -> Session:
         """Returns Sqlalchemy database session"""
         return self.__implementation.session
+
+    @property
+    def database_url(self) -> str:
+        """Returns haf database url"""
+        return self.__implementation.database_url

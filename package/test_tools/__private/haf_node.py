@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 from uuid import uuid4
 
 import sqlalchemy
@@ -17,12 +17,19 @@ if TYPE_CHECKING:
 
 
 class HafNode(PreconfiguredNode):
+    DEFAULT_DATABASE_URL: Final[str] = "postgresql:///haf_block_log"
+
     def __init__(
-        self, *, name: str = "HafNode", network: Network | None = None, handle: NodeHandle | None = None
+        self,
+        *,
+        name: str = "HafNode",
+        network: Network | None = None,
+        database_url: str = DEFAULT_DATABASE_URL,
+        handle: NodeHandle | None = None,
     ) -> None:
         super().__init__(name=name, network=network, handle=handle)
+        self.__database_url: str = self.__create_unique_url(database_url)
         self.__session: Session | None = None
-
         self.config.plugin.append("sql_serializer")
 
     @property
@@ -30,19 +37,25 @@ class HafNode(PreconfiguredNode):
         assert self.__session, "Session is not available since node was not run yet! Call the 'run()' method first."
         return self.__session
 
+    @property
+    def database_url(self) -> str:
+        return self.__database_url
+
     def _actions_before_run(self) -> None:
         self.__make_database()
 
-    def __make_database(self) -> None:
-        url = "postgresql:///haf_block_log"
-        url = url + "_" + uuid4().hex
-        self.config.psql_url = url
-        logger.info(f"Preparing database {url}")
-        if database_exists(url):
-            drop_database(url)
-        create_database(url)
+    @staticmethod
+    def __create_unique_url(database_url):
+        return database_url + "_" + uuid4().hex
 
-        engine = sqlalchemy.create_engine(url, echo=False, poolclass=NullPool)
+    def __make_database(self) -> None:
+        self.config.psql_url = self.__database_url
+        logger.info(f"Preparing database {self.__database_url}")
+        if database_exists(self.__database_url):
+            drop_database(self.__database_url)
+        create_database(self.__database_url)
+
+        engine = sqlalchemy.create_engine(self.__database_url, echo=False, poolclass=NullPool)
         with engine.connect() as connection:
             connection.execute("CREATE EXTENSION hive_fork_manager CASCADE;")
 
