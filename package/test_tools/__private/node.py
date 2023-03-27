@@ -249,15 +249,15 @@ class Node(UserHandleImplementation, ScopedObject):
         self.__name = context.names.register_numbered_name(name)
         self.directory = context.get_current_directory().joinpath(self.__name).absolute()
         self.__produced_files = False
-        self.__logger = logger.create_child_logger(self.__name)
+        self._logger = logger.create_child_logger(self.__name)
 
         self.__network: Optional[Network] = network
         if self.__network is not None:
             self.__network.add(self)
 
         self.__executable = self.__Executable()
-        self.__process = self.__Process(self.directory, self.__executable, self.__logger)
-        self.__notifications = self.__NotificationsServer(self, self.__logger)
+        self.__process = self.__Process(self.directory, self.__executable, self._logger)
+        self.__notifications = self.__NotificationsServer(self, self._logger)
         self.__cleanup_policy = None
 
         self.config = create_default_config()
@@ -333,7 +333,7 @@ class Node(UserHandleImplementation, ScopedObject):
         if __is_max_blocks_to_wait_param_given():
             log_message += f" (max wait block number: `{max_wait_block_number}`)"
 
-        self.__logger.info(log_message)
+        self._logger.info(log_message)
 
         Time.wait_for(
             lambda: self.__is_block_with_number_irreversible(target_block_number, max_wait_block_number),
@@ -420,7 +420,7 @@ class Node(UserHandleImplementation, ScopedObject):
     def dump_config(self):
         assert not self.is_running()
 
-        self.__logger.info("Config dumping started...")
+        self._logger.info("Config dumping started...")
 
         config_was_modified = self.config != create_default_config()
         self.__run_process(blocking=True, with_arguments=["--dump-config"], write_config_before_run=config_was_modified)
@@ -432,10 +432,10 @@ class Node(UserHandleImplementation, ScopedObject):
                 f"{self.get_name()} config dump failed because of entry not known to TestTools."
             ) from exception
 
-        self.__logger.info("Config dumped")
+        self._logger.info("Config dumped")
 
     def dump_snapshot(self, *, close=False):
-        self.__logger.info("Snapshot dumping started...")
+        self._logger.info("Snapshot dumping started...")
         self.__ensure_that_plugin_required_for_snapshot_is_included()
 
         if not close:
@@ -462,7 +462,7 @@ class Node(UserHandleImplementation, ScopedObject):
             # The new operation fails because expiration time is compared to the last irreversible and may be exceeded.
             self.wait_number_of_blocks(1)
 
-        self.__logger.info("Snapshot dumped")
+        self._logger.info("Snapshot dumped")
 
         return Snapshot(
             self.directory / "snapshot" / snapshot_path,
@@ -565,12 +565,12 @@ class Node(UserHandleImplementation, ScopedObject):
             if exit_before_synchronization:
                 additional_arguments.append("--exit-before-sync")
 
-            self.__logger.info(f"{log_message} and waiting for close...")
+            self._logger.info(f"{log_message} and waiting for close...")
         elif wait_for_live is None:
             wait_for_live = True
-            self.__logger.info(f"{log_message} and waiting for live...")
+            self._logger.info(f"{log_message} and waiting for live...")
         else:
-            self.__logger.info(f"{log_message} and NOT waiting for live...")
+            self._logger.info(f"{log_message} and NOT waiting for live...")
 
         exit_before_synchronization = exit_before_synchronization or "--exit-after-replay" in additional_arguments
 
@@ -653,7 +653,7 @@ class Node(UserHandleImplementation, ScopedObject):
 
         message += f", {self.__executable.build_version} build"
         message += f" commit={self.__executable.get_build_commit_hash()[:8]}"
-        self.__logger.info(message)
+        self._logger.info(message)
 
     def __get_opened_endpoints(self):
         endpoints = [

@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import NullPool
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
-from test_tools.__private.logger.logger_internal_interface import logger
 from test_tools.__private.preconfigured_node import PreconfiguredNode
 
 if TYPE_CHECKING:
@@ -50,7 +49,7 @@ class HafNode(PreconfiguredNode):
 
     def __make_database(self) -> None:
         self.config.psql_url = self.__database_url
-        logger.info(f"Preparing database {self.__database_url}")
+        self._logger.info(f"Preparing database {self.__database_url}")
         if database_exists(self.__database_url):
             drop_database(self.__database_url)
         create_database(self.__database_url)
