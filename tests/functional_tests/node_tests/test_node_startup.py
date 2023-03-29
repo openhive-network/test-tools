@@ -29,7 +29,7 @@ def test_loading_snapshot_from_other_node(node: tt.InitNode):
     generate_blocks(node, 100)  # To make sure, that block with test operation will be stored in block log
     snapshot = node.dump_snapshot()
 
-    loading_node = tt.ApiNode()
+    loading_node = tt.InitNode()
     loading_node.run(load_snapshot_from=snapshot, wait_for_live=False)
     assert_that_transaction_for_test_has_effect(loading_node)
 
@@ -39,7 +39,7 @@ def test_loading_snapshot_from_custom_path(node: tt.InitNode):
     generate_blocks(node, 100)  # To make sure, that block with test operation will be stored in block log
     snapshot = node.dump_snapshot()
 
-    loading_node = tt.ApiNode()
+    loading_node = tt.InitNode()
     loading_node.run(load_snapshot_from=snapshot.get_path(), wait_for_live=False)
     assert_that_transaction_for_test_has_effect(loading_node)
 
