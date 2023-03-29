@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Final
+from datetime import timedelta
+import math
+from typing import Final, TYPE_CHECKING, TypedDict
 from uuid import uuid4
 
 import sqlalchemy
@@ -8,11 +10,19 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import NullPool
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
+from test_tools.__private.db_adapter import DbAdapter
 from test_tools.__private.preconfigured_node import PreconfiguredNode
+from test_tools.__private.time import Time
 
 if TYPE_CHECKING:
+    from sqlalchemy.engine.row import Row
+
+    from test_tools.__private.db_adapter.db_adapter import ColumnType, ScalarType
     from test_tools.__private.network import Network
     from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
+
+    class Transaction(TypedDict):
+        transaction_id: str
 
 
 class HafNode(PreconfiguredNode):
@@ -68,3 +78,37 @@ class HafNode(PreconfiguredNode):
     def __close_session(self) -> None:
         if self.__session is not None:
             self.__session.close()
+
+    def wait_for_transaction_in_database(
+        self,
+        transaction: Transaction,
+        *,
+        timeout: float | timedelta = math.inf,
+        poll_time: float = 1.0,
+    ):
+        transaction_hash = transaction["transaction_id"]
+        Time.wait_for(
+            lambda: self.__is_transaction_in_database(transaction_hash),
+            timeout=timeout,
+            timeout_error_message=f"Waited too long for transaction {transaction_hash}",
+            poll_time=poll_time,
+        )
+
+    def __is_transaction_in_database(self, trx_id: str) -> bool:
+        sql = "SELECT exists(SELECT 1 FROM hive.transactions_view WHERE trx_hash LIKE decode(:hash, 'hex'));"
+        return self.query_one(sql, hash=trx_id)
+
+    def query_all(self, sql: str, **kwargs) -> list[Row]:
+        return DbAdapter.query_all(self.session, sql, **kwargs)
+
+    def query_col(self, sql: str, **kwargs) -> ColumnType:
+        return DbAdapter.query_col(self.session, sql, **kwargs)
+
+    def query_no_return(self, sql: str, **kwargs) -> None:
+        DbAdapter.query_no_return(self.session, sql, **kwargs)
+
+    def query_row(self, sql: str, **kwargs) -> Row:
+        return DbAdapter.query_row(self.session, sql, **kwargs)
+
+    def query_one(self, sql: str, **kwargs) -> ScalarType:
+        return DbAdapter.query_one(self.session, sql, **kwargs)
