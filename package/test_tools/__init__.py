@@ -4,6 +4,7 @@ from test_tools.__private import cleanup_policy, constants, exceptions, paths_to
 from test_tools.__private.account import Account
 from test_tools.__private.asset import Asset
 from test_tools.__private.block_log import BlockLog
+from test_tools.__private.db_adapter import DbAdapter
 from test_tools.__private.keys import PrivateKey, PublicKey
 from test_tools.__private.logger.logger_user_interface import logger
 from test_tools.__private.time import Time
