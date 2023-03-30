@@ -107,6 +107,8 @@ class NodeConfig:
         self.blockchain_thread_pool_size = Integer()
         self.block_stats_report_type = String()
         self.block_stats_report_output = String()
+        self.wallet_dir = String()
+        self.unlock_timeout = Integer()
 
     def __setattr__(self, key, value):
         if self.__is_initialization_stage():

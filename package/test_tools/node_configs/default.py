@@ -48,5 +48,7 @@ def create_default_config():
     config.block_stats_report_type = "FULL"
     config.block_stats_report_output = "ILOG"
     config.webserver_ws_deflate = False
+    config.wallet_dir = '"."'
+    config.unlock_timeout = 900
 
     return config
