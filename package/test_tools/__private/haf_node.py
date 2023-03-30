@@ -34,11 +34,13 @@ class HafNode(PreconfiguredNode):
         name: str = "HafNode",
         network: Network | None = None,
         database_url: str = DEFAULT_DATABASE_URL,
+        keep_database: bool = False,
         handle: NodeHandle | None = None,
     ) -> None:
         super().__init__(name=name, network=network, handle=handle)
         self.__database_url: str = self.__create_unique_url(database_url)
         self.__session: Session | None = None
+        self.__keep_database: bool = keep_database
         self.config.plugin.append("sql_serializer")
 
     @property
@@ -78,6 +80,10 @@ class HafNode(PreconfiguredNode):
     def __close_session(self) -> None:
         if self.__session is not None:
             self.__session.close()
+
+    def _actions_after_final_cleanup(self) -> None:
+        if not self.__keep_database:
+            drop_database(self.__database_url)
 
     def wait_for_transaction_in_database(
         self,

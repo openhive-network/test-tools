@@ -704,11 +704,15 @@ class Node(UserHandleImplementation, ScopedObject):
 
     def at_exit_from_scope(self):
         self.handle_final_cleanup()
+        self._actions_after_final_cleanup()
 
     def handle_final_cleanup(self):
         self.close()
         self.__process.close_opened_files()
         self.__remove_files()
+
+    def _actions_after_final_cleanup(self):
+        """Override this method to hook just after handling the final cleanup."""
 
     def restart(self, wait_for_live=True, timeout=DEFAULT_WAIT_FOR_LIVE_TIMEOUT, time_offset: Optional[str] = None):
         self.__close_wallets()

@@ -18,11 +18,17 @@ if TYPE_CHECKING:
 
 
 class HafNodeHandle(NodeHandleBase):
-    def __init__(self, network: Optional[Network] = None, database_url: str = HafNode.DEFAULT_DATABASE_URL) -> None:
+    def __init__(
+        self,
+        network: Optional[Network] = None,
+        database_url: str = HafNode.DEFAULT_DATABASE_URL,
+        keep_database: bool = False,
+    ) -> None:
         super().__init__(
             implementation=HafNode(
                 network=get_implementation(network),
                 database_url=database_url,
+                keep_database=keep_database,
                 handle=self,
             )
         )
