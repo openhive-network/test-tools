@@ -729,6 +729,22 @@ class Wallet(UserHandleImplementation, ScopedObject):
                 only_result=only_result,
             )
 
+        def recurrent_transfer_with_id(
+            self, from_, to, amount, memo, recurrence, executions, pair_id, broadcast=None, only_result: bool = True
+        ):
+            return self.__send(
+                "recurrent_transfer_with_id",
+                from_=from_,
+                to=to,
+                amount=amount,
+                memo=memo,
+                recurrence=recurrence,
+                executions=executions,
+                pair_id=pair_id,
+                broadcast=broadcast,
+                only_result=only_result,
+            )
+
         def remove_proposal(self, deleter, ids, broadcast=None, only_result: bool = True):
             return self.__send(
                 "remove_proposal", deleter=deleter, ids=ids, broadcast=broadcast, only_result=only_result
