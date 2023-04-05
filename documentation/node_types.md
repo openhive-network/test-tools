@@ -6,28 +6,31 @@ As you can see nodes have different use cases and needs to be configured properl
 
 ### Short summary
 
-| Node type                               | Purpose                            | Prepared<br>for blocks<br>generation | Enabled APIs                 | Shared<br>file size | Witness<br>plugin<br>enabled |
-| --------------------------------------- | ---------------------------------- |:------------------------------------:|:----------------------------:|:-------------------:|:----------------------------:|
-| Init node ([details](#init-node))       | Network start,<br>handle API calls | yes                                  | all                          | 128 MB              | yes                          |
-| Witness node ([details](#witness-node)) | Sign blocks                        | no                                   | all                          | 128 MB              | yes                          |
-| Api node ([details](#api-node))         | Handle api calls                   | no                                   | all                          | 128 MB              | no                           |
-| Raw node ([details](#raw-node))         | _Unconfigured_                     | no                                   | account_by_key,<br>condenser | 54 GB               | yes                          |
+| Node type                                 | Purpose                            | Prepared<br>for blocks<br>generation |                                                                     Enabled APIs                                                                      | Shared<br>file size | Witness<br>plugin<br>enabled |
+|-------------------------------------------| ---------------------------------- |:------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------:|:----------------------------:|
+| Init node ([details](#init-node))         | Network start,<br>handle API calls | yes                                  |                                     block_api, database_api, debug_node_api, network_node_api, wallet_bridge_api                                      | 128 MB              | yes                          |
+| Witness node ([details](#witness-node))   | Sign blocks                        | no                                   |                                     block_api, database_api, debug_node_api, network_node_api, wallet_bridge_api                                      | 128 MB              | yes                          |
+| Api node ([details](#api-node))           | Handle api calls                   | no                                   |                                                              all except account_history                                                               | 128 MB              | no                           |
+| Full Api node ([details](#full-api-node)) | Handle api calls                   | no                                   |                                                                          all                                                                          | 128 MB              | no                           |
+| Raw node ([details](#raw-node))           | _Unconfigured_                     | no                                   |                                                                    account_by_key                                                                     | 54 GB               | yes                          |
 
 ### Base test node
 
-Nodes are organized in a hierarchy. Init, witness and api nodes are nodes configured for tests. It is described in diagram below as base test node. You can't create this type of node. But all mentioned nodes have same behavior and extend it.
+Nodes are organized in a hierarchy. Init, witness, api and full api nodes are nodes configured for tests. It is described in diagram below as base test node. You can't create this type of node. But all mentioned nodes have same behavior and extend it.
 
 ```mermaid
 graph TD;
   Init[Init Node];
   Witness[Witness Node];
   Api[Api Node];
+  FullApi [Full Api Node];
   Base[Base Test Node];
   Raw[Raw Node];
 
   Init-->Base;
   Witness-->Base;
   Api-->Base;
+  FullApi-->Api;
   Base-->Raw;
 
   style Base stroke-dasharray: 5 5
@@ -88,7 +91,7 @@ https://gitlab.syncad.com/hive/hive/-/blob/develop/tests/functional/python_tests
 
 ### Api node
 
-Responsibility of this node type is api calls handling.
+Responsibility of this node type is api calls handling. It supports all apis except _account_history_.
 
 <details>
 <summary>Code example</summary>
@@ -105,6 +108,27 @@ response = api_node.api.database.get_dynamic_global_properties()
 print(response)
 ```
 </details>
+
+### Full Api node
+
+It's extension of Api Node with _account_history_ api plugin available.
+
+<details>
+<summary>Code example</summary>
+
+```python
+# Define network
+network = tt.Network()
+init_node = tt.InitNode(network=network)
+full_api_node = tt.FullApiNode(network=network)
+network.run()
+
+# Send account history api calls
+response = full_api_node.api.account_history.get_ops_in_block(block_num=4)
+print(response)
+```
+</details>
+
 
 ### Raw node
 

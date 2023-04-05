@@ -250,6 +250,7 @@ code ([read more](documentation/node_types.md)). Following node types are suppor
 - init node,
 - witness node,
 - api node,
+- full api node,
 - raw node.
 
 This is how network consisting of init, witness and api node can be defined:
