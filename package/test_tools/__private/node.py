@@ -786,6 +786,9 @@ class Node(UserHandleImplementation, ScopedObject):
             exception_message="Live mode not activated on time.",
         )
 
+    def is_in_live_mode(self) -> bool:
+        return Event.is_set(self.__notifications.live_mode_entered_event)
+
     def get_number_of_forks(self):
         return self.__notifications.number_of_forks
 

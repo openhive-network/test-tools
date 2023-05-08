@@ -265,6 +265,12 @@ class NodeHandleBase(Handle):
         """
         self.__implementation.wait_for_live_mode(timeout=timeout)
 
+    def is_in_live_mode(self) -> bool:
+        """
+        Returns information if live mode has already started.
+        """
+        return self.__implementation.is_in_live_mode()
+
     @property
     def ws_endpoint(self) -> str:
         """
