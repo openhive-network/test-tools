@@ -70,7 +70,12 @@ class BlockLog:
         copied_block_log_path = shutil.copy(self.__path, destination)
         return BlockLog(copied_block_log_path)
 
-    def truncate(self, output_directory: Union[Path, str], block_number: int) -> BlockLog:
+    def truncate(
+        self,
+        output_directory: Union[Path, str],
+        block_number: int,
+        decompress: bool = True,
+    ) -> BlockLog:
         """
         Shorten block log to `block_number` blocks and stores result in `output_directory` as:
         - `output_directory` / block_log,
@@ -78,16 +83,21 @@ class BlockLog:
 
         :param output_directory: In this directory truncated `block_log` and `block_log.artifacts` will be stored.
         :param block_number: Limit number of blocks in the output block log.
+        :param decompress: Enable decompression of block_log.
         :return: Truncated block log.
         """
+        compress_block_log_process = [
+            paths_to_executables.get_path_of("compress_block_log"),
+            f"--input-block-log={self.__path.parent.absolute()}",
+            f"--output-block-log={Path(output_directory).absolute()}",
+            f"--block-count={block_number}",
+        ]
+
+        if decompress:
+            compress_block_log_process.append("--decompress")
+
         subprocess.run(
-            [
-                paths_to_executables.get_path_of("compress_block_log"),
-                f"--input-block-log={self.__path.parent.absolute()}",
-                f"--output-block-log={Path(output_directory).absolute()}",
-                f"--block-count={block_number}",
-                "--decompress",
-            ],
+            compress_block_log_process,
             check=True,
         )
         return BlockLog(output_directory / "block_log")
