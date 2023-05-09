@@ -183,6 +183,42 @@ class Asset:
         precision: Final[int] = 6
         nai: Final[str] = "@@000000037"
 
+    class Range:
+        def __init__(
+            self,
+            lower_limit: AssetBase,
+            upper_limit: Optional[None, AssetBase] = None,
+            *,
+            percentage_range: Optional[None, int] = None,
+        ):
+
+            if upper_limit is None and percentage_range is None:
+                raise AssertionError("Cannot set a range without specifying an upper limit or percentage limit")
+            if upper_limit is not None and percentage_range is not None:
+                raise AssertionError(
+                    "Using upper_limit and percentage_range at the same time is not possible. Choose one option"
+                )
+            assert isinstance(lower_limit, AssetBase), "Incorrect format on lower_limit argument, give only assets type"
+            self.lower_limit = lower_limit
+
+            if upper_limit is not None:
+                assert isinstance(
+                    upper_limit, AssetBase
+                ), "Incorrect format on upper_limit argument, give only assets type"
+                self.upper_limit = upper_limit
+            else:
+                assert isinstance(percentage_range, int), "The percentage range should be given as an integer"
+                self.upper_limit = self.lower_limit + (self.lower_limit * percentage_range / 100)
+            assert type(self.lower_limit) == type(self.upper_limit), "The specified assets are not of the same type"
+            assert self.lower_limit < self.upper_limit, "The upper limit cannot be greater than the lower limit"
+
+        def __contains__(self, item: AssetBase):
+            assert isinstance(item, AssetBase), "Requires an asset"
+            assert (
+                type(item) == type(self.lower_limit) == type(self.upper_limit)
+            ), "Comparing assets of different types is not possible. Make sure that given assets are of the same types"
+            return True if self.lower_limit <= item < self.upper_limit else False
+
     @classmethod
     def from_(cls, data: Union[str, dict], *, treat_dict_as_testnet_currencies: bool = True) -> AssetBase:
         """
