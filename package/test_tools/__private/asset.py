@@ -128,7 +128,7 @@ class AssetBase(acp.Abstract):
         except ParseError as exception:
             raise TypeError(f"Can't {error_detail} asset: `{self}` and `{other}`.") from exception
 
-        self.__assert_same_token(other, error_detail=error_detail)
+        self.assert_same_token(self, other, error_detail=error_detail)
         return other
 
     def __handle_asset_conversion(self, other: Any, error_detail: str) -> AssetBase:
@@ -137,8 +137,7 @@ class AssetBase(acp.Abstract):
         if isinstance(other, (str, dict)):
             other = Asset.from_(other, treat_dict_as_testnet_currencies=is_testnet)
 
-        if not isinstance(other, AssetBase):
-            raise TypeError(f"Can't {error_detail} objects of type `{type(other)}`.")
+        self.assert_is_asset(other, error_detail=error_detail)
         return other
 
     @classmethod
@@ -152,9 +151,16 @@ class AssetBase(acp.Abstract):
         if cls.precision != other["precision"]:
             raise ParseError(f"Asset dict precision differ: `{other['precision']}`, when expected `{cls.precision}`.")
 
-    def __assert_same_token(self, other: AssetBase, *, error_detail: str) -> Optional[NoReturn]:
-        if self.token != other.token:
-            raise TypeError(f"Can't {error_detail} assets with different tokens: `{self.token}` and `{other.token}`.")
+    @staticmethod
+    def assert_same_token(first: AssetBase, other: AssetBase, *, error_detail: str) -> Optional[NoReturn]:
+        if first.token != other.token:
+            raise TypeError(f"Can't {error_detail} assets with different tokens: `{first.token}` and `{other.token}`.")
+
+    @staticmethod
+    def assert_is_asset(*other: Any, error_detail: str) -> Optional[NoReturn]:
+        for asset in other:
+            if not isinstance(asset, AssetBase):
+                raise TypeError(f"Can't {error_detail} objects of type `{type(asset)}`.")
 
 
 class Asset:
@@ -182,6 +188,31 @@ class Asset:
         token: Final[str] = "VESTS"
         precision: Final[int] = 6
         nai: Final[str] = "@@000000037"
+
+    class Range:
+        def __init__(
+            self,
+            lower_limit: AssetBase,
+            upper_limit: Optional[AssetBase] = None,
+            *,
+            tolerance: Union[int, float, None] = None,
+        ):
+            if not upper_limit and not tolerance:
+                raise TypeError("Range has to be specified with either `upper_limit` or `tolerance`")
+
+            if upper_limit and tolerance:
+                raise TypeError("Please choose only one option from `upper_limit` or `tolerance`")
+
+            self.__lower_limit = lower_limit if upper_limit else lower_limit - (lower_limit * tolerance / 100)
+            self.__upper_limit = upper_limit if upper_limit else lower_limit + (lower_limit * tolerance / 100)
+            AssetBase.assert_is_asset(self.__lower_limit, self.__upper_limit, error_detail="create range on")
+            AssetBase.assert_same_token(self.__lower_limit, self.__upper_limit, error_detail="create range on")
+            assert self.__lower_limit < self.__upper_limit, "The upper limit cannot be greater than the lower limit"
+
+        def __contains__(self, item: AssetBase):
+            AssetBase.assert_is_asset(item, error_detail="check if asset is in range when")
+            AssetBase.assert_same_token(item, self.__lower_limit, error_detail="check if asset is in range when")
+            return self.__lower_limit <= item <= self.__upper_limit
 
     @classmethod
     def from_(cls, data: Union[str, dict], *, treat_dict_as_testnet_currencies: bool = True) -> AssetBase:
