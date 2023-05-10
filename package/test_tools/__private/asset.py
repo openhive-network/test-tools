@@ -190,6 +190,23 @@ class Asset:
         nai: Final[str] = "@@000000037"
 
     class Range:
+        """
+        Represents a range of assets by providing the upper and lower bounds for a given value.
+        It functions similarly to the built-in python `range(100, 110)` function, providing a convenient way to
+        represent a range of assets within a specified value range.
+
+        Usage:
+            tt.Asset.Range(lower_limit=tt.Asset.Hive(100), upper_limit=tt.Asset.Hive(110))
+
+        :param lower_limit is required. When tolerance is given it acts as the value to which we refer when specifying
+        the percentage range.
+        :param tolerance: is defined as a positive number, which is a percentage of the upper and lower deviations e.g:
+            asset = tt.Asset.Hive(100)
+            tt.Asset.Range(asset, tolerance=10) -> the range of this asset is from tt.Asset.Hive(90) to inclusive (100)
+
+        Upper limit and tolerance should be used interchangeably.
+        """
+
         def __init__(
             self,
             lower_limit: AssetBase,
