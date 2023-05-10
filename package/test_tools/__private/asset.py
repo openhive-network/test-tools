@@ -203,6 +203,9 @@ class Asset:
             if upper_limit and tolerance:
                 raise TypeError("Please choose only one option from `upper_limit` or `tolerance`")
 
+            if tolerance and tolerance < 0:
+                raise TypeError("`tolerance` should be given as an positive number")
+
             self.__lower_limit = lower_limit if upper_limit else lower_limit - (lower_limit * tolerance / 100)
             self.__upper_limit = upper_limit if upper_limit else lower_limit + (lower_limit * tolerance / 100)
             AssetBase.assert_is_asset(self.__lower_limit, self.__upper_limit, error_detail="create range on")
