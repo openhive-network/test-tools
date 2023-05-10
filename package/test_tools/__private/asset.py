@@ -4,12 +4,14 @@ from copy import deepcopy
 from decimal import Decimal
 from functools import total_ordering
 import operator
-from typing import Any, Final, NoReturn, Optional, Union
+from typing import Any, Final, NoReturn, Optional, TypeVar, Union
 
 import abstractcp as acp
 
 from test_tools.__private.exceptions import ParseError
 from test_tools.__private.utilities.decimal_converter import DecimalConverter
+
+AssetLimitT = TypeVar("AssetLimitT", bound="AssetBase")
 
 
 @total_ordering
@@ -209,8 +211,8 @@ class Asset:
 
         def __init__(
             self,
-            lower_limit: AssetBase,
-            upper_limit: Optional[AssetBase] = None,
+            lower_limit: AssetLimitT,
+            upper_limit: Optional[AssetLimitT] = None,
             *,
             tolerance: Union[int, float, None] = None,
         ):
