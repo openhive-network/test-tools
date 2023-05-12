@@ -566,7 +566,7 @@ class Node(UserHandleImplementation, ScopedObject):
                 additional_arguments.append("--exit-before-sync")
 
             self._logger.info(f"{log_message} and waiting for close...")
-        elif wait_for_live is None:
+        elif wait_for_live is None or wait_for_live is True:
             wait_for_live = True
             self._logger.info(f"{log_message} and waiting for live...")
         else:
