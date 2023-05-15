@@ -1234,11 +1234,6 @@ class Wallet(UserHandleImplementation, ScopedObject):
         The `transfer_to_vesting` operation can be only done by sending the Asset.Test type, that's why method in place
         of `vests` accepts the Asset.Test and numeric types instead of Asset.Vest.
         """
-        account = Account(name)
-        create_account_transaction = self.api.create_account_with_keys(
-            creator, account.name, "{}", account.public_key, account.public_key, account.public_key, account.public_key
-        )
-        self.api.import_key(account.private_key)
 
         if isinstance(hives, (float, int)):
             hives = Asset.Test(hives)
@@ -1247,7 +1242,18 @@ class Wallet(UserHandleImplementation, ScopedObject):
         if isinstance(hbds, (float, int)):
             hbds = Asset.Tbd(hbds)
 
-        with self.in_single_transaction():
+        account = Account(name)
+        with self.in_single_transaction() as transaction:
+            self.api.create_account_with_keys(
+                creator,
+                account.name,
+                "{}",
+                account.public_key,
+                account.public_key,
+                account.public_key,
+                account.public_key,
+            )
+
             if hives is not None:
                 self.api.transfer(creator, name, hives, "memo")
 
@@ -1256,8 +1262,8 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
             if hbds is not None:
                 self.api.transfer(creator, name, hbds, "memo")
-
-        return create_account_transaction
+        self.api.import_key(account.private_key)
+        return transaction.get_response()
 
     def create_accounts(
         self, number_of_accounts: int, name_base: str = "account", *, secret: str = "secret", import_keys: bool = True
