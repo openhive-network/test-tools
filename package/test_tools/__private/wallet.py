@@ -9,6 +9,7 @@ import re
 import shutil
 import signal
 import subprocess
+from pathlib import Path
 from typing import Final, Iterable, List, Literal, Optional, TYPE_CHECKING, Union
 import warnings
 
@@ -1132,15 +1133,19 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         endpoint = self.__get_http_server_endpoint()
         self.http_server_port = endpoint.split(":")[1]
+        self.logger.info(f"Wallet should listen on port: {self.http_server_port=}")
 
         if self.__is_online():
-            timeout -= Time.wait_for(
-                self.__is_communication_established,
-                timeout=timeout,
-                timeout_error_message=(
-                    f"Problem with starting wallet. See {self.get_stderr_file_path()} for more details."
-                ),
-            )
+            try:
+                timeout -= Time.wait_for(
+                    self.__is_communication_established,
+                    timeout=max(timeout, 5),
+                    timeout_error_message=(
+                        f"Problem with starting wallet. See {self.get_stderr_file_path()} for more details."
+                    ),
+                )
+            except Exception as e:
+                print("dupa")
 
         if preconfigure:
             password = self.DEFAULT_PASSWORD
@@ -1183,6 +1188,8 @@ class Wallet(UserHandleImplementation, ScopedObject):
                     return endpoint.replace("0.0.0.0", "127.0.0.1")
         return None
 
+
+
     def __is_password_set(self) -> bool:
         return not self.api.is_new()
 
@@ -1215,11 +1222,17 @@ class Wallet(UserHandleImplementation, ScopedObject):
             self.process.kill()
             self.process.wait()
             self.logger.warning("Process was force-closed with SIGKILL, because didn't close before timeout")
+        finally:
+            self.process = None
+            assert self.process is None
 
     def __close_opened_files(self):
-        for file in [self.stdout_file, self.stderr_file]:
-            if file is not None:
-                file.close()
+        for file_handle, file_path in [(self.stdout_file, self.get_stdout_file_path()), (self.stderr_file, self.get_stderr_file_path())]:
+            if file_handle is not None:
+                file_handle.close()
+                filename = str(file_path.name)
+                file_path.rename( filename + str(len( [x for x in file_path.parent.glob(pattern=str(filename+".*") ) ] )) )
+
 
     def create_account(
         self,
