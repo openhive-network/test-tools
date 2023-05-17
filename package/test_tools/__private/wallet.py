@@ -1196,7 +1196,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
             for line in output:
                 if "Listening for incoming HTTP RPC requests on" in line:
                     endpoint = re.match(r"^.*Listening for incoming HTTP RPC requests on ([\d\.]+\:\d+)\s*$", line)[1]
-                    return endpoint.replace("0.0.0.0", "127.0.0.1")
+                    endpoint = endpoint.replace("0.0.0.0", "127.0.0.1")
+                    self.logger.info(f"from stderr: wallet listening endpoint is: {endpoint}")
+                    return endpoint
         return None
 
     def __is_password_set(self) -> bool:
