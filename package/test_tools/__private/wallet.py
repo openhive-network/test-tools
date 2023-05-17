@@ -5,6 +5,7 @@ import concurrent.futures
 import copy
 import math
 import os
+from pathlib import Path
 import re
 import shutil
 import signal
@@ -1044,10 +1045,10 @@ class Wallet(UserHandleImplementation, ScopedObject):
     def __repr__(self):
         return str(self)
 
-    def get_stdout_file_path(self):
+    def get_stdout_file_path(self) -> Path:
         return self.directory / "stdout.txt"
 
-    def get_stderr_file_path(self):
+    def get_stderr_file_path(self) -> Path:
         return self.directory / "stderr.txt"
 
     def is_running(self):
@@ -1192,7 +1193,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         return True
 
     def __get_http_server_endpoint(self):
-        with open(self.directory / "stderr.txt", encoding="utf-8") as output:
+        with self.get_stderr_file_path().open(encoding="utf-8") as output:
             for line in output:
                 if "Listening for incoming HTTP RPC requests on" in line:
                     endpoint = re.match(r"^.*Listening for incoming HTTP RPC requests on ([\d\.]+\:\d+)\s*$", line)[1]
