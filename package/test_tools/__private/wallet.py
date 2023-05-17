@@ -1231,6 +1231,8 @@ class Wallet(UserHandleImplementation, ScopedObject):
             self.process.kill()
             self.process.wait()
             self.logger.warning("Process was force-closed with SIGKILL, because didn't close before timeout")
+        finally:
+            self.process = None
 
     def __close_opened_files(self):
         for file in [self.stdout_file, self.stderr_file]:
