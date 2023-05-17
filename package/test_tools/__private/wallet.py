@@ -1235,9 +1235,15 @@ class Wallet(UserHandleImplementation, ScopedObject):
             self.process = None
 
     def __close_opened_files(self):
-        for file in [self.stdout_file, self.stderr_file]:
-            if file is not None:
-                file.close()
+        for file_handle, file_path in [
+            (self.stdout_file, self.get_stdout_file_path()),
+            (self.stderr_file, self.get_stderr_file_path()),
+        ]:
+            if file_handle is not None:
+                file_handle.close()
+                assert file_path.exists()
+                amount_of_history_files = len(list(file_path.parent.glob(pattern=file_path.name + ".*")))
+                file_path.rename(file_path.with_stem(file_path.name + f"_{amount_of_history_files}"))
 
     def create_account(
         self,
