@@ -59,7 +59,7 @@ def __workaround_communication_problem_with_node(send_request: Callable) -> Call
 
 
 @__workaround_communication_problem_with_node
-def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=3, seconds_between_attempts=0.2):
+def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=1, seconds_between_attempts=0.2):
     assert max_attempts > 0
 
     json_encoder = JsonEncoderWithNaiAssets if use_nai_assets else JsonEncoderWithLegacyAssets
