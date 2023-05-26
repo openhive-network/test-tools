@@ -1248,6 +1248,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
                 amount_of_history_files = len(list(file_path.parent.glob(pattern=file_path.name + ".*")))
                 file_path.rename(file_path.with_stem(file_path.name + f"_{amount_of_history_files}"))
 
+        self.stdout_file = None
+        self.stderr_file = None
+
     def create_account(
         self,
         name: str,
