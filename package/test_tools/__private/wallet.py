@@ -73,6 +73,12 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         def _send_gathered_operations_as_single_transaction(self, *, broadcast):
             transaction = self.__transaction_builder.get_transaction()
+            if len(transaction["operations"]) == 400:
+                import datetime
+
+                import test_tools as tt
+
+                tt.logger.info(f"FULL TRANSACTION TIME: {datetime.datetime.now()}")
             self.__transaction_builder = None
 
             return self.sign_transaction(transaction, broadcast=broadcast) if transaction is not None else None
