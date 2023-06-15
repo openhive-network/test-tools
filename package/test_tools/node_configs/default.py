@@ -9,9 +9,9 @@ def create_default_config():
         '{"appender":"p2p","file":"logs/p2p/p2p.log","time_format":"iso_8601_milliseconds"}'
     )
     config.log_logger = (
-        '{"name":"default","level":"info","appender":"stderr"} '
-        '{"name":"user","level":"debug","appender":"stderr"} '
-        '{"name":"p2p","level":"warn","appender":"p2p"}'
+        '{"name":"default","level":"info","appenders":["stderr"]} '
+        '{"name":"user","level":"debug","appenders":["stderr"]} '
+        '{"name":"p2p","level":"warn","appenders":["p2p"]}'
     )
     config.backtrace = "yes"
     config.plugin = ["witness", "account_by_key", "account_by_key_api"]
