@@ -38,10 +38,19 @@ class Network(UserHandleImplementation):
 
         raise RuntimeError(f"There is no node with name {name} in network {self}")
 
-    def run(self, wait_for_live: Optional[bool] = None, environment_variables: Optional[Dict[str, str]] = None):
+    def run(
+        self,
+        wait_for_live: Optional[bool] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
+        time_offset: str = None,
+    ) -> None:
         if self.network_to_connect_with is None:
             seed_node = self.nodes[0]
-            seed_node.run(wait_for_live=wait_for_live, environment_variables=environment_variables)
+            seed_node.run(
+                wait_for_live=wait_for_live,
+                environment_variables=environment_variables,
+                time_offset=time_offset,
+            )
             nodes_connecting_to_seed = self.nodes[1:]
         else:
             seed_node = self.network_to_connect_with.nodes[0]
@@ -52,7 +61,11 @@ class Network(UserHandleImplementation):
 
         for node in nodes_connecting_to_seed:
             node.config.p2p_seed_node.append(endpoint)
-            node.run(wait_for_live=wait_for_live, environment_variables=environment_variables)
+            node.run(
+                wait_for_live=wait_for_live,
+                environment_variables=environment_variables,
+                time_offset=time_offset,
+            )
 
     def connect_with(self, network):
         if not self.nodes or not network.nodes:

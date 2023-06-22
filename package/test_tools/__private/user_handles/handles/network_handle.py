@@ -57,10 +57,10 @@ class NetworkHandle(Handle):
         """Returns all nodes within network."""
         return [typing.cast(Node, get_handle(node)) for node in self.__implementation.nodes]
 
-    def run(self, environment_variables: Optional[Dict[str, str]] = None) -> None:
+    def run(self, time_offset: Optional[str] = None, environment_variables: Optional[Dict[str, str]] = None) -> None:
         """
         Runs all nodes within network with default startup parameters. Blocks execution until all nodes enter live mode.
-
+        :param time_offset: Allows to change system date and time a node sees (without changing real OS time).
         :param environment_variables: Additional environment variables passed to each node before start.
         """
-        return self.__implementation.run(environment_variables=environment_variables)
+        return self.__implementation.run(time_offset=time_offset, environment_variables=environment_variables)
