@@ -265,6 +265,16 @@ class NodeHandleBase(Handle):
         """
         self.__implementation.wait_for_live_mode(timeout=timeout)
 
+    def wait_for_next_fork(self, timeout: float = math.inf) -> None:
+        """
+        Blocks program execution until fork on this node happens. It's detected by waiting for `switch_fork_event`
+        notification
+
+        :param timeout: Time limit for wait. When timeout is reached, `TimeoutError` exception is thrown. Expressed in
+            seconds.
+        """
+        self.__implementation.wait_for_next_fork(timeout=timeout)
+
     @property
     def ws_endpoint(self) -> str:
         """
