@@ -14,7 +14,8 @@ def configure_fake_time(logger: LoggerWrapper, env: dict, time_offset: str):
     env["LD_PRELOAD"] = get_fake_time_path(logger)
     env["FAKETIME"] = time_offset
     env["FAKETIME_DONT_RESET"] = "1"
-    env["FAKETIME_DONT_FAKE_MONOTONIC"] = "1"
+    #env["FAKETIME_DONT_FAKE_MONOTONIC"] = "1"
+    env["FAKETIME_FORCE_MONOTONIC_FIX"] = "1"
     env["TZ"] = "UTC"
 
 
