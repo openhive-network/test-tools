@@ -22,6 +22,7 @@ class WitnessNode(PreconfiguredNode):
     ):
         super().__init__(name=name, network=network, handle=handle)
         assert "witness" in self.config.plugin
+        self.config.plugin.append("witness_api")
 
         if witnesses is None:
             warnings.warn(

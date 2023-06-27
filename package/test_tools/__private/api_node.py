@@ -17,7 +17,7 @@ class ApiNode(PreconfiguredNode):
         api_plugins = [
             plugin
             for plugin in self.get_supported_plugins()
-            if plugin.endswith("_api") and plugin != "account_history_api"
+            if plugin.endswith("_api") and plugin != "account_history_api" and plugin != "witness_api"
         ]
         self._enable_api_plugins(plugins=api_plugins)
         self.config.plugin.remove("witness")
