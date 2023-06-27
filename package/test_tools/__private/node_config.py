@@ -96,7 +96,6 @@ class NodeConfig:
         self.required_participation = Integer()
         self.witness = List(StringQuoted, single_line=False)
         self.private_key = List(PrivateKey, single_line=False)
-        self.witness_skip_enforce_bandwidth = String()  # Set correct type
         self.psql_url = String()
         self.psql_index_threshold = Integer()
         self.psql_operations_threads_number = Integer()

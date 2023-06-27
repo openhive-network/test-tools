@@ -278,7 +278,6 @@ node.config.plugin.extend(['p2p', 'witness'])
 > # Note that all are strings
 > node.config.market_history_bucket_size = '[15,60,300,3600,86400]'
 > node.config.webserver_thread_pool_size = '32'
-> node.config.witness_skip_enforce_bandwidth = '1'
 > ```
 
 Provides support for Python types. You can write:
