@@ -7,6 +7,7 @@ import operator
 from typing import Any, Final, NoReturn, Optional, TypeVar, Union
 
 import abstractcp as acp
+from schemas.__private.hive_fields_basic_schemas import AssetHF26
 
 from test_tools.__private.exceptions import ParseError
 from test_tools.__private.utilities.decimal_converter import DecimalConverter
@@ -103,7 +104,9 @@ class AssetBase(acp.Abstract):
             "nai": cls.nai,
         }
 
-    def __convert_amount_to_internal_representation(self, amount: Union[int, float]) -> int:
+    def __convert_amount_to_internal_representation(self, amount: Union[int, float, AssetHF26]) -> int:
+        if isinstance(amount, AssetHF26):
+            return amount.amount
         amount_decimal = DecimalConverter.convert(amount, precision=self.precision)
         return int(amount_decimal * Decimal(10) ** self.precision)
 
@@ -136,7 +139,7 @@ class AssetBase(acp.Abstract):
     def __handle_asset_conversion(self, other: Any, error_detail: str) -> AssetBase:
         is_testnet = self.token in ("TESTS", "TBD")  # nai json does not store token info, so we assume it is our type
 
-        if isinstance(other, (str, dict)):
+        if isinstance(other, (str, dict, AssetHF26)):
             other = Asset.from_(other, treat_dict_as_testnet_currencies=is_testnet)
 
         self.assert_is_asset(other, error_detail=error_detail)
@@ -161,7 +164,7 @@ class AssetBase(acp.Abstract):
     @staticmethod
     def assert_is_asset(*other: Any, error_detail: str) -> Optional[NoReturn]:
         for asset in other:
-            if not isinstance(asset, AssetBase):
+            if not isinstance(asset, (AssetBase, AssetHF26)):
                 raise TypeError(f"Can't {error_detail} objects of type `{type(asset)}`.")
 
 
@@ -251,6 +254,8 @@ class Asset:
             return cls.__from_sting(data)
         if isinstance(data, dict):
             return cls.__from_dict(data, testnet_currencies=treat_dict_as_testnet_currencies)
+        if isinstance(data, AssetHF26):
+            return cls.__from_dict(data.dict(by_alias=True))
         raise ParseError(f"Can't convert `{type(data)}` to Asset object.")
 
     @classmethod
