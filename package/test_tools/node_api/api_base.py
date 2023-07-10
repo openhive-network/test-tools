@@ -1,5 +1,8 @@
 import os
 
+from schemas.__private.hive_factory import HiveResult  # pylint: disable=import-outside-toplevel, import-error
+from schemas.get_schema import get_schema  # pylint: disable=import-outside-toplevel, import-error
+
 from test_tools.__private.utilities.strtobool import strtobool
 
 
@@ -20,7 +23,7 @@ class NodeApiCallProxy:
             self.__message["params"],
             jsonrpc=self.__message["jsonrpc"],
             id_=self.__message["id"],
-            only_result=only_result,
+            only_result=False,
         )
 
         def schemas_should_be_automatically_validated() -> bool:
@@ -28,11 +31,10 @@ class NodeApiCallProxy:
             return bool(strtobool(should_validate))
 
         if schemas_should_be_automatically_validated():
-            from schemas.get_schema import get_schema  # pylint: disable=import-outside-toplevel, import-error
+            cls = get_schema(self.__message["method"])
+            response = HiveResult.factory(cls, **response)
 
-            get_schema(self.__message["method"]).validate(response)
-
-        return response
+        return response if only_result is False else response["result"]
 
     @staticmethod
     def _prepare_params(*args, **kwargs):

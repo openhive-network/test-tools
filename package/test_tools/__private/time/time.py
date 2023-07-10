@@ -24,6 +24,8 @@ class Time:
         By default, when `format_` parameter is specified as None - the ISO format (tt.Time.DEFAULT_FORMAT)
         and ISO format including milliseconds (tt.Time.DEFAULT_FORMAT_WITH_MILLIS) could be parsed.
         """
+        if isinstance(time, datetime):
+            return time
 
         def __parse_in_specified_format(_format: str) -> datetime:
             try:

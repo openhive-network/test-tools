@@ -1,17 +1,27 @@
+from datetime import datetime
 import json
 import time
-from typing import Callable
+from typing import Any, Callable
 
 import requests
+from schemas.__private.operations import LegacyOperationBase
+from schemas.__private.preconfigured_base_model import PreconfiguredBaseModel
 
 from test_tools.__private.asset import AssetBase
 from test_tools.__private.exceptions import CommunicationError
 from test_tools.__private.keys.key_base import KeyBase
 from test_tools.__private.logger.logger_internal_interface import logger
+from test_tools.__private.time import Time
 
 
 class CustomJsonEncoder(json.JSONEncoder):
-    def default(self, o):
+    def default(self, o: Any):
+        if isinstance(o, LegacyOperationBase):
+            return (o[0], o[1].dict(by_alias=True))
+        if isinstance(o, datetime):
+            return Time.serialize(o)
+        if isinstance(o, PreconfiguredBaseModel):
+            return o.shallow_dict()
         if isinstance(o, KeyBase):
             return str(o)
 
