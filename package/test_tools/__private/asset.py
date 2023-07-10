@@ -7,8 +7,8 @@ import operator
 from typing import Any, Final, NoReturn, Optional, TypeVar, Union
 
 import abstractcp as acp
-from schemas.__private.hive_fields_basic_schemas import AssetHF26
 
+from schemas.__private.hive_fields_basic_schemas import AssetHF26
 from test_tools.__private.exceptions import ParseError
 from test_tools.__private.utilities.decimal_converter import DecimalConverter
 

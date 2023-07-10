@@ -7,11 +7,11 @@ stages:
 
 
 variables:
+  GIT_SUBMODULE_STRATEGY: recursive
   PACKAGES_TO_CHECK: "package/test_tools/ tests/"
   # colors:
   TXT_BLUE: "\e[1;34m"
   TXT_CLEAR: "\e[0m"
-
 
 .shared_tags: &shared_tags
   - hived-for-tests  # Change to 'public-runner-docker' when pylint will be updated
