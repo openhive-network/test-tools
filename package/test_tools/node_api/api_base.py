@@ -2,7 +2,6 @@ import os
 
 from schemas.__private.hive_factory import HiveResult  # pylint: disable=import-outside-toplevel, import-error
 from schemas.get_schema import get_schema  # pylint: disable=import-outside-toplevel, import-error
-
 from test_tools.__private.utilities.strtobool import strtobool
 
 

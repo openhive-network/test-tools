@@ -4,9 +4,9 @@ import time
 from typing import Any, Callable
 
 import requests
+
 from schemas.__private.operations import LegacyOperationBase
 from schemas.__private.preconfigured_base_model import PreconfiguredBaseModel
-
 from test_tools.__private.asset import AssetBase
 from test_tools.__private.exceptions import CommunicationError
 from test_tools.__private.keys.key_base import KeyBase
