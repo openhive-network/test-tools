@@ -1,8 +1,16 @@
 import os
 
-from schemas.__private.hive_factory import HiveResult  # pylint: disable=import-outside-toplevel, import-error
-from schemas.get_schema import get_schema  # pylint: disable=import-outside-toplevel, import-error
 from test_tools.__private.utilities.strtobool import strtobool
+
+
+def is_schema_checks_enabled() -> bool:
+    should_validate = os.getenv("TEST_TOOLS_VALIDATE_RESPONSE_SCHEMAS", default="FALSE")
+    return bool(strtobool(should_validate))
+
+
+if is_schema_checks_enabled():
+    from schemas.__private.hive_factory import HiveResult
+    from schemas.get_schema import get_schema
 
 
 class NodeApiCallProxy:
@@ -25,11 +33,7 @@ class NodeApiCallProxy:
             only_result=False,
         )
 
-        def schemas_should_be_automatically_validated() -> bool:
-            should_validate = os.getenv("TEST_TOOLS_VALIDATE_RESPONSE_SCHEMAS", default="FALSE")
-            return bool(strtobool(should_validate))
-
-        if schemas_should_be_automatically_validated():
+        if is_schema_checks_enabled():
             cls = get_schema(self.__message["method"])
             response = HiveResult.factory(cls, **response)
 
