@@ -240,7 +240,7 @@ class Asset:
             return self.__lower_limit <= item <= self.__upper_limit
 
     @classmethod
-    def from_(cls, data: Union[str, dict], *, treat_dict_as_testnet_currencies: bool = True) -> AssetBase:
+    def from_(cls, data: Union[str, dict, AssetHF26], *, treat_dict_as_testnet_currencies: bool = True) -> AssetBase:
         """
         This function allows you to convert an asset from string or JSON format to the appropriate object of Asset type.
 
