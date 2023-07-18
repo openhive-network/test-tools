@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 from test_tools.__private.network import Network
 from test_tools.__private.user_handles.get_implementation import get_handle, get_implementation
 from test_tools.__private.user_handles.handle import Handle
-from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as Node
+from test_tools.__private.user_handles.handles.node_handles.runnable_node_handle import RunnableNodeHandle as Node
 
 
 class NetworkHandle(Handle):
