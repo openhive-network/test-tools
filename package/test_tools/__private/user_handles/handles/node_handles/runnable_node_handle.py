@@ -48,10 +48,6 @@ class RunnableNodeHandle(NodeHandleBase):
         """Returns path to directory, where node runs and generates its files."""
         return self.__implementation.directory
 
-    def get_version(self) -> dict:
-        """Returns output from hived for --version flag"""
-        return self.__implementation.get_version()
-
     def dump_config(self) -> None:
         """Saves node's config to file. Requires that node is not running."""
         return self.__implementation.dump_config()
@@ -76,15 +72,6 @@ class RunnableNodeHandle(NodeHandleBase):
         :return: Block log object, which can be used by another node to perform replay.
         """
         return self.__implementation.block_log
-
-    @property
-    def http_endpoint(self) -> str:
-        """
-        Returns opened HTTP endpoint. Blocks program execution if HTTP endpoint is not ready. When endpoint is
-        configured with special values like 0.0.0.0 address or 0 port, special values are replaced with actually
-        selected by node.
-        """
-        return self.__implementation.get_http_endpoint()
 
     def run(
         self,
@@ -183,19 +170,3 @@ class RunnableNodeHandle(NodeHandleBase):
             seconds.
         """
         self.__implementation.wait_for_live_mode(timeout=timeout)
-
-    @property
-    def ws_endpoint(self) -> str:
-        """
-        Returns opened WS endpoint. Blocks program execution if WS endpoint is not ready. When endpoint is configured
-        with special values like 0.0.0.0 address or 0 port, special values are replaced with actually selected by node.
-        """
-        return self.__implementation.get_ws_endpoint()
-
-    @property
-    def p2p_endpoint(self) -> str:
-        """
-        Returns opened P2P endpoint. Blocks program execution if WS endpoint is not ready. When endpoint is configured
-        with special values like 0.0.0.0 address or 0 port, special values are replaced with actually selected by node.
-        """
-        return self.__implementation.get_p2p_endpoint()

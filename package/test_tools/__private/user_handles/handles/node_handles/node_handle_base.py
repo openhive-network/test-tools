@@ -116,3 +116,32 @@ class NodeHandleBase(Handle):
             seconds.
         """
         self.__implementation.wait_for_live_mode(timeout=timeout)
+
+    def get_version(self) -> dict:
+        """Returns output from hived for --version flag"""
+        return self.__implementation.get_version()
+
+    @property
+    def http_endpoint(self) -> str:
+        """
+        Returns opened HTTP endpoint. Blocks program execution if HTTP endpoint is not ready. When endpoint is
+        configured with special values like 0.0.0.0 address or 0 port, special values are replaced with actually
+        selected by node.
+        """
+        return self.__implementation.get_http_endpoint()
+
+    @property
+    def ws_endpoint(self) -> str:
+        """
+        Returns opened WS endpoint. Blocks program execution if WS endpoint is not ready. When endpoint is configured
+        with special values like 0.0.0.0 address or 0 port, special values are replaced with actually selected by node.
+        """
+        return self.__implementation.get_ws_endpoint()
+
+    @property
+    def p2p_endpoint(self) -> str:
+        """
+        Returns opened P2P endpoint. Blocks program execution if WS endpoint is not ready. When endpoint is configured
+        with special values like 0.0.0.0 address or 0 port, special values are replaced with actually selected by node.
+        """
+        return self.__implementation.get_p2p_endpoint()

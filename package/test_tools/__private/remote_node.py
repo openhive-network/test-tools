@@ -34,6 +34,16 @@ class RemoteNode(BaseNode):
 
         return self.__ws_endpoint.as_string(with_protocol=False)
 
+    def get_http_endpoint(self):
+        return self.__http_endpoint.as_string(with_protocol=False)
+
+    def get_version(self) -> dict:
+        return self.api.database.get_version()
+
+    def get_p2p_endpoint(self):
+        response = self.api.network_node.get_info()
+        return response["listening_on"]
+
     @staticmethod
     def is_running():
         return True
