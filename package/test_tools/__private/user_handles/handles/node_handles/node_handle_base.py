@@ -5,6 +5,7 @@ import math
 import typing
 from typing import TYPE_CHECKING
 
+from test_tools.__private.base_node import BaseNode
 from test_tools.__private.node import Node
 from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.user_handles.handle import Handle
@@ -25,8 +26,8 @@ class NodeHandleBase(Handle):
     DEFAULT_WAIT_FOR_LIVE_TIMEOUT = Node.DEFAULT_WAIT_FOR_LIVE_TIMEOUT
 
     @property
-    def __implementation(self) -> NodeHandleBase:
-        return typing.cast(NodeHandleBase, get_implementation(self))
+    def __implementation(self) -> BaseNode:
+        return typing.cast(BaseNode, get_implementation(self))
 
     @property
     def api(self) -> Apis:

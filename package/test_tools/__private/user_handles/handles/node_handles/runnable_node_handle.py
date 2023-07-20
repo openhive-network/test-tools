@@ -23,8 +23,8 @@ class RunnableNodeHandle(NodeHandleBase):
     DEFAULT_WAIT_FOR_LIVE_TIMEOUT = Node.DEFAULT_WAIT_FOR_LIVE_TIMEOUT
 
     @property
-    def __implementation(self) -> RunnableNodeHandle:
-        return typing.cast(RunnableNodeHandle, get_implementation(self))
+    def __implementation(self) -> Node:
+        return typing.cast(Node, get_implementation(self))
 
     def close(self) -> None:
         """
