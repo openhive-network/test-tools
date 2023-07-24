@@ -5,7 +5,7 @@ import threading
 from typing import Any, Optional
 
 from test_tools.__private.raise_exception_helper import RaiseExceptionHelper
-
+import test_tools as tt
 
 class NodeHttpServer:
     __ADDRESS = ("127.0.0.1", 0)
@@ -33,12 +33,15 @@ class NodeHttpServer:
         return self.__server.server_port
 
     def run(self):
+        tt.logger.info(f"run0 :{self.__thread}")
         if self.__thread is not None:
+            tt.logger.info(f"run1 :{self.__thread}")
             raise RuntimeError("Server is already running")
 
+        tt.logger.info(f"run2 :{self.__thread}")
         if self.__server is None:
             self.__server = self.__HttpServer(self.__ADDRESS, HttpRequestHandler, self)
-
+        tt.logger.info(f"run3 :{self.__thread}")
         self.__thread = threading.Thread(target=self.__thread_function, name=self.__name, daemon=True)
         self.__thread.start()
 
@@ -49,17 +52,24 @@ class NodeHttpServer:
             RaiseExceptionHelper.raise_exception_in_main_thread(exception)
 
     def close(self):
+        tt.logger.info(f"close0 :{self.__thread}")
         if self.__thread is None:
+            tt.logger.info(f"close1 :{self.__thread}")
             return
 
         self.__server.shutdown()
         self.__server.server_close()
         self.__server = None
 
+        tt.logger.info(f"close2 :{self.__thread}")
         self.__thread.join(timeout=2.0)
+        tt.logger.info(f"close3 :{self.__thread}")
         if self.__thread.is_alive():
+            tt.logger.info(f"close4 :{self.__thread}")
             raise RuntimeError("Unable to join server thread")
+        tt.logger.info(f"close5 :{self.__thread}")
         self.__thread = None
+        tt.logger.info(f"close5 :{self.__thread}")
 
     def notify(self, message):
         """Should be called only by request handler when request is received"""
