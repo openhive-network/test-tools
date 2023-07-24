@@ -5,7 +5,7 @@ from typing import Any, Callable
 
 import requests
 
-from schemas.__private.operations import LegacyOperationBase
+from schemas.__private.operations import LegacyOperationRepresentation
 from schemas.__private.preconfigured_base_model import PreconfiguredBaseModel
 from test_tools.__private.asset import AssetBase
 from test_tools.__private.exceptions import CommunicationError
@@ -16,7 +16,7 @@ from test_tools.__private.time import Time
 
 class CustomJsonEncoder(json.JSONEncoder):
     def default(self, o: Any):
-        if isinstance(o, LegacyOperationBase):
+        if isinstance(o, LegacyOperationRepresentation):
             return (o[0], o[1].dict(by_alias=True))
         if isinstance(o, datetime):
             return Time.serialize(o)
