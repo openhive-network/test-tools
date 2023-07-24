@@ -28,19 +28,19 @@ class RemoteNode(BaseNode):
 
         return response["result"] if only_result else response
 
-    def get_ws_endpoint(self):
+    def get_version(self) -> dict:
+        return self.api.database.get_version()
+
+    def get_ws_endpoint(self) -> Optional[str]:
         if self.__ws_endpoint is None:
             return None
 
         return self.__ws_endpoint.as_string(with_protocol=False)
 
-    def get_http_endpoint(self):
+    def get_http_endpoint(self) -> str:
         return self.__http_endpoint.as_string(with_protocol=False)
 
-    def get_version(self) -> dict:
-        return self.api.database.get_version()
-
-    def get_p2p_endpoint(self):
+    def get_p2p_endpoint(self) -> str:
         response = self.api.network_node.get_info()
         return response["listening_on"]
 
