@@ -75,7 +75,6 @@ class NodeConfig:
         self.seed_node = String()  # Set correct type
         self.p2p_seed_node = List(String)
         self.p2p_parameters = String()  # Set correct type
-        self.rc_skip_reject_not_enough_rc = Integer()
         self.rc_stats_report_type = String()
         self.rc_stats_report_output = String()
         self.snapshot_root_dir = StringQuoted()

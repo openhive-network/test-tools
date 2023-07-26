@@ -6,12 +6,12 @@ def create_default_config():
 
     config.log_appender = (
         '{"appender":"stderr","stream":"std_error","time_format":"iso_8601_microseconds"} '
-        '{"appender":"p2p","file":"logs/p2p/p2p.log","time_format":"iso_8601_milliseconds", "delta_times": false}'
+        '{"appender":"p2p","file":"logs/p2p/p2p.log","time_format":"iso_8601_milliseconds"}'
     )
     config.log_logger = (
-        '{"name":"default","level":"info","appender":"stderr"} '
-        '{"name":"user","level":"debug","appender":"stderr"} '
-        '{"name":"p2p","level":"warn","appender":"p2p"}'
+        '{"name":"default","level":"info","appenders":["stderr"]} '
+        '{"name":"user","level":"debug","appenders":["stderr"]} '
+        '{"name":"p2p","level":"warn","appenders":["p2p"]}'
     )
     config.backtrace = "yes"
     config.plugin = ["witness", "account_by_key", "account_by_key_api"]
@@ -29,7 +29,6 @@ def create_default_config():
     config.follow_start_feeds = "0"
     config.market_history_bucket_size = "[15,60,300,3600,86400]"
     config.market_history_buckets_per_size = "5760"
-    config.rc_skip_reject_not_enough_rc = 0
     config.rc_stats_report_type = "REGULAR"
     config.rc_stats_report_output = "ILOG"
     config.snapshot_root_dir = "snapshot"
