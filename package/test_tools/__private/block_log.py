@@ -83,7 +83,7 @@ class BlockLog:
         subprocess.run(
             [
                 paths_to_executables.get_path_of("compress_block_log"),
-                f"--input-block-log={self.__path.parent.absolute()}",
+                f"--input-read-only-block-log={self.__path.parent.absolute()}",
                 f"--output-block-log={Path(output_directory).absolute()}",
                 f"--block-count={block_number}",
                 "--decompress",
