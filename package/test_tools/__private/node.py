@@ -534,7 +534,8 @@ class Node(BaseNode, ScopedObject):
         if replay_from is not None:
             self.__handle_replay(replay_from, stop_at_block, additional_arguments)
             log_message += ", replaying"
-
+        if time_offset is not None:
+            self.__notifications.reset_last_block_stats_time()
         if exit_before_synchronization or "--exit-after-replay" in additional_arguments:
             if wait_for_live is not None:
                 raise RuntimeError("wait_for_live can't be used with exit_before_synchronization")
