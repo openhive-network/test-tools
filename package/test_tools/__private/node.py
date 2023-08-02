@@ -356,6 +356,9 @@ class Node(BaseNode, ScopedObject):
 
         return all(conditions)
 
+    def turn_off_block_stats_monitor_in_notifications_server(self):
+        self.__notifications.turn_off_block_stats_monitor()
+
     @property
     def block_log(self) -> BlockLog:
         return BlockLog(self.directory.joinpath("blockchain/block_log"))

@@ -162,6 +162,13 @@ class RunnableNodeHandle(NodeHandleBase):
         """
         return self.__implementation.set_cleanup_policy(policy)
 
+    def turn_off_block_stats_monitor(self) -> None:
+        """
+        Turns off block stats monitor which monitor block production of node by analysing block stats. It identifies
+        missed blocks and throws appropriate exceptions / warnings.
+        """
+        self.__implementation.turn_off_block_stats_monitor_in_notifications_server()
+
     def wait_for_live_mode(self, timeout: float = math.inf) -> None:
         """
         Blocks program execution until node is in live mode. It's detected by waiting for `hive_status` notification
