@@ -279,6 +279,8 @@ class Node(BaseNode, ScopedObject):
                 if details["current_status"] == "finished replaying":
                     self.replay_finished_event.set()
                 elif details["current_status"] == "finished dumping snapshot":
+                    # dumping snapshot takes over 90 seconds - timeout from block stats monitor would be reached
+                    self.turn_off_block_stats_monitor()
                     self.snapshot_dumped_event.set()
                 elif details["current_status"] == "syncing":
                     self.synchronization_started_event.set()
