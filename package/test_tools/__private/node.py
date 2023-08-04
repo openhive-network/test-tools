@@ -534,6 +534,7 @@ class Node(BaseNode, ScopedObject):
             log_message += ", loading snapshot"
 
         if replay_from is not None:
+            self.__notifications.turn_off_block_stats_monitor()
             self.__handle_replay(replay_from, stop_at_block, additional_arguments)
             log_message += ", replaying"
         if time_offset is not None:
