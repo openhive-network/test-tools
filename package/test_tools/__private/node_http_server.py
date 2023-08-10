@@ -5,7 +5,7 @@ import threading
 from typing import Any, Optional
 
 from test_tools.__private.raise_exception_helper import RaiseExceptionHelper
-
+from test_tools.__private.logger.logger_user_interface import logger
 
 class NodeHttpServer:
     __ADDRESS = ("127.0.0.1", 0)
@@ -33,6 +33,7 @@ class NodeHttpServer:
         return self.__server.server_port
 
     def run(self):
+        logger.info(f"node_http_server::run::START - {self.__name}")
         if self.__thread is not None:
             raise RuntimeError("Server is already running")
 
@@ -41,6 +42,7 @@ class NodeHttpServer:
 
         self.__thread = threading.Thread(target=self.__thread_function, name=self.__name, daemon=True)
         self.__thread.start()
+        logger.info(f"node_http_server::run::CLOSE - {self.__name}")
 
     def __thread_function(self):
         try:
@@ -49,6 +51,7 @@ class NodeHttpServer:
             RaiseExceptionHelper.raise_exception_in_main_thread(exception)
 
     def close(self):
+        logger.info(f"node_http_server::close::START - {self.__name}")
         if self.__thread is None:
             return
 
@@ -58,8 +61,10 @@ class NodeHttpServer:
 
         self.__thread.join(timeout=2.0)
         if self.__thread.is_alive():
+            logger.info("node_http_server::close::EXCEPTION")
             raise RuntimeError("Unable to join server thread")
         self.__thread = None
+        logger.info(f"node_http_server::close::CLOSE - {self.__name}")
 
     def notify(self, message):
         """Should be called only by request handler when request is received"""

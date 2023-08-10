@@ -225,6 +225,7 @@ class Node(BaseNode, ScopedObject):
             self.__logger.info(f"Received message: {message}")
 
         def close(self):
+            self.__logger.info(f"closing started")
             self.server.close()
 
             self.http_listening_event.clear()
