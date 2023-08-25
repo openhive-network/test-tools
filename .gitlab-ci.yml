@@ -35,6 +35,11 @@ pre_commit_checks:
     - echo -e "${TXT_BLUE}Check all files with pre-commit hooks${TXT_CLEAR}" &&
       pre-commit run --all-files
   tags: *shared_tags
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - poetry.lock
 
 
 lint_code_with_pylint:
