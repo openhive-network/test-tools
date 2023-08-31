@@ -1278,10 +1278,10 @@ class Wallet(UserHandleImplementation, ScopedObject):
                 creator,
                 account.name,
                 "{}",
-                account.public_key,
-                account.public_key,
-                account.public_key,
-                account.public_key,
+                Account(name, secret="owner_key").public_key,
+                Account(name, secret="active_key").public_key,
+                Account(name, secret="posting_key").public_key,
+                Account(name, secret="memo_key").public_key,
             )
 
             if hives is not None:
