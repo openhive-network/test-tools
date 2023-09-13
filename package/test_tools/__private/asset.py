@@ -81,6 +81,11 @@ class AssetBase(acp.Abstract):
         self.amount = new_asset.amount
         return self
 
+    def __radd__(self, other: Any) -> AssetBase:
+        if other == 0:
+            return self
+        return self.__add__(other)
+
     def as_nai(self) -> dict:
         return self.__nai_template(amount=str(self.amount))
 

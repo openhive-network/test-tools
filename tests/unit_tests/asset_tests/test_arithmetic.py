@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from copy import deepcopy
+
 import pytest
 
 import test_tools as tt
@@ -46,10 +48,15 @@ def test__add__operator(first_asset, second_asset, third_asset):
     assert first_asset + second_asset == third_asset
 
 
-@pytest.mark.parametrize("first_asset, second_asset, third_asset", ASSETS_SET_FOR_ADD)
+@pytest.mark.parametrize("first_asset, second_asset, third_asset", deepcopy(ASSETS_SET_FOR_ADD))
 def test__iadd__operator(first_asset, second_asset, third_asset):
     first_asset += second_asset
     assert first_asset == third_asset
+
+
+@pytest.mark.parametrize("first_asset, second_asset, third_asset", ASSETS_SET_FOR_ADD)
+def test__radd__operator(first_asset, second_asset, third_asset):
+    assert sum([first_asset, second_asset]) == third_asset
 
 
 @pytest.mark.parametrize("first_asset, second_asset, third_asset", ASSETS_SET_FOR_SUB)
@@ -57,7 +64,7 @@ def test__sub__operator(first_asset, second_asset, third_asset):
     assert first_asset - second_asset == third_asset
 
 
-@pytest.mark.parametrize("first_asset, second_asset, third_asset", ASSETS_SET_FOR_SUB)
+@pytest.mark.parametrize("first_asset, second_asset, third_asset", deepcopy(ASSETS_SET_FOR_SUB))
 def test__isub__operator(first_asset, second_asset, third_asset):
     first_asset -= second_asset
     assert first_asset == third_asset
