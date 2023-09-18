@@ -9,8 +9,8 @@ def is_schema_checks_enabled() -> bool:
 
 
 if is_schema_checks_enabled():
-    from schemas.__private.hive_factory import HiveResult
     from schemas.get_schema import get_schema
+    from schemas.jsonrpc import get_response_model
 
 
 class NodeApiCallProxy:
@@ -35,7 +35,7 @@ class NodeApiCallProxy:
 
         if is_schema_checks_enabled():
             cls = get_schema(self.__message["method"])
-            response = HiveResult.factory(cls, **response)
+            response = get_response_model(cls, **response)
 
         return response if only_result is False else response["result"]
 
