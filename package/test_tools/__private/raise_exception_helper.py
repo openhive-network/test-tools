@@ -1,20 +1,24 @@
 import os
 import signal
 import threading
-from typing import ClassVar, Optional
+from typing import Callable, ClassVar, Optional
 
 
 class RaiseExceptionHelper:
     __is_initialized: ClassVar[bool] = False
     __last_exception: ClassVar[Optional[Exception]] = None
     __lock: ClassVar[threading.Lock] = threading.Lock()
+    __previous_int_handler: ClassVar[Optional[Callable]] = None
 
     @classmethod
     def __external_error_handler(cls, signal_number, current_stack_frame) -> None:
         with cls.__lock:
             if cls.__last_exception is None:
-                # Default SIGINT handler raises KeyboardInterrupt, so below code is not executed
-                signal.default_int_handler(signal_number, current_stack_frame)
+                # Previously registered signal handler is not guaranted to throw so make sure below code is not executed
+                # pylint: disable=not-callable
+                # False positive; type will always be callable at this point
+                cls.__previous_int_handler(signal_number, current_stack_frame)
+                return
 
             exception_to_raise = cls.__last_exception
             cls.__last_exception = None
@@ -26,7 +30,7 @@ class RaiseExceptionHelper:
     @classmethod
     def initialize(cls) -> None:
         with cls.__lock:
-            signal.signal(signal.SIGINT, cls.__external_error_handler)
+            cls.__previous_int_handler = signal.signal(signal.SIGINT, cls.__external_error_handler)
             cls.__is_initialized = True
 
     @classmethod
