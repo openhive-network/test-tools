@@ -13,8 +13,10 @@ variables:
   TXT_BLUE: "\e[1;34m"
   TXT_CLEAR: "\e[0m"
 
-.shared_tags: &shared_tags
-  - hived-for-tests  # Change to 'public-runner-docker' when pylint will be updated
+
+default:
+  tags:
+    - public-runner-docker
 
 
 .configuration:
@@ -34,7 +36,6 @@ pre_commit_checks:
   script:
     - echo -e "${TXT_BLUE}Check all files with pre-commit hooks${TXT_CLEAR}" &&
       pre-commit run --all-files
-  tags: *shared_tags
   artifacts:
     when: always
     expire_in: 1 week
@@ -53,7 +54,6 @@ lint_code_with_pylint:
         --load-plugins=pylint.extensions.docparams
         --accept-no-param-doc=false --default-docstring-type=sphinx
         --enable=missing-function-docstring
-  tags: *shared_tags
 
 
 imports_order_with_isort_check:
@@ -62,7 +62,6 @@ imports_order_with_isort_check:
   script:
     - echo -e "${TXT_BLUE}Check imports order with isort${TXT_CLEAR}" &&
       isort ${PACKAGES_TO_CHECK} --check --diff --color
-  tags: *shared_tags
 
 
 formatting_with_black_check:
@@ -71,7 +70,6 @@ formatting_with_black_check:
   script:
     - echo -e "${TXT_BLUE}Checking code formatting with black${TXT_CLEAR}" &&
       black ${PACKAGES_TO_CHECK} --check --diff --color
-  tags: *shared_tags
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| STATIC CODE ANALYSIS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -88,6 +86,5 @@ unit_tests_launch:
   artifacts:
     reports:
       junit: report.xml
-  tags: *shared_tags
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| TESTS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
