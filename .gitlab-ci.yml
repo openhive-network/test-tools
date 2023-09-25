@@ -14,6 +14,12 @@ variables:
   TXT_CLEAR: "\e[0m"
 
 
+include:
+  - project: 'hive/common-ci-configuration'
+    ref: 899a376c9b56d79000372903e75af544c90596ab # develop
+    file: '/templates/python_projects.gitlab-ci.yml'
+
+
 image: "${CI_BASE_IMAGE}"
 
 
@@ -22,32 +28,16 @@ default:
     - public-runner-docker
 
 
-.configuration:
-  before_script:
-    - poetry install
-    - poetry env info
-    - source `poetry env info --path`/bin/activate
-    - pip list
-
-
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| STATIC CODE ANALYSIS |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 pre_commit_checks:
   stage: static_code_analysis
-  extends: .configuration
-  script:
-    - echo -e "${TXT_BLUE}Check all files with pre-commit hooks${TXT_CLEAR}" &&
-      pre-commit run --all-files
-  artifacts:
-    when: always
-    expire_in: 1 week
-    paths:
-      - poetry.lock
+  extends: .pre_commit_checks_template
 
 
 lint_code_with_pylint:
   stage: static_code_analysis
-  extends: .configuration
+  extends: .project_develop_configuration_template
   script:
     - echo -e "${TXT_BLUE}Lint all sources with pylint${TXT_CLEAR}" &&
       pylint ${PACKAGES_TO_CHECK}
@@ -60,7 +50,7 @@ lint_code_with_pylint:
 
 imports_order_with_isort_check:
   stage: static_code_analysis
-  extends: .configuration
+  extends: .project_develop_configuration_template
   script:
     - echo -e "${TXT_BLUE}Check imports order with isort${TXT_CLEAR}" &&
       isort ${PACKAGES_TO_CHECK} --check --diff --color
@@ -68,10 +58,7 @@ imports_order_with_isort_check:
 
 formatting_with_black_check:
   stage: static_code_analysis
-  extends: .configuration
-  script:
-    - echo -e "${TXT_BLUE}Checking code formatting with black${TXT_CLEAR}" &&
-      black ${PACKAGES_TO_CHECK} --check --diff --color
+  extends: .formatting_with_black_check_template
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| STATIC CODE ANALYSIS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -80,11 +67,11 @@ formatting_with_black_check:
 
 unit_tests_launch:
   stage: tests
-  extends: .configuration
+  extends: .project_develop_configuration_template
   needs: []  # to start immediately, without waiting for previous stages
   script:
     - echo -e "${TXT_BLUE}Launch unit tests${TXT_CLEAR}" &&
-      python3 -m pytest -n auto -m "not requires_hived_executables" --junitxml=report.xml tests/unit_tests
+      pytest -n auto -m "not requires_hived_executables" --junitxml=report.xml tests/unit_tests
   artifacts:
     reports:
       junit: report.xml
