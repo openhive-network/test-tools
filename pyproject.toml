@@ -13,6 +13,10 @@ repository = "https://gitlab.syncad.com/hive/test-tools"
 packages = [
     { include = "test_tools", from = "package" },
 ]
+source = [
+    { name = "PyPI", priority = "primary" },
+    { name = "gitlab-schemas", url = "https://gitlab.syncad.com/api/v4/projects/362/packages/pypi/simple", priority = "supplemental" }, # schemas
+]
 
 
 [tool.poetry.dependencies]
@@ -20,7 +24,8 @@ python = "^3.10"
 requests = "2.27.1"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
-schemas = { path = "schemas", develop = true }
+
+schemas = "0.0.0.post236.dev0+5f473da"
 
 
 [tool.poetry.group.dev.dependencies]

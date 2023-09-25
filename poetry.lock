@@ -654,19 +654,21 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "schemas"
-version = "0.0.0"
+version = "0.0.0.post236.dev0+5f473da"
 description = "Tools for checking if message fits expected format"
 optional = false
-python-versions = "^3.10"
-files = []
-develop = true
+python-versions = ">=3.10,<4.0"
+files = [
+    {file = "schemas-0.0.0.post236.dev0+5f473da-py3-none-any.whl", hash = "sha256:54fc8d28ec78f9f6cb4443866b54c8b38499337961482ffcb5c7c6a6a6e9e904"},
+]
 
 [package.dependencies]
 pydantic = "1.10.11"
 
 [package.source]
-type = "directory"
-url = "schemas"
+type = "legacy"
+url = "https://gitlab.syncad.com/api/v4/projects/362/packages/pypi/simple"
+reference = "gitlab-schemas"
 
 [[package]]
 name = "setuptools"
@@ -851,4 +853,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "72ba7c04ff2977f60bdc1cf36a81e864fd1cb0cb817a9b072184137e4d11f749"
+content-hash = "3a926cde53348869f1c4a51396d064a9ddc5f91f2a1bdaf172cedeab154c73fe"
