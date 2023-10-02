@@ -654,12 +654,12 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "schemas"
-version = "0.0.0.post236.dev0+5f473da"
+version = "0.0.0.post246.dev0+dde2555"
 description = "Tools for checking if message fits expected format"
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "schemas-0.0.0.post236.dev0+5f473da-py3-none-any.whl", hash = "sha256:54fc8d28ec78f9f6cb4443866b54c8b38499337961482ffcb5c7c6a6a6e9e904"},
+    {file = "schemas-0.0.0.post246.dev0+dde2555-py3-none-any.whl", hash = "sha256:51472fa1cc0a3d11189c6e535e9eac1e2c4f580e770853929a4fbccd3660772d"},
 ]
 
 [package.dependencies]
@@ -853,4 +853,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "3a926cde53348869f1c4a51396d064a9ddc5f91f2a1bdaf172cedeab154c73fe"
+content-hash = "275c3e70c9d13c7ebba32caac8000408c9fe5dffb8dac83a42b6c719363e581d"
