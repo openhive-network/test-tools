@@ -654,12 +654,12 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "schemas"
-version = "0.0.1.dev241+ef14364"
+version = "0.0.1.dev253+0140986"
 description = "Tools for checking if message fits expected format"
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "schemas-0.0.1.dev241+ef14364-py3-none-any.whl", hash = "sha256:904d9d3e5719538467c8a368108b01c80977f50331170585d627bb55a426e912"},
+    {file = "schemas-0.0.1.dev253+0140986-py3-none-any.whl", hash = "sha256:c83609de7752c7eda4fdffb8438e1b37a80d74e47aad87f7a1c228f2b3342632"},
 ]
 
 [package.dependencies]
@@ -863,4 +863,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "86a0009939f228fa5e9bcceabbf9b0afc1430981b48b6edbb9b9e943ce5ada19"
+content-hash = "1eb27cec05cadaf1745de24303caf3486ccb19b85da75814ef61cae21f4b0187"
