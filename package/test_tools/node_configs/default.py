@@ -41,6 +41,7 @@ def create_default_config():
     config.enable_stale_production = False
     config.required_participation = 33
     config.enable_block_log_compression = True
+    config.enable_block_log_auto_fixing = True
     config.block_log_compression_level = 15
     config.blockchain_thread_pool_size = 8
     config.block_stats_report_type = "FULL"
