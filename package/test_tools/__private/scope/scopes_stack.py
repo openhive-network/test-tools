@@ -1,58 +1,58 @@
+from __future__ import annotations
+
 import atexit
 import inspect
-from pathlib import Path
 import pkgutil
-from typing import List, Optional, TYPE_CHECKING
 import warnings
+from pathlib import Path
+from typing import TYPE_CHECKING
 
-from test_tools.__private.logger.logger_wrapper import LoggerWrapper
 from test_tools.__private.raise_exception_helper import RaiseExceptionHelper
 from test_tools.__private.scope.scope import Scope
 from test_tools.__private.utilities.disabled_keyboard_interrupt import DisabledKeyboardInterrupt
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
     from test_tools.__private.scope import ScopedObject
+    from test_tools.__private.scope.context_definition import Context
 
 
 class ScopesStack:
-    class __NamedScope(Scope):
-        def __init__(self, name: str, parent: Optional[Scope]):
+    class NamedScope(Scope):
+        def __init__(self, name: str, parent: Scope | None) -> None:
             super().__init__(parent)
 
             self.name = name
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return f"<Scope '{self.name}'>"
 
-    class __ScopeContextManager:
-        def __init__(self, scope):
+    class ScopeContextManager:
+        def __init__(self, scope: Scope) -> None:
             self.__scope = scope
 
-        def __enter__(self):
-            pass
+        def __enter__(self) -> None:
+            """Does nothing."""
 
-        def __exit__(self, exc_type, exc_val, exc_tb):
-            self.__scope.exit()
+        def __exit__(self, _: type[BaseException] | None, __: BaseException | None, ___: TracebackType | None) -> None:
+            self.__scope.exit_from_scope()
 
-    def __init__(self):
-        self.__scopes_stack: List[ScopesStack.__NamedScope] = []
+    def __init__(self) -> None:
+        self.__scopes_stack: list[ScopesStack.NamedScope] = []
         self.create_new_scope("root")
-
-        root_scope = self.__current_scope
-        logger = LoggerWrapper("root", parent=None)
-        root_scope.context.set_logger(logger)
-
         atexit.register(self.__terminate)
-
         RaiseExceptionHelper.initialize()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<ScopesStack: {", ".join(repr(scope) for scope in self.__scopes_stack)}>'
 
     @property
-    def __current_scope(self) -> Scope:
+    def __current_scope(self) -> Scope | None:
         def get_module_path(module_name: str) -> Path:
-            module_path = pkgutil.get_loader(module_name).path
+            loader = pkgutil.get_loader(module_name)
+            assert loader is not None
+            module_path = loader.path  # type: ignore[attr-defined]
             return Path(module_path).absolute()
 
         scope_fixtures_definitions_path = get_module_path("test_tools.__private.scope.scope_fixtures_definitions")
@@ -80,28 +80,31 @@ class ScopesStack:
 
         return self.__scopes_stack[-1] if self.__scopes_stack else None
 
-    def create_new_scope(self, name):
-        new_scope = self.__NamedScope(name, parent=self.__current_scope)
+    def create_new_scope(self, name: str) -> ScopeContextManager:
+        new_scope = self.NamedScope(name, parent=self.__current_scope)
         new_scope.enter()
         self.__scopes_stack.append(new_scope)
-        return self.__ScopeContextManager(self)
+        return self.ScopeContextManager(self)  # type: ignore[arg-type]
 
-    def register(self, scoped_object: "ScopedObject"):
+    def register(self, scoped_object: ScopedObject) -> None:
+        assert self.__current_scope is not None  # mypy check
         self.__current_scope.register(scoped_object)
 
-    def exit(self):
+    def exit_from_scope(self) -> None:
         with DisabledKeyboardInterrupt():
-            self.__current_scope.exit()
+            assert self.__current_scope is not None  # mypy check
+            self.__current_scope.exit_from_scope()
             self.__scopes_stack.pop()
 
     @property
-    def context(self):
+    def context(self) -> Context:
+        assert self.__current_scope is not None  # mypy check
         return self.__current_scope.context
 
-    def __terminate(self):
+    def __terminate(self) -> None:
         with DisabledKeyboardInterrupt():
             if len(self.__scopes_stack) != 1:
-                warnings.warn("You forgot to exit from some scope")
+                warnings.warn("You forgot to exit from some scope", stacklevel=1)
 
             while len(self.__scopes_stack) != 0:
-                self.exit()
+                self.exit_from_scope()
