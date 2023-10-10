@@ -4,6 +4,7 @@ stages:
 
 
 variables:
+  GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
   PACKAGES_TO_CHECK: "package/test_tools/ tests/"
   # uses registry.gitlab.syncad.com/hive/hive/ci-base-image:ubuntu22.04-7
@@ -16,7 +17,7 @@ variables:
 
 include:
   - project: 'hive/common-ci-configuration'
-    ref: 899a376c9b56d79000372903e75af544c90596ab # develop
+    ref: b5202fecccf40845099da351cbc0c38a6205339c # develop
     file: '/templates/python_projects.gitlab-ci.yml'
 
 
@@ -34,31 +35,18 @@ pre_commit_checks:
   stage: static_code_analysis
   extends: .pre_commit_checks_template
 
-
-lint_code_with_pylint:
+lint_code_with_ruff:
   stage: static_code_analysis
-  extends: .project_develop_configuration_template
-  script:
-    - echo -e "${TXT_BLUE}Lint all sources with pylint${TXT_CLEAR}" &&
-      pylint ${PACKAGES_TO_CHECK}
-    - echo -e "${TXT_BLUE}Lint user handles documentation${TXT_CLEAR}" &&
-      pylint package/test_tools/__private/user_handles/handles/
-        --load-plugins=pylint.extensions.docparams
-        --accept-no-param-doc=false --default-docstring-type=sphinx
-        --enable=missing-function-docstring
-
-
-imports_order_with_isort_check:
-  stage: static_code_analysis
-  extends: .project_develop_configuration_template
-  script:
-    - echo -e "${TXT_BLUE}Check imports order with isort${TXT_CLEAR}" &&
-      isort ${PACKAGES_TO_CHECK} --check --diff --color
-
+  extends: .lint_code_with_ruff_template
 
 formatting_with_black_check:
   stage: static_code_analysis
   extends: .formatting_with_black_check_template
+
+type_check_with_mypy:
+  stage: static_code_analysis
+  extends: .type_check_with_mypy_template
+
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| STATIC CODE ANALYSIS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
