@@ -1,17 +1,24 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
 
+if TYPE_CHECKING:
+    from test_tools.__private.node_config import NodeConfig
 
-def test_single_value_loading(config):
+
+def test_single_value_loading(config: NodeConfig) -> None:
     config.load_from_lines(["block-log-info-print-file = ILOG"])
     assert config.block_log_info_print_file == "ILOG"
 
 
-def test_incorrect_value_with_underscores_loading(config):
+def test_incorrect_value_with_underscores_loading(config: NodeConfig) -> None:
     with pytest.raises(KeyError):
         config.load_from_lines(["block_log_info_print_file = ILOG"])
 
 
-def test_double_quoted_string_loading(config):
+def test_double_quoted_string_loading(config: NodeConfig) -> None:
     config.load_from_lines(
         [
             'account-history-rocksdb-path = "blockchain/account-history-rocksdb-storage"',
@@ -26,12 +33,12 @@ def test_double_quoted_string_loading(config):
     assert config.snapshot_root_dir == "snapshot"
 
 
-def test_correct_plugins(config):
+def test_correct_plugins(config: NodeConfig) -> None:
     config.load_from_lines(["plugin = witness p2p account_by_key"])
     assert all(plugin in config.plugin for plugin in ["witness", "p2p", "account_by_key"])
 
 
-def test_single_line_entry_loading(config):
+def test_single_line_entry_loading(config: NodeConfig) -> None:
     config.load_from_lines(
         [
             "plugin = account_by_key",
@@ -43,7 +50,7 @@ def test_single_line_entry_loading(config):
     assert "condenser_api" in config.plugin
 
 
-def test_multi_line_entry_loading(config):
+def test_multi_line_entry_loading(config: NodeConfig) -> None:
     config.load_from_lines(
         [
             'witness = "initminer"',
@@ -59,13 +66,13 @@ def test_multi_line_entry_loading(config):
     assert "5JcCHFFWPW2DryUFDVd7ZXVj2Zo67rqMcvcq5inygZGBAPR1JoR" in config.private_key
 
 
-def test_entry_without_value_loading(config):
+def test_entry_without_value_loading(config: NodeConfig) -> None:
     config.load_from_lines(["plugin = "])
 
     assert not config.plugin
 
 
-def test_if_entries_without_value_not_clears_previous(config):
+def test_if_entries_without_value_not_clears_previous(config: NodeConfig) -> None:
     config.load_from_lines(
         [
             "plugin = account_by_key",
@@ -77,7 +84,7 @@ def test_if_entries_without_value_not_clears_previous(config):
     assert config.plugin == ["account_by_key", "condenser_api"]
 
 
-def test_unknown_entry_loading(config):
+def test_unknown_entry_loading(config: NodeConfig) -> None:
     # ARRANGE
     unknown_entry_name = "unknown_entry"
 
