@@ -1,9 +1,6 @@
-from typing import TYPE_CHECKING
+from __future__ import annotations
 
-if TYPE_CHECKING:
-    from typing import Union
+from test_tools.__private.user_handles.handles.node_handles.remote_node_handle import RemoteNodeHandle
+from test_tools.__private.user_handles.handles.node_handles.runnable_node_handle import RunnableNodeHandle
 
-    from test_tools.__private.remote_node import RemoteNode
-    from test_tools.__private.type_annotations.any_local_node import AnyLocalNode
-
-    AnyNode = Union[AnyLocalNode, RemoteNode]
+AnyNode = RunnableNodeHandle | RemoteNodeHandle
