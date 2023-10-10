@@ -1,41 +1,23 @@
 from __future__ import annotations
 
-from typing import overload, TYPE_CHECKING
+from typing import TypeVar
 
-if TYPE_CHECKING:
-    from test_tools.__private.user_handles.handle import Handle
-    from test_tools.__private.user_handles.implementation import Implementation
+from test_tools.__private.user_handles.handle import Handle
+from test_tools.__private.user_handles.implementation import Implementation
 
-
-@overload
-def get_implementation(handle: None) -> None:
-    ...
+T = TypeVar("T")
+P = TypeVar("P")
 
 
-@overload
-def get_implementation(handle: Handle) -> Implementation:
-    ...
+def get_private_member(_: type[T], owner_class: type[P], owner: P, attribute_name: str) -> T:
+    owner_class_name = owner_class.__name__.split("[")[0]
+    full_member_name = f"_{owner_class_name}{attribute_name}"
+    return getattr(owner, full_member_name)  # type: ignore[no-any-return]
 
 
-def get_implementation(handle):
-    if handle is None:
-        return None
-
-    return handle._Handle__implementation  # pylint: disable=protected-access
+def get_implementation(handle: Handle, expected_type: type[T]) -> T:
+    return get_private_member(expected_type, Handle, handle, "__implementation")
 
 
-@overload
-def get_handle(implementation: None) -> None:
-    ...
-
-
-@overload
-def get_handle(implementation: Implementation) -> Handle:
-    ...
-
-
-def get_handle(implementation):
-    if implementation is None:
-        return None
-
-    return implementation._Implementation__handle  # pylint: disable=protected-access
+def get_handle(implementation: Implementation, expected_type: type[T]) -> T:
+    return get_private_member(expected_type, Implementation, implementation, "__handle")
