@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import test_tools as tt
 
 
-def test_network_startup():
+def test_network_startup() -> None:
     network = tt.Network()
     tt.InitNode(network=network)
     tt.WitnessNode(witnesses=[], network=network)
@@ -10,7 +12,7 @@ def test_network_startup():
     network.run()
 
 
-def test_two_connected_networks_startup():
+def test_two_connected_networks_startup() -> None:
     first = tt.Network()
     tt.InitNode(network=first)
     for _ in range(3):

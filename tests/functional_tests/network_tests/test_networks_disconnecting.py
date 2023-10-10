@@ -1,13 +1,19 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Iterable
+from typing import TYPE_CHECKING
 
 import pytest
-
-from local_tools.network import get_head_block_number, get_head_block_numbers_for_networks
 import test_tools as tt
-from test_tools.__private.time.time import Time
+from local_tools.network import get_head_block_number, get_head_block_numbers_for_networks
+
+from helpy import Hf26Asset as Asset
+from helpy import Time
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from test_tools.__private.type_annotations.any_node import AnyNode
 
 
 class DisconnectionType(Enum):
@@ -16,9 +22,11 @@ class DisconnectionType(Enum):
     DISCONNECT_ALL = 3
 
 
-def prepare_witness(node: tt.AnyNode, account: tt.Account) -> int:
+def prepare_witness(node: AnyNode, account: tt.Account) -> int:
     """
-    Create witness account, wait until it is listed in the schedule and return head block number when it is certain
+    Create witness account.
+
+    Waits until it is listed in the schedule and return head block number when it is certain
     that the witness is capable of producing blocks.
     """
     wallet = tt.Wallet(attach_to=node)
@@ -33,7 +41,7 @@ def prepare_witness(node: tt.AnyNode, account: tt.Account) -> int:
         account.public_key,
     )
 
-    wallet.api.transfer_to_vesting("initminer", account.name, tt.Asset.Test(1000))
+    wallet.api.transfer_to_vesting("initminer", account.name, Asset.test(1000))
 
     wallet.api.import_key(tt.Account("witness0").private_key)
 
@@ -41,7 +49,7 @@ def prepare_witness(node: tt.AnyNode, account: tt.Account) -> int:
         account.name,
         "https://" + account.name,
         account.public_key,
-        {"account_creation_fee": tt.Asset.Test(3), "maximum_block_size": 65536, "sbd_interest_rate": 0},
+        {"account_creation_fee": Asset.test(3), "maximum_block_size": 65536, "sbd_interest_rate": 0},
     )
 
     # Witness schedule list is updated on a block which is a multiple of 21. After fast confirmation feature
@@ -72,7 +80,9 @@ def disconnect_two_networks_in_specified_way(
 
 
 @pytest.mark.parametrize("disconnection_type", list(DisconnectionType))
-def test_disconnecting_2_networks(disconnection_type: DisconnectionType, two_networks_connected: Iterable[tt.Network]):
+def test_disconnecting_2_networks(
+    disconnection_type: DisconnectionType, two_networks_connected: Iterable[tt.Network]
+) -> None:
     # ARRANGE
     first_network, second_network = two_networks_connected
 
@@ -94,7 +104,7 @@ def test_disconnecting_2_networks(disconnection_type: DisconnectionType, two_net
 )
 def test_disconnecting_1_of_3_networks(
     disconnection_type: DisconnectionType, three_networks_connected: Iterable[tt.Network]
-):
+) -> None:
     # ARRANGE
     first_network, second_network, _ = three_networks_connected
 
@@ -118,7 +128,7 @@ def test_disconnecting_1_of_3_networks(
 @pytest.mark.parametrize("disconnection_type", [DisconnectionType.DISCONNECT_FROM, DisconnectionType.DISCONNECT_ALL])
 def test_separating_1_active_from_3_networks(
     disconnection_type: DisconnectionType, three_networks_connected: Iterable[tt.Network]
-):
+) -> None:
     # ARRANGE
     first_network, second_network, third_network = three_networks_connected
 
@@ -143,7 +153,7 @@ def test_separating_1_active_from_3_networks(
     assert head_block_numbers[second_network] == head_block_numbers[third_network]
 
 
-def test_separating_2_networks_producing_blocks_from_3_networks(three_networks_connected: Iterable[tt.Network]):
+def test_separating_2_networks_producing_blocks_from_3_networks(three_networks_connected: Iterable[tt.Network]) -> None:
     # ARRANGE
     first_network, second_network, third_network = three_networks_connected
 
@@ -182,9 +192,10 @@ def test_separating_2_networks_producing_blocks_from_3_networks(three_networks_c
     assert head_block_numbers[second_network] > head_block_numbers[third_network]
 
     assert (
-        second_network_witness_node.api.block.get_block(block_num=block_number_to_check)["block"]["witness"]
+        second_network_witness_node.api.blocks_api.get_block(block_num=block_number_to_check)["block"]["witness"]
         == witness_account.name
     )
     assert (
-        first_network_init_node.api.block.get_block(block_num=block_number_to_check)["block"]["witness"] == "initminer"
+        first_network_init_node.api.blocks_api.get_block(block_num=block_number_to_check)["block"]["witness"]
+        == "initminer"
     )

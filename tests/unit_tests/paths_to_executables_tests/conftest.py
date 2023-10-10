@@ -1,37 +1,39 @@
-import pytest
+from __future__ import annotations
 
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
+
+import pytest
 from test_tools.__private.paths_to_executables import _PathsToExecutables
 
+from tests.unit_tests.paths_to_executables_tests.executable_init_params import ExecutableInitParams
 
-@pytest.fixture
-def paths():
-    """Returns PathsToExecutables object without any value from current environment.
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+
+@pytest.fixture()
+def paths() -> _PathsToExecutables:
+    """
+    Returns PathsToExecutables object without any value from current environment.
 
     Doesn't matter if user has e.g. set environment variable searched by this object or
     script is run with some command line argument. All such information are ignored.
     """
-
-    paths = _PathsToExecutables()
+    paths = _PathsToExecutables(skip_command_line_argument_parsing=True)
     paths.parse_command_line_arguments([])
     paths.set_environment_variables({})
     paths.set_installed_executables({})
     return paths
 
 
-def __executables():
-    class Executable:
-        def __init__(self, name, command_line_argument, environment_variable, default_relative_path):
-            self.name = name
-            self.path = f"{self.name}_path"
-            self.argument = command_line_argument
-            self.environment_variable = environment_variable
-            self.default_relative_path = default_relative_path
-
+def __executables() -> list[ExecutableInitParams]:
     return [
-        Executable("hived", "--hived-path", "HIVED_PATH", "programs/hived/hived"),
-        Executable("cli_wallet", "--cli-wallet-path", "CLI_WALLET_PATH", "programs/cli_wallet/cli_wallet"),
-        Executable("get_dev_key", "--get-dev-key-path", "GET_DEV_KEY_PATH", "programs/util/get_dev_key"),
-        Executable(
+        ExecutableInitParams("hived", "--hived-path", "HIVED_PATH", "programs/hived/hived"),
+        ExecutableInitParams("cli_wallet", "--cli-wallet-path", "CLI_WALLET_PATH", "programs/cli_wallet/cli_wallet"),
+        ExecutableInitParams("get_dev_key", "--get-dev-key-path", "GET_DEV_KEY_PATH", "programs/util/get_dev_key"),
+        ExecutableInitParams(
             "compress_block_log",
             "--compress-block-log-path",
             "COMPRESS_BLOCK_LOG_PATH",
@@ -40,11 +42,26 @@ def __executables():
     ]
 
 
-@pytest.fixture
-def executables():
+@pytest.fixture()
+def executables() -> list[ExecutableInitParams]:
     return __executables()
 
 
-@pytest.fixture
-def executable():
+@pytest.fixture()
+def executable() -> ExecutableInitParams:
     return __executables()[0]
+
+
+@pytest.fixture()
+def prepare_build_like_dir() -> Iterator[Path]:
+    with TemporaryDirectory() as temp_path:
+        path = Path(temp_path)
+        (hived_path := path / "programs" / "hived").mkdir(parents=True)
+        (hived_path / "hived").touch()
+        (cli_path := path / "programs" / "cli_wallet").mkdir()
+        (cli_path / "cli_wallet").touch()
+        (util_path := path / "programs" / "util").mkdir()
+        (util_path / "get_dev_key").touch()
+        (util_path / "compress_block_log").touch()
+
+        yield path

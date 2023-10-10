@@ -1,18 +1,21 @@
-import pytest
+from __future__ import annotations
 
+import pytest
 import test_tools as tt
 
+from helpy import Hf26Asset as Asset
 
-@pytest.fixture
-def wallet(node: tt.InitNode):
+
+@pytest.fixture()
+def wallet(node: tt.InitNode) -> tt.Wallet:
     return tt.Wallet(attach_to=node)
 
 
-def test_sending_transaction_with_multiple_operations(wallet):
+def test_sending_transaction_with_multiple_operations(wallet: tt.Wallet) -> None:
     accounts_and_balances = {
-        "first": tt.Asset.Test(100),
-        "second": tt.Asset.Test(200),
-        "third": tt.Asset.Test(300),
+        "first": Asset.test(100).as_legacy(),
+        "second": Asset.test(200).as_legacy(),
+        "third": Asset.test(300).as_legacy(),
     }
 
     with wallet.in_single_transaction():
@@ -25,7 +28,7 @@ def test_sending_transaction_with_multiple_operations(wallet):
         assert balance == expected_balance
 
 
-def test_sending_transaction_with_multiple_operations_without_broadcast(wallet):
+def test_sending_transaction_with_multiple_operations_without_broadcast(wallet: tt.Wallet) -> None:
     with wallet.in_single_transaction(broadcast=False) as transaction:
         wallet.api.create_account("initminer", "alice", "{}")
 
@@ -37,19 +40,19 @@ def test_sending_transaction_with_multiple_operations_without_broadcast(wallet):
     assert "alice" not in response
 
 
-def test_setting_broadcast_when_building_transaction(wallet):
-    """During transaction building every wallet api call shouldn't be broadcasted.
+def test_setting_broadcast_when_building_transaction(wallet: tt.Wallet) -> None:
+    """
+    During transaction building every wallet api call shouldn't be broadcasted.
 
-    This test checks if when user do this, appropriate error is generated."""
+    This test checks if when user do this, appropriate error is generated.
+    """
+    with wallet.in_single_transaction(), pytest.raises(RuntimeError):
+        wallet.api.create_account("initminer", "alice", "{}", True)
 
-    with wallet.in_single_transaction():
-        with pytest.raises(RuntimeError):
-            wallet.api.create_account("initminer", "alice", "{}", True)
 
-
-def test_getting_response(wallet):
+def test_getting_response(wallet: tt.Wallet) -> None:
     with wallet.in_single_transaction() as transaction:
         wallet.api.create_account("initminer", "alice", "{}")
-        wallet.api.transfer("initminer", "alice", tt.Asset.Test(100), "memo")
+        wallet.api.transfer("initminer", "alice", Asset.test(100), "memo")
 
     assert transaction.get_response() is not None

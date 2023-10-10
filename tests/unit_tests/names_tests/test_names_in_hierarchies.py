@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from test_tools.__private.names import Names
 
 
-def test_if_child_registers_new_name_without_collision_with_parent():
+def test_if_child_registers_new_name_without_collision_with_parent() -> None:
     parent = Names()
     parent.register_numbered_name("Numbered")
 
@@ -11,7 +13,7 @@ def test_if_child_registers_new_name_without_collision_with_parent():
     assert child.get_names_in_use() == {"Numbered0", "Numbered1"}
 
 
-def test_name_registration_in_parent_when_child_already_exists():
+def test_name_registration_in_parent_when_child_already_exists() -> None:
     parent = Names()
     child = Names(parent=parent)
 
@@ -22,7 +24,7 @@ def test_name_registration_in_parent_when_child_already_exists():
     assert child.get_names_in_use() == {"Numbered0", "Numbered1"}  # Child knows about name registered in parent
 
 
-def test_if_names_registered_in_first_child_do_not_affect_second_child():
+def test_if_names_registered_in_first_child_do_not_affect_second_child() -> None:
     parent = Names()
 
     first_child = Names(parent=parent)
