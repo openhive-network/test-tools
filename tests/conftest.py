@@ -1,18 +1,29 @@
+from __future__ import annotations
+
 import logging
 
 import pytest
-
 import test_tools as tt
-from test_tools.__private.scope.scope_fixtures import *  # pylint: disable=wildcard-import, unused-wildcard-import
+from test_tools.__private.scope.scope_fixtures import *  # noqa: F403
+
+from schemas.policies.policy import set_policies
+from schemas.policies.testnet_assets import TestnetAssets
 
 
 def pytest_sessionstart() -> None:
     # Turn off unnecessary logs
     logging.getLogger("urllib3.connectionpool").propagate = False
+    tt.logger.enable("helpy")
+    tt.logger.enable("test_tools")
+
+
+@pytest.fixture(autouse=True)
+def _use_testnet_assets() -> None:
+    set_policies(TestnetAssets(use_testnet_assets=True))
 
 
 @pytest.fixture(name="node")
-def _node():
+def _node() -> tt.InitNode:  # noqa: PT005
     node = tt.InitNode()
     node.run()
     return node

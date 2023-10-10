@@ -1,14 +1,15 @@
-import pytest
+from __future__ import annotations
 
+import pytest
 import test_tools as tt
 
 
-def test_config_dumping_with_unknown_entry():
+def test_config_dumping_with_unknown_entry() -> None:
     # ARRANGE
     node = tt.RawNode()
 
     node.config_file_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(node.config_file_path, "w", encoding="utf-8") as file:
+    with node.config_file_path.open("w", encoding="utf-8") as file:
         file.write("unknown_entry = 1")
 
     # ACT & ASSERT

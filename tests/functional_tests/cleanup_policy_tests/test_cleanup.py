@@ -1,12 +1,16 @@
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Protocol
 
 import pytest
-
 import test_tools as tt
 from test_tools.__private.scope import current_scope
 
+if TYPE_CHECKING:
+    from test_tools.__private.user_handles.handles.node_handles.runnable_node_handle import RunnableNodeHandle
 
-def important_files_are_removed(node):
+
+def important_files_are_removed(node: RunnableNodeHandle) -> bool:
     paths_of_important_files = [
         ".",
         "config.ini",
@@ -17,7 +21,7 @@ def important_files_are_removed(node):
     return all(not node.directory.joinpath(path).exists() for path in paths_of_important_files)
 
 
-def unneeded_files_are_removed(node):
+def unneeded_files_are_removed(node: RunnableNodeHandle) -> bool:
     paths_of_unneeded_files = [
         "blockchain/shared_memory.bin",
         "blockchain/block_log.artifacts",
@@ -27,8 +31,8 @@ def unneeded_files_are_removed(node):
 
 
 def check_if_node_files_are_removed(
-    policy: Optional[tt.constants.CleanupPolicy] = None, *, remove_important_files: bool, remove_unneeded_files: bool
-):
+    policy: tt.constants.CleanupPolicy | None = None, *, remove_important_files: bool, remove_unneeded_files: bool
+) -> None:
     with current_scope.create_new_scope("test-scope"):
         init_node = tt.InitNode()
         init_node.run()
@@ -41,8 +45,8 @@ def check_if_node_files_are_removed(
 
 
 def check_if_everyone_files_are_removed(
-    policy: Optional[tt.constants.CleanupPolicy] = None, *, remove_important_files: bool, remove_unneeded_files: bool
-):
+    policy: tt.constants.CleanupPolicy | None = None, *, remove_important_files: bool, remove_unneeded_files: bool
+) -> None:
     with current_scope.create_new_scope("test-scope"):
         # Create some nodes outside of a network
         init_node = tt.InitNode()
@@ -77,27 +81,39 @@ run_for_all_cases = pytest.mark.parametrize(
 )
 
 
+class RunForAllCases(Protocol):
+    # credits: https://stackoverflow.com/a/57840786/11738218
+    def __call__(
+        self,
+        policy: tt.constants.CleanupPolicy | None = None,
+        *,
+        remove_important_files: bool,
+        remove_unneeded_files: bool,
+    ) -> Any:
+        ...
+
+
 @run_for_all_cases
-def test_default_policy(check_if_files_are_removed):
+def test_default_policy(check_if_files_are_removed: RunForAllCases) -> None:
     check_if_files_are_removed(remove_important_files=False, remove_unneeded_files=True)
 
 
 @run_for_all_cases
-def test_do_not_remove_files_cleanup_policy(check_if_files_are_removed):
+def test_do_not_remove_files_cleanup_policy(check_if_files_are_removed: RunForAllCases) -> None:
     check_if_files_are_removed(
         tt.constants.CleanupPolicy.DO_NOT_REMOVE_FILES, remove_important_files=False, remove_unneeded_files=False
     )
 
 
 @run_for_all_cases
-def test_remove_only_unneeded_files_cleanup_policy(check_if_files_are_removed):
+def test_remove_only_unneeded_files_cleanup_policy(check_if_files_are_removed: RunForAllCases) -> None:
     check_if_files_are_removed(
         tt.constants.CleanupPolicy.REMOVE_ONLY_UNNEEDED_FILES, remove_important_files=False, remove_unneeded_files=True
     )
 
 
 @run_for_all_cases
-def test_remove_everything_cleanup_policy(check_if_files_are_removed):
+def test_remove_everything_cleanup_policy(check_if_files_are_removed: RunForAllCases) -> None:
     check_if_files_are_removed(
         tt.constants.CleanupPolicy.REMOVE_EVERYTHING, remove_important_files=True, remove_unneeded_files=True
     )

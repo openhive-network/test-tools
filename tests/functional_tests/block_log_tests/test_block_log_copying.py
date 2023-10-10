@@ -1,11 +1,17 @@
-from pathlib import Path
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import pytest
-
 import test_tools as tt
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
-@pytest.fixture
+    from test_tools.__private.block_log import BlockLog
+
+
+@pytest.fixture()
 def destination_directory(tmp_path: Path) -> Path:
     """Block log files in tests are copied to this directory."""
     directory = tmp_path / "destination"
@@ -13,7 +19,7 @@ def destination_directory(tmp_path: Path) -> Path:
     return directory
 
 
-@pytest.fixture
+@pytest.fixture()
 def source_directory(tmp_path: Path) -> Path:
     """Block log files in tests are created here and copied from this directory."""
     directory = tmp_path / "source"
@@ -21,23 +27,23 @@ def source_directory(tmp_path: Path) -> Path:
     return directory
 
 
-@pytest.fixture
-def block_log_stub(source_directory) -> tt.BlockLog:
+@pytest.fixture()
+def block_log_stub(source_directory: Path) -> tt.BlockLog:
     block_log_stub_path = source_directory / "block_log"
     block_log_stub_path.touch()
     return tt.BlockLog(block_log_stub_path)
 
 
-@pytest.fixture
-def artifacts_stub(source_directory) -> Path:
+@pytest.fixture()
+def artifacts_stub(source_directory: Path) -> Path:
     artifacts_stub_path = source_directory / "block_log.artifacts"
     artifacts_stub_path.touch()
     return artifacts_stub_path
 
 
 def test_paths_in_copied_block_log(
-    block_log_stub, artifacts_stub, destination_directory
-):  # pylint: disable=unused-argument
+    block_log_stub: BlockLog, artifacts_stub: Path, destination_directory: Path  # noqa: ARG001
+) -> None:
     copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="required")
 
     assert copied_block_log.path == destination_directory / "block_log"
@@ -45,13 +51,13 @@ def test_paths_in_copied_block_log(
 
 
 def test_copying_when_required_artifacts_exists(
-    block_log_stub, artifacts_stub, destination_directory
-):  # pylint: disable=unused-argument
+    block_log_stub: BlockLog, artifacts_stub: Path, destination_directory: Path  # noqa: ARG001
+) -> None:
     copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="required")
     __assert_files_were_copied(copied_block_log, require_artifacts=True)
 
 
-def test_copying_when_required_artifacts_are_missing(block_log_stub, destination_directory):
+def test_copying_when_required_artifacts_are_missing(block_log_stub: BlockLog, destination_directory: Path) -> None:
     with pytest.raises(tt.exceptions.MissingBlockLogArtifactsError):
         block_log_stub.copy_to(destination_directory, artifacts="required")
 
@@ -59,35 +65,37 @@ def test_copying_when_required_artifacts_are_missing(block_log_stub, destination
 
 
 def test_copying_when_optional_artifacts_exists(
-    block_log_stub, artifacts_stub, destination_directory
-):  # pylint: disable=unused-argument
+    block_log_stub: BlockLog, artifacts_stub: Path, destination_directory: Path  # noqa: ARG001
+) -> None:
     copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="optional")
     __assert_files_were_copied(copied_block_log, require_artifacts=True)
 
 
-def test_copying_when_optional_artifacts_are_missing(block_log_stub, destination_directory):
+def test_copying_when_optional_artifacts_are_missing(block_log_stub: BlockLog, destination_directory: Path) -> None:
     copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="optional")
     __assert_files_were_copied(copied_block_log, require_artifacts=False)
 
 
 def test_copying_when_excluded_artifacts_exists(
-    block_log_stub, artifacts_stub, destination_directory
-):  # pylint: disable=unused-argument
+    block_log_stub: BlockLog, artifacts_stub: Path, destination_directory: Path  # noqa: ARG001
+) -> None:
     copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="excluded")
     __assert_files_were_copied(copied_block_log, require_artifacts=False)
 
 
-def test_copying_when_excluded_artifacts_are_missing(block_log_stub, destination_directory):
+def test_copying_when_excluded_artifacts_are_missing(block_log_stub: BlockLog, destination_directory: Path) -> None:
     copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="excluded")
     __assert_files_were_copied(copied_block_log, require_artifacts=False)
 
 
-def test_error_reporting_when_artifacts_have_unsupported_value(block_log_stub, destination_directory):
-    with pytest.raises(ValueError):
-        block_log_stub.copy_to(destination_directory, artifacts="unsupported_value")
+def test_error_reporting_when_artifacts_have_unsupported_value(
+    block_log_stub: BlockLog, destination_directory: Path
+) -> None:
+    with pytest.raises(ValueError):  # noqa: PT011
+        block_log_stub.copy_to(destination_directory, artifacts="unsupported_value")  # type: ignore[arg-type]
 
 
-def test_copying_with_specified_destination_directory(destination_directory, node: tt.InitNode):
+def test_copying_with_specified_destination_directory(destination_directory: Path, node: tt.InitNode) -> None:
     block_log = __generate_block_log(node)
 
     copied_block_log = block_log.copy_to(destination_directory)
@@ -96,7 +104,7 @@ def test_copying_with_specified_destination_directory(destination_directory, nod
     assert copied_block_log.path == destination_directory / block_log.path.name
 
 
-def test_copying_with_specified_target_block_log_name(destination_directory, node: tt.InitNode):
+def test_copying_with_specified_target_block_log_name(destination_directory: Path, node: tt.InitNode) -> None:
     block_log = __generate_block_log(node)
     destination_block_log_path = destination_directory / "block_log_with_changed_name"
 

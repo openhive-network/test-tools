@@ -1,10 +1,15 @@
-from typing import Iterable
+from __future__ import annotations
 
-from local_tools.network import get_head_block_number, get_head_block_numbers_for_networks
+from typing import TYPE_CHECKING
+
 import test_tools as tt
+from local_tools.network import get_head_block_number, get_head_block_numbers_for_networks
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
-def test_reconnecting_2_networks(two_networks_connected: Iterable[tt.Network]):
+def test_reconnecting_2_networks(two_networks_connected: Iterable[tt.Network]) -> None:
     # ARRANGE
     first_network, second_network = two_networks_connected
 
@@ -29,7 +34,7 @@ def test_reconnecting_2_networks(two_networks_connected: Iterable[tt.Network]):
     get_head_block_numbers_for_networks(two_networks_connected)  # used to log head block numbers only
 
 
-def test_reconnecting_3_networks(three_networks_connected: Iterable[tt.Network]):
+def test_reconnecting_3_networks(three_networks_connected: Iterable[tt.Network]) -> None:
     # ARRANGE
     first_network, second_network, third_network = three_networks_connected
 
