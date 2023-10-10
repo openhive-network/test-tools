@@ -1,0 +1,3 @@
+[submodule "helpy"]
+	path = helpy
+	url = ../helpy.git
