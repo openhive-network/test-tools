@@ -1,52 +1,55 @@
+# mypy: ignore-errors
+# ruff: noqa
+# file for deletion after cli_wallet deprecation
 from __future__ import annotations
 
-from argparse import ArgumentParser
 import concurrent.futures
 import copy
 import math
 import os
-from pathlib import Path
 import re
 import shutil
 import signal
 import subprocess
-from typing import Final, Iterable, List, Literal, Optional, TYPE_CHECKING, Union
 import warnings
+from argparse import ArgumentParser
+from typing import TYPE_CHECKING, Final, Literal, Any
+from loguru import logger
 
 from test_tools.__private import communication, paths_to_executables
 from test_tools.__private.account import Account
-from test_tools.__private.asset import Asset
-from test_tools.__private.exceptions import CommunicationError, NodeIsNotRunning
-from test_tools.__private.logger.logger_internal_interface import logger
+from helpy import Hf26Asset as Asset
+from test_tools.__private.exceptions import CommunicationError, NodeIsNotRunningError
 from test_tools.__private.node import Node
 from test_tools.__private.remote_node import RemoteNode
-from test_tools.__private.scope import context, ScopedObject
-from test_tools.__private.time.time import Time
+from test_tools.__private.scope import ScopedObject, context
+from helpy import Time
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
 from test_tools.__private.utilities.fake_time import configure_fake_time
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from pathlib import Path
+
     from test_tools.__private.user_handles.handles.wallet_handle import WalletHandle
 
-# pylint: disable=too-many-lines
+
 # This pylint warning is right, but refactor has low priority. Will be done later...
 # It can be solved by moving the generated code to a separate file and disabling the warning in that file only.
 
 
 class Wallet(UserHandleImplementation, ScopedObject):
-    # pylint: disable=too-many-instance-attributes
     # This pylint warning is right, but this refactor has low priority. Will be done later...
 
     DEFAULT_RUN_TIMEOUT = 15
     DEFAULT_PASSWORD = "password"
     DEFAULT_TRANSACTION_SERIALIZATION: Literal["legacy", "hf26"] = "legacy"
 
-    class __Api:
-        # pylint: disable=invalid-name, too-many-arguments, too-many-public-methods
+    class Api:
         # Wallet api is out of TestTools control
 
-        class __TransactionBuilder:
-            """Helper class for sending multiple operations in single transaction"""
+        class TransactionBuilder:
+            """Helper class for sending multiple operations in single transaction."""
 
             def __init__(self):
                 self.__transaction = None
@@ -65,14 +68,19 @@ class Wallet(UserHandleImplementation, ScopedObject):
             self.__wallet = wallet
             self.__transaction_builder = None
 
+        @property
+        def _transaction_builder(self) -> TransactionBuilder:
+            assert self.__transaction_builder is not None
+            return self.__transaction_builder
+
         def _start_gathering_operations_for_single_transaction(self):
             if self.__transaction_builder is not None:
                 raise RuntimeError("You cannot create transaction inside another transaction")
 
-            self.__transaction_builder = self.__TransactionBuilder()
+            self.__transaction_builder = self.TransactionBuilder()
 
         def _send_gathered_operations_as_single_transaction(self, *, broadcast):
-            transaction = self.__transaction_builder.get_transaction()
+            transaction = self._transaction_builder.get_transaction()
             self.__transaction_builder = None
 
             return self.sign_transaction(transaction, broadcast=broadcast) if transaction is not None else None
@@ -84,7 +92,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
             response = self.__wallet.send(method_, *list(params.values()), jsonrpc=jsonrpc, id_=id_)
 
             if self.__is_transaction_build_in_progress():
-                self.__transaction_builder.append_operation(response)
+                self._transaction_builder.append_operation(response)
 
             return response["result"] if only_result else response
 
@@ -103,12 +111,14 @@ class Wallet(UserHandleImplementation, ScopedObject):
                 warnings.warn(
                     'Avoid explicit setting "broadcast" parameter to False during registering operations in\n'
                     "transaction. False is a default value in this context. It is considered bad practice,\n"
-                    "because obscures code and decreases its readability."
+                    "because obscures code and decreases its readability.",
+                    stacklevel=1,
                 )
             elif params["broadcast"] is True and not self.__is_transaction_build_in_progress():
                 warnings.warn(
                     'Avoid explicit setting "broadcast" parameter to True in this context, it is default value.\n'
-                    "It is considered bad practice, because obscures code and decreases its readability."
+                    "It is considered bad practice, because obscures code and decreases its readability.",
+                    stacklevel=1,
                 )
 
         def __get_default_broadcast_value(self):
@@ -1005,17 +1015,17 @@ class Wallet(UserHandleImplementation, ScopedObject):
     def __init__(
         self,
         *,
-        attach_to: Union[None, "Node", "RemoteNode"],
+        attach_to: None | Node | RemoteNode,
         additional_arguments: Iterable = (),
         preconfigure: bool = True,
-        handle: Optional[WalletHandle] = None,
-        time_offset: Optional[str] = None,
+        handle: WalletHandle | None = None,
+        time_offset: str | None = None,
     ):
         super().__init__(handle=handle)
 
-        self.api = Wallet.__Api(self)
+        self.api = Wallet.Api(self)
         self.http_server_port = None
-        self.connected_node: Union[None, "Node", "RemoteNode"] = attach_to
+        self.connected_node: None | Node | RemoteNode = attach_to
         self.password = None
 
         if isinstance(self.connected_node, Node):
@@ -1035,7 +1045,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.process = None
         self.additional_arguments = list(additional_arguments)
         self.__produced_files = False
-        self.logger = logger.create_child_logger(self.name)
+        self.logger = logger.bind(target="cli_wallet")
 
         self.run(preconfigure=preconfigure, time_offset=time_offset)
 
@@ -1070,9 +1080,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
         timeout: float = DEFAULT_RUN_TIMEOUT,
         *,
         preconfigure: bool = True,
-        clean: Optional[bool] = None,
-        time_offset: Optional[str] = None,
-    ):  # pylint: disable=too-many-branches
+        clean: bool | None = None,
+        time_offset: str | None = None,
+    ):
         """
         Starts wallet. Blocks until wallet will be ready for use.
 
@@ -1098,7 +1108,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         if self.__is_online():
             if not self.connected_node.is_running():
-                raise NodeIsNotRunning("Before attaching wallet you have to run node")
+                raise NodeIsNotRunningError("Before attaching wallet you have to run node")
         else:
             run_parameters.append("--offline")
 
@@ -1117,13 +1127,14 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         self.directory.mkdir(parents=True, exist_ok=True)
 
-        # pylint: disable=consider-using-with
         # Files opened here have to exist longer than current scope
         self.stdout_file = open(self.get_stdout_file_path(), "w", encoding="utf-8")
         self.stderr_file = open(self.get_stderr_file_path(), "w", encoding="utf-8")
 
         if self.__is_online():
-            run_parameters.extend([f"--server-rpc-endpoint=ws://{self.connected_node.get_ws_endpoint()}"])
+            run_parameters.extend(
+                [f"--server-rpc-endpoint={self.connected_node.get_ws_endpoint().as_string(with_protocol=True)}"]
+            )
 
         run_parameters.extend(self.additional_arguments)
 
@@ -1135,7 +1146,6 @@ class Wallet(UserHandleImplementation, ScopedObject):
         if time_offset is not None:
             configure_fake_time(self.logger, environment_variables, time_offset)
 
-        # pylint: disable=consider-using-with
         # Process created here have to exist longer than current scope
         self.process = subprocess.Popen(
             command, cwd=self.directory, stdout=self.stdout_file, stderr=self.stderr_file, env=environment_variables
@@ -1213,11 +1223,11 @@ class Wallet(UserHandleImplementation, ScopedObject):
     def at_exit_from_scope(self):
         self.close()
 
-    def restart(self, *, preconfigure=True, time_offset: Optional[str] = None):
+    def restart(self, *, preconfigure=True, time_offset: str | None = None):
         self.close()
         self.run(preconfigure=preconfigure, clean=False, time_offset=time_offset)
 
-    def close(self):
+    def close(self) -> None:
         self.__close_process()
         self.__close_opened_files()
         self.http_server_port = None
@@ -1256,21 +1266,20 @@ class Wallet(UserHandleImplementation, ScopedObject):
         name: str,
         *,
         creator: str = "initminer",
-        hives: Optional[Union[Asset.Test, float, int]] = None,
-        vests: Optional[Union[Asset.Test, float, int]] = None,
-        hbds: Optional[Union[Asset.Tbd, float, int]] = None,
+        hives: Asset.Test | float | int | None = None,
+        vests: Asset.Test | float | int | None = None,
+        hbds: Asset.Tbd | float | int | None = None,
     ) -> dict:
         """
         The `transfer_to_vesting` operation can be only done by sending the Asset.Test type, that's why method in place
         of `vests` accepts the Asset.Test and numeric types instead of Asset.Vest.
         """
-
-        if isinstance(hives, (float, int)):
-            hives = Asset.Test(hives)
-        if isinstance(vests, (float, int)):
-            vests = Asset.Test(vests)
-        if isinstance(hbds, (float, int)):
-            hbds = Asset.Tbd(hbds)
+        if isinstance(hives, float | int):
+            hives = Asset.test(hives)
+        if isinstance(vests, float | int):
+            vests = Asset.test(vests)
+        if isinstance(hbds, float | int):
+            hbds = Asset.tbd(hbds)
 
         account = Account(name)
         with self.in_single_transaction() as transaction:
@@ -1297,7 +1306,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
     def create_accounts(
         self, number_of_accounts: int, name_base: str = "account", *, secret: str = "secret", import_keys: bool = True
-    ) -> List[Account]:
+    ) -> list[Account]:
         def send_transaction(accounts_):
             # Prepare transaction
             transaction = copy.deepcopy(transaction_pattern)
@@ -1356,7 +1365,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         return accounts
 
-    def list_accounts(self) -> List[str]:
+    def list_accounts(self) -> list[str]:
         next_account = ""
         all_accounts = []
         while True:
