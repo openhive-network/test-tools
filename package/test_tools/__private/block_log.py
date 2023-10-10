@@ -1,20 +1,20 @@
 from __future__ import annotations
 
-from pathlib import Path
 import shutil
 import subprocess
 import typing
-from typing import Literal, NoReturn, Union
+from pathlib import Path
+from typing import Literal
 
 from test_tools.__private import paths_to_executables
 from test_tools.__private.exceptions import MissingBlockLogArtifactsError
 
 
 class BlockLog:
-    def __init__(self, path: Union[Path, str]):
+    def __init__(self, path: Path | str) -> None:
         self.__path = Path(path)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<BlockLog: path={self.__path}>"
 
     @property
@@ -27,13 +27,14 @@ class BlockLog:
 
     def copy_to(
         self,
-        destination: Union[Path, str],
+        destination: Path | str,
         *,
         artifacts: Literal["required", "optional", "excluded"] = "excluded",
     ) -> BlockLog:
         """
-        Copies block log and its artifacts (if requested via `artifacts` parameter) to specified `destination`. By
-        default, only block log is copied and artifacts are excluded.
+        Copies block log and its artifacts (if requested via `artifacts` parameter) to specified `destination`.
+
+        By default, only block log is copied and artifacts are excluded.
 
         It is unsafe to copy block log or use it for replay when node, which is source if block log, is run. It might
         lead to problems, because files referenced by block log object might be modified at the same time by its owner.
@@ -70,11 +71,12 @@ class BlockLog:
         copied_block_log_path = shutil.copy(self.__path, destination)
         return BlockLog(copied_block_log_path)
 
-    def truncate(self, output_directory: Union[Path, str], block_number: int) -> BlockLog:
+    def truncate(self, output_directory: Path | str, block_number: int) -> BlockLog:
         """
-        Shorten block log to `block_number` blocks and stores result in `output_directory` as:
-        - `output_directory` / block_log,
-        - `output_directory` / block_log.artifacts.
+        Shorten block log to `block_number` blocks and stores result in `output_directory` as.
+
+            - `output_directory` / block_log,
+            - `output_directory` / block_log.artifacts.
 
         :param output_directory: In this directory truncated `block_log` and `block_log.artifacts` will be stored.
         :param block_number: Limit number of blocks in the output block log.
@@ -90,10 +92,10 @@ class BlockLog:
             ],
             check=True,
         )
-        return BlockLog(output_directory / "block_log")
+        return BlockLog(Path(output_directory) / "block_log")
 
     @staticmethod
-    def __raise_missing_artifacts_error(block_log_artifacts_path) -> NoReturn:
+    def __raise_missing_artifacts_error(block_log_artifacts_path: Path) -> None:
         raise MissingBlockLogArtifactsError(
             f"Block log artifacts with following path are missing:\n{block_log_artifacts_path}"
         )
