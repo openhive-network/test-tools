@@ -10,12 +10,12 @@ description = "Tools for testing hive software"
 authors = ["Piotr Batko <pbatko@syncad.com>"]
 readme = "readme.md"
 repository = "https://gitlab.syncad.com/hive/test-tools"
-packages = [
-    { include = "test_tools", from = "package" },
-]
 source = [
     { name = "PyPI", priority = "primary" },
-    { name = "gitlab-schemas", url = "https://gitlab.syncad.com/api/v4/projects/362/packages/pypi/simple", priority = "supplemental" }, # schemas
+    { name = "gitlab", url = "https://gitlab.syncad.com/api/v4/projects/419/packages/pypi/simple", priority = "supplemental" },
+]
+packages = [
+    { include = "test_tools", from = "package" },
 ]
 
 
@@ -24,8 +24,8 @@ python = "^3.10"
 requests = "2.27.1"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
-
-schemas = "0.0.1.dev255+9d748a8"
+loguru = "0.7.2"
+helpy = { path = "helpy", develop = true }
 
 
 [tool.poetry.group.dev.dependencies]
@@ -33,7 +33,8 @@ black = "22.8.0"
 isort = { version = "5.10.1", extras = ["colors"] }
 local-tools = { path = "tests/local-tools", develop = true }
 pre-commit = "2.20.0"
-pylint = "2.15.8"
+mypy = "1.4.1"
+ruff = "0.0.277"
 pytest = "7.1.2"
 pytest-xdist = "2.5.0"
 
@@ -48,3 +49,81 @@ line_length = 120
 known_first_party = ["test_tools", "local_tools", "schemas"]
 force_sort_within_sections = true
 order_by_type = false
+
+
+[tool.ruff]
+line-length = 120
+select = [# https://beta.ruff.rs/docs/rules/
+    "F",
+    "E",
+    "W",
+    "C",
+    "I",
+    "N",
+    "D",
+    "UP",
+    "YTT",
+    "ASYNC",
+    "BLE",
+    "B",
+    "A",
+    "C4",
+    "INP",
+    "PIE",
+    "T20",
+    "PYI",
+    "PT",
+    "RSE",
+    "RET",
+    "SIM",
+    "TID",
+    "TCH",
+    "ARG",
+    "PTH",
+    "ERA",
+    "PL",
+    "TRY",
+    "FLY",
+    "RUF",
+]
+ignore = [
+    "E501", # line too long, handled by black
+    "D203", # 1 blank line required before class docstring; because we re using D211
+    "D212", # Multi-line docstring summary should start at the first line; because we re using D213
+    "D401", # first line should be in imperative mood
+    "PT004", # fixture does not return anything, add leading underscore;  issue: pytest seems to ignore (not launch) auto-use fixtures with leading underscode
+
+    "TRY003", # too restrictive
+    "PLR0913", # too restrictive, too many arguments to function call
+
+    "D104", # missing docstring in public package
+    "D100", # missing docstring in public module
+]
+
+[tool.ruff.per-file-ignores]
+"tests/**" = [  # no need for docstrings in tests
+    "D100", # missing docstring in public module
+    "D101", # missing docstring in public class
+    "D102", # missing docstring in public method
+    "D103", # missing docstring in public function
+    "D104", # missing docstring in public package
+    "D105", # missing docstring in magic method
+    "D106", # missing docstring in public nested class
+    "D107", # missing docstring in __init__
+
+]
+
+[tool.ruff.isort]
+known-first-party = ["helpy", "schemas", "wax"]
+required-imports = ["from __future__ import annotations"]
+
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+
+[tool.mypy]
+strict = true
+disallow_untyped_decorators = false
+plugins = "pydantic.mypy"
