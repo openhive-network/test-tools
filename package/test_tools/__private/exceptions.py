@@ -1,45 +1,46 @@
-class TestToolsException(Exception):
+from __future__ import annotations
+
+from typing import Any
+
+
+class TestToolsError(Exception):
     """Base exception class for test-tools package."""
 
 
-class CommunicationError(TestToolsException):
-    def __init__(self, description, request, response):
+class CommunicationError(TestToolsError):
+    def __init__(self, description: str, request: Any, response: Any) -> None:
         super().__init__(f"{description}.\nSent: {request}.\nReceived: {response}")
         self.request = request
         self.response = response
 
 
-class InternalNodeError(TestToolsException):
+class InternalNodeError(TestToolsError):
     pass
 
 
-class MissingBlockLogArtifactsError(TestToolsException):
+class MissingBlockLogArtifactsError(TestToolsError):
     pass
 
 
-class MissingPathToExecutable(TestToolsException):
+class MissingPathToExecutableError(TestToolsError):
     pass
 
 
-class NameAlreadyInUse(TestToolsException):
+class NameAlreadyInUseError(TestToolsError):
     pass
 
 
-class NodeIsNotRunning(TestToolsException):
+class NodeIsNotRunningError(TestToolsError):
     pass
 
 
-class NotSupported(TestToolsException):
+class NotSupportedError(TestToolsError):
     pass
 
 
-class ParseError(TestToolsException):
+class ConfigError(TestToolsError):
     pass
 
 
-class ConfigError(TestToolsException):
-    pass
-
-
-class BlockWaitTimeoutError(TestToolsException):
+class BlockWaitTimeoutError(TestToolsError):
     """Raised when the maximum amount of time to wait for a block on a blockchain is reached."""
