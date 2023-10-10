@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.user_handles.handles.node_handles.runnable_node_handle import RunnableNodeHandle
 from test_tools.__private.witness_node import WitnessNode
 
@@ -11,11 +10,11 @@ if TYPE_CHECKING:
 
 
 class WitnessNodeHandle(RunnableNodeHandle):
-    def __init__(self, *, witnesses: Optional[List[str]] = None, network: Optional[Network] = None):
+    def __init__(self, *, witnesses: list[str] | None = None, network: Network | None = None) -> None:
         super().__init__(
             implementation=WitnessNode(
                 witnesses=witnesses,
-                network=get_implementation(network),
+                network=network,
                 handle=self,
             )
         )

@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import datetime
 import math
-import typing
 from typing import TYPE_CHECKING
 
 from test_tools.__private.base_node import BaseNode
@@ -11,26 +9,21 @@ from test_tools.__private.user_handles.get_implementation import get_implementat
 from test_tools.__private.user_handles.handle import Handle
 
 if TYPE_CHECKING:
-    from pathlib import Path
-    from typing import Dict, List, Literal, Optional, Tuple, Union
+    import datetime
 
-    from test_tools.__private.block_log import BlockLog
-    from test_tools.__private.cleanup_policy import CleanupPolicy
-    from test_tools.__private.node_config import NodeConfig
-    from test_tools.__private.snapshot import Snapshot
-    from test_tools.node_api.node_apis import Apis
+    from helpy._handles.hived.api.api_collection import HivedSyncApiCollection
+    from helpy._interfaces.url import HttpUrl
 
 
 class NodeHandleBase(Handle):
-    # pylint: disable=too-many-public-methods
     DEFAULT_WAIT_FOR_LIVE_TIMEOUT = Node.DEFAULT_WAIT_FOR_LIVE_TIMEOUT
 
     @property
-    def __implementation(self) -> BaseNode:
-        return typing.cast(BaseNode, get_implementation(self))
+    def __implementation(self) -> BaseNode:  # type: ignore[override]
+        return get_implementation(self, BaseNode)
 
     @property
-    def api(self) -> Apis:
+    def api(self) -> HivedSyncApiCollection:
         """
         Returns grouped all node's APIs.
 
@@ -63,9 +56,10 @@ class NodeHandleBase(Handle):
 
     def wait_number_of_blocks(self, blocks_to_wait: int, *, timeout: float = math.inf) -> None:
         """
-        Blocks program execution until number of new blocks specified by `blocks_to_wait` will be produced. For example
-        if node's newest block is 10th and `blocks_to_wait` is set to 3, program execution will be resumed when node's
-        newest block will be 13th. Maximum wait time can be limited with `timeout` parameter.
+        Blocks program execution until number of new blocks specified by `blocks_to_wait` will be produced.
+
+        For example if node's newest block is 10th and `blocks_to_wait` is set to 3, program execution will be
+        resumed when node's newest block will be 13th. Maximum wait time can be limited with `timeout` parameter.
 
         :param blocks_to_wait: Number of blocks produced, after which execution will be resumed.
         :param timeout: Time limit for wait. When timeout is reached, `TimeoutError` exception is thrown. Expressed in
@@ -77,8 +71,10 @@ class NodeHandleBase(Handle):
 
     def wait_for_block_with_number(self, number: int, *, timeout: float = math.inf) -> None:
         """
-        Blocks program execution until block with specified `number` is produced. If specified block number is already
-        produced, program execution is immediately resumed. Maximum wait time can be limited with `timeout` parameter.
+        Blocks program execution until block with specified `number` is produced.
+
+        If specified block number is already produced, program execution is immediately resumed.
+        Maximum wait time can be limited with `timeout` parameter.
 
         :param number: Block's number produced, after which execution will be resumed.
         :param timeout: Time limit for wait. When timeout is reached, `TimeoutError` exception is thrown. Expressed in
@@ -89,10 +85,10 @@ class NodeHandleBase(Handle):
         return self.__implementation.wait_for_block_with_number(number, timeout=timeout)
 
     def wait_for_irreversible_block(
-        self, number: Optional[int] = None, *, max_blocks_to_wait: Optional[int] = None, timeout: float = math.inf
+        self, number: int | None = None, *, max_blocks_to_wait: int | None = None, timeout: float = math.inf
     ) -> None:
         """
-        Blocks program execution until current head block or block with specified `number` is considered as irreversible
+        Blocks program execution until current head block or block with specified `number` is considered as irreversible.
 
         If the irreversible block is not reached within the specified maximum number of blocks, or if the timeout is
         reached, an exception is raised.
@@ -108,40 +104,12 @@ class NodeHandleBase(Handle):
             number, max_blocks_to_wait=max_blocks_to_wait, timeout=timeout
         )
 
-    def wait_for_live_mode(self, timeout: float = math.inf) -> None:
-        """
-        Blocks program execution until node is in live mode. It's detected by waiting for `hive_status` notification
-
-        :param timeout: Time limit for wait. When timeout is reached, `TimeoutError` exception is thrown. Expressed in
-            seconds.
-        """
-        self.__implementation.wait_for_live_mode(timeout=timeout)
-
-    def get_version(self) -> dict:
-        """Returns output from hived for --version flag"""
-        return self.__implementation.get_version()
-
     @property
-    def http_endpoint(self) -> str:
+    def http_endpoint(self) -> HttpUrl:
         """
-        Returns opened HTTP endpoint. Blocks program execution if HTTP endpoint is not ready. When endpoint is
-        configured with special values like 0.0.0.0 address or 0 port, special values are replaced with actually
-        selected by node.
-        """
-        return self.__implementation.get_http_endpoint()
+        Returns opened HTTP endpoint.
 
-    @property
-    def ws_endpoint(self) -> str:
+        Blocks program execution if HTTP endpoint is not ready. When endpoint is configured with special
+        values like 0.0.0.0 address or 0 port, special values are replaced with actually selected by node.
         """
-        Returns opened WS endpoint. Blocks program execution if WS endpoint is not ready. When endpoint is configured
-        with special values like 0.0.0.0 address or 0 port, special values are replaced with actually selected by node.
-        """
-        return self.__implementation.get_ws_endpoint()
-
-    @property
-    def p2p_endpoint(self) -> str:
-        """
-        Returns opened P2P endpoint. Blocks program execution if WS endpoint is not ready. When endpoint is configured
-        with special values like 0.0.0.0 address or 0 port, special values are replaced with actually selected by node.
-        """
-        return self.__implementation.get_p2p_endpoint()
+        return self.__implementation.http_endpoint
