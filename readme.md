@@ -345,9 +345,9 @@ wallet api calls and so on. See example below showing for-loop use case during t
 
 ```python
 accounts_and_balances = {
-    'first': tt.Asset.Test(100),
-    'second': tt.Asset.Test(200),
-    'third': tt.Asset.Test(300),
+    'first': tt.Asset.test(100),
+    'second': tt.Asset.test(200),
+    'third': tt.Asset.test(300),
 }
 
 with wallet.in_single_transaction():
