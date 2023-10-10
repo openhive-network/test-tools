@@ -1,18 +1,20 @@
+from __future__ import annotations
+
+import math
 import time
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from threading import Event
 
 
 def wait_for_event(
-    event: "Event",
-    deadline: Optional[float] = None,
+    event: Event,
+    deadline: float = math.inf,
     exception_message: str = "The event didn't occur within given time frame",
 ) -> None:
     """
-    Blocks current thread execution until `event` is set. Optionally raises `exception`, when
-    `deadline` is reached.
+    Blocks current thread execution until `event` is set. Optionally raises `exception`, when `deadline` is reached.
 
     :param event: Awaited event. When event is set functions stops blocking.
     :param deadline: Time point before which event must occur. Can be counted from the formula:
