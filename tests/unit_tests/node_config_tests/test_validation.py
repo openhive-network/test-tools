@@ -1,7 +1,11 @@
-import pytest
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from test_tools.__private.node_config import NodeConfig
 
 
-def test_detection_of_duplicated_plugins(config):
+def test_detection_of_duplicated_plugins(config: NodeConfig) -> None:
     config.plugin.extend(["condenser_api", "condenser_api"])
-    with pytest.raises(RuntimeError):
-        config.validate()
+    assert list(config.plugin) == ["condenser_api"]
