@@ -1,272 +1,71 @@
 from __future__ import annotations
 
-import json
 import math
 import os
-from pathlib import Path
 import shutil
-import signal
-import subprocess
-from threading import Event
 import time
-from typing import Dict, List, Literal, NoReturn, Optional, Tuple, TYPE_CHECKING, Union
-import warnings
+from contextlib import suppress
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
-from test_tools.__private import cleanup_policy, communication, exceptions, paths_to_executables
+from helpy._interfaces.url import HttpUrl
+from test_tools.__private import cleanup_policy, exceptions, paths_to_executables
 from test_tools.__private.base_node import BaseNode
 from test_tools.__private.block_log import BlockLog
 from test_tools.__private.constants import CleanupPolicy
-from test_tools.__private.node_http_server import NodeHttpServer
-from test_tools.__private.node_message import NodeMessage
-from test_tools.__private.raise_exception_helper import RaiseExceptionHelper
-from test_tools.__private.scope import context, ScopedObject
+from test_tools.__private.executable import Executable
+from test_tools.__private.network import Network
+from test_tools.__private.notifications.node_notification_server import NodeNotificationServer
+from test_tools.__private.process import Process
+from test_tools.__private.scope import ScopedObject, context
 from test_tools.__private.snapshot import Snapshot
-from test_tools.__private.url import Url
-from test_tools.__private.utilities.fake_time import configure_fake_time
+from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.wait_for import wait_for_event
-from test_tools.node_api.node_apis import Apis
 from test_tools.node_configs.default import create_default_config
 
 if TYPE_CHECKING:
-    from test_tools.__private.network import Network
+    from collections.abc import Sequence
+
+    from helpy._interfaces.url import P2PUrl, WsUrl
+    from schemas.apis.network_node_api.response_schemas import SetAllowedPeers
+    from test_tools.__private.user_handles.handles.network_handle import NetworkHandle
     from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
     from test_tools.__private.wallet import Wallet
 
 
 class Node(BaseNode, ScopedObject):
-    # pylint: disable=too-many-instance-attributes, too-many-public-methods
     # This pylint warning is right, but this refactor has low priority. Will be done later...
 
     DEFAULT_WAIT_FOR_LIVE_TIMEOUT = int(os.environ.get("TEST_TOOLS_NODE_DEFAULT_WAIT_FOR_LIVE_TIMEOUT", default=20))
 
-    class __Executable:
-        def __init__(self):
-            self.__path = None
-
-        def get_path(self):
-            return paths_to_executables.get_path_of("hived") if self.__path is None else self.__path
-
-        def set_path(self, path):
-            self.__path = path
-
-        @property
-        def build_version(self) -> Literal["testnet", "mirrornet", "mainnet"]:
-            return self.get_version()["version"]["node_type"]
-
-        def get_build_commit_hash(self):
-            return self.get_version()["version"]["hive_revision"]
-
-        def get_version(self):
-            return json.loads(self.__run_and_get_output("--version"))
-
-        def __run_and_get_output(self, *arguments):
-            result = subprocess.check_output(
-                [str(self.get_path()), *arguments],
-                stderr=subprocess.STDOUT,
-            )
-
-            return result.decode("utf-8").strip()
-
-        def get_supported_plugins(self) -> List[str]:
-            output = self.__run_and_get_output("--list-plugins")
-            return output.split("\n")
-
-    class __Process:
-        def __init__(self, directory, executable, logger):
-            self.__process = None
-            self.__directory = Path(directory).absolute()
-            self.__executable = executable
-            self.__logger = logger
-            self.__files = {
-                "stdout": None,
-                "stderr": None,
-            }
-
-        def run(self, *, blocking, with_arguments=(), with_environment_variables=None, with_time_offset=None):
-            self.__directory.mkdir(exist_ok=True)
-            self.__prepare_files_for_streams()
-
-            command = [str(self.__executable.get_path()), "-d", ".", *with_arguments]
-            self.__logger.debug(" ".join(item for item in command))
-
-            environment_variables = dict(os.environ)
-
-            if with_environment_variables is not None:
-                environment_variables.update(with_environment_variables)
-
-            if with_time_offset is not None:
-                configure_fake_time(self.__logger, environment_variables, with_time_offset)
-
-            if blocking:
-                subprocess.run(
-                    command,
-                    cwd=self.__directory,
-                    **self.__files,
-                    env=environment_variables,
-                    check=True,
-                )
-            else:
-                # pylint: disable=consider-using-with
-                # Process created here have to exist longer than current scope
-                self.__process = subprocess.Popen(
-                    command,
-                    cwd=self.__directory,
-                    env=environment_variables,
-                    **self.__files,
-                )
-
-        def get_id(self):
-            return self.__process.pid
-
-        def __prepare_files_for_streams(self):
-            for name, file in self.__files.items():
-                if file is None:
-                    # pylint: disable=consider-using-with
-                    # Files opened here have to exist longer than current scope
-                    self.__files[name] = open(self.__directory.joinpath(f"{name}.txt"), "w", encoding="utf-8")
-
-        def close(self):
-            if self.__process is None:
-                return
-
-            self.__process.send_signal(signal.SIGINT)
-            try:
-                return_code = self.__process.wait(timeout=10)
-                self.__logger.debug(f"Closed with {return_code} return code")
-            except subprocess.TimeoutExpired:
-                self.__process.kill()
-                self.__process.wait()
-                warnings.warn("Process was force-closed with SIGKILL, because didn't close before timeout")
-
-            self.__process = None
-
-        def close_opened_files(self):
-            for name, file in self.__files.items():
-                if file is not None:
-                    file.close()
-                    self.__files[name] = None
-
-        def is_running(self):
-            if not self.__process:
-                return False
-
-            return self.__process.poll() is None
-
-        def get_stderr_file_path(self):
-            stderr_file = self.__files["stderr"]
-            return Path(stderr_file.name) if stderr_file is not None else None
-
-    class __NotificationsServer:
-        def __init__(self, node: "Node", logger):
-            self.node: "Node" = node
-            self.server = NodeHttpServer(self, name=f"{self.node}.NotificationsServer")
-            self.__logger = logger
-
-            self.http_listening_event = Event()
-            self.http_endpoint: Optional[str] = None
-
-            self.ws_listening_event = Event()
-            self.ws_endpoint: Optional[str] = None
-
-            self.p2p_plugin_started_event = Event()
-            self.p2p_endpoint: Optional[str] = None
-
-            self.synchronization_started_event = Event()
-            self.live_mode_entered_event = Event()
-
-            self.replay_finished_event = Event()
-
-            self.snapshot_dumped_event = Event()
-
-            self.switch_fork_event = Event()
-            self.number_of_forks = 0
-
-        def listen(self):
-            self.node.config.notifications_endpoint = f"127.0.0.1:{self.server.port}"
-            self.server.run()
-
-            self.__logger.debug(f"Notifications server is listening on {self.node.config.notifications_endpoint}...")
-
-        def notify(self, message):
-            if message["name"] == "webserver listening":
-                details = message["value"]
-                if details["type"] == "HTTP":
-                    endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
-                    self.http_endpoint = Url(endpoint, protocol="http").as_string(with_protocol=False)
-                    self.http_listening_event.set()
-                elif details["type"] == "WS":
-                    endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
-                    self.ws_endpoint = Url(endpoint, protocol="ws").as_string(with_protocol=False)
-                    self.ws_listening_event.set()
-            elif message["name"] == "hived_status":
-                details = message["value"]
-                if details["current_status"] == "finished replaying":
-                    self.replay_finished_event.set()
-                elif details["current_status"] == "finished dumping snapshot":
-                    self.snapshot_dumped_event.set()
-                elif details["current_status"] == "syncing":
-                    self.synchronization_started_event.set()
-                elif details["current_status"] == "entering live mode":
-                    self.live_mode_entered_event.set()
-            elif message["name"] == "P2P listening":
-                details = message["value"]
-                endpoint = f'{details["address"].replace("0.0.0.0", "127.0.0.1")}:{details["port"]}'
-                self.p2p_endpoint = Url(endpoint).as_string(with_protocol=False)
-                self.p2p_plugin_started_event.set()
-            elif message["name"] == "switching forks":
-                self.number_of_forks += 1
-                self.switch_fork_event.set()
-                self.switch_fork_event.clear()
-            elif message["name"] == "error":
-                RaiseExceptionHelper.raise_exception_in_main_thread(
-                    exceptions.InternalNodeError(f'{self.node}: {message["value"]["message"]}')
-                )
-
-            self.__logger.info(f"Received message: {message}")
-
-        def close(self):
-            self.server.close()
-
-            self.http_listening_event.clear()
-            self.ws_listening_event.clear()
-            self.p2p_plugin_started_event.clear()
-            self.synchronization_started_event.clear()
-            self.live_mode_entered_event.clear()
-            self.replay_finished_event.clear()
-            self.snapshot_dumped_event.clear()
-            self.switch_fork_event.clear()
-
-            self.__logger.debug("Notifications server closed")
-
-    def __init__(self, *, name, network: Optional[Network] = None, handle: Optional[NodeHandle] = None):
+    def __init__(self, *, name: str, network: NetworkHandle | None = None, handle: NodeHandle | None = None) -> None:
         super().__init__(name=name, handle=handle)
 
-        self.api = Apis(self)
-
         self.directory = context.get_current_directory().joinpath(self.get_name()).absolute()
+        self.__logger_handler_id = self.logger.add(self.directory / "latest.log")
         self.__produced_files = False
 
-        self.__network: Optional[Network] = network
+        self.__network: Network | None = get_implementation(network, Network) if network is not None else None
         if self.__network is not None:
             self.__network.add(self)
 
-        self.__executable = self.__Executable()
-        self.__process = self.__Process(self.directory, self.__executable, self._logger)
-        self.__notifications = self.__NotificationsServer(self, self._logger)
-        self.__cleanup_policy = None
+        self.__executable = Executable("hived")
+        self.__process = Process(self.directory, self.__executable, self.logger)
+        self.__notifications = NodeNotificationServer(self.get_name(), self.logger)
+        self.__cleanup_policy: CleanupPolicy | None = None
 
         self.config = create_default_config()
 
-        self.__wallets: List[Wallet] = []
+        self.__wallets: list[Wallet] = []
 
     @property
-    def config_file_path(self):
+    def config_file_path(self) -> Path:
         return self.directory / "config.ini"
 
-    def is_running(self):
+    def is_running(self) -> bool:
         return self.__process.is_running()
 
-    def is_able_to_produce_blocks(self):
+    def is_able_to_produce_blocks(self) -> bool:
         conditions = [
             self.config.enable_stale_production,
             self.config.required_participation == 0,
@@ -278,50 +77,50 @@ class Node(BaseNode, ScopedObject):
 
     @property
     def block_log(self) -> BlockLog:
-        return BlockLog(self.directory.joinpath("blockchain/block_log"))
+        return BlockLog(self.directory / "blockchain" / "block_log")
 
-    def get_supported_plugins(self) -> List[str]:
+    @property
+    def http_endpoint(self) -> HttpUrl:
+        assert (endpoint := self.__notifications.handler.http_endpoint) is not None
+        return endpoint
+
+    @http_endpoint.setter
+    def http_endpoint(self, value: object | str | HttpUrl | None) -> None:
+        if value is None:
+            self.config.webserver_http_endpoint = "0.0.0.0:0"
+
+        assert isinstance(value, str | HttpUrl)
+        self.config.webserver_http_endpoint = HttpUrl(value, protocol="http").as_string(with_protocol=False)
+
+    def get_supported_plugins(self) -> list[str]:
         return self.__executable.get_supported_plugins()
 
-    def __wait_for_p2p_plugin_start(self, timeout=10):
-        if not self.__notifications.p2p_plugin_started_event.wait(timeout=timeout):
+    def __wait_for_p2p_plugin_start(self, timeout: float = 10) -> None:
+        if not self.__notifications.handler.p2p_plugin_started_event.wait(timeout=timeout):
             raise TimeoutError(f"Waiting too long for start of {self} p2p plugin")
 
-    def send(self, method, params=None, jsonrpc="2.0", id_=1, *, only_result: bool = True):
-        if self.config.webserver_http_endpoint is None:
-            raise Exception("Webserver http endpoint is unknown")
-
-        endpoint = f"http://{self.get_http_endpoint()}"
-
-        self.__wait_for_http_listening()
-
-        message = NodeMessage(method, params, jsonrpc, id_).as_json()
-        response = communication.request(endpoint, message)
-
-        return response["result"] if only_result else response
-
-    def __wait_for_http_listening(self, timeout=10):
-        if not self.__notifications.http_listening_event.wait(timeout):
+    def __wait_for_http_listening(self, timeout: float = 10) -> None:
+        if not self.__notifications.handler.http_listening_event.wait(timeout):
             raise TimeoutError(f"Waiting too long for {self} to start listening on http port")
 
-    def __wait_for_ws_listening(self, timeout=10):
-        if not self.__notifications.ws_listening_event.wait(timeout):
+    def __wait_for_ws_listening(self, timeout: float = 10) -> None:
+        if not self.__notifications.handler.ws_listening_event.wait(timeout):
             raise TimeoutError(f"Waiting too long for {self} to start listening on ws port")
 
-    def get_id(self):
+    def get_id(self) -> str:
         response = self.api.network_node.get_info()
-        return response["node_id"]
+        return response.node_id
 
-    def set_allowed_nodes(self, nodes):
+    def set_allowed_nodes(self, nodes: list[Node]) -> SetAllowedPeers:
         return self.api.network_node.set_allowed_peers(allowed_peers=[node.get_id() for node in nodes])
 
-    def get_version(self):
+    def get_version(self) -> dict[str, Any]:
         return self.__executable.get_version()
 
-    def dump_config(self):
+    def dump_config(self) -> None:
         assert not self.is_running()
 
-        self._logger.info("Config dumping started...")
+        self.logger.info("Config dumping started...")
 
         config_was_modified = self.config != create_default_config()
         self.__run_process(blocking=True, with_arguments=["--dump-config"], write_config_before_run=config_was_modified)
@@ -333,10 +132,10 @@ class Node(BaseNode, ScopedObject):
                 f"{self.get_name()} config dump failed because of entry not known to TestTools."
             ) from exception
 
-        self._logger.info("Config dumped")
+        self.logger.info("Config dumped")
 
-    def dump_snapshot(self, *, close=False):
-        self._logger.info("Snapshot dumping started...")
+    def dump_snapshot(self, *, close: bool = False) -> Snapshot:
+        self.logger.info("Snapshot dumping started...")
         self.__ensure_that_plugin_required_for_snapshot_is_included()
 
         if not close:
@@ -344,17 +143,17 @@ class Node(BaseNode, ScopedObject):
 
         self.close()
 
-        snapshot_path = Path(".")
+        snapshot_path = Path()
         self.__run_process(
-            blocking=close,
+            blocking=True,
             with_arguments=[
                 f"--dump-snapshot={snapshot_path}",
-                *(["--exit-before-sync"] if close else []),
+                "--exit-before-sync",
             ],
         )
 
         if not close:
-            self.__notifications.snapshot_dumped_event.wait()
+            self.run()
             self.__run_wallets()
 
             # Each time the node is restarted, the first operation may not be possible to create because of expiration
@@ -363,7 +162,7 @@ class Node(BaseNode, ScopedObject):
             # The new operation fails because expiration time is compared to the last irreversible and may be exceeded.
             self.wait_number_of_blocks(1)
 
-        self._logger.info("Snapshot dumped")
+        self.logger.info("Snapshot dumped")
 
         return Snapshot(
             self.directory / "snapshot" / snapshot_path,
@@ -372,29 +171,31 @@ class Node(BaseNode, ScopedObject):
             self,
         )
 
-    def __ensure_that_plugin_required_for_snapshot_is_included(self):
+    def __ensure_that_plugin_required_for_snapshot_is_included(self) -> None:
         plugin_required_for_snapshots = "state_snapshot"
         if plugin_required_for_snapshots not in self.config.plugin:
             self.config.plugin.append(plugin_required_for_snapshots)
 
-    def __close_wallets(self):
+    def __close_wallets(self) -> None:
         for wallet in self.__wallets:
             wallet.close()
 
-    def __run_wallets(self):
+    def __run_wallets(self) -> None:
         for wallet in self.__wallets:
             wallet.run()
 
     def __run_process(
         self,
         *,
-        blocking,
-        write_config_before_run=True,
-        with_arguments=(),
-        with_environment_variables=None,
-        with_time_offset=None,
-    ):
-        self.__notifications.listen()
+        blocking: bool,
+        write_config_before_run: bool = True,
+        with_arguments: Sequence[str] = (),
+        with_environment_variables: dict[str, str] | None = None,
+        with_time_offset: str | None = None,
+    ) -> None:
+        self.__notifications = NodeNotificationServer(self.get_name(), self.logger)
+        port = self.__notifications.run()
+        self.config.notifications_endpoint = f"127.0.0.1:{port}"
 
         if write_config_before_run:
             self.config.write_to_file(self.config_file_path)
@@ -412,17 +213,19 @@ class Node(BaseNode, ScopedObject):
     def run(
         self,
         *,
-        load_snapshot_from=None,
-        replay_from=None,
-        stop_at_block=None,
+        load_snapshot_from: str | Path | Snapshot | None = None,
+        replay_from: BlockLog | Path | str | None | None = None,
+        stop_at_block: int | None = None,
         exit_before_synchronization: bool = False,
-        wait_for_live=None,
-        arguments: Union[List[str], Tuple[str, ...]] = (),
-        environment_variables: Optional[Dict] = None,
-        timeout=DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
-        time_offset=None,
-    ):
+        wait_for_live: bool | None = None,
+        arguments: list[str] | tuple[str, ...] = (),
+        environment_variables: dict[str, str] | None = None,
+        timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
+        time_offset: str | None = None,
+    ) -> None:
         """
+        Runs node.
+
         :param wait_for_live: Stops execution until node will generate or receive blocks.
         :param timeout: If wait_for_live is set to True, this parameter sets how long waiting can take. When
                         timeout is reached, TimeoutError exception is thrown.
@@ -432,7 +235,6 @@ class Node(BaseNode, ScopedObject):
                                       is already defined, its value will be overwritten with one provided by this
                                       parameter.
         """
-        # pylint: disable=too-many-branches
         # This pylint warning is right, but this refactor has low priority. Will be done later...
 
         assert timeout >= 0
@@ -466,12 +268,12 @@ class Node(BaseNode, ScopedObject):
             if exit_before_synchronization:
                 additional_arguments.append("--exit-before-sync")
 
-            self._logger.info(f"{log_message} and waiting for close...")
+            self.logger.info(f"{log_message} and waiting for close...")
         elif wait_for_live is None or wait_for_live is True:
             wait_for_live = True
-            self._logger.info(f"{log_message} and waiting for live...")
+            self.logger.info(f"{log_message} and waiting for live...")
         else:
-            self._logger.info(f"{log_message} and NOT waiting for live...")
+            self.logger.info(f"{log_message} and NOT waiting for live...")
 
         exit_before_synchronization = exit_before_synchronization or "--exit-after-replay" in additional_arguments
 
@@ -485,41 +287,46 @@ class Node(BaseNode, ScopedObject):
         )
 
         if replay_from is not None and not exit_before_synchronization:
-            self.__notifications.replay_finished_event.wait()
+            self.__notifications.handler.replay_finished_event.wait()
 
         self.__produced_files = True
 
         if not exit_before_synchronization:
-            wait_for_event(
-                self.__notifications.synchronization_started_event,
-                deadline=deadline,
-                exception_message="Synchronization not started on time.",
-            )
-
-            wait_for_event(
-                self.__notifications.http_listening_event,
-                deadline=deadline,
-                exception_message="HTTP server didn't start listening on time.",
-            )
-
-            wait_for_event(
-                self.__notifications.ws_listening_event,
-                deadline=deadline,
-                exception_message="WS server didn't start listening on time.",
-            )
-
-            if wait_for_live:
-                self.wait_for_live_mode(timeout=timeout)
+            self.__wait_for_synchronization(deadline, timeout, wait_for_live)
 
         self.__log_run_summary()
+
+    def __wait_for_synchronization(self, deadline: float, timeout: float, wait_for_live: bool) -> None:
+        wait_for_event(
+            self.__notifications.handler.synchronization_started_event,
+            deadline=deadline,
+            exception_message="Synchronization not started on time.",
+        )
+
+        wait_for_event(
+            self.__notifications.handler.http_listening_event,
+            deadline=deadline,
+            exception_message="HTTP server didn't start listening on time.",
+        )
+
+        wait_for_event(
+            self.__notifications.handler.ws_listening_event,
+            deadline=deadline,
+            exception_message="WS server didn't start listening on time.",
+        )
+
+        if wait_for_live:
+            self.wait_for_live_mode(timeout=timeout)
 
     def _actions_before_run(self) -> None:
         """Override this method to hook just before starting node process."""
 
-    def __handle_loading_snapshot(self, snapshot_source: Union[str, Path, Snapshot], additional_arguments: list):
+    def __handle_loading_snapshot(
+        self, snapshot_source: str | Path | Snapshot, additional_arguments: list[str]
+    ) -> None:
         if not isinstance(snapshot_source, Snapshot):
             snapshot_source = Snapshot(
-                snapshot_source,
+                snapshot_source if isinstance(snapshot_source, Path) else Path(snapshot_source),
                 Path(snapshot_source).joinpath("../blockchain/block_log"),
                 Path(snapshot_source).joinpath("../blockchain/block_log.artifacts"),
             )
@@ -528,7 +335,9 @@ class Node(BaseNode, ScopedObject):
         additional_arguments.append("--load-snapshot=.")
         snapshot_source.copy_to(self.directory)
 
-    def __handle_replay(self, replay_source: BlockLog, stop_at_block: int, additional_arguments: list):
+    def __handle_replay(
+        self, replay_source: BlockLog | Path | str, stop_at_block: int | None, additional_arguments: list[str]
+    ) -> None:
         if not isinstance(replay_source, BlockLog):
             replay_source = BlockLog(replay_source)
 
@@ -540,7 +349,7 @@ class Node(BaseNode, ScopedObject):
         block_log_directory.mkdir()
         replay_source.copy_to(block_log_directory / "block_log", artifacts="optional")
 
-    def __log_run_summary(self):
+    def __log_run_summary(self) -> None:
         if self.is_running():
             message = f"Run with pid {self.__process.get_id()}, "
 
@@ -554,18 +363,18 @@ class Node(BaseNode, ScopedObject):
 
         message += f", {self.__executable.build_version} build"
         message += f" commit={self.__executable.get_build_commit_hash()[:8]}"
-        self._logger.info(message)
+        self.logger.info(message)
 
-    def __get_opened_endpoints(self):
+    def __get_opened_endpoints(self) -> list[tuple[str, str]]:
         endpoints = [
             (self.config.webserver_http_endpoint, "http"),
             (self.config.webserver_ws_endpoint, "ws"),
             (self.config.webserver_unix_endpoint, "unix"),
         ]
 
-        return [endpoint for endpoint in endpoints if endpoint[0] is not None]
+        return [endpoint for endpoint in endpoints if endpoint[0] is not None]  # type: ignore[misc]
 
-    def __set_unset_endpoints(self):
+    def __set_unset_endpoints(self) -> None:
         if self.config.p2p_endpoint is None:
             self.config.p2p_endpoint = "0.0.0.0:0"
 
@@ -575,7 +384,7 @@ class Node(BaseNode, ScopedObject):
         if self.config.webserver_ws_endpoint is None:
             self.config.webserver_ws_endpoint = "0.0.0.0:0"
 
-    def __check_if_executable_is_built_in_supported_versions(self) -> Optional[NoReturn]:
+    def __check_if_executable_is_built_in_supported_versions(self) -> None:
         supported_builds = ["testnet", "mirrornet"]
         if self.__executable.build_version not in supported_builds:
             raise NotImplementedError(
@@ -587,58 +396,62 @@ class Node(BaseNode, ScopedObject):
                 f"https://gitlab.syncad.com/hive/test-tools/-/blob/master/documentation/paths_to_executables.md"
             )
 
-    def get_p2p_endpoint(self):
+    def get_p2p_endpoint(self) -> P2PUrl:
         self.__wait_for_p2p_plugin_start()
-        return self.__notifications.p2p_endpoint
+        assert self.__notifications.handler.p2p_endpoint is not None  # mypy check
+        return self.__notifications.handler.p2p_endpoint
 
-    def get_http_endpoint(self):
+    def get_http_endpoint(self) -> HttpUrl:
         self.__wait_for_http_listening()
-        return self.__notifications.http_endpoint
+        assert self.__notifications.handler.http_endpoint is not None  # mypy check
+        return self.__notifications.handler.http_endpoint
 
-    def get_ws_endpoint(self):
+    def get_ws_endpoint(self) -> WsUrl:
         self.__wait_for_ws_listening()
-        return self.__notifications.ws_endpoint
+        assert self.__notifications.handler.ws_endpoint is not None  # mypy check
+        return self.__notifications.handler.ws_endpoint
 
-    def close(self):
+    def close(self) -> None:
         self.__process.close()
         self.__notifications.close()
 
-    def at_exit_from_scope(self):
+    def at_exit_from_scope(self) -> None:
         self.handle_final_cleanup()
         self._actions_after_final_cleanup()
 
-    def handle_final_cleanup(self):
+    def handle_final_cleanup(self) -> None:
         self.close()
         self.__process.close_opened_files()
+        self.__disconnect_sink()
         self.__remove_files()
 
-    def _actions_after_final_cleanup(self):
+    def _actions_after_final_cleanup(self) -> None:
         """Override this method to hook just after handling the final cleanup."""
 
-    def restart(self, wait_for_live=True, timeout=DEFAULT_WAIT_FOR_LIVE_TIMEOUT, time_offset: Optional[str] = None):
+    def restart(
+        self, wait_for_live: bool = True, timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT, time_offset: str | None = None
+    ) -> None:
         self.__close_wallets()
         self.close()
         self.run(wait_for_live=wait_for_live, timeout=timeout, time_offset=time_offset)
         self.__run_wallets()
 
-    def __remove_files(self):
+    def __remove_files(self) -> None:
         policy = cleanup_policy.get_default() if self.__cleanup_policy is None else self.__cleanup_policy
 
         if policy == CleanupPolicy.DO_NOT_REMOVE_FILES:
-            pass
+            """For now this is not handled, but it's explicitly handled"""
         elif policy == CleanupPolicy.REMOVE_ONLY_UNNEEDED_FILES:
             self.__remove_unneeded_files()
         elif policy == CleanupPolicy.REMOVE_EVERYTHING:
             self.__remove_all_files()
 
     @staticmethod
-    def __remove(path: Path):
-        try:
+    def __remove(path: Path) -> None:
+        with suppress(FileNotFoundError):  # It is ok that file to remove was removed earlier or never existed
             shutil.rmtree(path) if path.is_dir() else path.unlink()
-        except FileNotFoundError:
-            pass  # It is ok that file to remove was removed earlier or never existed
 
-    def __remove_unneeded_files(self):
+    def __remove_unneeded_files(self) -> None:
         unneeded_files_or_directories = [
             "blockchain/shared_memory.bin",
             "blockchain/block_log.artifacts",
@@ -650,45 +463,46 @@ class Node(BaseNode, ScopedObject):
         for unneeded in unneeded_files_or_directories:
             self.__remove(self.directory.joinpath(unneeded))
 
-    def __register_rocksdb_data_to_remove(self, unneeded_files_or_directories):
+    def __register_rocksdb_data_to_remove(self, unneeded_files_or_directories: list[str]) -> None:
         rocksdb_directory = self.directory.joinpath("blockchain/account-history-rocksdb-storage")
         if not rocksdb_directory:
             return
 
         # All files below will be removed
-        unneeded_files_or_directories.extend(
-            [
-                *rocksdb_directory.glob("*.sst"),
-            ]
-        )
+        unneeded_files_or_directories.extend([path.as_posix() for path in rocksdb_directory.glob("*.sst")])
 
-    def __remove_all_files(self):
+    def __remove_all_files(self) -> None:
         self.__remove(self.directory)
 
-    def set_executable_file_path(self, executable_file_path):
+    def __disconnect_sink(self) -> None:
+        self.logger.remove(handler_id=self.__logger_handler_id)
+
+    def set_executable_file_path(self, executable_file_path: Path) -> None:
         self.__executable.set_path(executable_file_path)
 
-    def set_cleanup_policy(self, policy: CleanupPolicy):
+    def set_cleanup_policy(self, policy: CleanupPolicy) -> None:
         self.__cleanup_policy = policy
 
-    def wait_for_next_fork(self, timeout=math.inf):
+    def wait_for_next_fork(self, timeout: float = math.inf) -> None:
         assert timeout >= 0
         deadline = time.time() + timeout
         wait_for_event(
-            self.__notifications.switch_fork_event, deadline=deadline, exception_message="Fork did not happen on time."
+            self.__notifications.handler.switch_fork_event,
+            deadline=deadline,
+            exception_message="Fork did not happen on time.",
         )
 
-    def wait_for_live_mode(self, timeout=math.inf):
+    def wait_for_live_mode(self, timeout: float = math.inf) -> None:
         assert timeout >= 0
         deadline = time.time() + timeout
         wait_for_event(
-            self.__notifications.live_mode_entered_event,
+            self.__notifications.handler.live_mode_entered_event,
             deadline=deadline,
             exception_message="Live mode not activated on time.",
         )
 
-    def get_number_of_forks(self):
-        return self.__notifications.number_of_forks
+    def get_number_of_forks(self) -> int:
+        return self.__notifications.handler.number_of_forks
 
     def register_wallet(self, wallet: Wallet) -> None:
         if wallet not in self.__wallets:
