@@ -1,16 +1,21 @@
+from __future__ import annotations
+
 import os
 import signal
 import threading
-from typing import ClassVar, Optional
+from typing import TYPE_CHECKING, ClassVar
+
+if TYPE_CHECKING:
+    from types import FrameType
 
 
 class RaiseExceptionHelper:
     __is_initialized: ClassVar[bool] = False
-    __last_exception: ClassVar[Optional[Exception]] = None
+    __last_exception: ClassVar[Exception | None] = None
     __lock: ClassVar[threading.Lock] = threading.Lock()
 
     @classmethod
-    def __external_error_handler(cls, signal_number, current_stack_frame) -> None:
+    def __external_error_handler(cls, signal_number: int, current_stack_frame: FrameType | None) -> None:
         with cls.__lock:
             if cls.__last_exception is None:
                 # Default SIGINT handler raises KeyboardInterrupt, so below code is not executed
@@ -19,7 +24,6 @@ class RaiseExceptionHelper:
             exception_to_raise = cls.__last_exception
             cls.__last_exception = None
 
-            # pylint: disable=raising-bad-type
             # False positive; reported bad type [NoneType] will never be raised
             raise exception_to_raise
 
