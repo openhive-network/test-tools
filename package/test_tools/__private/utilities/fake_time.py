@@ -2,23 +2,25 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Final, TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 if TYPE_CHECKING:
-    from test_tools.__private.logger.logger_wrapper import LoggerWrapper
+    from loguru import Logger
 
 
-def configure_fake_time(logger: LoggerWrapper, env: dict, time_offset: str):
+def configure_fake_time(logger: Logger, env: dict[str, str], time_offset: str) -> None:
     logger.info(f"Using time_offset {time_offset}")
 
-    env["LD_PRELOAD"] = get_fake_time_path(logger)
+    env["LD_PRELOAD"] = get_fake_time_path(logger).as_posix()
     env["FAKETIME"] = time_offset
     env["FAKETIME_DONT_RESET"] = "1"
     env["FAKETIME_DONT_FAKE_MONOTONIC"] = "1"
     env["TZ"] = "UTC"
 
+    logger.debug(f"Following environments are set after fake time configuration:\n{dict(env)}")
 
-def get_fake_time_path(logger: LoggerWrapper) -> Path:
+
+def get_fake_time_path(logger: Logger) -> Path:
     installation_manual: Final[str] = (
         "To install libfaketime perform following operations:\n"
         "\n"
@@ -31,7 +33,9 @@ def get_fake_time_path(logger: LoggerWrapper) -> Path:
     ubuntu_package_installation_path = Path("/usr/lib/x86_64-linux-gnu/faketime/libfaketimeMT.so.1")
 
     if "LIBFAKETIME_PATH" in os.environ:
-        fake_time_path = Path(os.getenv("LIBFAKETIME_PATH"))
+        libfake_path_from_envs = os.getenv("LIBFAKETIME_PATH")
+        assert libfake_path_from_envs is not None  # mypy check
+        fake_time_path = Path(libfake_path_from_envs)
         assert fake_time_path.exists(), f'File defined in LIBFAKETIME_PATH ("{fake_time_path}") does not exist.'
     elif default_installation_path.exists():
         fake_time_path = default_installation_path
