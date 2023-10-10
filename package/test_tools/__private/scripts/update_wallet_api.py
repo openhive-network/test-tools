@@ -1,31 +1,35 @@
+# mypy: ignore-errors
+# ruff: noqa
+# file for deletion after cli_wallet deprecation
+from __future__ import annotations
+
 import builtins
 import keyword
-from pathlib import Path
 import re
 import shutil
 import subprocess
-from typing import List
+from pathlib import Path
 
 import test_tools as tt
 from test_tools.__private import wallet
 
 
 class Parameter:
-    def __init__(self, name, *, type_):
+    def __init__(self, name, *, type_) -> None:
         self.name: str = name
         self.type: str = type_
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Parameter(name='{self.name}', type_='{self.type}')"
 
 
 class Method:
-    def __init__(self, name, *, return_value, parameters):
+    def __init__(self, name, *, return_value, parameters) -> None:
         self.name: str = name
         self.return_value: str = return_value
-        self.parameters: List[Parameter] = parameters
+        self.parameters: list[Parameter] = parameters
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Method(name='{self.name}', return_value='{self.return_value}', parameters={self.parameters})"
 
 
@@ -36,8 +40,8 @@ class WalletApiTranslator:
 
     RESTRICTED_NAMES = {*keyword.kwlist, *dir(builtins)}
 
-    def __init__(self):
-        self.api_methods: List[Method] = []
+    def __init__(self) -> None:
+        self.api_methods: list[Method] = []
 
     def parse_wallet_methods(self) -> None:
         wallet = tt.Wallet(additional_arguments=["--output-formatter=json"])
@@ -67,12 +71,12 @@ class WalletApiTranslator:
 
             self.api_methods.append(method)
 
-    def generate_python_api(self) -> List[str]:
+    def generate_python_api(self) -> list[str]:
         api = []
         for method in self.api_methods:
             api.extend(
                 [
-                    f"def {method.name}(self{self.__generate_python_method_parameters(method)}):",
+                    f"def {method.name}(self{self.__generate_python_method_parameters(method)}) -> dict[str, Any] | list[Any]:",
                     f"    return self.__send('{method.name}'{self.__generate_python_call_parameters(method)})",
                     "",
                 ]
@@ -83,10 +87,10 @@ class WalletApiTranslator:
     def __generate_python_method_parameters(cls, method: Method) -> str:
         """
         Example:
+        -------
             ['int i', 'bool b', 'std::string type'] -> ', i: int, b: bool, type_: str'
-            [] -> ''
+            [] -> ''.
         """
-
         result = ""
         for parameter in method.parameters:
             result += f", {cls.__sanitize_name(parameter.name)}"
@@ -116,10 +120,10 @@ class WalletApiTranslator:
     def __generate_python_call_parameters(cls, method: Method) -> str:
         """
         Example:
+        -------
             ['int i', 'bool b', 'std::string type'] -> ', i=i, b=b, type=type_'
-            [] -> ''
+            [] -> ''.
         """
-
         result = ""
         for parameter in method.parameters:
             sanitized_name = cls.__sanitize_name(parameter.name)
@@ -131,7 +135,7 @@ class WalletApiTranslator:
         return result
 
 
-def replace_file_content_between_tags(file_path: Path, new_content: List[str], begin_tag: str, end_tag: str) -> None:
+def replace_file_content_between_tags(file_path: Path, new_content: list[str], begin_tag: str, end_tag: str) -> None:
     with open(file_path, encoding="utf-8") as file:
         file_content = file.read().split("\n")
 
