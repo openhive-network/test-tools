@@ -214,7 +214,7 @@ class Node(BaseNode, ScopedObject):
         self,
         *,
         load_snapshot_from: str | Path | Snapshot | None = None,
-        replay_from: BlockLog | Path | str | None | None = None,
+        replay_from: BlockLog | Path | str | None = None,
         stop_at_block: int | None = None,
         exit_before_synchronization: bool = False,
         wait_for_live: bool | None = None,
