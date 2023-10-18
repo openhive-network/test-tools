@@ -157,9 +157,9 @@ class WalletHandle(Handle):
         name: str,
         *,
         creator: str = "initminer",
-        hives: Asset.Test | float | None = None,
-        vests: Asset.Test | float | None = None,
-        hbds: Asset.Tbd | float | None = None,
+        hives: Asset.TestT | float | None = None,
+        vests: Asset.TestT | float | None = None,
+        hbds: Asset.TbdT | float | None = None,
     ) -> dict:
         """
         Creates account in blockchain and optionally fund it with given amount of hives, vests and HBDs.

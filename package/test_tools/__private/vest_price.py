@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class VestPrice:
-    base: Hf26Asset.Vests | Hf26Asset.Test
-    quote: Hf26Asset.Test | Hf26Asset.Vests
+    base: Hf26Asset.VestsT | Hf26Asset.HiveT | Hf26Asset.HbdT
+    quote: Hf26Asset.VestsT | Hf26Asset.HiveT | Hf26Asset.HbdT
 
     def __str__(self) -> str:
         ratio = self.quote.amount / self.base.amount / 10**self.base.precision
@@ -29,5 +29,5 @@ class VestPrice:
     def as_nai(self) -> dict[str, dict[str, str]]:
         return {"quote": self.quote.dict(), "base": self.base.dict()}
 
-    def as_schema(self) -> Price[Hf26Asset.Test, Hf26Asset.Tbd, Hf26Asset.Vests]:
+    def as_schema(self) -> Price[Hf26Asset.HiveT, Hf26Asset.HbdT, Hf26Asset.VestsT]:
         return Price(base=self.base, quote=self.quote)

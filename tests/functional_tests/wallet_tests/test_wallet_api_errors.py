@@ -19,4 +19,4 @@ def test_if_raise_when_parameters_are_bad(wallet: tt.Wallet) -> None:
 def test_if_raise_when_operation_is_invalid(wallet: tt.Wallet) -> None:
     with pytest.raises(tt.exceptions.CommunicationError):
         # Operation is invalid because account "alice" doesn't exists
-        wallet.api.transfer("initminer", "alice", Asset.test(1), "memo")
+        wallet.api.transfer("initminer", "alice", Asset.Test(1), "memo")

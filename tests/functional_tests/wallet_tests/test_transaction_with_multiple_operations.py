@@ -13,9 +13,9 @@ def wallet(node: tt.InitNode) -> tt.Wallet:
 
 def test_sending_transaction_with_multiple_operations(wallet: tt.Wallet) -> None:
     accounts_and_balances = {
-        "first": Asset.test(100).as_legacy(),
-        "second": Asset.test(200).as_legacy(),
-        "third": Asset.test(300).as_legacy(),
+        "first": Asset.Test(100).as_legacy(),
+        "second": Asset.Test(200).as_legacy(),
+        "third": Asset.Test(300).as_legacy(),
     }
 
     with wallet.in_single_transaction():
@@ -53,6 +53,6 @@ def test_setting_broadcast_when_building_transaction(wallet: tt.Wallet) -> None:
 def test_getting_response(wallet: tt.Wallet) -> None:
     with wallet.in_single_transaction() as transaction:
         wallet.api.create_account("initminer", "alice", "{}")
-        wallet.api.transfer("initminer", "alice", Asset.test(100), "memo")
+        wallet.api.transfer("initminer", "alice", Asset.Test(100), "memo")
 
     assert transaction.get_response() is not None

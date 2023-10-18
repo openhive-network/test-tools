@@ -20,6 +20,6 @@ def test_default_serialization(node: tt.InitNode) -> None:
     assert wallet.transaction_serialization == "legacy"
 
     # Check if example transaction really is legacy
-    transaction = wallet.api.transfer("initminer", "alice", Asset.test(3), "memo", broadcast=False)
+    transaction = wallet.api.transfer("initminer", "alice", Asset.Test(3), "memo", broadcast=False)
     assert isinstance(transaction["operations"][0], list)
-    assert transaction["operations"][0][1]["amount"] == Asset.test(3).as_legacy()
+    assert transaction["operations"][0][1]["amount"] == Asset.Test(3).as_legacy()
