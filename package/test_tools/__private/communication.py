@@ -68,6 +68,7 @@ def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=
     json_encoder = LegacyJsonEncoder if not use_nai_assets else Hf26JsonEncoder
     body = json.dumps(message, cls=json_encoder)
     headers = {"Content-Type": "application/json"}
+    decoded_content = "<NO RESPONSE>"
 
     for attempts_left in reversed(range(max_attempts)):
         response = requests.post(url, data=body, headers=headers)
@@ -100,4 +101,4 @@ def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=
         if attempts_left > 0:
             time.sleep(seconds_between_attempts)
 
-    raise CommunicationError(f"Problem occurred during communication with {url}", body, response)
+    raise CommunicationError(body, decoded_content)
