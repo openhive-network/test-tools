@@ -16,7 +16,7 @@ class VestPrice:
     quote: Hf26Asset.VestsT | Hf26Asset.HiveT | Hf26Asset.HbdT
 
     def __str__(self) -> str:
-        ratio = self.quote.amount / self.base.amount / 10**self.base.precision
+        ratio = int(self.quote.amount) / int(self.base.amount) / 10 ** int(self.base.precision)
         return f"{ratio} {self.quote.get_asset_information().get_symbol()} per 1 {self.base.get_asset_information().get_symbol()}"
 
     def __repr__(self) -> str:
