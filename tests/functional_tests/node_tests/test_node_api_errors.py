@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from helpy._handles.abc.handle import RequestError
+from helpy.exceptions import RequestError
 
 if TYPE_CHECKING:
     import test_tools as tt

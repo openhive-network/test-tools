@@ -4,7 +4,7 @@ import contextlib
 import filecmp
 import json
 import shutil
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -60,7 +60,7 @@ class Snapshot:
         optional_creator_info = "" if self.__creator is None else f" from {self.__creator}"
         return f"<Snapshot{optional_creator_info}: path={self.__snapshot_path}>"
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         assert isinstance(other, Snapshot)
 
         my_files = sorted(self.get_path().rglob("*.sst"))

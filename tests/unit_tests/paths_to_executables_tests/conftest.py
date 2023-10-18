@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import pytest
 from test_tools.__private.paths_to_executables import _PathsToExecutables
 
-from tests.unit_tests.paths_to_executables_tests.executable_init_params import ExecutableInitParams
+from .executable_init_params import ExecutableInitParams
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
