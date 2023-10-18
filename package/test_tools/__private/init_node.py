@@ -38,7 +38,7 @@ class InitNode(WitnessNode):
     def __set_new_price(self, new_price: VestPrice) -> None:
         # FIXME: https://gitlab.syncad.com/hive/hive/-/issues/254#note_131758
         self.logger.info(f"new vests price (wrapped) {new_price}.")
-        self.api.debug_node.debug_set_vest_price(price=new_price.as_schema())
+        self.api.debug_node.debug_set_vest_price(vest_price=new_price.as_schema())
 
     def __stabilize_the_price(self, invest: Asset.TestT) -> None:
         from test_tools.__private.wallet import Wallet
