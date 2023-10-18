@@ -1,17 +1,13 @@
 from __future__ import annotations
 
-from typing import Any
+from helpy.exceptions import RequestError
 
 
 class TestToolsError(Exception):
     """Base exception class for test-tools package."""
 
 
-class CommunicationError(TestToolsError):
-    def __init__(self, description: str, request: Any, response: Any) -> None:
-        super().__init__(f"{description}.\nSent: {request}.\nReceived: {response}")
-        self.request = request
-        self.response = response
+CommunicationError = RequestError
 
 
 class InternalNodeError(TestToolsError):
