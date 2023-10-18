@@ -25,7 +25,9 @@ def function_scope(request: pytest.FixtureRequest) -> Iterator[None]:
 
         with current_scope.context.logger.contextualize(scope="function"):
             handler_id = current_scope.context.logger.add(
-                function_dir / "test.log", enqueue=True, filter=lambda extras: extras["extra"]["scope"] == "function"
+                function_dir / "test.log",
+                enqueue=True,
+                filter=lambda extras: extras["extra"].get("scope") == "function",
             )
             yield
             current_scope.context.logger.remove(handler_id=handler_id)
@@ -41,7 +43,7 @@ def module_scope(request: pytest.FixtureRequest) -> Iterator[None]:
 
         with current_scope.context.logger.contextualize(scope="module"):
             handler_id = current_scope.context.logger.add(
-                module_dir / "module.log", enqueue=True, filter=lambda extras: extras["extra"]["scope"] == "module"
+                module_dir / "module.log", enqueue=True, filter=lambda extras: extras["extra"].get("scope") == "module"
             )
             yield
             current_scope.context.logger.remove(handler_id=handler_id)
@@ -66,7 +68,7 @@ def package_scope(request: pytest.FixtureRequest) -> Iterator[None]:
                 handler_id = current_scope.context.logger.add(
                     package_dir / "package.log",
                     enqueue=True,
-                    filter=lambda extras: extras["extra"]["scope"] == "package",
+                    filter=lambda extras: extras["extra"].get("scope") == "package",
                 )
                 yield
                 current_scope.context.logger.remove(handler_id=handler_id)
