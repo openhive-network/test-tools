@@ -1266,20 +1266,20 @@ class Wallet(UserHandleImplementation, ScopedObject):
         name: str,
         *,
         creator: str = "initminer",
-        hives: Asset.Test | float | int | None = None,
-        vests: Asset.Test | float | int | None = None,
-        hbds: Asset.Tbd | float | int | None = None,
+        hives: Asset.TestT | float | int | None = None,
+        vests: Asset.TestT | float | int | None = None,
+        hbds: Asset.TbdT | float | int | None = None,
     ) -> dict:
         """
         The `transfer_to_vesting` operation can be only done by sending the Asset.Test type, that's why method in place
         of `vests` accepts the Asset.Test and numeric types instead of Asset.Vest.
         """
         if isinstance(hives, float | int):
-            hives = Asset.test(hives)
+            hives = Asset.Test(hives)
         if isinstance(vests, float | int):
-            vests = Asset.test(vests)
+            vests = Asset.Test(vests)
         if isinstance(hbds, float | int):
-            hbds = Asset.tbd(hbds)
+            hbds = Asset.Tbd(hbds)
 
         account = Account(name)
         with self.in_single_transaction() as transaction:

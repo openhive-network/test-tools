@@ -26,9 +26,9 @@ class InitNodeHandle(RunnableNodeHandle):
 
     def set_vest_price(
         self,
-        quote: Asset.Vests,
-        base: Asset.Test = Asset.test(1),  # noqa: B008
-        invest: Asset.Test = Asset.test(10_000_000),  # noqa: B008
+        quote: Asset.VestsT,
+        base: Asset.TestT = Asset.Test(1),  # noqa: B008
+        invest: Asset.TestT = Asset.Test(10_000_000),  # noqa: B008
     ) -> None:
         """
         Used to set a new price for vests in relation to hive on a blockchain node.

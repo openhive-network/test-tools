@@ -21,7 +21,7 @@ class InitNode(WitnessNode):
         self.config.required_participation = 0
 
     def set_vest_price(
-        self, base: Asset.Test, quote: Asset.Vests, invest: Asset.Test = Asset.test(10_000_000)  # noqa: B008
+        self, base: Asset.TestT, quote: Asset.VestsT, invest: Asset.TestT = Asset.Test(10_000_000)  # noqa: B008
     ) -> None:
         if not self.is_running():
             raise NodeIsNotRunningError(
@@ -31,7 +31,7 @@ class InitNode(WitnessNode):
         price = VestPrice(base=base, quote=quote)
         self.wait_for_block_with_number(2)
         self.__set_new_price(price)
-        if invest > Asset.test(0):
+        if invest > Asset.Test(0):
             self.__stabilize_the_price(invest=invest)
         self.__log_vest_price_from_network()
 
@@ -40,7 +40,7 @@ class InitNode(WitnessNode):
         self.logger.info(f"new vests price (wrapped) {new_price}.")
         self.api.debug_node.debug_set_vest_price(price=new_price.as_schema())
 
-    def __stabilize_the_price(self, invest: Asset.Test) -> None:
+    def __stabilize_the_price(self, invest: Asset.TestT) -> None:
         from test_tools.__private.wallet import Wallet
 
         wallet = Wallet(attach_to=self)
