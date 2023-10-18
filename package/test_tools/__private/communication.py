@@ -51,13 +51,7 @@ def __workaround_communication_problem_with_node(send_request: Callable) -> Call
             try:
                 return send_request(*args, **kwargs)
             except CommunicationError as exception:
-                if all(
-                    [
-                        "error" in exception.response,
-                        "message" in exception.response["error"],
-                        "Unable to acquire database lock" in exception.response["error"]["message"],
-                    ]
-                ):
+                if "Unable to acquire database lock" in exception.error:
                     message = str(args[1])
                     logger.debug(f'Ignored "Unable to acquire database lock" error during sending request: {message}')
                     continue
