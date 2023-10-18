@@ -54,4 +54,7 @@ def create_default_config() -> NodeConfig:
         block_stats_report_type="FULL",
         block_stats_report_output="ILOG",
         webserver_ws_deflate=False,
+        p2p_endpoint="0.0.0.0:0",
+        webserver_http_endpoint="0.0.0.0:0",
+        webserver_ws_endpoint="0.0.0.0:0",
     )
