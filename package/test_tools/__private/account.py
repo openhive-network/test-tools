@@ -5,14 +5,15 @@ from typing import TYPE_CHECKING
 from test_tools.__private.key_generator import KeyGenerator, KeyGeneratorItem
 
 if TYPE_CHECKING:
-    from schemas.fields.basic import PrivateKey, PublicKey
+    from schemas.fields.basic import PrivateKey as PrivateKeyType
+    from schemas.fields.basic import PublicKey as PublicKeyType
 
 
 class Account:
     def __init__(self, name_or_generated_item: str | KeyGeneratorItem, secret: str = "secret") -> None:
         self.__secret = secret
-        self.__private_key: PrivateKey | None = None
-        self.__public_key: PublicKey | None = None
+        self.__private_key: PrivateKeyType | None = None
+        self.__public_key: PublicKeyType | None = None
         self.__name: str = ""
 
         if not isinstance(name_or_generated_item, str):
@@ -31,14 +32,14 @@ class Account:
         return self.__secret
 
     @property
-    def private_key(self) -> PrivateKey:
+    def private_key(self) -> PrivateKeyType:
         if self.__private_key is None:
             self.__generate_keys()
         assert self.__private_key is not None  # mypy check
         return self.__private_key
 
     @property
-    def public_key(self) -> PublicKey:
+    def public_key(self) -> PublicKeyType:
         if self.__public_key is None:
             self.__generate_keys()
         assert self.__public_key is not None  # mypy check
@@ -61,3 +62,11 @@ class Account:
     def __eq__(self, __value: object) -> bool:
         assert isinstance(__value, Account)
         return (self.name, self.secret) == (__value.name, __value.secret)
+
+
+def PublicKey(account_name: str, *, secret: str = "secret") -> PublicKeyType:  # noqa: N802
+    return Account(account_name, secret=secret).public_key
+
+
+def PrivateKey(account_name: str, *, secret: str = "secret") -> PrivateKeyType:  # noqa: N802
+    return Account(account_name, secret=secret).private_key

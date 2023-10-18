@@ -41,6 +41,8 @@ __all__ = [
     "exceptions",
     "paths_to_executables",
     "Account",
+    "PublicKey",
+    "PrivateKey",
     "BlockLog",
     "logger",
     "Asset",
@@ -49,8 +51,6 @@ __all__ = [
 ]
 
 if TYPE_CHECKING:
-    from schemas.fields.basic import PrivateKey as PrivateKeyType
-    from schemas.fields.basic import PublicKey as PublicKeyType
     from test_tools.__private.type_annotations.any_node import AnyNode  # noqa: TCH004
 
     __all__ = [*__all__, "AnyNode"]  # noqa: PLE0604
