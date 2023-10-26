@@ -100,6 +100,7 @@ class NodeConfig:
         self.psql_index_threshold = Integer()
         self.psql_operations_threads_number = Integer()
         self.psql_transactions_threads_number = Integer()
+        self.psql_first_block = Integer()
         self.enable_block_log_compression = Boolean()
         self.enable_block_log_auto_fixing = Boolean()
         self.block_log_compression_level = Integer()
