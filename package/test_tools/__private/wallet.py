@@ -64,7 +64,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
             def get_transaction(self):
                 return self.__transaction
 
-        def __init__(self, wallet):
+        def __init__(self, wallet: Wallet):
             self.__wallet = wallet
             self.__transaction_builder = None
 
@@ -1254,7 +1254,8 @@ class Wallet(UserHandleImplementation, ScopedObject):
         ]:
             if file_handle is not None:
                 file_handle.close()
-                assert file_path.exists()
+                if not file_path.exists():
+                    logger.warning(f"closed file does not exists: {file_path.as_posix()}")
                 amount_of_history_files = len(list(file_path.parent.glob(pattern=file_path.name + ".*")))
                 file_path.rename(file_path.with_stem(file_path.name + f"_{amount_of_history_files}"))
 
