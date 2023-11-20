@@ -26,6 +26,8 @@ from test_tools.node_configs.default import create_default_config
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from loguru import Record
+
     from helpy._interfaces.url import P2PUrl, WsUrl
     from schemas.apis.network_node_api.response_schemas import SetAllowedPeers
     from test_tools.__private.user_handles.handles.network_handle import NetworkHandle
@@ -36,13 +38,13 @@ if TYPE_CHECKING:
 class Node(BaseNode, ScopedObject):
     # This pylint warning is right, but this refactor has low priority. Will be done later...
 
-    DEFAULT_WAIT_FOR_LIVE_TIMEOUT = int(os.environ.get("TEST_TOOLS_NODE_DEFAULT_WAIT_FOR_LIVE_TIMEOUT", default=20))
+    DEFAULT_WAIT_FOR_LIVE_TIMEOUT = int(os.environ.get("TEST_TOOLS_NODE_DEFAULT_WAIT_FOR_LIVE_TIMEOUT", default=30))
 
     def __init__(self, *, name: str, network: NetworkHandle | None = None, handle: NodeHandle | None = None) -> None:
         super().__init__(name=name, handle=handle)
-
         self.directory = context.get_current_directory().joinpath(self.get_name()).absolute()
-        self.__logger_handler_id = self.logger.add(self.directory / "latest.log")
+        self.__node_sink_id: int | None = None
+        self.__notification_sink_id: int | None = None
         self.__produced_files = False
 
         self.__network: Network | None = get_implementation(network, Network) if network is not None else None
@@ -213,6 +215,28 @@ class Node(BaseNode, ScopedObject):
         if blocking:
             self.__notifications.close()
 
+    def __enable_logging(self) -> None:
+        self.__disable_logging()
+
+        def filter_function(record: Record) -> bool:
+            return (
+                record["extra"].get("notifications", False) is True
+                and record["extra"].get("name", False) == self.get_name()
+            )
+
+        self.__node_sink_id: int | None = self.logger.add(self.directory / "latest.log")  # type: ignore[no-redef]
+        self.__notification_sink_id: int | None = self.logger.add(  # type: ignore[no-redef]
+            sink=self.directory / "notifications.log", level="DEBUG", enqueue=True, filter=filter_function
+        )
+
+    def __disable_logging(self) -> None:
+        if self.__node_sink_id is not None:
+            self.logger.remove(self.__node_sink_id)
+            self.__node_sink_id = None
+        if self.__notification_sink_id is not None:
+            self.logger.remove(self.__notification_sink_id)
+            self.__notification_sink_id = None
+
     def run(
         self,
         *,
@@ -248,6 +272,7 @@ class Node(BaseNode, ScopedObject):
         if not self.__produced_files and self.directory.exists():
             shutil.rmtree(self.directory)
         self.directory.mkdir(parents=True, exist_ok=True)
+        self.__enable_logging()
 
         self.__set_unset_endpoints()
 
@@ -417,6 +442,7 @@ class Node(BaseNode, ScopedObject):
     def close(self) -> None:
         self.__process.close()
         self.__notifications.close()
+        self.__disable_logging()
 
     def at_exit_from_scope(self) -> None:
         self.handle_final_cleanup()
@@ -425,7 +451,6 @@ class Node(BaseNode, ScopedObject):
     def handle_final_cleanup(self) -> None:
         self.close()
         self.__process.close_opened_files()
-        self.__disconnect_sink()
         self.__remove_files()
 
     def _actions_after_final_cleanup(self) -> None:
@@ -476,9 +501,6 @@ class Node(BaseNode, ScopedObject):
 
     def __remove_all_files(self) -> None:
         self.__remove(self.directory)
-
-    def __disconnect_sink(self) -> None:
-        self.logger.remove(handler_id=self.__logger_handler_id)
 
     def set_executable_file_path(self, executable_file_path: Path) -> None:
         self.__executable.set_path(executable_file_path)
