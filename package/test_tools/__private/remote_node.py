@@ -20,7 +20,7 @@ class RemoteNode(BaseNode):
     ) -> None:
         super().__init__(name="RemoteNode", handle=handle)
 
-        self.__http_endpoint: HttpUrl = HttpUrl(http_endpoint, protocol="http")
+        self.http_endpoint = HttpUrl(http_endpoint, protocol="http")
         self.__ws_endpoint: WsUrl | None = WsUrl(ws_endpoint, protocol="ws") if ws_endpoint is not None else None
 
     def get_version(self) -> dict[str, str]:
@@ -33,7 +33,7 @@ class RemoteNode(BaseNode):
         return self.__ws_endpoint
 
     def get_http_endpoint(self) -> HttpUrl:
-        return self.__http_endpoint
+        return self.http_endpoint
 
     def get_p2p_endpoint(self) -> P2PUrl:
         return P2PUrl(self.api.network_node.get_info().listening_on)
