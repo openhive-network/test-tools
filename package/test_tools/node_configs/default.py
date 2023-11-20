@@ -3,7 +3,7 @@ from __future__ import annotations
 from test_tools.__private.node_config import NodeConfig
 
 
-def create_default_config() -> NodeConfig:
+def create_default_config(*, skip_address: bool = False) -> NodeConfig:
     """
     Returns default node config.
 
@@ -54,7 +54,10 @@ def create_default_config() -> NodeConfig:
         block_stats_report_type="FULL",
         block_stats_report_output="ILOG",
         webserver_ws_deflate=False,
-        p2p_endpoint="0.0.0.0:0",
-        webserver_http_endpoint="0.0.0.0:0",
-        webserver_ws_endpoint="0.0.0.0:0",
+        enable_block_log_compression=True,
+        **(
+            {"p2p_endpoint": "0.0.0.0:0", "webserver_http_endpoint": "0.0.0.0:0", "webserver_ws_endpoint": "0.0.0.0:0"}
+            if not skip_address
+            else {}
+        ),
     )
