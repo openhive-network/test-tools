@@ -498,7 +498,7 @@ class Node(BaseNode, ScopedObject):
         wait_for_event(
             self.__notifications.handler.live_mode_entered_event,
             deadline=deadline,
-            exception_message="Live mode not activated on time.",
+            exception_message=f"{self.get_name()}: Live mode not activated on time.",
         )
 
     def get_number_of_forks(self) -> int:
