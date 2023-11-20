@@ -3,9 +3,12 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from pydantic import BaseModel, ConstrainedStr, Field, validator
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class StringQuotedMarker(ConstrainedStr):
@@ -28,10 +31,10 @@ class UniqueList(list[T]):
         for item in __iterable:
             self.append(item)
 
-    def __iadd__(self, __value: Any) -> Any:
+    def __iadd__(self, _: Any) -> Self:  # type: ignore[override]
         raise NotImplementedError
 
-    def __add__(self, __value: Any) -> Any:
+    def __add__(self, _: Any) -> Self:  # type: ignore[override]
         raise NotImplementedError
 
 
