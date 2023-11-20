@@ -51,7 +51,7 @@ class Node(BaseNode, ScopedObject):
 
         self.__executable = Executable("hived")
         self.__process = Process(self.directory, self.__executable, self.logger)
-        self.__notifications = NodeNotificationServer(self.get_name(), self.logger)
+        self.__notifications = self.__create_notifications_server()
         self.__cleanup_policy: CleanupPolicy | None = None
 
         self.config = create_default_config()
@@ -61,6 +61,9 @@ class Node(BaseNode, ScopedObject):
     @property
     def config_file_path(self) -> Path:
         return self.directory / "config.ini"
+
+    def __create_notifications_server(self) -> NodeNotificationServer:
+        return NodeNotificationServer(self.get_name(), self.logger.bind(notifications=True))
 
     def is_running(self) -> bool:
         return self.__process.is_running()
@@ -193,7 +196,7 @@ class Node(BaseNode, ScopedObject):
         with_environment_variables: dict[str, str] | None = None,
         with_time_offset: str | None = None,
     ) -> None:
-        self.__notifications = NodeNotificationServer(self.get_name(), self.logger)
+        self.__notifications = self.__create_notifications_server()
         port = self.__notifications.run()
         self.config.notifications_endpoint = f"127.0.0.1:{port}"
 
