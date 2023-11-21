@@ -719,6 +719,7 @@ loguru = "0.7.2"
 poetry = "^1.6.1"
 pytest-is-running = "1.5.0"
 python-dateutil = "2.8.2"
+requests = "2.27.1"
 schemas = {path = "schemas", develop = true}
 wax = "0.0.1a5+f650c37"
 
