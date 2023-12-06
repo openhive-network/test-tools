@@ -107,6 +107,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
     psql_index_threshold: int | None = None
     psql_operations_threads_number: int | None = None
     psql_transactions_threads_number: int | None = None
+    psql_first_block: int | None = None
     enable_block_log_compression: bool | None = None
     enable_block_log_auto_fixing: bool | None = None
     block_log_compression_level: int | None = None
