@@ -40,6 +40,7 @@ class NodeNotificationHandler(HivedNotificationHandler):
         self.synchronization_started_event = Event()
         self.live_mode_entered_event = Event()
 
+        self.chain_api_ready_event = Event()
         self.replay_finished_event = Event()
 
         self.snapshot_dumped_event = Event()
@@ -57,6 +58,8 @@ class NodeNotificationHandler(HivedNotificationHandler):
                 self.synchronization_started_event.set()
             case "entering live mode":
                 self.live_mode_entered_event.set()
+            case "chain API ready":
+                self.chain_api_ready_event.set()
 
     async def on_http_webserver_bind(self, notification: Notification[WebserverListening]) -> None:
         self.http_endpoint = HttpUrl(self.__combine_url_string_from_notification(notification), protocol="http")

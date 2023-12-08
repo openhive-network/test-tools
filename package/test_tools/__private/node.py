@@ -346,6 +346,12 @@ class Node(BaseNode, ScopedObject):
         if wait_for_live:
             self.wait_for_live_mode(timeout=timeout)
 
+        wait_for_event(
+            self.__notifications.handler.chain_api_ready_event,
+            deadline=deadline,
+            exception_message="Node is not ready at time",
+        )
+
     def _actions_before_run(self) -> None:
         """Override this method to hook just before starting node process."""
 
