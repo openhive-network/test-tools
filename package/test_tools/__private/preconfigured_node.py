@@ -16,7 +16,17 @@ class PreconfiguredNode(RawNode):
         super().__init__(name=name, network=network, handle=handle)
 
         self._enable_api_plugins(
-            plugins=["block_api", "database_api", "debug_node_api", "network_node_api", "wallet_bridge_api"]
+            plugins=[
+                "block_api",
+                "database_api",
+                "debug_node_api",
+                "network_node_api",
+                "wallet_bridge_api",
+                "account_by_key_api",
+                "market_history_api",
+                "network_broadcast_api",
+                "rc_api",
+            ]
         )
         self.config.log_logger = (
             '{"name":"default","level":"debug","appender":"stderr"} '
