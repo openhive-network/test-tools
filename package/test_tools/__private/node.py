@@ -237,7 +237,7 @@ class Node(BaseNode, ScopedObject):
             self.logger.remove(self.__notification_sink_id)
             self.__notification_sink_id = None
 
-    def run(
+    def run(  # noqa: C901
         self,
         *,
         load_snapshot_from: str | Path | Snapshot | None = None,
@@ -283,8 +283,10 @@ class Node(BaseNode, ScopedObject):
             self.__handle_loading_snapshot(load_snapshot_from, additional_arguments)
             log_message += ", loading snapshot"
 
+        if stop_at_block is not None:
+            additional_arguments.append(f"--stop-at-block={stop_at_block}")
         if replay_from is not None:
-            self.__handle_replay(replay_from, stop_at_block, additional_arguments)
+            self.__handle_replay(replay_from, additional_arguments)
             log_message += ", replaying"
 
         if exit_before_synchronization or "--exit-after-replay" in additional_arguments:
@@ -369,15 +371,11 @@ class Node(BaseNode, ScopedObject):
         additional_arguments.append("--load-snapshot=.")
         snapshot_source.copy_to(self.directory)
 
-    def __handle_replay(
-        self, replay_source: BlockLog | Path | str, stop_at_block: int | None, additional_arguments: list[str]
-    ) -> None:
+    def __handle_replay(self, replay_source: BlockLog | Path | str, additional_arguments: list[str]) -> None:
         if not isinstance(replay_source, BlockLog):
             replay_source = BlockLog(replay_source)
 
         additional_arguments.append("--force-replay")
-        if stop_at_block is not None:
-            additional_arguments.append(f"--stop-replay-at-block={stop_at_block}")
 
         block_log_directory = self.directory.joinpath("blockchain")
         block_log_directory.mkdir()

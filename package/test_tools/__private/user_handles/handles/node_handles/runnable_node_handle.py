@@ -92,9 +92,10 @@ class RunnableNodeHandle(NodeHandleBase):
 
         Node starts from optional snapshot loading. Executes only if `load_snapshot_from` parameter is passed. Then can
         be performed optional replay, if `replay_from` parameter is passed. By default, full replay will be performed.
-        It can be limited with `stop_at_block` parameter. Now node will try to synchronize with network. Synchronization
-        can be optionally stopped at this moment with `exit_before_synchronization` parameter. During node
-        synchronization program execution is blocked dependent on `wait_for_live` flag state. If node starting process
+        After that, the node will try to synchronize with network.
+        Both replay and synchronization can be limited to a given block number with `stop_at_block` parameter.
+        Synchronization can also be stopped with `exit_before_synchronization` parameter. During node
+        synchronization program execution is blocked if `wait_for_live` flag if set. If node starting process
         takes too long and `timeout` exceeds, TimeoutError is raised and node is stopped.
 
         :param load_snapshot_from: Path to snapshot data directory. When provided, snapshot data are copied into node's
@@ -105,8 +106,8 @@ class RunnableNodeHandle(NodeHandleBase):
         :param replay_from: Path to block log (and optionally block log artifacts), which will be replayed. When
             provided, given block log is copied into node's directory and then is used for replay. For details see
             tutorial at: https://gitlab.syncad.com/hive/test-tools/-/blob/master/documentation/tutorials/replay.md.
-        :param stop_at_block: Number of last block which should be replayed. After this block, replay is interrupted and
-            synchronization starts.
+        :param stop_at_block: Number of last block which should be replayed/synchronized. After this block,
+            replay/sync is interrupted and web server starts.
         :param exit_before_synchronization: Stops node startup and closes node before synchronization.
         :param wait_for_live: Blocks program execution until node starts to generate or receive blocks.
         :param arguments: Additional arguments passed to node during running. Should be separated in the same way as in
