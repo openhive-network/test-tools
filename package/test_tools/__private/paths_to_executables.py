@@ -6,6 +6,7 @@ from enum import Enum
 from os import getenv, path
 from pathlib import Path
 
+from test_tools.__private.communication import logger
 from test_tools.__private.exceptions import MissingPathToExecutableError, NotSupportedError
 from test_tools.__private.utilities.tests_type import is_automatic_test
 
@@ -41,6 +42,7 @@ class ExecutableDetails:
 
     @property
     def path(self) -> Path:
+        logger.info(f"@@@PATH: {self.__path}")
         if self.__path is None:
             raise MissingPathToExecutableError(f"Missing path to {self.name}\n" + get_configuration_hint())
 
