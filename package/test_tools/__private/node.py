@@ -243,6 +243,7 @@ class Node(BaseNode, ScopedObject):
         load_snapshot_from: str | Path | Snapshot | None = None,
         replay_from: BlockLog | Path | str | None = None,
         stop_at_block: int | None = None,
+        exit_at_block: int | None = None,
         exit_before_synchronization: bool = False,
         wait_for_live: bool | None = None,
         arguments: list[str] | tuple[str, ...] = (),
@@ -283,13 +284,17 @@ class Node(BaseNode, ScopedObject):
             self.__handle_loading_snapshot(load_snapshot_from, additional_arguments)
             log_message += ", loading snapshot"
 
+        if exit_at_block is not None and stop_at_block is not None:
+            raise RuntimeError("exit_at_block and stop_at_block can't be used together")
         if stop_at_block is not None:
             additional_arguments.append(f"--stop-at-block={stop_at_block}")
+        if exit_at_block is not None:
+            additional_arguments.append(f"--exit-at-block={exit_at_block}")
         if replay_from is not None:
             self.__handle_replay(replay_from, additional_arguments)
             log_message += ", replaying"
 
-        if exit_before_synchronization or "--exit-after-replay" in additional_arguments:
+        if exit_at_block is not None or exit_before_synchronization or "--exit-after-replay" in additional_arguments:
             if wait_for_live is not None:
                 raise RuntimeError("wait_for_live can't be used with exit_before_synchronization")
 
@@ -321,7 +326,7 @@ class Node(BaseNode, ScopedObject):
 
         self.__produced_files = True
 
-        if not exit_before_synchronization:
+        if not exit_before_synchronization and exit_at_block is None:
             self.__wait_for_synchronization(deadline, timeout, wait_for_live)
 
         self.__log_run_summary()
