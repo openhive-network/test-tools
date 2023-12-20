@@ -237,7 +237,7 @@ class Node(BaseNode, ScopedObject):
             self.logger.remove(self.__notification_sink_id)
             self.__notification_sink_id = None
 
-    def run(  # noqa: C901
+    def run(  # noqa: C901 PLR0912
         self,
         *,
         load_snapshot_from: str | Path | Snapshot | None = None,
