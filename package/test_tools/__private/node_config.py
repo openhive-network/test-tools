@@ -114,6 +114,8 @@ class NodeConfig(BaseModel, validate_assignment=True):
     blockchain_thread_pool_size: int | None = None
     block_stats_report_type: str | None = None
     block_stats_report_output: str | None = None
+    webserver_https_certificate_file_name: str | None = None
+    webserver_https_key_file_name: str | None = None
 
     @validator("witness", "private_key", "p2p_seed_node", pre=True, always=True)
     @classmethod
