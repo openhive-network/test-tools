@@ -315,7 +315,7 @@ class Node(BaseNode, ScopedObject):
         self._actions_before_run()
 
         self.__run_process(
-            blocking=exit_before_synchronization,
+            blocking=exit_before_synchronization or bool(exit_at_block),
             with_arguments=additional_arguments,
             with_time_offset=time_offset,
             with_environment_variables=environment_variables,
