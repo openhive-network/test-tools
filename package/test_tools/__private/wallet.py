@@ -1314,12 +1314,12 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
             for account in accounts_:
                 operation = copy.deepcopy(operation_pattern)
-
-                operation[1]["new_account_name"] = account.name
-                operation[1]["memo_key"] = account.public_key
+                operation["value" if self.transaction_serialization == "hf26" else 1]["new_account_name"] = account.name
+                operation["value" if self.transaction_serialization == "hf26" else 1]["memo_key"] = account.public_key
                 for key_type in ("owner", "active", "posting"):
-                    operation[1][key_type]["key_auths"] = [[account.public_key, 1]]
-
+                    operation["value" if self.transaction_serialization == "hf26" else 1][key_type]["key_auths"] = [
+                        [account.public_key, 1]
+                    ]
                 transaction["operations"].append(operation)
 
             # Send transaction
