@@ -12,7 +12,9 @@ readme = "readme.md"
 repository = "https://gitlab.syncad.com/hive/test-tools"
 source = [
     { name = "PyPI", priority = "primary" },
-    { name = "gitlab", url = "https://gitlab.syncad.com/api/v4/projects/419/packages/pypi/simple", priority = "supplemental" },
+    { name = "gitlab-schemas", url = "https://gitlab.syncad.com/api/v4/projects/362/packages/pypi/simple", priority = "supplemental" },
+    { name = "gitlab-wax", url = "https://gitlab.syncad.com/api/v4/projects/419/packages/pypi/simple", priority = "supplemental" },
+    { name = "gitlab-helpy", url = "https://gitlab.syncad.com/api/v4/projects/434/packages/pypi/simple", priority = "supplemental" },
 ]
 packages = [
     { include = "test_tools", from = "package" },
@@ -25,7 +27,7 @@ requests = "2.27.1"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 loguru = "0.7.2"
-helpy = { path = "helpy", develop = true }
+helpy = "0.0.1.dev125+419067e"
 
 
 [tool.poetry.group.dev.dependencies]
