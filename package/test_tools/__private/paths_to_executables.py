@@ -7,7 +7,6 @@ from os import getenv, path
 from pathlib import Path
 
 from test_tools.__private.exceptions import MissingPathToExecutableError, NotSupportedError
-from test_tools.__private.utilities.tests_type import is_automatic_test
 
 BUILD_ROOT_PATH_ENVIRONMENT_VARIABLE = "HIVE_BUILD_ROOT_PATH"
 
@@ -74,7 +73,7 @@ class ExecutableDetails:
 class _PathsToExecutables:
     BUILD_ROOT_PATH_COMMAND_LINE_ARGUMENT = "--build-root-path"
 
-    def __init__(self, *, skip_command_line_argument_parsing: bool = False) -> None:
+    def __init__(self) -> None:
         self.executables: dict[str, ExecutableDetails] = {
             "hived": ExecutableDetails("hived", "programs/hived/hived"),
             "cli_wallet": ExecutableDetails("cli_wallet", "programs/cli_wallet/cli_wallet"),
@@ -84,8 +83,6 @@ class _PathsToExecutables:
 
         self.set_installed_executables()
         self.set_environment_variables()
-        if not skip_command_line_argument_parsing:
-            self.parse_command_line_arguments()
 
     def get_paths_in_use(self) -> dict[str, Path]:
         return {
@@ -107,7 +104,7 @@ class _PathsToExecutables:
         self.__assert_is_supported(executable_name)
         self.executables[executable_name].debug_set_path(path=self.__assure_path(executable_path), priority=priority)
 
-    def parse_command_line_arguments(self, arguments: list[str] | None = None) -> None:
+    def parse_command_line_arguments(self, arguments: list[str]) -> None:
         parser = ArgumentParser()
 
         parser.add_argument(self.BUILD_ROOT_PATH_COMMAND_LINE_ARGUMENT, dest="build_root", type=Path)
@@ -187,7 +184,7 @@ class _PathsToExecutables:
         return Path(path_like)
 
 
-__paths = _PathsToExecutables(skip_command_line_argument_parsing=is_automatic_test())
+__paths = _PathsToExecutables()
 
 
 def get_path_of(executable_name: str) -> Path:

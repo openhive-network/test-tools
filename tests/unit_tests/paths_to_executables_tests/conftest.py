@@ -21,7 +21,7 @@ def paths() -> _PathsToExecutables:
     Doesn't matter if user has e.g. set environment variable searched by this object or
     script is run with some command line argument. All such information are ignored.
     """
-    paths = _PathsToExecutables(skip_command_line_argument_parsing=True)
+    paths = _PathsToExecutables()
     paths.parse_command_line_arguments([])
     paths.set_environment_variables({})
     paths.set_installed_executables({})
