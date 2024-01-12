@@ -1131,9 +1131,15 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.stdout_file = open(self.get_stdout_file_path(), "w", encoding="utf-8")
         self.stderr_file = open(self.get_stderr_file_path(), "w", encoding="utf-8")
 
+        retry_server_connection_delay = 1
+
         if self.__is_online():
             run_parameters.extend(
-                [f"--server-rpc-endpoint={self.connected_node.get_ws_endpoint().as_string(with_protocol=True)}"]
+                [
+                    f"--server-rpc-endpoint={self.connected_node.get_ws_endpoint().as_string(with_protocol=True)}",
+                    "--retry-server-connection",
+                    f"--retry-server-connection-delay={retry_server_connection_delay}",
+                ]
             )
 
         run_parameters.extend(self.additional_arguments)
@@ -1152,6 +1158,14 @@ class Wallet(UserHandleImplementation, ScopedObject):
         )
 
         self.__produced_files = True
+
+        # Assuming that:
+        #   timeout = DEFAULT_RUN_TIMEOUT       = 15s
+        #   retry-server-connection is ENABLED
+        #   retry_server_connection_delay       = 1s
+        #   internal timeout of c++ websocket   = 5s (take a look at `timeout_pong` in {websocketpp library}/websocketpp/config/core.hpp)
+        # we have 3 attempts of establishing connection wallet<->node, because:
+        #   try-connect(5s) + retry_server_connection_delay(1s) + try-connect(5s) + retry_server_connection_delay(1s) + try-connect(here only 3s) == DEFAULT_RUN_TIMEOUT
 
         timeout -= Time.wait_for(
             self.__is_ready, timeout=timeout, timeout_error_message=f"{self} was not ready on time.", poll_time=0.1
