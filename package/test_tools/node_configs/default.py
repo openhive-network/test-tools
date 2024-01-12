@@ -22,7 +22,7 @@ def create_default_config(*, skip_address: bool = False) -> NodeConfig:
             '{"name":"p2p","level":"warn","appenders":["p2p"]}'
         ),
         backtrace="yes",
-        plugin=["witness", "account_by_key_api", "account_by_key"],
+        plugin=["witness", "account_by_key_api", "account_by_key", "state_snapshot"],
         account_history_rocksdb_path="blockchain/account-history-rocksdb-storage",
         block_data_export_file="NONE",
         block_data_skip_empty=False,
