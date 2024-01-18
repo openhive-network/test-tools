@@ -39,6 +39,12 @@ def __executables() -> list[ExecutableInitParams]:
             "COMPRESS_BLOCK_LOG_PATH",
             "programs/util/compress_block_log",
         ),
+        ExecutableInitParams(
+            "block_log_util",
+            "--block-log-util-path",
+            "BLOCK_LOG_UTIL_PATH",
+            "programs/util/block_log_util",
+        ),
     ]
 
 
@@ -63,5 +69,6 @@ def prepare_build_like_dir() -> Iterator[Path]:
         (util_path := path / "programs" / "util").mkdir()
         (util_path / "get_dev_key").touch()
         (util_path / "compress_block_log").touch()
+        (util_path / "block_log_util").touch()
 
         yield path

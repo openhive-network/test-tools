@@ -94,6 +94,18 @@ class BlockLog:
         )
         return BlockLog(Path(output_directory) / "block_log")
 
+    def get_head_block_number(self) -> int:
+        process = subprocess.run(
+            [
+                paths_to_executables.get_path_of("block_log_util"),
+                "get-head-block-number",
+                str(self.path),
+            ],
+            check=True,
+            capture_output=True,
+        )
+        return int(process.stdout.decode().strip())
+
     @staticmethod
     def __raise_missing_artifacts_error(block_log_artifacts_path: Path) -> None:
         raise MissingBlockLogArtifactsError(
