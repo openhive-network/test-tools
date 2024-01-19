@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import json
 import shutil
 import subprocess
 import typing
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
+from helpy._interfaces.time import Time, TimeFormats
 from test_tools.__private import paths_to_executables
 from test_tools.__private.exceptions import MissingBlockLogArtifactsError
 
@@ -93,6 +95,41 @@ class BlockLog:
             check=True,
         )
         return BlockLog(Path(output_directory) / "block_log")
+
+    def get_head_block_number(self) -> int:
+        process = subprocess.run(
+            [
+                paths_to_executables.get_path_of("block_log_util"),
+                "get-head-block-number",
+                str(self.path),
+            ],
+            check=True,
+            capture_output=True,
+        )
+        return int(process.stdout.decode().strip())
+
+    def get_block(self, block_number: int) -> dict[str, Any]:
+        process = subprocess.run(
+            [
+                paths_to_executables.get_path_of("block_log_util"),
+                "get-block",
+                str(self.path),
+                f"{block_number}",
+            ],
+            check=True,
+            capture_output=True,
+        )
+        stdout = process.stdout.decode().replace("'", '"')
+        return json.loads(stdout)
+
+    def get_head_block_time(
+        self, time_offset_format: bool = False
+    ) -> str:
+        head_block_num = self.get_head_block_number()
+        head_block_timestamp = self.get_block(head_block_num)["timestamp"]
+        if time_offset_format:
+            return Time.serialize(Time.parse(head_block_timestamp), format_=TimeFormats.TIME_OFFSET_FORMAT)
+        return head_block_timestamp
 
     @staticmethod
     def __raise_missing_artifacts_error(block_log_artifacts_path: Path) -> None:
