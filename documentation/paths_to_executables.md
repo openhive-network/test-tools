@@ -26,6 +26,7 @@ To pass path as command line argument you have to run your script with one of fo
 | _cli_wallet_         | `--cli-wallet-path`         |
 | _get_dev_key_        | `--get-dev-key-path`        |
 | _compress_block_log_ | `--compress-block-log-path` |
+| _block_log_util_     | `--block-log-util-path`     |
 
 Example run with all executables from selected path:
 ```bash
@@ -47,6 +48,7 @@ To define path using environment variables you have to use following variable na
 | _cli_wallet_         | `CLI_WALLET_PATH`         |
 | _get_dev_key_        | `GET_DEV_KEY_PATH`        |
 | _compress_block_log_ | `COMPRESS_BLOCK_LOG_PATH` |
+| _block_log_util_     | `BLOCK_LOG_UTIL_PATH` |
 | _libfaketime_        | `LIBFAKETIME_PATH`        |
 
 Example run with all executables from selected path:

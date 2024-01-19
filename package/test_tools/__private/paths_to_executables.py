@@ -79,6 +79,7 @@ class _PathsToExecutables:
             "cli_wallet": ExecutableDetails("cli_wallet", "programs/cli_wallet/cli_wallet"),
             "get_dev_key": ExecutableDetails("get_dev_key", "programs/util/get_dev_key"),
             "compress_block_log": ExecutableDetails("compress_block_log", "programs/util/compress_block_log"),
+            "block_log_util": ExecutableDetails("block_log_util", "programs/util/block_log_util"),
         }
 
         self.set_installed_executables()
