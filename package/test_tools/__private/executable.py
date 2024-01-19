@@ -9,7 +9,7 @@ from test_tools.__private import paths_to_executables
 if TYPE_CHECKING:
     from pathlib import Path
 
-ExecutableAvailableNames = Literal["hived", "cli_wallet", "get_dev_key", "compress_block_log"]
+ExecutableAvailableNames = Literal["hived", "cli_wallet", "get_dev_key", "compress_block_log", "block_log_util"]
 NodeTypesReturnType = Literal["testnet", "mirrornet", "mainnet"]
 NodeTypes: tuple[str, str, str] = get_args(NodeTypesReturnType)  # type: ignore[assignment]
 
