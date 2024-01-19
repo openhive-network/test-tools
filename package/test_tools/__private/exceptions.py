@@ -40,3 +40,7 @@ class ConfigError(TestToolsError):
 
 class BlockWaitTimeoutError(TestToolsError):
     """Raised when the maximum amount of time to wait for a block on a blockchain is reached."""
+
+
+class BlockLogUtilError(TestToolsError):
+    pass

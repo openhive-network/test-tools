@@ -1,13 +1,22 @@
 from __future__ import annotations
 
+import json
 import shutil
 import subprocess
 import typing
 from pathlib import Path
-from typing import Literal
+from typing import Literal, overload
 
+from helpy._interfaces.time import Time, TimeFormats
+from schemas.apis.block_api.fundaments_of_responses import SignedBlock
+from schemas.transaction import Transaction
 from test_tools.__private import paths_to_executables
-from test_tools.__private.exceptions import MissingBlockLogArtifactsError
+from test_tools.__private.exceptions import BlockLogUtilError, MissingBlockLogArtifactsError
+
+if typing.TYPE_CHECKING:
+    from datetime import datetime
+
+BlockLogUtilResult = SignedBlock[Transaction]
 
 
 class BlockLog:
@@ -93,6 +102,71 @@ class BlockLog:
             check=True,
         )
         return BlockLog(Path(output_directory) / "block_log")
+
+    def __run_and_get_output(self, *args: str) -> str:
+        process = subprocess.run([paths_to_executables.get_path_of("block_log_util"), *args], capture_output=True)
+
+        if process.returncode:
+            raise BlockLogUtilError(
+                f"stdout: {process.stdout.decode().strip()}\n\nstderr: {process.stderr.decode().strip()}"
+            )
+        return process.stdout.decode().strip()
+
+    def generate_artifacts(self) -> None:
+        """Generate block_log.artifacts file."""
+        self.__run_and_get_output("generate-artifacts", str(self.path))
+
+    def get_head_block_number(self) -> int:
+        """
+        Get number of head block in block_log.
+
+        Note: This method works correctly only for block logs with a length of at least 30 blocks.
+        """
+        if not self.artifacts_path.exists():
+            self.generate_artifacts()
+        return int(self.__run_and_get_output("get-head-block-number", str(self.path)))
+
+    def get_block(self, block_number: int) -> BlockLogUtilResult:
+        """
+        Returns a block from block_log.
+
+        :param block_number: Number of block to return
+
+        Note: This method works correctly only for block logs with a length of at least 30 blocks.
+        """
+        if not self.artifacts_path.exists():
+            self.generate_artifacts()
+        output = self.__run_and_get_output("get-block", str(self.path), f"{block_number}").replace("'", '"')
+        return BlockLogUtilResult(**json.loads(output))
+
+    @overload
+    def get_head_block_time(
+        self, serialize: Literal[True], serialize_format: TimeFormats | str = TimeFormats.DEFAULT_FORMAT
+    ) -> str:
+        ...
+
+    @overload
+    def get_head_block_time(
+        self, serialize: Literal[False] = False, serialize_format: TimeFormats | str = TimeFormats.DEFAULT_FORMAT
+    ) -> datetime:
+        ...
+
+    def get_head_block_time(
+        self, serialize: bool = False, serialize_format: TimeFormats | str = TimeFormats.DEFAULT_FORMAT
+    ) -> str | datetime:
+        """
+        Get timestamp of head block in block_log.
+
+        :param serialize: Allows choosing whether the time is additionally returned serialized.
+        :param serialize_format: Format of serialization.
+
+        Note: This method works correctly only for block logs with a length of at least 30 blocks.
+        """
+        head_block_num = self.get_head_block_number()
+        head_block_timestamp = self.get_block(head_block_num).timestamp
+        if serialize:
+            return Time.serialize(head_block_timestamp, format_=serialize_format)
+        return head_block_timestamp
 
     @staticmethod
     def __raise_missing_artifacts_error(block_log_artifacts_path: Path) -> None:
