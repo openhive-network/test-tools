@@ -5,11 +5,15 @@ import shutil
 import subprocess
 import typing
 from pathlib import Path
-from typing import Any, Literal
+from typing import Literal
 
 from helpy._interfaces.time import Time, TimeFormats
+from schemas.apis.block_api.fundaments_of_responses import SignedBlock
+from schemas.transaction import Transaction
 from test_tools.__private import paths_to_executables
 from test_tools.__private.exceptions import MissingBlockLogArtifactsError
+
+BlockLogUtilResult = SignedBlock[Transaction]
 
 
 class BlockLog:
@@ -108,7 +112,7 @@ class BlockLog:
         )
         return int(process.stdout.decode().strip())
 
-    def get_block(self, block_number: int) -> dict[str, Any]:
+    def get_block(self, block_number: int) -> BlockLogUtilResult:
         process = subprocess.run(
             [
                 paths_to_executables.get_path_of("block_log_util"),
@@ -122,9 +126,7 @@ class BlockLog:
         stdout = process.stdout.decode().replace("'", '"')
         return json.loads(stdout)
 
-    def get_head_block_time(
-        self, time_offset_format: bool = False
-    ) -> str:
+    def get_head_block_time(self, time_offset_format: bool = False) -> str:
         head_block_num = self.get_head_block_number()
         head_block_timestamp = self.get_block(head_block_num)["timestamp"]
         if time_offset_format:
