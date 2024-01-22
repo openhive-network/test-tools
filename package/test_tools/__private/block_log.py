@@ -124,7 +124,7 @@ class BlockLog:
             capture_output=True,
         )
         stdout = process.stdout.decode().replace("'", '"')
-        return json.loads(stdout)
+        return BlockLogUtilResult(**json.loads(stdout))
 
     def get_head_block_time(self, time_offset_format: bool = False) -> str:
         head_block_num = self.get_head_block_number()
