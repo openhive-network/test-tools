@@ -104,6 +104,7 @@ class BlockLog:
         return BlockLog(Path(output_directory) / "block_log")
 
     def get_head_block_number(self) -> int:
+        """Get number of head block in block_log."""
         process = subprocess.run(
             [
                 paths_to_executables.get_path_of("block_log_util"),
@@ -116,6 +117,11 @@ class BlockLog:
         return int(process.stdout.decode().strip())
 
     def get_block(self, block_number: int) -> BlockLogUtilResult:
+        """
+        Returns a block from block_log.
+
+        :param block_number: Number of block to return
+        """
         process = subprocess.run(
             [
                 paths_to_executables.get_path_of("block_log_util"),
@@ -129,10 +135,15 @@ class BlockLog:
         stdout = process.stdout.decode().replace("'", '"')
         return BlockLogUtilResult(**json.loads(stdout))
 
-    def get_head_block_time(self, faketime_format: bool = False) -> str | datetime:
+    def get_head_block_time(self, time_offset_format: bool = False) -> str | datetime:
+        """
+        Get timestamp of head block in block_log.
+
+        :param time_offset_format: Allows to choose the time is returned in default or time_offset format
+        """
         head_block_num = self.get_head_block_number()
         head_block_timestamp = self.get_block(head_block_num).timestamp
-        if faketime_format:
+        if time_offset_format:
             return Time.serialize(head_block_timestamp, format_=TimeFormats.TIME_OFFSET_FORMAT)
         return head_block_timestamp
 
