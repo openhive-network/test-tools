@@ -1,5 +1,4 @@
 from __future__ import annotations
-from datetime import datetime
 
 import json
 import shutil
@@ -13,6 +12,9 @@ from schemas.apis.block_api.fundaments_of_responses import SignedBlock
 from schemas.transaction import Transaction
 from test_tools.__private import paths_to_executables
 from test_tools.__private.exceptions import MissingBlockLogArtifactsError
+
+if typing.TYPE_CHECKING:
+    from datetime import datetime
 
 BlockLogUtilResult = SignedBlock[Transaction]
 
