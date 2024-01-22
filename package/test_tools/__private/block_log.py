@@ -1,4 +1,5 @@
 from __future__ import annotations
+from datetime import datetime
 
 import json
 import shutil
@@ -126,11 +127,11 @@ class BlockLog:
         stdout = process.stdout.decode().replace("'", '"')
         return BlockLogUtilResult(**json.loads(stdout))
 
-    def get_head_block_time(self, time_offset_format: bool = False) -> str:
+    def get_head_block_time(self, faketime_format: bool = False) -> str | datetime:
         head_block_num = self.get_head_block_number()
-        head_block_timestamp = self.get_block(head_block_num)["timestamp"]
-        if time_offset_format:
-            return Time.serialize(Time.parse(head_block_timestamp), format_=TimeFormats.TIME_OFFSET_FORMAT)
+        head_block_timestamp = self.get_block(head_block_num).timestamp
+        if faketime_format:
+            return Time.serialize(head_block_timestamp, format_=TimeFormats.TIME_OFFSET_FORMAT)
         return head_block_timestamp
 
     @staticmethod
