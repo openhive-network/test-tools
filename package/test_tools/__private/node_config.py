@@ -92,7 +92,6 @@ class NodeConfig(BaseModel, validate_assignment=True):
     tags_start_promoted: str | None = None
     tags_skip_startup_update: str | None = None
     transaction_status_block_depth: str | None = None
-    transaction_status_track_after_block: str | None = None
     webserver_http_endpoint: str | None = None
     webserver_unix_endpoint: str | None = None
     webserver_ws_endpoint: str | None = None

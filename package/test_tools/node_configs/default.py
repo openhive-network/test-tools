@@ -44,7 +44,6 @@ def create_default_config(*, skip_address: bool = False) -> NodeConfig:
         tags_start_promoted="0",
         tags_skip_startup_update="0",
         transaction_status_block_depth="64000",
-        transaction_status_track_after_block="0",
         webserver_thread_pool_size="32",
         enable_stale_production=False,
         required_participation=33,
