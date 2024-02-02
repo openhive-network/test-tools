@@ -383,6 +383,8 @@ class Node(BaseNode, ScopedObject):
         additional_arguments.append("--force-replay")
 
         block_log_directory = self.directory.joinpath("blockchain")
+        if block_log_directory.exists():
+            shutil.rmtree(block_log_directory)
         block_log_directory.mkdir()
         replay_source.copy_to(block_log_directory / "block_log", artifacts="optional")
 
