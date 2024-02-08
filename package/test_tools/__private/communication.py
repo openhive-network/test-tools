@@ -44,16 +44,21 @@ class Hf26JsonEncoder(CommonJsonEncoder):
 
 
 def __workaround_communication_problem_with_node(send_request: Callable) -> Callable:
-    """Workaround for "Unable to acquire database lock" problem in node"""
+    """Workaround for "Unable to acquire database/forkdb lock" problem in node"""
 
     def __implementation(*args, **kwargs):
         while True:
             try:
                 return send_request(*args, **kwargs)
             except CommunicationError as exception:
-                if "Unable to acquire database lock" in exception.error:
+                if (
+                    "Unable to acquire database lock" in exception.error
+                    or "Unable to acquire forkdb lock" in exception.error
+                ):
                     message = str(args[1])
-                    logger.debug(f'Ignored "Unable to acquire database lock" error during sending request: {message}')
+                    logger.debug(
+                        f'Ignored "Unable to acquire {"database" if "database" in exception.error else "forkdb"} lock" error during sending request: {message}'
+                    )
                     continue
 
                 raise
