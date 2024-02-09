@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from helpy._interfaces.url import HttpUrl, P2PUrl, WsUrl
+    from test_tools.__private.alternate_chain_specs import AlternateChainSpecs
     from test_tools.__private.block_log import BlockLog
     from test_tools.__private.constants import CleanupPolicy
     from test_tools.__private.node_config import NodeConfig
@@ -87,6 +88,7 @@ class RunnableNodeHandle(NodeHandleBase):
         environment_variables: dict[str, str] | None = None,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
         time_offset: str | None = None,
+        alternate_chain_specs: AlternateChainSpecs | None = None,
     ) -> None:
         """
         Starts node synchronously. By default, program execution is blocked until node enters live mode (see `wait_for_live` parameter for details).
@@ -122,6 +124,10 @@ class RunnableNodeHandle(NodeHandleBase):
             absolutely, relatively and speed up or slow down clock. Value passed in `time_offset` is written to
             `FAKETIME` environment variable. For details and examples see libfaketime official documentation:
             https://github.com/wolfcw/libfaketime.
+        :param alternate_chain_specs:
+            Allows to change few properties of blockchain so it acts for example faster in certain ways to reduce duration
+            of tests. If it is used once it is cached and will be used after restart and future runs for this
+            instance of hived, even if it's not passed directly.
         """
         return self.__implementation.run(
             load_snapshot_from=load_snapshot_from,
@@ -134,6 +140,7 @@ class RunnableNodeHandle(NodeHandleBase):
             environment_variables=environment_variables,
             timeout=timeout,
             time_offset=time_offset,
+            alternate_chain_specs=alternate_chain_specs,
         )
 
     def restart(
@@ -209,3 +216,8 @@ class RunnableNodeHandle(NodeHandleBase):
         values like 0.0.0.0 address or 0 port, special values are replaced with actually selected by node.
         """
         return self.__implementation.get_p2p_endpoint()
+
+    @property
+    def alternate_chain_specs(self) -> AlternateChainSpecs | None:
+        """Returns chain spec that is currently used by this node. If none is used, None will be returned."""
+        return self.__implementation.alternate_chain_specs

@@ -28,6 +28,7 @@ class AlternateChainSpecs(BaseModel):
     initial_vesting: InitialVesting | None = None
     init_witnesses: list[str] | None = None
     hive_owner_update_limit: int | None = None
+    generate_missed_block_operations: bool | None = None
 
     def export_to_file(self, output_dir: Path | None = None) -> Path:
         if output_dir is None:
