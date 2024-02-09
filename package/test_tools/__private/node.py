@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 
     from helpy._interfaces.url import P2PUrl, WsUrl
     from schemas.apis.network_node_api.response_schemas import SetAllowedPeers
+    from test_tools.__private.alternate_chain_specs import AlternateChainSpecs
     from test_tools.__private.user_handles.handles.network_handle import NetworkHandle
     from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
     from test_tools.__private.wallet import Wallet
@@ -55,6 +56,7 @@ class Node(BaseNode, ScopedObject):
         self.__process = Process(self.directory, self.__executable, self.logger)
         self.__notifications = self.__create_notifications_server()
         self.__cleanup_policy: CleanupPolicy | None = None
+        self.__alternate_chain_specs: AlternateChainSpecs | None = None
 
         self.config = create_default_config()
 
@@ -79,6 +81,10 @@ class Node(BaseNode, ScopedObject):
         ]
 
         return all(conditions)
+
+    @property
+    def alternate_chain_specs(self) -> AlternateChainSpecs | None:
+        return self.__alternate_chain_specs
 
     @property
     def block_log(self) -> BlockLog:
@@ -237,7 +243,7 @@ class Node(BaseNode, ScopedObject):
             self.logger.remove(self.__notification_sink_id)
             self.__notification_sink_id = None
 
-    def run(  # noqa: C901 PLR0912
+    def run(  # noqa: C901, PLR0912
         self,
         *,
         load_snapshot_from: str | Path | Snapshot | None = None,
@@ -250,6 +256,7 @@ class Node(BaseNode, ScopedObject):
         environment_variables: dict[str, str] | None = None,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
         time_offset: str | None = None,
+        alternate_chain_specs: AlternateChainSpecs | None = None,
     ) -> None:
         """
         Runs node.
@@ -290,6 +297,12 @@ class Node(BaseNode, ScopedObject):
             additional_arguments.append(f"--stop-at-block={stop_at_block}")
         if exit_at_block is not None:
             additional_arguments.append(f"--exit-at-block={exit_at_block}")
+        if alternate_chain_specs is not None or self.alternate_chain_specs is not None:
+            if alternate_chain_specs is not None:  # write or override
+                self.__alternate_chain_specs = alternate_chain_specs
+            if self.__alternate_chain_specs is not None:
+                destination = self.__alternate_chain_specs.export_to_file(self.directory).absolute().as_posix()
+                additional_arguments.append(f"--alternate-chain-spec={destination}")
         if replay_from is not None:
             self.__handle_replay(replay_from, additional_arguments)
             log_message += ", replaying"
@@ -466,11 +479,20 @@ class Node(BaseNode, ScopedObject):
         """Override this method to hook just after handling the final cleanup."""
 
     def restart(
-        self, wait_for_live: bool = True, timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT, time_offset: str | None = None
+        self,
+        wait_for_live: bool = True,
+        timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
+        time_offset: str | None = None,
+        alternate_chain_specs: AlternateChainSpecs | None = None,
     ) -> None:
         self.__close_wallets()
         self.close()
-        self.run(wait_for_live=wait_for_live, timeout=timeout, time_offset=time_offset)
+        self.run(
+            wait_for_live=wait_for_live,
+            timeout=timeout,
+            time_offset=time_offset,
+            alternate_chain_specs=alternate_chain_specs,
+        )
         self.__run_wallets()
 
     def __remove_files(self) -> None:
