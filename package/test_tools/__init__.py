@@ -13,6 +13,7 @@ from test_tools.__private import (
     paths_to_executables,
 )
 from test_tools.__private.account import Account, PrivateKey, PublicKey
+from test_tools.__private.alternate_chain_specs import AlternateChainSpecs, HardforkSchedule, InitialVesting
 from test_tools.__private.block_log import BlockLog
 
 # User handles
@@ -48,6 +49,9 @@ __all__ = [
     "Asset",
     "Time",
     "TimeFormats",
+    "AlternateChainSpecs",
+    "HardforkSchedule",
+    "InitialVesting",
 ]
 
 if TYPE_CHECKING:
