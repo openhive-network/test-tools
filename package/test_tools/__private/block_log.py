@@ -143,6 +143,18 @@ class BlockLog:
         output = self.__run_and_get_output("--get-block", *block_log_arg, *block_number_arg).replace("'", '"')
         return BlockLogUtilResult(**json.loads(output))
 
+    def get_block_ids(self, block_number: int) -> str:
+        """
+        Returns a block_ID from block_log.
+
+        :param block_number: ID of block to return
+
+        Note: This method works correctly only for block logs with a length of at least 30 blocks.
+        """
+        if not self.artifacts_path.exists():
+            self.generate_artifacts()
+        return self.__run_and_get_output("get-block-ids", str(self.path), f"{block_number}").replace("'", '"')
+
     @overload
     def get_head_block_time(
         self, serialize: Literal[True], serialize_format: TimeFormats | str = TimeFormats.DEFAULT_FORMAT
