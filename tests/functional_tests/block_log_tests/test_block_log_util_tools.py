@@ -82,3 +82,16 @@ def test_exception_handling(node: tt.InitNode) -> None:
     assert "the argument ('incorrect_block_num') for option '--block-number' is invalid" in str(
         error.value
     ), "Incorrect error message"
+
+
+def test_get_block_ids(node: tt.InitNode) -> None:
+    block_log = node.block_log
+
+    block_id_from_node = node.api.block.get_block(block_num=10)
+    node.close()
+
+    block_id_from_block_log = block_log.get_block_ids(block_number=10)
+    assert isinstance(block_id_from_node, GetBlockBase)
+    assert (
+        block_id_from_node.block.block_id == block_id_from_block_log
+    ), "The block_id in node differs from the block_id in block_log."
