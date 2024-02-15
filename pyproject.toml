@@ -27,7 +27,7 @@ requests = "2.27.1"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 loguru = "0.7.2"
-helpy = "0.0.1.dev129+2a41abf"
+helpy = "0.0.1.dev154+956550d"
 
 
 [tool.poetry.group.dev.dependencies]
