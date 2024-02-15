@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from loguru import logger
 
 from helpy import Hf26Asset as Asset
-from helpy import Time, TimeFormats
+from helpy import OffsetTimeControl, SpeedUpRateTimeControl, StartTimeControl, Time, TimeFormats
 from test_tools.__private import (
     cleanup_policy,
     constants,
@@ -52,6 +52,9 @@ __all__ = [
     "AlternateChainSpecs",
     "HardforkSchedule",
     "InitialVesting",
+    "OffsetTimeControl",
+    "SpeedUpRateTimeControl",
+    "StartTimeControl",
 ]
 
 if TYPE_CHECKING:

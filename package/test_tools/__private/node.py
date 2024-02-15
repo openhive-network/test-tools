@@ -8,6 +8,7 @@ from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from helpy._interfaces.time import StartTimeControl, TimeControl
 from helpy._interfaces.url import HttpUrl
 from test_tools.__private import cleanup_policy, exceptions, paths_to_executables
 from test_tools.__private.base_node import BaseNode
@@ -243,7 +244,7 @@ class Node(BaseNode, ScopedObject):
             self.logger.remove(self.__notification_sink_id)
             self.__notification_sink_id = None
 
-    def run(  # noqa: C901, PLR0912
+    def run(  # noqa: C901, PLR0912, PLR0915
         self,
         *,
         load_snapshot_from: str | Path | Snapshot | None = None,
@@ -255,7 +256,7 @@ class Node(BaseNode, ScopedObject):
         arguments: list[str] | tuple[str, ...] = (),
         environment_variables: dict[str, str] | None = None,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
-        time_control: str | None = None,
+        time_control: TimeControl | str | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
     ) -> None:
         """
@@ -306,6 +307,15 @@ class Node(BaseNode, ScopedObject):
         if replay_from is not None:
             self.__handle_replay(replay_from, additional_arguments)
             log_message += ", replaying"
+
+        if isinstance(time_control, TimeControl):
+            if isinstance(time_control, StartTimeControl) and time_control.is_start_time_equal_to("head_block_time"):
+                assert (
+                    self.block_log.path.exists()
+                ), "Block_log not exist. Block_log is necessary to use 'head_block_time' as time_control"
+                time_control.apply_head_block_time(self.block_log.get_head_block_time())
+
+            time_control = time_control.as_string()
 
         if exit_at_block is not None or exit_before_synchronization or "--exit-after-replay" in additional_arguments:
             if wait_for_live is not None:
@@ -484,7 +494,7 @@ class Node(BaseNode, ScopedObject):
         self,
         wait_for_live: bool = True,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
-        time_control: str | None = None,
+        time_control: TimeControl | str | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
     ) -> None:
         self.__close_wallets()

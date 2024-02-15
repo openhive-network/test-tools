@@ -6,7 +6,6 @@ import pytest
 import test_tools as tt
 
 from helpy import Time
-from helpy._interfaces.time import TimeFormats
 
 if TYPE_CHECKING:
     from test_tools.__private.type_annotations.any_node import AnyNode
@@ -102,7 +101,7 @@ def test_startup_with_modified_time() -> None:
     requested_start_time = Time.parse("2020-01-01T00:00:00")
 
     init_node = tt.InitNode()
-    init_node.run(time_control=f"{Time.serialize(requested_start_time, format_=TimeFormats.FAKETIME_FORMAT)}")
+    init_node.run(time_control=tt.StartTimeControl(start_time=requested_start_time))
 
     node_time = Time.parse(init_node.api.database.get_dynamic_global_properties()["time"])
 

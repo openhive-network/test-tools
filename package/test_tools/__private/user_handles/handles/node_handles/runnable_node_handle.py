@@ -10,6 +10,7 @@ from test_tools.__private.user_handles.handles.node_handles.node_handle_base imp
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from helpy._interfaces.time import TimeControl
     from helpy._interfaces.url import HttpUrl, P2PUrl, WsUrl
     from test_tools.__private.alternate_chain_specs import AlternateChainSpecs
     from test_tools.__private.block_log import BlockLog
@@ -87,7 +88,7 @@ class RunnableNodeHandle(NodeHandleBase):
         arguments: list[str] | tuple[str, ...] = (),
         environment_variables: dict[str, str] | None = None,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
-        time_control: str | None = None,
+        time_control: TimeControl | str | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
     ) -> None:
         """
@@ -147,7 +148,7 @@ class RunnableNodeHandle(NodeHandleBase):
         self,
         wait_for_live: bool = True,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
-        time_control: str | None = None,
+        time_control: TimeControl | str | None = None,
     ) -> None:
         """
         Stops node and immediately starts it again. Whole restart is performed synchronously.
