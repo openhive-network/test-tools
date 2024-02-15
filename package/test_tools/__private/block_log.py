@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Literal, overload
 
 from helpy._interfaces.time import Time, TimeFormats
-from schemas.apis.block_api.fundaments_of_responses import SignedBlock
+from schemas.apis.block_api.fundaments_of_responses import BlockLogUtilSignedBlock
 from schemas.transaction import Transaction
 from test_tools.__private import paths_to_executables
 from test_tools.__private.exceptions import BlockLogUtilError, MissingBlockLogArtifactsError
@@ -16,7 +16,7 @@ from test_tools.__private.exceptions import BlockLogUtilError, MissingBlockLogAr
 if typing.TYPE_CHECKING:
     from datetime import datetime
 
-BlockLogUtilResult = SignedBlock[Transaction]
+BlockLogUtilResult = BlockLogUtilSignedBlock[Transaction]
 
 
 class BlockLog:
