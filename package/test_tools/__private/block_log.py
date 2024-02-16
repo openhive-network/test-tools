@@ -109,6 +109,9 @@ class BlockLog:
             args = args + ("--debug",)
         process = subprocess.run([paths_to_executables.get_path_of("block_log_util"), *args], capture_output=True)
 
+        with open(f"{self.artifacts_path.parent.parent}/block_log_util_stdout.txt", "a") as file:
+            file.write(process.stdout.decode())
+
         if process.returncode:
             raise BlockLogUtilError(
                 f"stdout: {process.stdout.decode().strip()}\n\nstderr: {process.stderr.decode().strip()}"
