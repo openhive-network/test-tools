@@ -20,8 +20,9 @@ BlockLogUtilResult = SignedBlock[Transaction]
 
 
 class BlockLog:
-    def __init__(self, path: Path | str) -> None:
+    def __init__(self, path: Path | str, debug: bool = False) -> None:
         self.__path = Path(path)
+        self.__debug = debug
 
     def __repr__(self) -> str:
         return f"<BlockLog: path={self.__path}>"
@@ -104,6 +105,8 @@ class BlockLog:
         return BlockLog(Path(output_directory) / "block_log")
 
     def __run_and_get_output(self, *args: str) -> str:
+        if self.__debug:
+            args = args + ("--debug",)
         process = subprocess.run([paths_to_executables.get_path_of("block_log_util"), *args], capture_output=True)
 
         if process.returncode:
@@ -111,6 +114,9 @@ class BlockLog:
                 f"stdout: {process.stdout.decode().strip()}\n\nstderr: {process.stderr.decode().strip()}"
             )
         return process.stdout.decode().strip()
+
+    def set_debug(self) -> None:
+        self.__debug = True
 
     def generate_artifacts(self) -> None:
         """Generate block_log.artifacts file."""
