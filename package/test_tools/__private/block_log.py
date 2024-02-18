@@ -5,7 +5,7 @@ import shutil
 import subprocess
 import typing
 from pathlib import Path
-from typing import Literal, overload
+from typing import Final, Literal, overload
 
 from helpy._interfaces.time import Time, TimeFormats
 from schemas.apis.block_api.fundaments_of_responses import BlockLogUtilSignedBlock
@@ -104,7 +104,9 @@ class BlockLog:
         return BlockLog(Path(output_directory) / "block_log")
 
     def __run_and_get_output(self, *args: str) -> str:
-        process = subprocess.run([paths_to_executables.get_path_of("block_log_util"), *args], capture_output=True)
+        process = subprocess.run(
+            [paths_to_executables.get_path_of("block_log_util"), *args], capture_output=True, check=False
+        )
 
         if process.returncode:
             raise BlockLogUtilError(
@@ -151,9 +153,15 @@ class BlockLog:
 
         Note: This method works correctly only for block logs with a length of at least 30 blocks.
         """
+        expected_str: Final[str] = "block_id: "
+
         if not self.artifacts_path.exists():
             self.generate_artifacts()
-        return self.__run_and_get_output("get-block-ids", str(self.path), f"{block_number}").replace("'", '"')
+        output = self.__run_and_get_output(
+            "--get-block-ids", "-n", f"{block_number}", "--block-log", str(self.path)
+        ).replace("'", '"')
+        assert expected_str in output, f"Response malformed: `{output}`"
+        return output[len(expected_str) :]
 
     @overload
     def get_head_block_time(

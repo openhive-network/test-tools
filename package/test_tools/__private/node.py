@@ -68,7 +68,9 @@ class Node(BaseNode, ScopedObject):
         return self.directory / "config.ini"
 
     def __create_notifications_server(self) -> NodeNotificationServer:
-        return NodeNotificationServer(self.get_name(), self.logger.bind(notifications=True))
+        return NodeNotificationServer(
+            node_name=self.get_name(), logger=self.logger.bind(notifications=True), settings=self.settings
+        )
 
     def is_running(self) -> bool:
         return self.__process.is_running()
