@@ -20,8 +20,8 @@ def test_private_key_generation(name: str, expected_key: str) -> None:
 @pytest.mark.parametrize(
     ("name", "expected_key"),
     [
-        ("initminer", "TST6LLegbAgLAy28EHrffBVuANFWcFgmqRMW13wBmTExqFE9SCkg4"),
-        ("alice", "TST5P8syqoj7itoDjbtDvCMCb5W3BNJtUjws9v7TDNZKqBLmp3pQW"),
+        ("initminer", "STM6LLegbAgLAy28EHrffBVuANFWcFgmqRMW13wBmTExqFE9SCkg4"),
+        ("alice", "STM5P8syqoj7itoDjbtDvCMCb5W3BNJtUjws9v7TDNZKqBLmp3pQW"),
     ],
 )
 def test_public_key_generation(name: str, expected_key: str) -> None:
