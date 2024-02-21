@@ -35,7 +35,7 @@ class KeyGenerator:
             return [
                 KeyGeneratorItem(
                     private_key=PrivateKey("5JNHfZYKGaomSFvd4NUdQ9qMcEAC43kujbfjueTHpVapX1Kzq2n"),
-                    public_key=PublicKey("TST6LLegbAgLAy28EHrffBVuANFWcFgmqRMW13wBmTExqFE9SCkg4"),
+                    public_key=PublicKey("STM6LLegbAgLAy28EHrffBVuANFWcFgmqRMW13wBmTExqFE9SCkg4"),
                     account_name=account_name,
                 )
             ]
