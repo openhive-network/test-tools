@@ -1019,7 +1019,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         additional_arguments: Iterable = (),
         preconfigure: bool = True,
         handle: WalletHandle | None = None,
-        time_offset: str | None = None,
+        time_control: str | None = None,
     ):
         super().__init__(handle=handle)
 
@@ -1047,7 +1047,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.__produced_files = False
         self.logger = logger.bind(target="cli_wallet")
 
-        self.run(preconfigure=preconfigure, time_offset=time_offset)
+        self.run(preconfigure=preconfigure, time_control=time_control)
 
     def __str__(self):
         return self.name
@@ -1081,7 +1081,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         *,
         preconfigure: bool = True,
         clean: bool | None = None,
-        time_offset: str | None = None,
+        time_control: str | None = None,
     ):
         """
         Starts wallet. Blocks until wallet will be ready for use.
@@ -1090,9 +1090,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
         :param preconfigure: If set to True, wallet will be unlocked with password Wallet.DEFAULT_PASSWORD and initminer
                              key imported.
         :param clean: If set to True, wallet directory with all its files will be removed before run.
-        :param time_offset: Allows to change system date and time a node sees (without changing real OS time).
+        :param time_control: Allows to change system date and time a node sees (without changing real OS time).
             Can be specified either absolutely, relatively and speed up or slow down clock. Value passed in
-            `time_offset` is written to `FAKETIME` environment variable. For details and examples see libfaketime
+            `time_control` is written to `FAKETIME` environment variable. For details and examples see libfaketime
             official documentation: https://github.com/wolfcw/libfaketime.
         """
         run_parameters = [
@@ -1149,8 +1149,8 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         environment_variables = dict(os.environ)
 
-        if time_offset is not None:
-            configure_fake_time(self.logger, environment_variables, time_offset)
+        if time_control is not None:
+            configure_fake_time(self.logger, environment_variables, time_control)
 
         # Process created here have to exist longer than current scope
         self.process = subprocess.Popen(
@@ -1237,9 +1237,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
     def at_exit_from_scope(self):
         self.close()
 
-    def restart(self, *, preconfigure=True, time_offset: str | None = None):
+    def restart(self, *, preconfigure=True, time_control: str | None = None):
         self.close()
-        self.run(preconfigure=preconfigure, clean=False, time_offset=time_offset)
+        self.run(preconfigure=preconfigure, clean=False, time_control=time_control)
 
     def close(self) -> None:
         self.__close_process()

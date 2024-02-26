@@ -10,10 +10,10 @@ from schemas.apis.block_api.response_schemas import GetBlockBase
 @pytest.fixture()
 def node() -> tt.InitNode:
     node = tt.InitNode()
-    node.run(time_offset="+0h x10")
+    node.run(time_control="+0h x10")
     node.wait_for_block_with_number(30)
-    time_offset = node.get_head_block_time()
-    node.restart(time_offset=tt.Time.serialize(time_offset, format_=tt.TimeFormats.TIME_OFFSET_FORMAT))
+    time_control = node.get_head_block_time()
+    node.restart(time_control=tt.Time.serialize(time_control, format_=tt.TimeFormats.TIME_OFFSET_FORMAT))
     return node
 
 

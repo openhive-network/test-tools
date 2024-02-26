@@ -34,7 +34,7 @@ class Process:
         blocking: bool,
         with_arguments: Sequence[str] | None = None,
         with_environment_variables: dict[str, str] | None = None,
-        with_time_offset: str | None = None,
+        with_time_control: str | None = None,
     ) -> None:
         if with_arguments is None:
             with_arguments = []
@@ -51,8 +51,8 @@ class Process:
         if with_environment_variables is not None:
             environment_variables.update(with_environment_variables)
 
-        if with_time_offset is not None:
-            configure_fake_time(self.__logger, environment_variables, with_time_offset)
+        if with_time_control is not None:
+            configure_fake_time(self.__logger, environment_variables, with_time_control)
 
         if blocking:
             subprocess.run(  # type: ignore[call-overload]

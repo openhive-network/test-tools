@@ -87,7 +87,7 @@ class RunnableNodeHandle(NodeHandleBase):
         arguments: list[str] | tuple[str, ...] = (),
         environment_variables: dict[str, str] | None = None,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
-        time_offset: str | None = None,
+        time_control: str | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
     ) -> None:
         """
@@ -119,9 +119,9 @@ class RunnableNodeHandle(NodeHandleBase):
             is already defined, its value will be overwritten with one provided by this parameter.
         :param timeout: If `wait_for_live` is set to True, this parameter sets how long waiting can take. When timeout
             is reached, `TimeoutError` exception is thrown. Expressed in seconds.
-        :param time_offset:
+        :param time_control:
             Allows to change system date and time a node sees (without changing real OS time). Can be specified either
-            absolutely, relatively and speed up or slow down clock. Value passed in `time_offset` is written to
+            absolutely, relatively and speed up or slow down clock. Value passed in `time_control` is written to
             `FAKETIME` environment variable. For details and examples see libfaketime official documentation:
             https://github.com/wolfcw/libfaketime.
         :param alternate_chain_specs:
@@ -139,7 +139,7 @@ class RunnableNodeHandle(NodeHandleBase):
             arguments=arguments,
             environment_variables=environment_variables,
             timeout=timeout,
-            time_offset=time_offset,
+            time_control=time_control,
             alternate_chain_specs=alternate_chain_specs,
         )
 
@@ -147,7 +147,7 @@ class RunnableNodeHandle(NodeHandleBase):
         self,
         wait_for_live: bool = True,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
-        time_offset: str | None = None,
+        time_control: str | None = None,
     ) -> None:
         """
         Stops node and immediately starts it again. Whole restart is performed synchronously.
@@ -159,10 +159,10 @@ class RunnableNodeHandle(NodeHandleBase):
         :param wait_for_live: Blocks program execution until node starts to generate or receive blocks.
         :param timeout: If `wait_for_live` is set to True, this parameter sets how long waiting can take. When timeout
             is reached, `TimeoutError` exception is thrown. Expressed in seconds.
-        :param time_offset:
-            See parameter ``time_offset`` in :func:`run`.
+        :param time_control:
+            See parameter ``time_control`` in :func:`run`.
         """
-        return self.__implementation.restart(wait_for_live=wait_for_live, timeout=timeout, time_offset=time_offset)
+        return self.__implementation.restart(wait_for_live=wait_for_live, timeout=timeout, time_control=time_control)
 
     def set_cleanup_policy(self, policy: CleanupPolicy) -> None:
         """

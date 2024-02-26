@@ -29,7 +29,7 @@ class WalletHandle(Handle):
         attach_to: AnyNode | None = None,
         additional_arguments: Iterable[str] = (),
         preconfigure: bool = True,
-        time_offset: str | None = None,
+        time_control: str | None = None,
     ):
         """
         Creates wallet, runs its process and blocks until wallet will be ready to use.
@@ -39,7 +39,7 @@ class WalletHandle(Handle):
         :param additional_arguments: Command line arguments which will be applied during running wallet.
         :param preconfigure: If set to True, after run wallet will be unlocked with password DEFAULT_PASSWORD and
             initminer's keys imported.
-        :param time_offset: See parameter ``time_offset`` in :func:`run`.
+        :param time_control: See parameter ``time_control`` in :func:`run`.
         """
         if isinstance(attach_to, NodeHandleBase | RemoteNode):
             attach_to = get_implementation(attach_to, AnyNode)
@@ -49,7 +49,7 @@ class WalletHandle(Handle):
                 attach_to=attach_to,
                 additional_arguments=additional_arguments,
                 preconfigure=preconfigure,
-                time_offset=time_offset,
+                time_control=time_control,
             )
         )
 
@@ -78,7 +78,7 @@ class WalletHandle(Handle):
         *,
         timeout: float = Wallet.DEFAULT_RUN_TIMEOUT,
         preconfigure: bool = True,
-        time_offset: str | None = None,
+        time_control: str | None = None,
     ):
         """
         Runs wallet's process and blocks until wallet will be ready to use.
@@ -86,22 +86,22 @@ class WalletHandle(Handle):
         :param timeout: TimeoutError will be raised, if wallet won't start before specified timeout.
         :param preconfigure: If set to True, after run wallet will be unlocked with password DEFAULT_PASSWORD and
             initminer's keys imported.
-        :param time_offset: Allows to change system date and time a node sees (without changing real OS time).
+        :param time_control: Allows to change system date and time a node sees (without changing real OS time).
             Can be specified either absolutely, relatively and speed up or slow down clock. Value passed in
-            `time_offset` is written to `FAKETIME` environment variable. For details and examples see libfaketime
+            `time_control` is written to `FAKETIME` environment variable. For details and examples see libfaketime
             official documentation: https://github.com/wolfcw/libfaketime.
         """
-        self.__implementation.run(timeout=timeout, preconfigure=preconfigure, time_offset=time_offset)
+        self.__implementation.run(timeout=timeout, preconfigure=preconfigure, time_control=time_control)
 
-    def restart(self, *, preconfigure: bool = True, time_offset: str | None = None) -> None:
+    def restart(self, *, preconfigure: bool = True, time_control: str | None = None) -> None:
         """
         Closes wallet's process, runs it again and blocks until wallet will be ready to use.
 
         :param preconfigure: If set to True, after run wallet will be unlocked with password DEFAULT_PASSWORD and
             initminer's keys imported.
-        :param time_offset: See parameter ``time_offset`` in :func:`run`.
+        :param time_control: See parameter ``time_control`` in :func:`run`.
         """
-        self.__implementation.restart(preconfigure=preconfigure, time_offset=time_offset)
+        self.__implementation.restart(preconfigure=preconfigure, time_control=time_control)
 
     @property
     def transaction_serialization(self) -> Literal["legacy", "hf26"]:

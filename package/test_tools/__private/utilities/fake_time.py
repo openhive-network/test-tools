@@ -8,11 +8,11 @@ if TYPE_CHECKING:
     from loguru import Logger
 
 
-def configure_fake_time(logger: Logger, env: dict[str, str], time_offset: str) -> None:
-    logger.info(f"Using time_offset {time_offset}")
+def configure_fake_time(logger: Logger, env: dict[str, str], time_control: str) -> None:
+    logger.info(f"Using time_control {time_control}")
 
     env["LD_PRELOAD"] = get_fake_time_path(logger).as_posix()
-    env["FAKETIME"] = time_offset
+    env["FAKETIME"] = time_control
     env["FAKETIME_DONT_RESET"] = "1"
     env["FAKETIME_DONT_FAKE_MONOTONIC"] = "1"
     env["TZ"] = "UTC"

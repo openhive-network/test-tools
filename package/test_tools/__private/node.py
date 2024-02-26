@@ -202,7 +202,7 @@ class Node(BaseNode, ScopedObject):
         write_config_before_run: bool = True,
         with_arguments: Sequence[str] = (),
         with_environment_variables: dict[str, str] | None = None,
-        with_time_offset: str | None = None,
+        with_time_control: str | None = None,
     ) -> None:
         self.__notifications = self.__create_notifications_server()
         port = self.__notifications.run()
@@ -214,7 +214,7 @@ class Node(BaseNode, ScopedObject):
         self.__process.run(
             blocking=blocking,
             with_arguments=with_arguments,
-            with_time_offset=with_time_offset,
+            with_time_control=with_time_control,
             with_environment_variables=with_environment_variables,
         )
 
@@ -255,7 +255,7 @@ class Node(BaseNode, ScopedObject):
         arguments: list[str] | tuple[str, ...] = (),
         environment_variables: dict[str, str] | None = None,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
-        time_offset: str | None = None,
+        time_control: str | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
     ) -> None:
         """
@@ -330,7 +330,7 @@ class Node(BaseNode, ScopedObject):
         self.__run_process(
             blocking=exit_before_synchronization or bool(exit_at_block),
             with_arguments=additional_arguments,
-            with_time_offset=time_offset,
+            with_time_control=time_control,
             with_environment_variables=environment_variables,
         )
 
@@ -484,7 +484,7 @@ class Node(BaseNode, ScopedObject):
         self,
         wait_for_live: bool = True,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
-        time_offset: str | None = None,
+        time_control: str | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
     ) -> None:
         self.__close_wallets()
@@ -492,7 +492,7 @@ class Node(BaseNode, ScopedObject):
         self.run(
             wait_for_live=wait_for_live,
             timeout=timeout,
-            time_offset=time_offset,
+            time_control=time_control,
             alternate_chain_specs=alternate_chain_specs,
         )
         self.__run_wallets()
