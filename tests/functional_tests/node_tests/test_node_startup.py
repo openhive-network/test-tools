@@ -102,7 +102,7 @@ def test_startup_with_modified_time() -> None:
     requested_start_time = Time.parse("2020-01-01T00:00:00")
 
     init_node = tt.InitNode()
-    init_node.run(time_control=f"{Time.serialize(requested_start_time, format_=TimeFormats.TIME_OFFSET_FORMAT)}")
+    init_node.run(time_control=f"{Time.serialize(requested_start_time, format_=TimeFormats.FAKETIME_FORMAT)}")
 
     node_time = Time.parse(init_node.api.database.get_dynamic_global_properties()["time"])
 

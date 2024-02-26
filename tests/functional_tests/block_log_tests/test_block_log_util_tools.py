@@ -13,7 +13,7 @@ def node() -> tt.InitNode:
     node.run(time_control="+0h x10")
     node.wait_for_block_with_number(30)
     time_control = node.get_head_block_time()
-    node.restart(time_control=tt.Time.serialize(time_control, format_=tt.TimeFormats.TIME_OFFSET_FORMAT))
+    node.restart(time_control=tt.Time.serialize(time_control, format_=tt.TimeFormats.FAKETIME_FORMAT))
     return node
 
 
@@ -48,7 +48,7 @@ def test_get_head_block_time(node: tt.InitNode) -> None:
 
     head_block_time_from_block_log = block_log.get_head_block_time()
     head_block_time_from_block_log_serialized = block_log.get_head_block_time(
-        serialize=True, serialize_format=tt.TimeFormats.TIME_OFFSET_FORMAT
+        serialize=True, serialize_format=tt.TimeFormats.FAKETIME_FORMAT
     )
 
     assert (
@@ -56,7 +56,7 @@ def test_get_head_block_time(node: tt.InitNode) -> None:
     ), "Head_block_time from block_log is other than head_block_time from node"
 
     assert (
-        tt.Time.serialize(time=head_block_time_from_node, format_=tt.TimeFormats.TIME_OFFSET_FORMAT)
+        tt.Time.serialize(time=head_block_time_from_node, format_=tt.TimeFormats.FAKETIME_FORMAT)
         == head_block_time_from_block_log_serialized
     ), "Serialized head_block_time from block_log is other than serialized head_block_time from node"
 
