@@ -114,7 +114,8 @@ class BlockLog:
 
     def generate_artifacts(self) -> None:
         """Generate block_log.artifacts file."""
-        self.__run_and_get_output("generate-artifacts", str(self.path))
+        block_log_arg = ["--block-log", str(self.path)]
+        self.__run_and_get_output("--generate-artifacts", *block_log_arg)
 
     def get_head_block_number(self) -> int:
         """
@@ -124,7 +125,8 @@ class BlockLog:
         """
         if not self.artifacts_path.exists():
             self.generate_artifacts()
-        return int(self.__run_and_get_output("get-head-block-number", str(self.path)))
+        block_log_arg = ["--block-log", str(self.path)]
+        return int(self.__run_and_get_output("--get-head-block-number", *block_log_arg))
 
     def get_block(self, block_number: int) -> BlockLogUtilResult:
         """
@@ -136,7 +138,9 @@ class BlockLog:
         """
         if not self.artifacts_path.exists():
             self.generate_artifacts()
-        output = self.__run_and_get_output("get-block", str(self.path), f"{block_number}").replace("'", '"')
+        block_log_arg = ["--block-log", str(self.path)]
+        block_number_arg = ["--block-number", f"{block_number}"]
+        output = self.__run_and_get_output("--get-block", *block_log_arg, *block_number_arg).replace("'", '"')
         return BlockLogUtilResult(**json.loads(output))
 
     @overload
