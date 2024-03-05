@@ -80,6 +80,7 @@ class _PathsToExecutables:
             "get_dev_key": ExecutableDetails("get_dev_key", "programs/util/get_dev_key"),
             "compress_block_log": ExecutableDetails("compress_block_log", "programs/util/compress_block_log"),
             "block_log_util": ExecutableDetails("block_log_util", "programs/util/block_log_util"),
+            "op_body_filter": ExecutableDetails("op_body_filter", "../bin/op_body_filter"),
         }
 
         self.set_installed_executables()
