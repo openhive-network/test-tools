@@ -1,0 +1,2 @@
+2525643ms json_rpc_plugin.cpp:256       add_api_method       ] api_name: jsonrpc method_name: get_methods 
+2525643ms webserver_plugin.cpp:702      plugin_initialize    ] initializing webserver plugin
