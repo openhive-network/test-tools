@@ -182,6 +182,24 @@ tests = ["attrs[tests-no-zope]", "zope-interface"]
 tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "pytest-xdist[psutil]"]
 
 [[package]]
+name = "beekeepy"
+version = "1.25.2rc0.dev3774+a93c5bc30.dirty"
+description = ""
+optional = false
+python-versions = ">=3.10,<4.0"
+files = [
+    {file = "beekeepy-1.25.2rc0.dev3774+a93c5bc30.dirty-py3-none-any.whl", hash = "sha256:44dcdcc4667c337461d331811c7b5396a57ce6cfa3713feb1fafff4edea56c71"},
+]
+
+[package.dependencies]
+helpy = "0.0.1.dev156+41ae90d"
+
+[package.source]
+type = "legacy"
+url = "https://gitlab.syncad.com/api/v4/projects/198/packages/pypi/simple"
+reference = "gitlab-beekeepy"
+
+[[package]]
 name = "black"
 version = "22.8.0"
 description = "The uncompromising code formatter."
@@ -440,12 +458,12 @@ hyperframe = ">=6.0,<7"
 
 [[package]]
 name = "helpy"
-version = "0.0.1.dev160+57e9594"
+version = "0.0.1.dev156+41ae90d"
 description = "Easily interact with the Hive blockchain using Python."
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "helpy-0.0.1.dev160+57e9594-py3-none-any.whl", hash = "sha256:e511c0e1b4aecea4cdf32c28bfe85f4aa1cd7e919cc2dc76b7db37d257d8bef9"},
+    {file = "helpy-0.0.1.dev156+41ae90d-py3-none-any.whl", hash = "sha256:299044b1847a727cc5d8714d901b9c523cfff8e00114dc39719e7a3ebb30b405"},
 ]
 
 [package.dependencies]
@@ -1363,4 +1381,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "0bd8e84ea0201012532e738d346b713b62760d04b85823254dad241c6195c5aa"
+content-hash = "132af91080d1f020247c7597d6aba4ebbe438ce1c05faede7856fb37ecfa21a4"
