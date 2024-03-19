@@ -68,6 +68,12 @@ def test_create_order(wallet: tt.BeekeeperWallet) -> None:
     wallet.api.create_order("initminer", 1000, tt.Asset.Test(100), tt.Asset.Tbd(100), False, 1000)
     # problem z authority
 
+# def test_cancel_order(wallet: tt.BeekeeperWallet) -> None:
+#     wallet.create_account("alice", hives=tt.Asset.Test(100), vests=tt.Asset.Test(100))
+#     wallet.api.create_order("initminer", 1000, tt.Asset.Test(100), tt.Asset.Tbd(100), False, 1000)
+#     wallet.api.cancel_order("initminer", 0)
+#     # problem z authority, unknown key
+
 def test_transfer(wallet: tt.BeekeeperWallet) -> None:
     wallet.api.create_account("initminer", "alice", "{}")
     wallet.api.transfer("initminer", "alice", tt.Asset.Test(500), "banana")
@@ -110,7 +116,7 @@ def test_update_proposal(wallet: tt.BeekeeperWallet) -> None:
         tt.Asset.Tbd(1000000),
         "subject-1",
         "permlink",
-        tt.Time.from_now(weeks=20),
+        tt.Time.from_now(weeks=19),
     )
 
 def test_remove_proposal(wallet: tt.BeekeeperWallet) -> None:
@@ -131,3 +137,34 @@ def test_remove_proposal(wallet: tt.BeekeeperWallet) -> None:
         "initminer",
         [0],
     )
+
+def test_update_proposal_votes(wallet: tt.BeekeeperWallet) -> None:
+    # problem z authority
+    wallet.create_account("alice", hbds=tt.Asset.Tbd(1000000), vests=tt.Asset.Test(1000000))
+    wallet.api.post_comment("initminer", "permlink", "", "parent-permlink", "title", "body", "{}")
+    wallet.api.create_proposal(
+        "initminer",
+        "initminer",
+        tt.Time.from_now(weeks=16),
+        tt.Time.from_now(weeks=20),
+        tt.Asset.Tbd(1000000),
+        "subject-1",
+        "permlink",
+    )
+
+    wallet.api.update_proposal_votes("initminer", [0], True)
+
+def test_cancel_transfer_from_savings(wallet: tt.BeekeeperWallet) -> None:
+    # Nie ma, za trudne do wytestowania
+    pass
+
+def test_change_recovery_account(wallet: tt.BeekeeperWallet) -> None:
+    # wallet.create_account("alice", hives=tt.Asset.Test(100), vests=tt.Asset.Test(100))
+    wallet.api.change_recovery_account("initminer", "initminer")
+
+def test_claim_reward_balance(wallet: tt.BeekeeperWallet) -> None:
+    # Nie ma, za trudne do wytestowania
+    pass
+
+def test_convert_hbd(wallet: tt.BeekeeperWallet) -> None:
+    wallet.api.convert_hbd("initminer", tt.Asset.Tbd(1.25))
