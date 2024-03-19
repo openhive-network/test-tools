@@ -76,3 +76,58 @@ def test_transfer_to_vesting(wallet: tt.BeekeeperWallet) -> None:
     wallet.api.create_account("initminer", "alice", "{}")
     wallet.api.transfer_to_vesting("initminer", "alice", tt.Asset.Hive(500))
 
+def test_create_proposal(wallet: tt.BeekeeperWallet) -> None:
+    # problem z authority
+    wallet.create_account("alice", hbds=tt.Asset.Tbd(1000000), vests=tt.Asset.Test(1000000))
+    wallet.api.post_comment("initminer", "permlink", "", "parent-permlink", "title", "body", "{}")
+    wallet.api.create_proposal(
+        "initminer",
+        "initminer",
+        tt.Time.from_now(weeks=16),
+        tt.Time.from_now(weeks=20),
+        tt.Asset.Tbd(1000000),
+        "subject-1",
+        "permlink",
+    )
+
+def test_update_proposal(wallet: tt.BeekeeperWallet) -> None:
+    # problem z authority
+    wallet.create_account("alice", hbds=tt.Asset.Tbd(1000000), vests=tt.Asset.Test(1000000))
+    wallet.api.post_comment("initminer", "permlink", "", "parent-permlink", "title", "body", "{}")
+    proposal = wallet.api.create_proposal(
+        "initminer",
+        "initminer",
+        tt.Time.from_now(weeks=16),
+        tt.Time.from_now(weeks=20),
+        tt.Asset.Tbd(1000000),
+        "subject-1",
+        "permlink",
+    )
+
+    wallet.api.update_proposal(
+        0,
+        "initminer",
+        tt.Asset.Tbd(1000000),
+        "subject-1",
+        "permlink",
+        tt.Time.from_now(weeks=20),
+    )
+
+def test_remove_proposal(wallet: tt.BeekeeperWallet) -> None:
+    # problem z authority
+    wallet.create_account("alice", hbds=tt.Asset.Tbd(1000000), vests=tt.Asset.Test(1000000))
+    wallet.api.post_comment("initminer", "permlink", "", "parent-permlink", "title", "body", "{}")
+    proposal = wallet.api.create_proposal(
+        "initminer",
+        "initminer",
+        tt.Time.from_now(weeks=16),
+        tt.Time.from_now(weeks=20),
+        tt.Asset.Tbd(1000000),
+        "subject-1",
+        "permlink",
+    )
+
+    wallet.api.remove_proposal(
+        "initminer",
+        [0],
+    )
