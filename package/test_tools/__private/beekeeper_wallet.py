@@ -12,6 +12,7 @@ import re
 import shutil
 import signal
 import subprocess
+import time
 import warnings
 from argparse import ArgumentParser
 from typing import TYPE_CHECKING, Final, Literal, Any
@@ -20,10 +21,16 @@ import wax
 from schemas.fields.basic import PublicKey
 from schemas.fields.hive_int import HiveInt
 from schemas.operations import AnyOperation
+from schemas.operations.cancel_transfer_from_savings_operation import CancelTransferFromSavingsOperation
+from schemas.operations.change_recovery_account_operation import ChangeRecoveryAccountOperation
+from schemas.operations.claim_reward_balance_operation import ClaimRewardBalanceOperation
+from schemas.operations.convert_operation import ConvertOperation
 from schemas.operations.create_proposal_operation import CreateProposalOperation
+from schemas.operations.limit_order_cancel_operation import LimitOrderCancelOperation
 from schemas.operations.remove_proposal_operation import RemoveProposalOperation
 from schemas.operations.representations.hf26_representation import HF26Representation
 from schemas.operations.update_proposal_operation import UpdateProposalOperation
+from schemas.operations.update_proposal_votes_operation import UpdateProposalVotesOperation
 from schemas.transaction import Transaction
 
 from test_tools.__private import communication, paths_to_executables
@@ -166,23 +173,28 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
 
         def cancel_order(self, owner, orderid, broadcast=None, only_result: bool = True):
             return self.__send(
-                "cancel_order", owner=owner, orderid=orderid, broadcast=broadcast, only_result=only_result
+                LimitOrderCancelOperation(
+                    owner=owner,
+                    orderid=orderid,
+                ),
+                broadcast=broadcast,
+                only_result=only_result,
             )
 
         def cancel_transfer_from_savings(self, from_, request_id, broadcast=None, only_result: bool = True):
             return self.__send(
-                "cancel_transfer_from_savings",
+                CancelTransferFromSavingsOperation(
                 from_=from_,
-                request_id=request_id,
+                request_id=request_id),
                 broadcast=broadcast,
                 only_result=only_result,
             )
 
         def change_recovery_account(self, owner, new_recovery_account, broadcast=None, only_result: bool = True):
             return self.__send(
-                "change_recovery_account",
-                owner=owner,
-                new_recovery_account=new_recovery_account,
+                ChangeRecoveryAccountOperation(
+                account_to_recover=owner,
+                new_recovery_account=new_recovery_account),
                 broadcast=broadcast,
                 only_result=only_result,
             )
@@ -205,17 +217,17 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             self, account, reward_hive, reward_hbd, reward_vests, broadcast=None, only_result: bool = True
         ):
             return self.__send(
-                "claim_reward_balance",
+                ClaimRewardBalanceOperation(
                 account=account,
                 reward_hive=reward_hive,
                 reward_hbd=reward_hbd,
-                reward_vests=reward_vests,
+                reward_vests=reward_vests),
                 broadcast=broadcast,
                 only_result=only_result,
             )
 
         def convert_hbd(self, from_, amount, broadcast=None, only_result: bool = True):
-            return self.__send("convert_hbd", from_=from_, amount=amount, broadcast=broadcast, only_result=only_result)
+            return self.__send(ConvertOperation(owner=from_, amount=amount, requestid=int(time.time())), broadcast=broadcast, only_result=only_result)
 
         def convert_hive_with_collateral(self, from_, collateral_amount, broadcast=None, only_result: bool = True):
             return self.__send(
@@ -985,10 +997,11 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
 
         def update_proposal_votes(self, voter, proposals, approve, broadcast=None, only_result: bool = True):
             return self.__send(
-                "update_proposal_votes",
-                voter=voter,
-                proposals=proposals,
-                approve=approve,
+                UpdateProposalVotesOperation(
+                    voter=voter,
+                    proposal_ids=proposals,
+                    approve=approve,
+                ),
                 broadcast=broadcast,
                 only_result=only_result,
             )
