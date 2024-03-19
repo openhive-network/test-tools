@@ -65,7 +65,8 @@ def test_create_account_with_keys(wallet: tt.BeekeeperWallet) -> None:
 
 def test_create_order(wallet: tt.BeekeeperWallet) -> None:
     wallet.create_account("alice", hives=tt.Asset.Test(100), vests=tt.Asset.Test(100))
-    wallet.api.create_order("alice", 1000, tt.Asset.Test(100), tt.Asset.Tbd(100), False, 1000)
+    wallet.api.create_order("initminer", 1000, tt.Asset.Test(100), tt.Asset.Tbd(100), False, 1000)
+    # problem z authority
 
 def test_transfer(wallet: tt.BeekeeperWallet) -> None:
     wallet.api.create_account("initminer", "alice", "{}")
