@@ -20,7 +20,10 @@ import wax
 from schemas.fields.basic import PublicKey
 from schemas.fields.hive_int import HiveInt
 from schemas.operations import AnyOperation
+from schemas.operations.create_proposal_operation import CreateProposalOperation
+from schemas.operations.remove_proposal_operation import RemoveProposalOperation
 from schemas.operations.representations.hf26_representation import HF26Representation
+from schemas.operations.update_proposal_operation import UpdateProposalOperation
 from schemas.transaction import Transaction
 
 from test_tools.__private import communication, paths_to_executables
@@ -149,7 +152,6 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
 
         def __is_transaction_build_in_progress(self):
             return self.__transaction_builder is not None
-
 
         # Below code is machine generated. Don't update it manually.
         #
@@ -363,14 +365,11 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             only_result: bool = True,
         ):
             return self.__send(
-                "create_proposal",
-                creator=creator,
-                receiver=receiver,
-                start_date=start_date,
-                end_date=end_date,
-                daily_pay=daily_pay,
-                subject=subject,
-                permlink=permlink,
+                CreateProposalOperation(creator=creator, receiver=receiver, start_date=start_date,
+                                       end_date=end_date,
+                                       daily_pay=daily_pay,
+                                       subject=subject,
+                                       permlink=permlink),
                 broadcast=broadcast,
                 only_result=only_result,
             )
@@ -780,7 +779,12 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
 
         def remove_proposal(self, deleter, ids, broadcast=None, only_result: bool = True):
             return self.__send(
-                "remove_proposal", deleter=deleter, ids=ids, broadcast=broadcast, only_result=only_result
+                RemoveProposalOperation(
+                proposal_owner=deleter,
+                proposal_ids=ids
+                ),
+                broadcast=broadcast,
+                only_result=only_result,
             )
 
         def request_account_recovery(
@@ -967,13 +971,14 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             self, proposal_id, creator, daily_pay, subject, permlink, end_date, broadcast=None, only_result: bool = True
         ):
             return self.__send(
-                "update_proposal",
-                proposal_id=proposal_id,
-                creator=creator,
-                daily_pay=daily_pay,
-                subject=subject,
-                permlink=permlink,
-                end_date=end_date,
+                UpdateProposalOperation(
+                    proposal_id=proposal_id,
+                    creator=creator,
+                    daily_pay=daily_pay,
+                    subject=subject,
+                    permlink=permlink,
+                    extensions=[{"type": "update_proposal_end_date", "value": {"end_date": end_date}}],
+                ),
                 broadcast=broadcast,
                 only_result=only_result,
             )
@@ -1096,7 +1101,6 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
     def is_running(self):
         return self.__beekeeper_wallet is not None
 
-
     def run(
         self,
     ):
@@ -1108,7 +1112,6 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
         self.__beekeeper_wallet = self.__beekeeper_session.create_wallet(name=self.name, password=self.DEFAULT_PASSWORD)
 
         self.__beekeeper_wallet.import_key(private_key=Account("initminer").private_key)
-
 
     @property
     def transaction_serialization(self) -> Literal["legacy", "hf26"]:
@@ -1296,11 +1299,11 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
         )
 
     def __normalize_key(self, pubkey: PublicKey) -> str:
-            return pubkey[3:]
-    
+        return pubkey[3:]
+
     def send(self, operation: AnyOperation, broadcast: bool) -> SimpleTransaction:
         node_config = self.connected_node.api.database.get_config()
-        #Tymczasowo podpisuję Initminerem
+        # Tymczasowo podpisuję Initminerem
         account = Account("initminer")
         transaction = self.__generate_transaction_template(self.connected_node)
         transaction.add_operation(operation)
