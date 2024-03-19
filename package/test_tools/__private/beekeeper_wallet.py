@@ -41,6 +41,12 @@ from beekeepy._interface.synchronous.wallet import UnlockedWallet
 
 from schemas.operations.comment_operation import CommentOperation
 from schemas.operations.account_create_operation import AccountCreateOperation
+from schemas.operations.account_create_with_delegation_operation import AccountCreateWithDelegationOperation
+from schemas.operations.limit_order_create_operation import LimitOrderCreateOperation
+from schemas.operations.transfer_operation import TransferOperation
+from schemas.operations.transfer_to_vesting_operation import TransferToVestingOperation
+from datetime import datetime, timedelta
+
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -244,12 +250,13 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             only_result: bool = True,
         ):
             return self.__send(
-                "create_account_delegated",
-                creator=creator,
-                hive_fee=hive_fee,
-                delegated_vests=delegated_vests,
-                new_account_name=new_account_name,
-                json_meta=json_meta,
+                AccountCreateWithDelegationOperation(creator=creator, new_account_name=new_account_name, json_metadata=json_meta,
+                                       fee=hive_fee,
+                                       delegation=delegated_vests,
+                                       owner=self.__get_authority(f'STM{self.__wallet.beekeeper_wallet.generate_key()}'),
+                                       active=self.__get_authority(f'STM{self.__wallet.beekeeper_wallet.generate_key()}'),
+                                       posting=self.__get_authority(f'STM{self.__wallet.beekeeper_wallet.generate_key()}'),
+                                       memo_key=f'STM{self.__wallet.beekeeper_wallet.generate_key()}'),
                 broadcast=broadcast,
                 only_result=only_result,
             )
@@ -283,16 +290,13 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             only_result: bool = True,
         ):
             return self.__send(
-                "create_account_with_keys_delegated",
-                creator=creator,
-                hive_fee=hive_fee,
-                delegated_vests=delegated_vests,
-                newname=newname,
-                json_meta=json_meta,
-                owner=owner,
-                active=active,
-                posting=posting,
-                memo=memo,
+                AccountCreateWithDelegationOperation(creator=creator, new_account_name=newname, json_metadata=json_meta,
+                                       fee=hive_fee,
+                                       delegation=delegated_vests,
+                                       owner=self.__get_authority(owner),
+                                       active=self.__get_authority(active),
+                                       posting=self.__get_authority(posting),
+                                       memo_key=memo),
                 broadcast=broadcast,
                 only_result=only_result,
             )
@@ -338,13 +342,10 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             only_result: bool = True,
         ):
             return self.__send(
-                "create_order",
-                owner=owner,
-                order_id=order_id,
-                amount_to_sell=amount_to_sell,
-                min_to_receive=min_to_receive,
-                fill_or_kill=fill_or_kill,
-                expiration=expiration,
+                LimitOrderCreateOperation(owner=owner, orderid=order_id, amount_to_sell=amount_to_sell,
+                                       min_to_receive=min_to_receive,
+                                       fill_or_kill=fill_or_kill,
+                                       expiration=datetime.now() + timedelta(seconds=expiration)),
                 broadcast=broadcast,
                 only_result=only_result,
             )
@@ -834,7 +835,10 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
 
         def transfer(self, from_, to, amount, memo, broadcast=None, only_result: bool = True):
             return self.__send(
-                "transfer", from_=from_, to=to, amount=amount, memo=memo, broadcast=broadcast, only_result=only_result
+                TransferOperation(from_=from_, to=to, amount=amount,
+                                       memo=memo),
+                broadcast=broadcast,
+                only_result=only_result,
             )
 
         def transfer_from_savings(self, from_, request_id, to, amount, memo, broadcast=None, only_result: bool = True):
@@ -873,9 +877,10 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
 
         def transfer_to_vesting(self, from_, to, amount, broadcast=None, only_result: bool = True):
             return self.__send(
-                "transfer_to_vesting", from_=from_, to=to, amount=amount, broadcast=broadcast, only_result=only_result
+                TransferToVestingOperation(from_=from_, to=to, amount=amount),
+                broadcast=broadcast,
+                only_result=only_result,
             )
-
         def transfer_to_vesting_nonblocking(self, from_, to, amount, broadcast=None, only_result: bool = True):
             return self.__send(
                 "transfer_to_vesting_nonblocking",
