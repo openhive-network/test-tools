@@ -24,8 +24,11 @@ from schemas.operations import AnyOperation
 from schemas.operations.cancel_transfer_from_savings_operation import CancelTransferFromSavingsOperation
 from schemas.operations.change_recovery_account_operation import ChangeRecoveryAccountOperation
 from schemas.operations.claim_reward_balance_operation import ClaimRewardBalanceOperation
+from schemas.operations.collateralized_convert_operation import CollateralizedConvertOperation
 from schemas.operations.convert_operation import ConvertOperation
 from schemas.operations.create_proposal_operation import CreateProposalOperation
+from schemas.operations.decline_voting_rights_operation import DeclineVotingRightsOperation
+from schemas.operations.delegate_vesting_shares_operation import DelegateVestingSharesOperation
 from schemas.operations.limit_order_cancel_operation import LimitOrderCancelOperation
 from schemas.operations.remove_proposal_operation import RemoveProposalOperation
 from schemas.operations.representations.hf26_representation import HF26Representation
@@ -231,9 +234,10 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
 
         def convert_hive_with_collateral(self, from_, collateral_amount, broadcast=None, only_result: bool = True):
             return self.__send(
-                "convert_hive_with_collateral",
-                from_=from_,
-                collateral_amount=collateral_amount,
+                CollateralizedConvertOperation(
+                owner=from_,
+                amount=collateral_amount,
+                requestid=int(time.time())),
                 broadcast=broadcast,
                 only_result=only_result,
             )
@@ -388,7 +392,7 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
 
         def decline_voting_rights(self, account, decline, broadcast=None, only_result: bool = True):
             return self.__send(
-                "decline_voting_rights", account=account, decline=decline, broadcast=broadcast, only_result=only_result
+                DeclineVotingRightsOperation(account=account, decline=decline), broadcast=broadcast, only_result=only_result
             )
 
         def decrypt_memo(self, memo, only_result: bool = True):
@@ -408,10 +412,10 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             self, delegator, delegatee, vesting_shares, broadcast=None, only_result: bool = True
         ):
             return self.__send(
-                "delegate_vesting_shares",
+                DelegateVestingSharesOperation(
                 delegator=delegator,
                 delegatee=delegatee,
-                vesting_shares=vesting_shares,
+                vesting_shares=vesting_shares),
                 broadcast=broadcast,
                 only_result=only_result,
             )
