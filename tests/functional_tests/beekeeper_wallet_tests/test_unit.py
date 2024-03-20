@@ -168,3 +168,16 @@ def test_claim_reward_balance(wallet: tt.BeekeeperWallet) -> None:
 
 def test_convert_hbd(wallet: tt.BeekeeperWallet) -> None:
     wallet.api.convert_hbd("initminer", tt.Asset.Tbd(1.25))
+
+def test_convert_hive_with_collateral(wallet: tt.BeekeeperWallet) -> None:
+        wallet.api.convert_hive_with_collateral("initminer", tt.Asset.Test(10))
+
+def test_decline_voting_rights(wallet: tt.BeekeeperWallet) -> None:
+    wallet.api.decline_voting_rights("initminer", True)
+
+def test_decrypt_memo(wallet: tt.BeekeeperWallet) -> None:
+    wallet.api.decline_voting_rights("initminer", True)
+
+def test_delegate_vesting_shares(wallet: tt.BeekeeperWallet) -> None:
+    wallet.api.create_account("initminer", "tipu", "{}")
+    wallet.api.delegate_vesting_shares("initminer", "tipu", tt.Asset.Vest(0.005))
