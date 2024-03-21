@@ -181,3 +181,105 @@ def test_decrypt_memo(wallet: tt.BeekeeperWallet) -> None:
 def test_delegate_vesting_shares(wallet: tt.BeekeeperWallet) -> None:
     wallet.api.create_account("initminer", "tipu", "{}")
     wallet.api.delegate_vesting_shares("initminer", "tipu", tt.Asset.Vest(0.005))
+
+def test_delegate_vesting_shares_and_transfer(wallet: tt.BeekeeperWallet) -> None:
+    wallet.api.create_account("initminer", "alice", "{}")
+    wallet.api.delegate_vesting_shares_and_transfer(
+        "initminer", "alice", tt.Asset.Vest(1), tt.Asset.Test(6), "transfer_memo"
+    )
+
+# def test_encrow_release(wallet: tt.BeekeeperWallet) -> None:
+#     # problem z authority
+#     wallet.create_account("alice", vests=tt.Asset.Test(50))
+#     wallet.create_account("bob", vests=tt.Asset.Test(50))
+
+#     wallet.api.escrow_transfer(
+#         "initminer",
+#         "alice",
+#         "bob",
+#         99,
+#         tt.Asset.Tbd(1),
+#         tt.Asset.Test(2),
+#         tt.Asset.Tbd(1),
+#         tt.Time.from_now(weeks=16),
+#         tt.Time.from_now(weeks=20),
+#         "{}",
+#     )
+
+#     wallet.api.escrow_approve("initminer", "alice", "bob", "bob", 99, True)
+
+#     wallet.api.escrow_approve("initminer", "alice", "bob", "alice", 99, True)
+
+#     wallet.api.escrow_dispute("initminer", "alice", "bob", "initminer", 99)
+
+#     wallet.api.escrow_release(
+#         "initminer", "alice", "bob", "bob", "alice", 99, tt.Asset.Tbd(1), tt.Asset.Test(2)
+#     )
+
+# def test_escrow_dispute(wallet: tt.BeekeeperWallet) -> None:
+#     # problem z authority
+#     wallet.create_account("alice", vests=tt.Asset.Test(50))
+#     wallet.create_account("bob", vests=tt.Asset.Test(50))
+
+#     wallet.api.escrow_transfer(
+#         "initminer",
+#         "alice",
+#         "bob",
+#         99,
+#         tt.Asset.Tbd(1),
+#         tt.Asset.Test(2),
+#         tt.Asset.Tbd(1),
+#         tt.Time.from_now(weeks=16),
+#         tt.Time.from_now(weeks=20),
+#         "{}",
+#     )
+
+#     wallet.api.escrow_approve("initminer", "alice", "bob", "bob", 99, True)
+
+#     wallet.api.escrow_approve("initminer", "alice", "bob", "alice", 99, True)
+
+#     wallet.api.escrow_dispute("initminer", "alice", "bob", "initminer", 99)
+
+# def test_escrow_approve(wallet: tt.BeekeeperWallet) -> None:
+#     # problem z authority
+#     wallet.create_account("alice", vests=tt.Asset.Test(50))
+#     wallet.create_account("bob", vests=tt.Asset.Test(50))
+
+#     wallet.api.escrow_transfer(
+#         "initminer",
+#         "alice",
+#         "bob",
+#         99,
+#         tt.Asset.Tbd(1),
+#         tt.Asset.Test(2),
+#         tt.Asset.Tbd(1),
+#         tt.Time.from_now(weeks=16),
+#         tt.Time.from_now(weeks=20),
+#         "{}",
+#     )
+
+#     wallet.api.escrow_approve("initminer", "alice", "bob", "bob", 99, True)
+
+# def test_escrow_transfer(wallet: tt.BeekeeperWallet) -> None:
+#     # problem z authority
+#     wallet.create_account("alice", vests=tt.Asset.Test(50))
+#     wallet.create_account("bob", vests=tt.Asset.Test(50))
+
+#     wallet.api.escrow_transfer(
+#         "initminer",
+#         "alice",
+#         "bob",
+#         99,
+#         tt.Asset.Tbd(1),
+#         tt.Asset.Test(2),
+#         tt.Asset.Tbd(1),
+#         tt.Time.from_now(weeks=16),
+#         tt.Time.from_now(weeks=20),
+#         "{}",
+#     )
+
+def test_is_locked(wallet: tt.BeekeeperWallet) -> None:
+    wallet.api.is_locked()
+
+def test_publish_feed(wallet: tt.BeekeeperWallet) -> None:
+    wallet.api.publish_feed("initminer", {"base": "1.167 TBD", "quote": "1.111 TESTS"})
