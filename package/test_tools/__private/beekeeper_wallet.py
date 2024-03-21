@@ -18,7 +18,9 @@ from argparse import ArgumentParser
 from typing import TYPE_CHECKING, Final, Literal, Any
 from loguru import logger
 import wax
+from helpy._interfaces.time import TimeFormats
 from schemas.fields.basic import PublicKey
+from schemas.fields.compound import HbdExchangeRate
 from schemas.fields.hive_int import HiveInt
 from schemas.operations import AnyOperation
 from schemas.operations.cancel_transfer_from_savings_operation import CancelTransferFromSavingsOperation
@@ -29,6 +31,11 @@ from schemas.operations.convert_operation import ConvertOperation
 from schemas.operations.create_proposal_operation import CreateProposalOperation
 from schemas.operations.decline_voting_rights_operation import DeclineVotingRightsOperation
 from schemas.operations.delegate_vesting_shares_operation import DelegateVestingSharesOperation
+from schemas.operations.escrow_approve_operation import EscrowApproveOperation
+from schemas.operations.escrow_dispute_operation import EscrowDisputeOperation
+from schemas.operations.escrow_release_operation import EscrowReleaseOperation
+from schemas.operations.escrow_transfer_operation import EscrowTransferOperation
+from schemas.operations.feed_publish_operation import FeedPublishOperation
 from schemas.operations.limit_order_cancel_operation import LimitOrderCancelOperation
 from schemas.operations.remove_proposal_operation import RemoveProposalOperation
 from schemas.operations.representations.hf26_representation import HF26Representation
@@ -430,16 +437,10 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             broadcast=None,
             only_result: bool = True,
         ):
-            return self.__send(
-                "delegate_vesting_shares_and_transfer",
-                delegator=delegator,
-                delegatee=delegatee,
-                vesting_shares=vesting_shares,
-                transfer_amount=transfer_amount,
-                transfer_memo=transfer_memo,
-                broadcast=broadcast,
-                only_result=only_result,
-            )
+            with self.__wallet.in_single_transaction() as transaction:
+                self.delegate_vesting_shares(delegator=delegator, delegatee=delegatee, vesting_shares=vesting_shares)
+                self.transfer(from_=delegator, to=delegatee, amount=transfer_amount, memo=transfer_memo)
+            return transaction.get_response()
 
         def delegate_vesting_shares_and_transfer_nonblocking(
             self,
@@ -476,25 +477,25 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
 
         def escrow_approve(self, from_, to, agent, who, escrow_id, approve, broadcast=None, only_result: bool = True):
             return self.__send(
-                "escrow_approve",
+                EscrowApproveOperation(
                 from_=from_,
                 to=to,
                 agent=agent,
                 who=who,
                 escrow_id=escrow_id,
-                approve=approve,
+                approve=approve),
                 broadcast=broadcast,
                 only_result=only_result,
             )
 
         def escrow_dispute(self, from_, to, agent, who, escrow_id, broadcast=None, only_result: bool = True):
             return self.__send(
-                "escrow_dispute",
+                EscrowDisputeOperation(
                 from_=from_,
                 to=to,
                 agent=agent,
                 who=who,
-                escrow_id=escrow_id,
+                escrow_id=escrow_id),
                 broadcast=broadcast,
                 only_result=only_result,
             )
@@ -513,7 +514,7 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             only_result: bool = True,
         ):
             return self.__send(
-                "escrow_release",
+                EscrowReleaseOperation(
                 from_=from_,
                 to=to,
                 agent=agent,
@@ -521,7 +522,7 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
                 receiver=receiver,
                 escrow_id=escrow_id,
                 hbd_amount=hbd_amount,
-                hive_amount=hive_amount,
+                hive_amount=hive_amount),
                 broadcast=broadcast,
                 only_result=only_result,
             )
@@ -541,18 +542,19 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             broadcast=None,
             only_result: bool = True,
         ):
+            pass
             return self.__send(
-                "escrow_transfer",
+                EscrowTransferOperation(
                 from_=from_,
                 to=to,
                 agent=agent,
                 escrow_id=escrow_id,
-                hbd_amount=hbd_amount,
-                hive_amount=hive_amount,
-                fee=fee,
+                hbd_amount=hbd_amount.as_nai(),
+                hive_amount=hive_amount.as_nai(),
+                fee=fee.as_nai(),
                 ratification_deadline=ratification_deadline,
                 escrow_expiration=escrow_expiration,
-                json_meta=json_meta,
+                json_meta=json_meta),
                 broadcast=broadcast,
                 only_result=only_result,
             )
@@ -561,7 +563,7 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             return self.__send("estimate_hive_collateral", hbd_amount_to_get=hbd_amount_to_get, only_result=only_result)
 
         def exit(self, only_result: bool = True):
-            return self.__send("exit", only_result=only_result)
+            return self.__wallet.__beekeeper.delete()
 
         def find_proposals(self, proposal_ids, only_result: bool = True):
             return self.__send("find_proposals", proposal_ids=proposal_ids, only_result=only_result)
@@ -661,7 +663,7 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             return self.__send("info", only_result=only_result)
 
         def is_locked(self, only_result: bool = True):
-            return self.__send("is_locked", only_result=only_result)
+            return self.__wallet.beekeeper_wallet.unlocked is not None
 
         def is_new(self, only_result: bool = True):
             return self.__send("is_new", only_result=only_result)
@@ -743,9 +745,12 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
 
         def publish_feed(self, witness, exchange_rate, broadcast=None, only_result: bool = True):
             return self.__send(
-                "publish_feed",
-                witness=witness,
-                exchange_rate=exchange_rate,
+                FeedPublishOperation(
+                publisher=witness,
+                exchange_rate=HbdExchangeRate(
+                    base=Asset.from_legacy(exchange_rate["base"]),
+                    quote=Asset.from_legacy(exchange_rate["quote"]),
+                )),
                 broadcast=broadcast,
                 only_result=only_result,
             )
