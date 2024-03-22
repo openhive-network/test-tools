@@ -3,6 +3,8 @@ from __future__ import annotations
 import test_tools as tt
 from test_tools.__private.account import Account
 
+from helpy.exceptions import RequestError
+
 import pytest
 
 @pytest.fixture
@@ -47,13 +49,13 @@ def test_create_account_with_keys(wallet: tt.BeekeeperWallet) -> None:
         "initminer", alice.name, "{}", alice.public_key, alice.public_key, alice.public_key, alice.public_key, broadcast=False
     )
 
-# def test_create_account_delegated(wallet: tt.BeekeeperWallet) -> None:
-#     # try:
-#     wallet.api.create_account_delegated("initminer", tt.Asset.Test(3), tt.Asset.Test(6.123456), "alicex", "{}")
-#     # except Exception as e:
-#     #     message = str(e)
-#     #     found = message.find("Account creation with delegation is deprecated as of Hardfork 20")
-#     #     assert found != -1
+def test_create_account_delegated(wallet: tt.BeekeeperWallet) -> None:
+    try:
+        wallet.api.create_account_delegated("initminer", tt.Asset.Test(3), tt.Asset.Vest(6.123456), "alicex", "{}")
+    except (RequestError) as e:
+        message = str(e)
+        found = message.find("Account creation with delegation is deprecated as of Hardfork 20")
+        assert found != -1
 
 # def test_create_account_delegated_with_keys(wallet: tt.BeekeeperWallet) -> None:
 #     # try:
