@@ -28,6 +28,7 @@ from schemas.operations.change_recovery_account_operation import ChangeRecoveryA
 from schemas.operations.claim_reward_balance_operation import ClaimRewardBalanceOperation
 from schemas.operations.collateralized_convert_operation import CollateralizedConvertOperation
 from schemas.operations.convert_operation import ConvertOperation
+from schemas.operations.create_claimed_account_operation import CreateClaimedAccountOperation
 from schemas.operations.create_proposal_operation import CreateProposalOperation
 from schemas.operations.decline_voting_rights_operation import DeclineVotingRightsOperation
 from schemas.operations.delegate_vesting_shares_operation import DelegateVestingSharesOperation
@@ -338,16 +339,14 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             only_result: bool = True,
         ):
             return self.__send(
-                "create_funded_account_with_keys",
+                CreateClaimedAccountOperation(
                 creator=creator,
                 new_account_name=new_account_name,
-                initial_amount=initial_amount,
-                memo=memo,
-                json_meta=json_meta,
-                owner_key=owner_key,
-                active_key=active_key,
-                posting_key=posting_key,
+                owner=owner_key,
+                active=active_key,
+                posting=posting_key,
                 memo_key=memo_key,
+                json_metadata=json_meta),
                 broadcast=broadcast,
                 only_result=only_result,
             )
@@ -431,10 +430,10 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             vesting_shares,
             transfer_amount,
             transfer_memo,
-            broadcast=None,
+            json_metadata=None,
             only_result: bool = True,
         ):
-            with self.__wallet.in_single_transaction() as transaction:
+            with self.__wallet.in_single_transaction(b) as transaction:
                 self.delegate_vesting_shares(delegator=delegator, delegatee=delegatee, vesting_shares=vesting_shares)
                 self.transfer(from_=delegator, to=delegatee, amount=transfer_amount, memo=transfer_memo)
             return transaction.get_response()

@@ -57,13 +57,14 @@ def test_create_account_delegated(wallet: tt.BeekeeperWallet) -> None:
         found = message.find("Account creation with delegation is deprecated as of Hardfork 20")
         assert found != -1
 
-# def test_create_account_delegated_with_keys(wallet: tt.BeekeeperWallet) -> None:
-#     # try:
-#     wallet.api.create_account_delegated("initminer", tt.Asset.Test(3), tt.Asset.Test(6.123456), "alicex", "{}")
-#     # except Exception as e:
-#     #     message = str(e)
-#     #     found = message.find("Account creation with delegation is deprecated as of Hardfork 20")
-#     #     assert found != -1
+def test_create_account_with_keys_delegated(wallet: tt.BeekeeperWallet) -> None:
+    alice = tt.Account('alice')
+    try:
+        wallet.api.create_account_with_keys_delegated("initminer", tt.Asset.Test(3), tt.Asset.Vest(6.123456), "alicex", "{}", alice.public_key, alice.public_key, alice.public_key, alice.public_key)
+    except Exception as e:
+        message = str(e)
+        found = message.find("Account creation with delegation is deprecated as of Hardfork 20")
+        assert found != -1
 
 def test_create_order(wallet: tt.BeekeeperWallet) -> None:
     wallet.create_account("alice", hives=tt.Asset.Test(100), vests=tt.Asset.Test(100))
