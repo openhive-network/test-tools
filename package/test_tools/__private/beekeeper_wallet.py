@@ -123,13 +123,15 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             self.__transaction_builder = self.TransactionBuilder()
 
         def _send_gathered_operations_as_single_transaction(self, *, broadcast: bool):
-            return self.__wallet.send(operations=self.__transaction_builder.operations, broadcast=broadcast)
+            transaction = self.__wallet.send(operations=self.__transaction_builder.operations, broadcast=broadcast)
+            self.__transaction_builder = None
+            return transaction
 
         def __send(self, operation: AnyOperation, broadcast: bool, only_result: bool):
             broadcast = self.__handle_broadcast_parameter(broadcast)
 
             if not self.__is_transaction_build_in_progress():
-                return self.__wallet.send(operation=operation, broadcast=broadcast)
+                return self.__wallet.send(operations=[operation], broadcast=broadcast)
             else:
                 self._transaction_builder.append_operation(operation)
 
@@ -1321,23 +1323,23 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
 
     def send(self, operations: AnyOperation, broadcast: bool) -> SimpleTransaction:
         node_config = self.connected_node.api.database.get_config()
-        # Tymczasowo podpisuję Initminerem
-        # account = Account("initminer")
         transaction = self.__generate_transaction_template(self.connected_node)
         for operation in operations:
             transaction.add_operation(operation)
-        auths = wax.get_transaction_required_autorities(transaction=transaction.json(by_alias=True).encode("ascii"))
-        account_name = next(iter(auths.active_accounts)).decode('utf-8')
-        account = Account(account_name)
-        self.__beekeeper_wallet.import_key(private_key=account.private_key)
 
         wax_result = wax.calculate_sig_digest(transaction.json(by_alias=True).encode("ascii"), node_config.HIVE_CHAIN_ID.encode("ascii"))
         if wax_result.exception_message != b'':
             raise Exception(wax_result.exception_message)
         sig_digest = wax_result.result.decode("ascii")
 
-        signature = self.__beekeeper_wallet.sign_digest(sig_digest=sig_digest, key=self.__normalize_key(account.public_key))
-        signature = transaction.signatures.append(signature)
+        auths = wax.get_transaction_required_autorities(transaction=transaction.json(by_alias=True).encode("ascii"))
+        for active_account in auths.active_accounts:
+            account_name = active_account.decode('utf-8')
+            account = Account(account_name)
+            self.__beekeeper_wallet.import_key(private_key=account.private_key)
+            signature = self.__beekeeper_wallet.sign_digest(sig_digest=sig_digest, key=self.__normalize_key(account.public_key))
+            transaction.signatures.append(signature)
+    
         if broadcast:
             self.connected_node.api.wallet_bridge.broadcast_transaction_synchronous(transaction)
 
