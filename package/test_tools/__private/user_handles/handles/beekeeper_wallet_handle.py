@@ -58,7 +58,7 @@ class BeekeeperWalletHandle(Handle):
     def beekeeper_wallet(self) -> UnlockedWallet:
         return self.__implementation.beekeeper_wallet
     
-    def in_single_transaction(self, *, broadcast: bool | None = None) -> SingleTransactionContext:
+    def in_single_transaction(self, *, broadcast: bool = True) -> SingleTransactionContext:
         """
         Returns context manager allowing aggregation of multiple operations to single transaction.
 

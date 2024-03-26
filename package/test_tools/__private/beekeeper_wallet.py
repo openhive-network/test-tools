@@ -95,16 +95,17 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
 
             def __init__(self):
                 self.__transaction = None
+                self.__operations = []
 
-            def append_operation(self, transaction: SimpleTransaction):
-                if self.__transaction is None:
-                    self.__transaction = transaction
-                else:
-                    operation = transaction.operations[0].value
-                    self.__transaction.add_operation(operation)
+            def append_operation(self, operation: AnyOperation):
+                self.__operations.append(operation)
 
             def get_transaction(self):
                 return self.__transaction
+
+            @property
+            def operations(self):
+                return self.__operations
 
         def __init__(self, wallet: BeekeeperWallet):
             self.__wallet = wallet
@@ -121,24 +122,16 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
 
             self.__transaction_builder = self.TransactionBuilder()
 
-        def _send_gathered_operations_as_single_transaction(self, *, broadcast: bool = True):
-            transaction = self._transaction_builder.get_transaction()
-            self.__transaction_builder = None
-            broadcast=True
-            if broadcast and transaction is not None :
-               return self.__wallet.connected_node.api.wallet_bridge.broadcast_transaction_synchronous(transaction)
-
-            return transaction
+        def _send_gathered_operations_as_single_transaction(self, *, broadcast: bool):
+            return self.__wallet.send(operations=self.__transaction_builder.operations, broadcast=broadcast)
 
         def __send(self, operation: AnyOperation, broadcast: bool, only_result: bool):
             broadcast = self.__handle_broadcast_parameter(broadcast)
 
-            response = self.__wallet.send(operation=operation, broadcast=broadcast)
-
-            if self.__is_transaction_build_in_progress():
-                self._transaction_builder.append_operation(response)
-
-            return response
+            if not self.__is_transaction_build_in_progress():
+                return self.__wallet.send(operation=operation, broadcast=broadcast)
+            else:
+                self._transaction_builder.append_operation(operation)
 
         def __handle_broadcast_parameter(self, broadcast: bool):
             if broadcast is None:
@@ -1326,12 +1319,13 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
     def __normalize_key(self, pubkey: PublicKey) -> str:
         return pubkey[3:]
 
-    def send(self, operation: AnyOperation, broadcast: bool) -> SimpleTransaction:
+    def send(self, operations: AnyOperation, broadcast: bool) -> SimpleTransaction:
         node_config = self.connected_node.api.database.get_config()
         # Tymczasowo podpisuję Initminerem
         # account = Account("initminer")
         transaction = self.__generate_transaction_template(self.connected_node)
-        transaction.add_operation(operation)
+        for operation in operations:
+            transaction.add_operation(operation)
         auths = wax.get_transaction_required_autorities(transaction=transaction.json(by_alias=True).encode("ascii"))
         account_name = next(iter(auths.active_accounts)).decode('utf-8')
         account = Account(account_name)
@@ -1353,7 +1347,7 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
     # def __use_nai_assets(self) -> bool:
     #     return "--transaction-serialization=hf26" in self.additional_arguments
 
-    def in_single_transaction(self, *, broadcast=None):
+    def in_single_transaction(self, *, broadcast: bool = True):
         return SingleTransactionContext(self, broadcast=broadcast)
 
 

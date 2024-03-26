@@ -9,7 +9,6 @@ from test_tools.__private.scope.scope_fixtures import *  # noqa: F403
 from schemas.policies.policy import set_policies
 from schemas.policies.testnet_assets import TestnetAssets
 
-
 def pytest_sessionstart() -> None:
     # Turn off unnecessary logs
     logging.getLogger("urllib3.connectionpool").propagate = False
