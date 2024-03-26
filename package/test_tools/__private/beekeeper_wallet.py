@@ -1332,10 +1332,8 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
             raise Exception(wax_result.exception_message)
         sig_digest = wax_result.result.decode("ascii")
 
-        auths = wax.get_transaction_required_autorities(transaction=transaction.json(by_alias=True).encode("ascii"))
-        for active_account in auths.active_accounts:
-            account_name = active_account.decode('utf-8')
-            account = Account(account_name)
+        accounts = self.__get_authority_accounts(transaction=transaction)
+        for account in accounts:
             self.__beekeeper_wallet.import_key(private_key=account.private_key)
             signature = self.__beekeeper_wallet.sign_digest(sig_digest=sig_digest, key=self.__normalize_key(account.public_key))
             transaction.signatures.append(signature)
@@ -1345,9 +1343,16 @@ class BeekeeperWallet(UserHandleImplementation, ScopedObject):
 
         return transaction
 
-    # @property
-    # def __use_nai_assets(self) -> bool:
-    #     return "--transaction-serialization=hf26" in self.additional_arguments
+    def __get_authority_accounts(self, transaction: SimpleTransaction):
+        auths = wax.get_transaction_required_autorities(transaction=transaction.json(by_alias=True).encode("ascii"))
+        accounts = []
+        for auth_account_type in [auths.active_accounts, auths.owner_accounts, auths.posting_accounts]:
+            if auth_account_type != {}:
+                for account in auth_account_type:
+                    account_name = account.decode('utf-8')
+                    accounts.append(Account(account_name))
+        return accounts
+
 
     def in_single_transaction(self, *, broadcast: bool = True):
         return SingleTransactionContext(self, broadcast=broadcast)
