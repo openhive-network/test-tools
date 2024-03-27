@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class BaseNode(UserHandleImplementation, Hived):
     def __init__(self, *, name: str, handle: NodeHandleBase | None = None) -> None:
         self.__name = context.names.register_numbered_name(name)
-        super().__init__(handle=handle, communicator=RequestCommunicator())
+        super().__init__(handle=handle)
 
     def __str__(self) -> str:
         return self.__name
