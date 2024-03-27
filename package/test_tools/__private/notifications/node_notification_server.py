@@ -10,13 +10,14 @@ if TYPE_CHECKING:
 
 
 class NodeNotificationServer(UniversalNotificationServer):
-    def __init__(self, node_name: str, logger: Logger) -> None:
+    def __init__(self, node_name: str, logger: Logger, settings) -> None:
         self.__logger = logger
         self.__node_name = node_name
         self.__handler = NodeNotificationHandler(node_name=self.__node_name, logger=logger)
         super().__init__(
             self.__handler,
             thread_name=f"{self.__node_name}.NotificationServerThread",
+            settings=settings,
         )
 
     def run(self) -> int:
