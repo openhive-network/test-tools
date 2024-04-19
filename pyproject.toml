@@ -28,7 +28,7 @@ requests = "2.27.1"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 loguru = "0.7.2"
-beekeepy = "1.25.2rc0.dev4029+6f81e81f9"
+beekeepy = "1.25.2rc0.dev4313+b0cd52910"
 
 
 [tool.poetry.group.dev.dependencies]
