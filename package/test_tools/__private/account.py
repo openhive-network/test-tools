@@ -63,6 +63,9 @@ class Account:
         assert isinstance(__value, Account)
         return (self.name, self.secret) == (__value.name, __value.secret)
 
+    def __hash__(self) -> int:
+        return hash(f"{self.name} {self.secret}")
+
 
 def PublicKey(account_name: str, *, secret: str = "secret") -> PublicKeyType:  # noqa: N802
     return Account(account_name, secret=secret).public_key
