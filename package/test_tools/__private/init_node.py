@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from helpy import Hf26Asset as Asset
+
 from test_tools.__private.exceptions import NodeIsNotRunningError
 from test_tools.__private.vest_price import VestPrice
 from test_tools.__private.witness_node import WitnessNode
@@ -43,9 +44,7 @@ class InitNode(WitnessNode):
     def __stabilize_the_price(self, invest: Asset.TestT) -> None:
         from test_tools.__private.wallet import Wallet
 
-        wallet = Wallet(attach_to=self)
-
-        # this is required to minimize inflation impact on vest price
+        wallet = Wallet(attach_to=self)  # this is required to minimize inflation impact on vest price
         wallet.api.transfer_to_vesting("initminer", "initminer", invest)
         self.logger.info(f"Price stabilization completed. Invested: {invest} in network.")
         wallet.close()
