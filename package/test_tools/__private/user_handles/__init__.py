@@ -12,6 +12,7 @@ from test_tools.__private.user_handles.handles.node_handles.node_handle_base imp
 from test_tools.__private.user_handles.handles.node_handles.raw_node_handle import RawNodeHandle
 from test_tools.__private.user_handles.handles.node_handles.remote_node_handle import RemoteNodeHandle
 from test_tools.__private.user_handles.handles.node_handles.witness_node_handle import WitnessNodeHandle
+from test_tools.__private.user_handles.handles.old_wallet_handle import OldWalletHandle
 from test_tools.__private.user_handles.handles.wallet_handle import WalletHandle
 from test_tools.__private.user_handles.implementation import Implementation
 
@@ -26,5 +27,6 @@ __all__ = [
     "RawNodeHandle",
     "RemoteNodeHandle",
     "WalletHandle",
+    "OldWalletHandle",
     "WitnessNodeHandle",
 ]
