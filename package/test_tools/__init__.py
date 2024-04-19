@@ -22,6 +22,7 @@ from test_tools.__private.user_handles import ApiNodeHandle as ApiNode
 from test_tools.__private.user_handles import FullApiNodeHandle as FullApiNode
 from test_tools.__private.user_handles import InitNodeHandle as InitNode
 from test_tools.__private.user_handles import NetworkHandle as Network
+from test_tools.__private.user_handles import OldWalletHandle as OldWallet
 from test_tools.__private.user_handles import RawNodeHandle as RawNode
 from test_tools.__private.user_handles import RemoteNodeHandle as RemoteNode
 from test_tools.__private.user_handles import WalletHandle as Wallet
@@ -35,6 +36,7 @@ __all__ = [
     "Network",
     "RawNode",
     "RemoteNode",
+    "OldWallet",
     "Wallet",
     "WitnessNode",
     "context",
