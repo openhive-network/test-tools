@@ -3,43 +3,34 @@
 # file for deletion after cli_wallet deprecation
 from __future__ import annotations
 
-import typing
 from typing import TYPE_CHECKING, Literal
-from test_tools.__private.type_annotations.any_node import AnyNode
 
+from beekeepy._interface.synchronous.wallet import UnlockedWallet
+from schemas.operations import AnyOperation
+from test_tools.__private.type_annotations.any_node import AnyNode
 from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.user_handles.handle import Handle
 from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase
 from test_tools.__private.user_handles.handles.node_handles.remote_node_handle import RemoteNodeHandle as RemoteNode
-from test_tools.__private.wallet import SingleTransactionContext, Wallet
+from test_tools.__private.wallet import SingleTransactionContext, Wallet, WalletResponse, WalletResponseBase
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
     from pathlib import Path
 
-    from helpy import Hf26Asset as Asset
     from test_tools.__private.account import Account
+
+    from helpy import Hf26Asset as Asset
 
 
 class WalletHandle(Handle):
     DEFAULT_PASSWORD = Wallet.DEFAULT_PASSWORD
 
-    def __init__(
-        self,
-        attach_to: AnyNode | None = None,
-        additional_arguments: Iterable[str] = (),
-        preconfigure: bool = True,
-        time_control: str | None = None,
-    ):
+    def __init__(self, attach_to: AnyNode | None = None):
         """
-        Creates wallet, runs its process and blocks until wallet will be ready to use.
+        Prepare environment for wallet based on instance of beekeeper and wax, runs beekeeper instance, beekeeper session and wallet and made preconfigurations for test usage.
 
         :param attach_to: Wallet will send messages to node passed as this parameter. Passing node is optional, but when
             node is omitted, wallet functionalities are limited.
-        :param additional_arguments: Command line arguments which will be applied during running wallet.
-        :param preconfigure: If set to True, after run wallet will be unlocked with password DEFAULT_PASSWORD and
-            initminer's keys imported.
-        :param time_control: See parameter ``time_control`` in :func:`run`.
         """
         if isinstance(attach_to, NodeHandleBase | RemoteNode):
             attach_to = get_implementation(attach_to, AnyNode)
@@ -47,9 +38,6 @@ class WalletHandle(Handle):
         super().__init__(
             implementation=Wallet(
                 attach_to=attach_to,
-                additional_arguments=additional_arguments,
-                preconfigure=preconfigure,
-                time_control=time_control,
             )
         )
 
@@ -59,7 +47,17 @@ class WalletHandle(Handle):
     def __implementation(self) -> Wallet:
         return get_implementation(self, Wallet)
 
-    def in_single_transaction(self, *, broadcast: bool | None = None) -> SingleTransactionContext:
+    @property
+    def connected_node(self) -> None | AnyNode | RemoteNode:
+        """Returns node instance connected to the wallet"""
+        return self.__implementation.connected_node
+
+    @property
+    def beekeeper_wallet(self) -> UnlockedWallet:
+        """Returns UnlockedWallet coworking with wallet"""
+        return self.__implementation.beekeeper_wallet
+
+    def in_single_transaction(self, *, broadcast: bool = True, blocking: bool = True) -> SingleTransactionContext:
         """
         Returns context manager allowing aggregation of multiple operations to single transaction.
 
@@ -70,60 +68,43 @@ class WalletHandle(Handle):
             If set to False, only builds transaction without sending, which may be accessed with `get_response` method
             of returned context manager object.
             Otherwise behavior is undefined.
+        :param blocking: If set to True, wallet waiting for response from blockchain. If set to False, directly after send request, program continue working.
         """
-        return self.__implementation.in_single_transaction(broadcast=broadcast)
+        return self.__implementation.in_single_transaction(broadcast=broadcast, blocking=blocking)
 
-    def run(
-        self,
-        *,
-        timeout: float = Wallet.DEFAULT_RUN_TIMEOUT,
-        preconfigure: bool = True,
-        time_control: str | None = None,
-    ):
+    def send(
+        self, operations: list[AnyOperation], broadcast: bool, blocking: bool = True
+    ) -> WalletResponseBase | WalletResponse | None:
         """
-        Runs wallet's process and blocks until wallet will be ready to use.
+        Enable to sign and send transaction with any operations.
 
-        :param timeout: TimeoutError will be raised, if wallet won't start before specified timeout.
-        :param preconfigure: If set to True, after run wallet will be unlocked with password DEFAULT_PASSWORD and
-            initminer's keys imported.
-        :param time_control: Allows to change system date and time a node sees (without changing real OS time).
-            Can be specified either absolutely, relatively and speed up or slow down clock. Value passed in
-            `time_control` is written to `FAKETIME` environment variable. For details and examples see libfaketime
-            official documentation: https://github.com/wolfcw/libfaketime.
+        :param: operations: List of operation, which have to be send in this transaction.
+        :param broadcast: If set to True, this is default behavior, sends (broadcasts) transaction to blockchain.
+            If set to False, only builds transaction without sending.
+        :param blocking: If set to True, wallet waiting for response from blockchain. If set to False, directly after send request, program continue working.
         """
-        self.__implementation.run(timeout=timeout, preconfigure=preconfigure, time_control=time_control)
+        return self.__implementation.send(operations=operations, broadcast=broadcast, blocking=blocking)
 
-    def restart(self, *, preconfigure: bool = True, time_control: str | None = None) -> None:
+    def run(self) -> None:
         """
-        Closes wallet's process, runs it again and blocks until wallet will be ready to use.
+        Runs beekeeper instance, beekeeper session and wallet and made preconfigurations for test usage.
+        """
+        self.__implementation.run()
 
-        :param preconfigure: If set to True, after run wallet will be unlocked with password DEFAULT_PASSWORD and
-            initminer's keys imported.
-        :param time_control: See parameter ``time_control`` in :func:`run`.
+    def restart(self) -> None:
         """
-        self.__implementation.restart(preconfigure=preconfigure, time_control=time_control)
-
-    @property
-    def transaction_serialization(self) -> Literal["legacy", "hf26"]:
+        Close wallet and run it again.
         """
-        Returns information about how transactions are serialized.
-
-        Can be serialized in legacy way (e.g. assets are serialized as strings "3.000 HIVE", but it's not the only
-        difference) or in HF26 way (then are serialized as {"amount": "3000", "precision": 3, "nai": "@@000000021"}).
-        """
-        return self.__implementation.transaction_serialization
+        self.__implementation.restart()
 
     def close(self) -> None:
         """
-        Terminates wallet's process and performs needed cleanups.
-
-        Blocks until wallet process will be finished. Closing is performed by sending SIGINT signal.
-        If wallet doesn't close before timeout, sends SIGKILL and emits warning message.
+        Remove beekeeper instance, close beekeeper session and performs needed cleanups.
         """
         self.__implementation.close()
 
     def is_running(self) -> bool:
-        """Returns True if wallet's process is running, otherwise False."""
+        """Returns True if wallet is running, otherwise False."""
         return self.__implementation.is_running()
 
     def create_accounts(
