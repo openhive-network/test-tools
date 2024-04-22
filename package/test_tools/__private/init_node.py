@@ -1,3 +1,4 @@
+# ruff: noqa
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -22,7 +23,7 @@ class InitNode(WitnessNode):
         self.config.required_participation = 0
 
     def set_vest_price(
-        self, base: Asset.TestT, quote: Asset.VestsT, invest: Asset.TestT = Asset.Test(10_000_000)  # noqa: B008
+        self, base: Asset.TestT, quote: Asset.VestsT, invest: Asset.TestT = Asset.Test(10_000_000)
     ) -> None:
         if not self.is_running():
             raise NodeIsNotRunningError(
