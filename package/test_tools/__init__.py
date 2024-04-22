@@ -1,3 +1,4 @@
+# ruff: noqa
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -60,6 +61,6 @@ __all__ = [
 ]
 
 if TYPE_CHECKING:
-    from test_tools.__private.type_annotations.any_node import AnyNode  # noqa: TCH004
+    from test_tools.__private.type_annotations.any_node import AnyNode
 
-    __all__ = [*__all__, "AnyNode"]  # noqa: PLE0604
+    __all__ = [*__all__, "AnyNode"]
