@@ -29,6 +29,8 @@ class AlternateChainSpecs(BaseModel):
     init_witnesses: list[str] | None = None
     hive_owner_update_limit: int | None = None
     generate_missed_block_operations: bool | None = None
+    min_root_comment_interval: int | None = None
+    min_reply_interval: int | None = None
 
     def export_to_file(self, output_dir: Path | None = None) -> Path:
         if output_dir is None:
