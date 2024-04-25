@@ -39,6 +39,7 @@ def create_default_config(*, skip_address: bool = False) -> NodeConfig:
         market_history_buckets_per_size="5760",
         rc_stats_report_type="REGULAR",
         rc_stats_report_output="ILOG",
+        block_log_split=-1,
         snapshot_root_dir="snapshot",
         statsd_batchsize="1",
         tags_start_promoted="0",

@@ -84,6 +84,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
     p2p_parameters: str | None = None
     rc_stats_report_type: str | None = None
     rc_stats_report_output: str | None = None
+    block_log_split: int | None = None
     snapshot_root_dir: StringQuoted | None = None
     statsd_endpoint: str | None = None
     statsd_batchsize: str | None = None
