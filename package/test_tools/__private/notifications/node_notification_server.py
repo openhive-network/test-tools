@@ -8,15 +8,18 @@ from test_tools.__private.notifications.node_notification_handler import NodeNot
 if TYPE_CHECKING:
     from loguru import Logger
 
+    from helpy import HttpUrl
+
 
 class NodeNotificationServer(UniversalNotificationServer):
-    def __init__(self, node_name: str, logger: Logger) -> None:
+    def __init__(self, node_name: str, logger: Logger, notification_endpoint: HttpUrl | None) -> None:
         self.__logger = logger
         self.__node_name = node_name
         self.__handler = NodeNotificationHandler(node_name=self.__node_name, logger=logger)
         super().__init__(
             self.__handler,
             thread_name=f"{self.__node_name}.NotificationServerThread",
+            notification_endpoint=notification_endpoint,
         )
 
     def run(self) -> int:

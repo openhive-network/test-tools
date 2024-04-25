@@ -68,7 +68,11 @@ class Node(BaseNode, ScopedObject):
         return self.directory / "config.ini"
 
     def __create_notifications_server(self) -> NodeNotificationServer:
-        return NodeNotificationServer(self.get_name(), self.logger.bind(notifications=True))
+        return NodeNotificationServer(
+            node_name=self.get_name(),
+            logger=self.logger.bind(notifications=True),
+            notification_endpoint=self.settings.notification_endpoint,
+        )
 
     def is_running(self) -> bool:
         return self.__process.is_running()
@@ -99,10 +103,12 @@ class Node(BaseNode, ScopedObject):
     @http_endpoint.setter
     def http_endpoint(self, value: object | str | HttpUrl | None) -> None:
         if value is None:
-            self.config.webserver_http_endpoint = "0.0.0.0:0"
+            value = HttpUrl("0.0.0.0:0", protocol="http")
 
         assert isinstance(value, str | HttpUrl)
-        self.config.webserver_http_endpoint = HttpUrl(value, protocol="http").as_string(with_protocol=False)
+        value = HttpUrl(value, protocol="http")
+        self.config.webserver_http_endpoint = value.as_string(with_protocol=False)
+        super().http_endpoint = value  #  type: ignore[misc]
 
     def get_supported_plugins(self) -> list[str]:
         return self.__executable.get_supported_plugins()
