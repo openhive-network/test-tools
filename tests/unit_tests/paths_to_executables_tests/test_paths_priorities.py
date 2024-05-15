@@ -11,15 +11,15 @@ if TYPE_CHECKING:
     from tests.unit_tests.paths_to_executables_tests.executable_init_params import ExecutableInitParams
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="module")
 def prepare_paths() -> None:
-    for posix_path in [
-        "path_set_manually",
-        "path_set_from_command_line_arguments",
-        "path_set_from_environment_variables",
-        "path_of_installed_executable",
+    for path in [
+        Path("path_set_manually"),
+        Path("path_set_from_command_line_arguments"),
+        Path("path_set_from_environment_variables"),
+        Path("path_of_installed_executable"),
     ]:
-        Path(posix_path).touch()
+        path.touch()
 
 
 def test_manually_set_path_priority(paths: _PathsToExecutables, executable: ExecutableInitParams) -> None:

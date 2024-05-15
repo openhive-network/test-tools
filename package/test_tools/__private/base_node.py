@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
-from helpy import Hived, Settings
-from helpy._communication.request_communicator import RequestCommunicator
+from helpy import Hived
 from test_tools.__private.scope import context
+from test_tools.__private.settings import Settings
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
 
 if TYPE_CHECKING:
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class BaseNode(UserHandleImplementation, Hived):
     def __init__(self, *, name: str, handle: NodeHandleBase | None = None) -> None:
         self.__name = context.names.register_numbered_name(name)
-        super().__init__(handle=handle, settings=Settings(communicator=RequestCommunicator()))
+        super().__init__(handle=handle, settings=Settings())
 
     def __str__(self) -> str:
         return self.__name
@@ -34,3 +34,7 @@ class BaseNode(UserHandleImplementation, Hived):
 
     def get_http_endpoint(self) -> HttpUrl:
         return self.http_endpoint
+
+    @property
+    def settings(self) -> Settings:
+        return cast(Settings, super().settings)
