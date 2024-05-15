@@ -281,3 +281,9 @@ pyrightconfig.json
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,pycharm+all
+
+# test artiffacts
+**/generated_**
+**/*_path
+**/path_set_*
+**/path_of_*
