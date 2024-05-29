@@ -104,7 +104,9 @@ class BlockLog:
         return BlockLog(Path(output_directory) / "block_log")
 
     def __run_and_get_output(self, *args: str) -> str:
-        process = subprocess.run([paths_to_executables.get_path_of("block_log_util"), *args], capture_output=True)
+        process = subprocess.run(
+            [paths_to_executables.get_path_of("block_log_util"), *args], capture_output=True, check=False
+        )
 
         if process.returncode:
             raise BlockLogUtilError(
