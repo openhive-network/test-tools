@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
 
+from beekeepy.settings import Settings
+
 from helpy import Hived
 from test_tools.__private.scope import context
-from test_tools.__private.settings import Settings
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
 
 if TYPE_CHECKING:
