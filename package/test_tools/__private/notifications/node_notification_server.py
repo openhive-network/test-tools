@@ -18,8 +18,8 @@ class NodeNotificationServer(UniversalNotificationServer):
         self.__handler = NodeNotificationHandler(node_name=self.__node_name, logger=logger)
         super().__init__(
             self.__handler,
+            notification_endpoint,
             thread_name=f"{self.__node_name}.NotificationServerThread",
-            notification_endpoint=notification_endpoint,
         )
 
     def run(self) -> int:
