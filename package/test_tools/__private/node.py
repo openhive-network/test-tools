@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from test_tools.__private.alternate_chain_specs import AlternateChainSpecs
     from test_tools.__private.user_handles.handles.network_handle import NetworkHandle
     from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
-    from test_tools.__private.wallet import Wallet
+    from test_tools.__private.wallet.wallet import Wallet
 
 
 class Node(BaseNode, ScopedObject):
@@ -541,7 +541,6 @@ class Node(BaseNode, ScopedObject):
         time_control: TimeControl | str | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
     ) -> None:
-        self.__close_wallets()
         self.close()
         self.run(
             wait_for_live=wait_for_live,
@@ -549,7 +548,6 @@ class Node(BaseNode, ScopedObject):
             time_control=time_control,
             alternate_chain_specs=alternate_chain_specs,
         )
-        self.__run_wallets()
 
     def __remove_files(self) -> None:
         policy = cleanup_policy.get_default() if self.__cleanup_policy is None else self.__cleanup_policy
