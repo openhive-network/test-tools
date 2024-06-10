@@ -2917,6 +2917,10 @@ class Wallet(UserHandleImplementation, ScopedObject):
         node: AnyNode,
     ) -> SimpleTransaction:
         gdpo = node.api.database.get_dynamic_global_properties()
+        if isinstance(gdpo, dict | list):
+            logger.error(gdpo)
+            raise Exception(gdpo)
+
         block_id = gdpo.head_block_id
 
         # set header
@@ -3015,16 +3019,21 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         assert self.connected_node is not None
         keys_for_signing = set()
-        pubkey_account_association: dict[PublicKeyApiType, str] = {}
+        pubkey_account_association: dict[PublicKey, str] = {}
+
+        finded_accounts = self.connected_node.api.database.find_accounts(accounts=list(authorities_accounts.all()))
+        if isinstance(finded_accounts, dict | list):
+            logger.error(finded_accounts)
+            raise Exception(finded_accounts)
+
         for account in self.connected_node.api.database.find_accounts(
             accounts=list(authorities_accounts.all())
         ).accounts:
-            key_to_add: PublicKeyApiType
+            key_to_add: PublicKey
             if account.name in authorities_accounts.posting:
                 key_to_add = account.posting.key_auths[0][0]
             elif account.name in authorities_accounts.active:
                 key_to_add = account.active.key_auths[0][0]
-                key_to_add = account.active.account_auths
             elif account.name in authorities_accounts.owner:
                 key_to_add = account.owner.key_auths[0][0]
             else:
