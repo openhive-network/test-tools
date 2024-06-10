@@ -7,6 +7,10 @@ class TestToolsError(Exception):
     """Base exception class for test-tools package."""
 
 
+class WalletError(TestToolsError):
+    """Base exception class for Wallet."""
+
+
 CommunicationError = RequestError
 
 
@@ -43,4 +47,32 @@ class BlockWaitTimeoutError(TestToolsError):
 
 
 class BlockLogUtilError(TestToolsError):
+    pass
+
+
+class AccountNotExistError(WalletError):
+    pass
+
+
+class DelegatorIsNotRightError(WalletError):
+    pass
+
+
+class DelegateeIsNotRightError(WalletError):
+    pass
+
+
+class DelegatorOrDelegateeNotExistError(WalletError):
+    pass
+
+
+class TresholdOutOfRangeError(WalletError):
+    pass
+
+
+class WeightOutOfRangeError(WalletError):
+    pass
+
+
+class MethodDeprecatedInBeekeeperWalletError(WalletError):
     pass
