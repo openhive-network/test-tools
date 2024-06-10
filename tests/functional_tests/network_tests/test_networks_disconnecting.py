@@ -49,7 +49,7 @@ def prepare_witness(node: AnyNode, account: tt.Account) -> int:
         account.name,
         "https://" + account.name,
         account.public_key,
-        {"account_creation_fee": Asset.Test(3), "maximum_block_size": 65536, "sbd_interest_rate": 0},
+        {"account_creation_fee": Asset.Test(3), "maximum_block_size": 65536, "hbd_interest_rate": 0},
     )
 
     # Witness schedule list is updated on a block which is a multiple of 21. After fast confirmation feature

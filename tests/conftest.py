@@ -4,16 +4,21 @@ import logging
 
 import pytest
 import test_tools as tt
+from loguru import logger
 from test_tools.__private.scope.scope_fixtures import *  # noqa: F403
 
 from schemas.policies.policy import set_policies
 from schemas.policies.testnet_assets import TestnetAssets
 
 
+@pytest.fixture(autouse=True)
+def _disable_logging() -> None:
+    logger.disable("helpy")
+
+
 def pytest_sessionstart() -> None:
     # Turn off unnecessary logs
     logging.getLogger("urllib3.connectionpool").propagate = False
-    tt.logger.enable("helpy")
     tt.logger.enable("test_tools")
 
 
