@@ -8,6 +8,8 @@ import test_tools as tt
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+# hasz21
+
 
 def test_attaching_wallet_to_local_node(node: tt.InitNode) -> None:
     tt.Wallet(attach_to=node)

@@ -3,6 +3,8 @@ from __future__ import annotations
 import pytest
 import test_tools as tt
 
+# hasz22
+
 
 @pytest.fixture()
 def wallet(request: pytest.FixtureRequest) -> tt.Wallet:
@@ -19,9 +21,9 @@ def wallet(request: pytest.FixtureRequest) -> tt.Wallet:
 
 def test_keys_import_during_account_creation(wallet: tt.Wallet) -> None:
     accounts = wallet.create_accounts(3)
-    imported_private_keys = {key_pair[1] for key_pair in wallet.api.list_keys()}
+    imported_private_keys = wallet.api.list_keys()
 
-    assert all(account.private_key in imported_private_keys for account in accounts)
+    assert all(account.public_key in imported_private_keys for account in accounts)
 
 
 @pytest.mark.node_shared_file_size("16G")
