@@ -4,6 +4,7 @@ import pytest
 import test_tools as tt
 
 from helpy import Hf26Asset as Asset
+from helpy._interfaces.wax import WaxOperationFailedError
 
 
 @pytest.fixture()
@@ -12,7 +13,7 @@ def wallet(node: tt.InitNode) -> tt.Wallet:
 
 
 def test_if_raise_when_parameters_are_bad(wallet: tt.Wallet) -> None:
-    with pytest.raises(tt.exceptions.CommunicationError):
+    with pytest.raises(WaxOperationFailedError):
         wallet.api.create_account("surely", "bad", "arguments")
 
 

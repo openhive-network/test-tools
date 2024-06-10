@@ -7,11 +7,11 @@ from helpy import Hf26Asset as Asset
 
 
 @pytest.fixture()
-def wallet(node: tt.InitNode) -> tt.Wallet:
-    return tt.Wallet(attach_to=node)
+def wallet(node: tt.InitNode) -> tt.OldWallet:
+    return tt.OldWallet(attach_to=node)
 
 
-def test_sending_transaction_with_multiple_operations(wallet: tt.Wallet) -> None:
+def test_sending_transaction_with_multiple_operations(wallet: tt.OldWallet) -> None:
     accounts_and_balances = {
         "first": Asset.Test(100).as_legacy(),
         "second": Asset.Test(200).as_legacy(),
@@ -28,7 +28,7 @@ def test_sending_transaction_with_multiple_operations(wallet: tt.Wallet) -> None
         assert balance == expected_balance
 
 
-def test_sending_transaction_with_multiple_operations_without_broadcast(wallet: tt.Wallet) -> None:
+def test_sending_transaction_with_multiple_operations_without_broadcast(wallet: tt.OldWallet) -> None:
     with wallet.in_single_transaction(broadcast=False) as transaction:
         wallet.api.create_account("initminer", "alice", "{}")
 
@@ -40,7 +40,7 @@ def test_sending_transaction_with_multiple_operations_without_broadcast(wallet: 
     assert "alice" not in response
 
 
-def test_setting_broadcast_when_building_transaction(wallet: tt.Wallet) -> None:
+def test_setting_broadcast_when_building_transaction(wallet: tt.OldWallet) -> None:
     """
     During transaction building every wallet api call shouldn't be broadcasted.
 
@@ -50,7 +50,7 @@ def test_setting_broadcast_when_building_transaction(wallet: tt.Wallet) -> None:
         wallet.api.create_account("initminer", "alice", "{}", True)
 
 
-def test_getting_response(wallet: tt.Wallet) -> None:
+def test_getting_response(wallet: tt.OldWallet) -> None:
     with wallet.in_single_transaction() as transaction:
         wallet.api.create_account("initminer", "alice", "{}")
         wallet.api.transfer("initminer", "alice", Asset.Test(100), "memo")
