@@ -41,7 +41,7 @@ class InitNode(WitnessNode):
         self.api.debug_node.debug_set_vest_price(vest_price=new_price.as_schema())
 
     def __stabilize_the_price(self, invest: Asset.TestT) -> None:
-        from test_tools.__private.wallet import Wallet
+        from test_tools.__private.wallet.wallet import Wallet
 
         wallet = Wallet(attach_to=self)
 
