@@ -503,7 +503,6 @@ class Node(BaseNode, ScopedObject):
         time_control: TimeControl | str | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
     ) -> None:
-        self.__close_wallets()
         self.close()
         self.run(
             wait_for_live=wait_for_live,
@@ -511,7 +510,6 @@ class Node(BaseNode, ScopedObject):
             time_control=time_control,
             alternate_chain_specs=alternate_chain_specs,
         )
-        self.__run_wallets()
 
     def __remove_files(self) -> None:
         policy = cleanup_policy.get_default() if self.__cleanup_policy is None else self.__cleanup_policy
