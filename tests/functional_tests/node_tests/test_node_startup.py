@@ -28,7 +28,9 @@ def test_loading_own_snapshot(node: tt.InitNode) -> None:
 
     # Node is not waiting for live here, because of blocks generation behavior.
     # After N blocks generation, node will stop blocks production for N * 3s.
-    node.run(load_snapshot_from=snapshot, wait_for_live=False)
+    node.run(
+        time_control=tt.StartTimeControl(start_time="head_block_time"), load_snapshot_from=snapshot, wait_for_live=False
+    )
     assert_that_transaction_for_test_has_effect(node)
 
 
@@ -58,7 +60,9 @@ def test_replay_from_other_node_block_log(node: tt.InitNode) -> None:
     node.close()
 
     replaying_node = tt.ApiNode()
-    replaying_node.run(replay_from=node.block_log, wait_for_live=False)
+    replaying_node.run(
+        time_control=tt.StartTimeControl(start_time="head_block_time"), replay_from=node.block_log, wait_for_live=False
+    )
     assert_that_transaction_for_test_has_effect(replaying_node)
 
 
@@ -69,7 +73,12 @@ def test_replay_until_specified_block(node: tt.InitNode) -> None:
     node.close()
 
     replaying_node = tt.ApiNode()
-    replaying_node.run(replay_from=node.block_log, stop_at_block=50, wait_for_live=False)
+    replaying_node.run(
+        time_control=tt.StartTimeControl(start_time="head_block_time"),
+        replay_from=node.block_log,
+        stop_at_block=50,
+        wait_for_live=False,
+    )
     assert replaying_node.get_last_block_number() == expected_number_of_blocks
 
 
@@ -83,7 +92,12 @@ def test_replay_from_external_block_log(node: tt.InitNode) -> None:
     external_block_log = node.block_log.copy_to(tt.context.get_current_directory() / "external_block_log")
 
     replaying_node = tt.ApiNode()
-    replaying_node.run(replay_from=external_block_log.path, stop_at_block=50, wait_for_live=False)
+    replaying_node.run(
+        time_control=tt.StartTimeControl(start_time="head_block_time"),
+        replay_from=external_block_log.path,
+        stop_at_block=50,
+        wait_for_live=False,
+    )
     assert replaying_node.get_last_block_number() == expected_number_of_blocks
 
 
