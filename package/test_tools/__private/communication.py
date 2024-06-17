@@ -10,6 +10,7 @@ from typing import Any, Callable
 import requests
 
 from schemas.fields.assets import AssetBase
+from schemas.fields.json_string import JsonString
 from schemas._preconfigured_base_model import PreconfiguredBaseModel
 from schemas.operations.representations import LegacyRepresentation
 from test_tools.__private.exceptions import CommunicationError
@@ -21,6 +22,8 @@ class CommonJsonEncoder(json.JSONEncoder):
     def default(self, o: Any):
         if isinstance(o, datetime):
             return Time.serialize(o)
+        if isinstance(o, JsonString):
+            return o.serialize()
         if isinstance(o, PreconfiguredBaseModel):
             return o.shallow_dict()
 
