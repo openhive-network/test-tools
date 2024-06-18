@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 class Process:
     def __init__(self, directory: Path | str, executable: Executable, logger: Logger) -> None:
         self.__process: subprocess.Popen[str] | None = None
-        self.__directory = Path(directory).absolute()
+        self.__working_directory = Path(directory).absolute()
         self.__executable = executable
         self.__logger = logger
         self.__files: dict[str, TextIO | None] = {
@@ -38,7 +38,7 @@ class Process:
     ) -> None:
         if with_arguments is None:
             with_arguments = []
-        self.__directory.mkdir(exist_ok=True)
+        self.__working_directory.mkdir(exist_ok=True)
         self.__prepare_files_for_streams()
 
         command = [str(self.__executable.get_path()), *with_arguments]
@@ -57,7 +57,7 @@ class Process:
         if blocking:
             subprocess.run(  # type: ignore[call-overload]
                 command,
-                cwd=self.__directory,
+                cwd=self.__working_directory,
                 **self.__files,
                 env=environment_variables,
                 check=True,
@@ -66,7 +66,7 @@ class Process:
             # Process created here have to exist longer than current scope
             self.__process = subprocess.Popen(  # type: ignore[call-overload]
                 command,
-                cwd=self.__directory,
+                cwd=self.__working_directory,
                 env=environment_variables,
                 **self.__files,
             )
@@ -79,7 +79,7 @@ class Process:
         for name, file in self.__files.items():
             if file is None:
                 # Files opened here have to exist longer than current scope
-                self.__files[name] = (self.__directory / f"{name}.txt").open("w", encoding="utf-8")
+                self.__files[name] = (self.__working_directory / f"{name}.txt").open("w", encoding="utf-8")
 
     def close(self) -> None:
         if self.__process is None:
