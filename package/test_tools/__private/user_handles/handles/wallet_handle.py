@@ -31,10 +31,6 @@ class WalletHandle(Handle):
 
         :param attach_to: Wallet will send messages to node passed as this parameter. Passing node is optional, but when
             node is omitted, wallet functionalities are limited.
-        :param additional_arguments: Command line arguments which will be applied during running wallet.
-        :param preconfigure: If set to True, after run wallet will be unlocked with password DEFAULT_PASSWORD and
-            initminer's keys imported.
-        :param time_offset: See parameter ``time_offset`` in :func:`run`.
         """
         if isinstance(attach_to, NodeHandleBase | RemoteNode):
             attach_to = get_implementation(attach_to, AnyNode)

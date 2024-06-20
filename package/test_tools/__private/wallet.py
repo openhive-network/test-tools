@@ -1173,7 +1173,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
             :param only_result: This argument is no longer active and should not be provided.
             :return: None.
             """
-            return self.__wallet.__beekeeper.delete()
+            return self.__wallet.close()
 
         @warn_if_only_result_set()
         def find_proposals(
@@ -2720,7 +2720,6 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.stderr_file = None
         self.process = None
         self.logger = logger.bind(target="cli_wallet")
-
         self.run()
 
     def __prepare_directory(self):
@@ -2771,7 +2770,6 @@ class Wallet(UserHandleImplementation, ScopedObject):
         if self.connected_node is not None:
             if not self.connected_node.is_running():
                 raise exceptions.NodeIsNotRunningError("Before attaching wallet you have to run node")
-
         self.__prepare_directory()
         self.__beekeeper = beekeeper_factory(
             settings=Settings(working_directory=self.directory, communicator=RequestCommunicator)
@@ -2785,7 +2783,20 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.close()
 
     def restart(self) -> None:
-        pass
+        if self.is_running():
+            self.__beekeeper_session.close_session()
+            self.__beekeeper.delete()
+
+        if self.connected_node is not None:
+            if not self.connected_node.is_running():
+                raise exceptions.NodeIsNotRunningError("Before attaching wallet you have to run node")
+
+        self.__beekeeper = beekeeper_factory(
+            settings=Settings(working_directory=self.directory, communicator=RequestCommunicator)
+        )
+        self.__beekeeper_session = self.__beekeeper.create_session()
+        self.__beekeeper_wallet = self.__beekeeper_session.open_wallet(name=self.name)
+        self.__beekeeper_wallet = self.__beekeeper_wallet.unlock(self.DEFAULT_PASSWORD)
 
     def close(self) -> None:
         if self.is_running():
