@@ -2853,6 +2853,8 @@ class Wallet(UserHandleImplementation, ScopedObject):
     def create_accounts(
         self, number_of_accounts: int, name_base: str = "account", *, secret: str = "secret", import_keys: bool = True
     ) -> list[Account]:
+        self._transaction_expiration_offset = timedelta(seconds=1800)
+
         def send_transaction(accounts_):
             operations = []
             for account in accounts_:
@@ -2902,7 +2904,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
                 self.api.import_keys(
                     [account.private_key for account in accounts[i : i + private_keys_per_transaction]]
                 )
-
+        self._transaction_expiration_offset = timedelta(seconds=30)
         return accounts
 
     def list_accounts(self) -> list[str]:
