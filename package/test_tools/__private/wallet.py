@@ -573,6 +573,18 @@ class Wallet(UserHandleImplementation, ScopedObject):
             :return: Response object containing information about the transaction.
             """
             assert not self.is_locked()
+
+            owner_key, active_key, posting_key, memo_key = [self.suggest_brain_key() for _ in range(4)]
+
+            self.import_keys(
+                [
+                    owner_key["wif_priv_key"],
+                    active_key["wif_priv_key"],
+                    posting_key["wif_priv_key"],
+                    memo_key["wif_priv_key"],
+                ]
+            )
+
             return self.__send_one_op(
                 AccountCreateWithDelegationOperation(
                     creator=creator,
@@ -580,10 +592,10 @@ class Wallet(UserHandleImplementation, ScopedObject):
                     json_metadata=json_meta,
                     fee=hive_fee,
                     delegation=delegated_vests,
-                    owner=self.get_authority(self.__wallet.beekeeper_wallet.generate_key()),
-                    active=self.get_authority(self.__wallet.beekeeper_wallet.generate_key()),
-                    posting=self.get_authority(self.__wallet.beekeeper_wallet.generate_key()),
-                    memo_key=self.__wallet.beekeeper_wallet.generate_key(),
+                    owner=self.get_authority(owner_key["pub_key"]),
+                    active=self.get_authority(active_key["pub_key"]),
+                    posting=self.get_authority(posting_key["pub_key"]),
+                    memo_key=memo_key["pub_key"],
                 ),
                 broadcast=broadcast,
             )
