@@ -22,6 +22,7 @@ from beekeepy._interface.synchronous.session import Session
 from beekeepy._interface.synchronous.wallet import UnlockedWallet
 from beekeepy.settings import Settings
 from loguru import logger
+import helpy
 from helpy import wax as wax_helpy
 from helpy._communication.request_communicator import RequestCommunicator
 from helpy._handles.hived.api.wallet_bridge_api.sync_api import WalletBridgeApi
@@ -2720,6 +2721,8 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.stderr_file = None
         self.process = None
         self.logger = logger.bind(target="cli_wallet")
+        self.__prepare_directory()
+
         self.run()
 
     def __prepare_directory(self):
@@ -2770,33 +2773,29 @@ class Wallet(UserHandleImplementation, ScopedObject):
         if self.connected_node is not None:
             if not self.connected_node.is_running():
                 raise exceptions.NodeIsNotRunningError("Before attaching wallet you have to run node")
-        self.__prepare_directory()
         self.__beekeeper = beekeeper_factory(
             settings=Settings(working_directory=self.directory, communicator=RequestCommunicator)
         )
         self.__beekeeper_session = self.__beekeeper.create_session()
-        self.__beekeeper_wallet = self.__beekeeper_session.create_wallet(name=self.name, password=self.DEFAULT_PASSWORD)
 
-        self.__beekeeper_wallet.import_key(private_key=Account("initminer").private_key)
+        try:
+            self.__beekeeper_wallet = self.__beekeeper_session.create_wallet(
+                name=self.name, password=self.DEFAULT_PASSWORD
+            )
+            self.__beekeeper_wallet.import_key(private_key=Account("initminer").private_key)
+        except helpy.exceptions.RequestError as exception:
+            if f"Wallet with name: '{self.name}' already exists" in exception.error:
+                self.__beekeeper_wallet = self.__beekeeper_session.open_wallet(name=self.name)
+                self.__beekeeper_wallet = self.__beekeeper_wallet.unlock(self.DEFAULT_PASSWORD)
+            else:
+                raise exception
 
     def at_exit_from_scope(self):
         self.close()
 
     def restart(self) -> None:
-        if self.is_running():
-            self.__beekeeper_session.close_session()
-            self.__beekeeper.delete()
-
-        if self.connected_node is not None:
-            if not self.connected_node.is_running():
-                raise exceptions.NodeIsNotRunningError("Before attaching wallet you have to run node")
-
-        self.__beekeeper = beekeeper_factory(
-            settings=Settings(working_directory=self.directory, communicator=RequestCommunicator)
-        )
-        self.__beekeeper_session = self.__beekeeper.create_session()
-        self.__beekeeper_wallet = self.__beekeeper_session.open_wallet(name=self.name)
-        self.__beekeeper_wallet = self.__beekeeper_wallet.unlock(self.DEFAULT_PASSWORD)
+        self.close()
+        self.run()
 
     def close(self) -> None:
         if self.is_running():
