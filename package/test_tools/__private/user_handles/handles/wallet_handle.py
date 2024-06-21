@@ -27,7 +27,7 @@ class WalletHandle(Handle):
 
     def __init__(self, attach_to: AnyNode | None = None):
         """
-        Creates wallet, runs its process and blocks until wallet will be ready to use.
+        Prepare environment for wallet based on instance of beekeeper and wax, runs beekeeper instance, beekeeper session and wallet and made preconfigurations for test usage.
 
         :param attach_to: Wallet will send messages to node passed as this parameter. Passing node is optional, but when
             node is omitted, wallet functionalities are limited.
@@ -49,10 +49,12 @@ class WalletHandle(Handle):
 
     @property
     def connected_node(self) -> None | AnyNode | RemoteNode:
+        """Returns node instance connected to the wallet"""
         return self.__implementation.connected_node
 
     @property
     def beekeeper_wallet(self) -> UnlockedWallet:
+        """Returns UnlockedWallet coworking with wallet"""
         return self.__implementation.beekeeper_wallet
 
     def in_single_transaction(self, *, broadcast: bool = True, blocking: bool = True) -> SingleTransactionContext:
@@ -66,6 +68,7 @@ class WalletHandle(Handle):
             If set to False, only builds transaction without sending, which may be accessed with `get_response` method
             of returned context manager object.
             Otherwise behavior is undefined.
+        :param blocking: If set to True, wallet waiting for response from blockchain. If set to False, directly after send request, program continue working.
         """
         return self.__implementation.in_single_transaction(broadcast=broadcast, blocking=blocking)
 
@@ -82,46 +85,26 @@ class WalletHandle(Handle):
         """
         return self.__implementation.send(operations=operations, broadcast=broadcast, blocking=blocking)
 
-    def run(
-        self,
-        *,
-        timeout: float = Wallet.DEFAULT_RUN_TIMEOUT,
-        preconfigure: bool = True,
-    ):
+    def run(self):
         """
-        Runs wallet's process and blocks until wallet will be ready to use.
-
-        :param timeout: TimeoutError will be raised, if wallet won't start before specified timeout.
-        :param preconfigure: If set to True, after run wallet will be unlocked with password DEFAULT_PASSWORD and
-            initminer's keys imported.
-        :param time_offset: Allows to change system date and time a node sees (without changing real OS time).
-            Can be specified either absolutely, relatively and speed up or slow down clock. Value passed in
-            `time_offset` is written to `FAKETIME` environment variable. For details and examples see libfaketime
-            official documentation: https://github.com/wolfcw/libfaketime.
+        Runs beekeeper instance, beekeeper session and wallet and made preconfigurations for test usage.
         """
         self.__implementation.run()
 
     def restart(self) -> None:
         """
-        Closes wallet's process, runs it again and blocks until wallet will be ready to use.
-
-        :param preconfigure: If set to True, after run wallet will be unlocked with password DEFAULT_PASSWORD and
-            initminer's keys imported.
-        :param time_offset: See parameter ``time_offset`` in :func:`run`.
+        Close wallet and run it again.
         """
         self.__implementation.restart()
 
     def close(self) -> None:
         """
-        Terminates wallet's process and performs needed cleanups.
-
-        Blocks until wallet process will be finished. Closing is performed by sending SIGINT signal.
-        If wallet doesn't close before timeout, sends SIGKILL and emits warning message.
+        Remove beekeeper instance, close beekeeper session and performs needed cleanups.
         """
         self.__implementation.close()
 
     def is_running(self) -> bool:
-        """Returns True if wallet's process is running, otherwise False."""
+        """Returns True if wallet is running, otherwise False."""
         return self.__implementation.is_running()
 
     def create_accounts(
