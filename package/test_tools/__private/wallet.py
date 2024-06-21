@@ -522,21 +522,31 @@ class Wallet(UserHandleImplementation, ScopedObject):
             :return: Response object containing information about the transaction.
             """
             assert not self.is_locked()
-            public_key = Account(new_account_name).public_key
+
+            owner_key, active_key, posting_key, memo_key = [self.suggest_brain_key() for _ in range(4)]
+
+            self.import_keys(
+                [
+                    owner_key["wif_priv_key"],
+                    active_key["wif_priv_key"],
+                    posting_key["wif_priv_key"],
+                    memo_key["wif_priv_key"],
+                ]
+            )
+
             transaction = self.__send_one_op(
                 AccountCreateOperation(
                     creator=creator,
                     new_account_name=new_account_name,
                     json_metadata=json_meta,
                     fee=self.__wallet.connected_node.api.wallet_bridge.get_chain_properties().account_creation_fee.as_nai(),
-                    owner=self.get_authority(public_key),
-                    active=self.get_authority(public_key),
-                    posting=self.get_authority(public_key),
-                    memo_key=public_key,
+                    owner=self.get_authority(owner_key["pub_key"]),
+                    active=self.get_authority(active_key["pub_key"]),
+                    posting=self.get_authority(posting_key["pub_key"]),
+                    memo_key=memo_key["pub_key"],
                 ),
                 broadcast=broadcast,
             )
-            self.import_key(Account(new_account_name).private_key)
             return transaction
 
         @warn_if_only_result_set()
