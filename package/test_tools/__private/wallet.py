@@ -2892,7 +2892,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
                     active=self.api.get_authority(account.public_key),
                     posting=self.api.get_authority(account.public_key),
                     memo_key=account.public_key,
-                ) # type: ignore
+                )  # type: ignore
 
                 operations.append(operation)
 
@@ -2914,36 +2914,57 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
             # Send transaction
             while True:
-                if not retry_until_success(lambda: self._prepare_and_send_transaction(operations, True, True), fail_message=f"Failed to send transaction: {accounts_range_message}"):
+                if not retry_until_success(
+                    lambda: self._prepare_and_send_transaction(operations, True, True),
+                    fail_message=f"Failed to send transaction: {accounts_range_message}",
+                ):
                     continue
 
-                if retry_until_success(ensure_accounts_exists, fail_message=f"Node ignored create accounts request of accounts {accounts_range_message}, requesting again...", max_retries=5):
+                if retry_until_success(
+                    ensure_accounts_exists,
+                    fail_message=f"Node ignored create accounts request of accounts {accounts_range_message}, requesting again...",
+                    max_retries=5,
+                ):
                     return
 
-        def run_in_thread_pool_executor(predicate: Callable[[Any], Any], iterable_args: list[Any], *, max_threads = (os.cpu_count() or 24)) -> None:
+        def run_in_thread_pool_executor(
+            predicate: Callable[[Any], Any], iterable_args: list[Any], *, max_threads=(os.cpu_count() or 24)
+        ) -> None:
             with concurrent.futures.ThreadPoolExecutor(max_workers=max_threads) as executor:
                 futures: list[concurrent.futures.Future] = []
                 for args in iterable_args:
                     futures.append(executor.submit(predicate, args))
 
                 start = time.perf_counter()
-                while len((tasks := concurrent.futures.wait(futures, return_when=concurrent.futures.FIRST_COMPLETED))[0]) > 0:
+                while (
+                    len((tasks := concurrent.futures.wait(futures, return_when=concurrent.futures.FIRST_COMPLETED))[0])
+                    > 0
+                ):
                     futures.pop(futures.index(tasks[0].pop()))
                     self.logger.debug(f"Joined next item after {(time.perf_counter() - start) :.4f} seconds...")
                     start = time.perf_counter()
 
-        def split(collection: list[Any], items_per_chunk: int, *, predicate: Callable[[Any], Any] = lambda x: x) -> list[Any]:
-            return [[predicate(item) for item in collection[i : i + items_per_chunk]] for i in range(0, len(collection), items_per_chunk)]
+        def split(
+            collection: list[Any], items_per_chunk: int, *, predicate: Callable[[Any], Any] = lambda x: x
+        ) -> list[Any]:
+            return [
+                [predicate(item) for item in collection[i : i + items_per_chunk]]
+                for i in range(0, len(collection), items_per_chunk)
+            ]
 
         accounts = Account.create_multiple(number_of_accounts, name_base, secret=secret)
         run_in_thread_pool_executor(send_transaction, split(accounts, accounts_per_transaction))
         if import_keys:
             self.logger.info("starting importing keys")
+
             def dupa(keys):
                 self.logger.info(f"{threading.get_native_id()}) part of importing keys started")
                 self.api.import_keys(keys)
                 self.logger.info(f"{threading.get_native_id()}) part of importing keys finished")
-            run_in_thread_pool_executor(dupa, split(accounts, private_keys_per_transaction, predicate=lambda x: x.private_key), max_threads=4)
+
+            run_in_thread_pool_executor(
+                dupa, split(accounts, private_keys_per_transaction, predicate=lambda x: x.private_key), max_threads=4
+            )
             self.logger.info("finished importing keys")
 
         self._transaction_expiration_offset = timedelta(seconds=30)
