@@ -85,7 +85,7 @@ class WalletHandle(Handle):
         """
         return self.__implementation.send(operations=operations, broadcast=broadcast, blocking=blocking)
 
-    def run(self):
+    def run(self) -> None:
         """
         Runs beekeeper instance, beekeeper session and wallet and made preconfigurations for test usage.
         """
