@@ -55,6 +55,9 @@ def create_default_config(*, skip_address: bool = False) -> NodeConfig:
         block_stats_report_output="ILOG",
         webserver_ws_deflate=False,
         enable_block_log_compression=True,
+        colony_threads=4,
+        colony_start_at_block=0,
+        colony_no_broadcast=False,
         **(
             {"p2p_endpoint": "0.0.0.0:0", "webserver_http_endpoint": "0.0.0.0:0", "webserver_ws_endpoint": "0.0.0.0:0"}
             if not skip_address
