@@ -116,6 +116,16 @@ class NodeConfig(BaseModel, validate_assignment=True):
     block_stats_report_output: str | None = None
     webserver_https_certificate_file_name: str | None = None
     webserver_https_key_file_name: str | None = None
+    colony_sign_with: list[str] | None = None
+    colony_threads: int | None = None
+    colony_transactions_per_block: int | None = None
+    colony_start_at_block: int | None = None
+    colony_no_broadcast: bool | None = None
+    colony_article: str | None = None
+    colony_reply: str | None = None
+    colony_vote: str | None = None
+    colony_transfer: str | None = None
+    colony_custom: str | None = None
 
     @validator("witness", "private_key", "p2p_seed_node", pre=True, always=True)
     @classmethod
