@@ -23,11 +23,11 @@ def generated_config() -> NodeConfig:
 def test_default_config_values(generated_config: NodeConfig) -> None:
     default_config = create_default_config(skip_address=True)
     if default_config != generated_config:
-        print("Found differences:")  # noqa: T201
+        tt.logger.info("Found differences:")
         differences = default_config.get_differences_between(generated_config)
 
         for key, (default_value, generated_value) in differences.items():
-            print(  # noqa: T201
+            tt.logger.info(
                 f"""{key}
 
 In default_config: {default_value} {type(default_value)}
