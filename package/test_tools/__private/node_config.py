@@ -112,7 +112,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
     block_stats_report_output: str | None = None
     webserver_https_certificate_file_name: str | None = None
     webserver_https_key_file_name: str | None = None
-    colony_sign_with: list[str] | None = None
+    colony_sign_with: list[str] | None = Field(default_factory=list)
     colony_threads: int | None = None
     colony_transactions_per_block: int | None = None
     colony_start_at_block: int | None = None
