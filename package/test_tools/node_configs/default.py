@@ -58,6 +58,8 @@ def create_default_config(*, skip_address: bool = False) -> NodeConfig:
         colony_threads=4,
         colony_start_at_block=0,
         colony_no_broadcast=False,
+        pacemaker_min_offset=-300,
+        pacemaker_max_offset=20000,
         **(
             {"p2p_endpoint": "0.0.0.0:0", "webserver_http_endpoint": "0.0.0.0:0", "webserver_ws_endpoint": "0.0.0.0:0"}
             if not skip_address

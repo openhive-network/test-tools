@@ -126,6 +126,9 @@ class NodeConfig(BaseModel, validate_assignment=True):
     colony_vote: str | None = None
     colony_transfer: str | None = None
     colony_custom: str | None = None
+    pacemaker_source: str | None = None
+    pacemaker_min_offset: int | None = None
+    pacemaker_max_offset: int | None = None
 
     @validator("witness", "private_key", "p2p_seed_node", pre=True, always=True)
     @classmethod
