@@ -6,7 +6,6 @@ from __future__ import annotations
 import concurrent.futures
 from functools import wraps
 import json
-import math
 import os
 import shutil
 import sys
@@ -31,7 +30,6 @@ from helpy._handles.hived.api.wallet_bridge_api.sync_api import WalletBridgeApi
 from helpy._interfaces.context import ContextSync
 from schemas.apis.block_api.fundaments_of_responses import Hf26Block
 from schemas.apis.wallet_bridge_api.response_schemas import (
-    BroadcastTransactionSynchronous,
     FindProposals,
     FindRcAccounts,
     FindRecurrentTransfers,
@@ -181,18 +179,14 @@ class Wallet(UserHandleImplementation, ScopedObject):
     DEFAULT_PASSWORD = "password"
 
     class Api:
-        class TransactionBuilder:
+        class __TransactionBuilder:
             """Helper class for sending multiple operations in single transaction."""
 
             def __init__(self) -> None:
-                self.__transaction: None | SimpleTransaction = None
                 self.__operations: EmptyList | list[AnyOperation] = []
 
-            def append_operation(self, operation: AnyOperation) -> None:
+            def _append_operation(self, operation: AnyOperation) -> None:
                 self.__operations.append(operation)
-
-            def get_transaction(self) -> None | SimpleTransaction:
-                return self.__transaction
 
             @property
             def operations(self) -> EmptyList | list[AnyOperation]:
@@ -203,7 +197,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
             self.__transaction_builder: self | None = None
 
         @property
-        def _transaction_builder(self) -> TransactionBuilder:
+        def _transaction_builder(self) -> __TransactionBuilder:
             if self.__transaction_builder is None:
                 raise RuntimeError("Transaction builder is not initialized.")
             return self.__transaction_builder
@@ -212,7 +206,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
             if self.__transaction_builder is not None:
                 raise RuntimeError("You cannot create transaction inside another transaction")
 
-            self.__transaction_builder = self.TransactionBuilder()
+            self.__transaction_builder = self.__TransactionBuilder()
 
         def _send_gathered_operations_as_single_transaction(
             self, *, broadcast: bool, blocking: bool
@@ -237,7 +231,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
                 return self.__wallet._prepare_and_send_transaction(operations, blocking, broadcast)
             else:
                 for operation in operations:
-                    self._transaction_builder.append_operation(operation)
+                    self._transaction_builder._append_operation(operation)
 
         def __handle_broadcast_parameter(self, broadcast: bool) -> None:
             if broadcast is None:
@@ -2731,18 +2725,12 @@ class Wallet(UserHandleImplementation, ScopedObject):
         super().__init__(handle=handle)
 
         self.api = Wallet.Api(self)
-        self.http_server_port = None
         self.connected_node: None | AnyNode | RemoteNode = attach_to
-        self.password = None
         self._use_authority: dict[str, AuthorityType] = {}
         self.__beekeeper: Beekeeper | None = None
         self.__beekeeper_session: Session | None = None
-        self.__beekeeper_wallet: UnlockedWallet | None = None
+        self._beekeeper_wallet: UnlockedWallet | None = None
         self._transaction_expiration_offset = timedelta(seconds=30)
-        self.executable_file_path = None
-        self.stdout_file = None
-        self.stderr_file = None
-        self.process = None
         self.logger = logger.bind(target="cli_wallet")
         self.__prepare_directory()
 
@@ -2765,7 +2753,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
     @property
     def beekeeper_wallet(self) -> UnlockedWallet:
-        return self.__beekeeper_wallet
+        return self._beekeeper_wallet
 
     def send(
         self, operations: list[AnyOperation], broadcast: bool, blocking: bool
@@ -2785,7 +2773,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         return self.directory / "stderr.txt"
 
     def is_running(self) -> bool:
-        return self.__beekeeper_wallet is not None
+        return self._beekeeper_wallet is not None
 
     def run(
         self,
@@ -2802,14 +2790,14 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.__beekeeper_session = self.__beekeeper.create_session()
 
         try:
-            self.__beekeeper_wallet = self.__beekeeper_session.create_wallet(
+            self._beekeeper_wallet = self.__beekeeper_session.create_wallet(
                 name=self.name, password=self.DEFAULT_PASSWORD
             )
-            self.__beekeeper_wallet.import_key(private_key=Account("initminer").private_key)
+            self._beekeeper_wallet.import_key(private_key=Account("initminer").private_key)
         except helpy.exceptions.RequestError as exception:
             if f"Wallet with name: '{self.name}' already exists" in exception.error:
-                self.__beekeeper_wallet = self.__beekeeper_session.open_wallet(name=self.name)
-                self.__beekeeper_wallet = self.__beekeeper_wallet.unlock(self.DEFAULT_PASSWORD)
+                self._beekeeper_wallet = self.__beekeeper_session.open_wallet(name=self.name)
+                self._beekeeper_wallet = self._beekeeper_wallet.unlock(self.DEFAULT_PASSWORD)
             else:
                 raise exception
 
@@ -2825,7 +2813,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
             self.__beekeeper_session.close_session()
             self.__beekeeper.delete()
         self.__beekeeper = None
-        self.__beekeeper_wallet = None
+        self._beekeeper_wallet = None
         self.__beekeeper_session = None
 
     def create_account(
@@ -3065,10 +3053,10 @@ class Wallet(UserHandleImplementation, ScopedObject):
             raise Exception(node_config)
 
         sig_digest = wax_helpy.calculate_sig_digest(transaction, node_config.HIVE_CHAIN_ID)
-        assert self.__beekeeper_wallet is not None
+        assert self._beekeeper_wallet is not None
         keys_to_sign_with = self.import_required_keys(transaction_bytes)
         for key in keys_to_sign_with:
-            signature = self.__beekeeper_wallet.sign_digest(sig_digest=sig_digest, key=key)
+            signature = self._beekeeper_wallet.sign_digest(sig_digest=sig_digest, key=key)
             transaction.signatures.append(signature)
         transaction.signatures = list(set(transaction.signatures))
 

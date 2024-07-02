@@ -3,7 +3,7 @@
 # file for deletion after cli_wallet deprecation
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 from beekeepy._interface.synchronous.wallet import UnlockedWallet
 from schemas.operations import AnyOperation
@@ -23,8 +23,6 @@ if TYPE_CHECKING:
 
 
 class WalletHandle(Handle):
-    DEFAULT_PASSWORD = Wallet.DEFAULT_PASSWORD
-
     def __init__(self, attach_to: AnyNode | None = None):
         """
         Prepare environment for wallet based on instance of beekeeper and wax, runs beekeeper instance, beekeeper session and wallet and made preconfigurations for test usage.
