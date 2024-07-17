@@ -323,7 +323,7 @@ class Node(BaseNode, ScopedObject):
 
             time_control = time_control.as_string()
 
-        if exit_at_block is not None or exit_before_synchronization or "--exit-after-replay" in additional_arguments:
+        if exit_at_block is not None or exit_before_synchronization or "--exit-before-sync" in additional_arguments:
             if wait_for_live is not None:
                 raise RuntimeError("wait_for_live can't be used with exit_before_synchronization")
 
@@ -339,7 +339,7 @@ class Node(BaseNode, ScopedObject):
         else:
             self.logger.info(f"{log_message} and NOT waiting for live...")
 
-        exit_before_synchronization = exit_before_synchronization or "--exit-after-replay" in additional_arguments
+        exit_before_synchronization = exit_before_synchronization or "--exit-before-sync" in additional_arguments
 
         self._actions_before_run()
 
