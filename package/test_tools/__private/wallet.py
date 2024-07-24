@@ -3,13 +3,10 @@
 # file for deletion after cli_wallet deprecation
 from __future__ import annotations
 
-import concurrent.futures
 from functools import wraps
 import json
-import os
 import shutil
 import sys
-import threading
 import time
 import warnings
 from dataclasses import dataclass, field
@@ -117,6 +114,7 @@ from test_tools.__private.type_annotations.any_node import AnyNode
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
 
 from helpy import Hf26Asset as Asset
+from test_tools.__private.utilities.create_accounts import SimpleTransaction, WalletResponseBase, create_accounts, get_authority
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -157,15 +155,6 @@ class AuthorityHolder:
 
 
 AuthorityType = Literal["active", "owner", "posting"]
-
-
-class SimpleTransaction(Transaction):
-    def add_operation(self, operation: AnyOperation) -> None:
-        self.operations.append(HF26Representation(type=operation.get_name_with_suffix(), value=operation))
-
-
-class WalletResponseBase(SimpleTransaction):
-    transaction_id: str
 
 
 class WalletResponse(WalletResponseBase):
@@ -495,9 +484,6 @@ class Wallet(UserHandleImplementation, ScopedObject):
                 broadcast=broadcast,
             )
 
-        def get_authority(self, key: str) -> dict:
-            return {"weight_threshold": 1, "account_auths": [], "key_auths": [[key, 1]]}
-
         @warn_if_only_result_set()
         def create_account(
             self,
@@ -536,9 +522,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
                     new_account_name=new_account_name,
                     json_metadata=json_meta,
                     fee=self.__wallet.connected_node.api.wallet_bridge.get_chain_properties().account_creation_fee.as_nai(),
-                    owner=self.get_authority(owner_key["pub_key"]),
-                    active=self.get_authority(active_key["pub_key"]),
-                    posting=self.get_authority(posting_key["pub_key"]),
+                    owner=get_authority(owner_key["pub_key"]),
+                    active=get_authority(active_key["pub_key"]),
+                    posting=get_authority(posting_key["pub_key"]),
                     memo_key=memo_key["pub_key"],
                 ),
                 broadcast=broadcast,
@@ -588,9 +574,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
                     json_metadata=json_meta,
                     fee=hive_fee,
                     delegation=delegated_vests,
-                    owner=self.get_authority(owner_key["pub_key"]),
-                    active=self.get_authority(active_key["pub_key"]),
-                    posting=self.get_authority(posting_key["pub_key"]),
+                    owner=get_authority(owner_key["pub_key"]),
+                    active=get_authority(active_key["pub_key"]),
+                    posting=get_authority(posting_key["pub_key"]),
                     memo_key=memo_key["pub_key"],
                 ),
                 broadcast=broadcast,
@@ -629,9 +615,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
                     new_account_name=newname,
                     json_metadata=json_meta,
                     fee=self.__wallet.connected_node.api.wallet_bridge.get_chain_properties().account_creation_fee,
-                    owner=self.get_authority(owner),
-                    active=self.get_authority(active),
-                    posting=self.get_authority(posting),
+                    owner=get_authority(owner),
+                    active=get_authority(active),
+                    posting=get_authority(posting),
                     memo_key=memo,
                 ),
                 broadcast=broadcast,
@@ -677,9 +663,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
                     json_metadata=json_meta,
                     fee=hive_fee,
                     delegation=delegated_vests,
-                    owner=self.get_authority(owner),
-                    active=self.get_authority(active),
-                    posting=self.get_authority(posting),
+                    owner=get_authority(owner),
+                    active=get_authority(active),
+                    posting=get_authority(posting),
                     memo_key=memo,
                 ),
                 broadcast=broadcast,
@@ -724,9 +710,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
                         CreateClaimedAccountOperation(
                             creator=creator,
                             new_account_name=new_account_name,
-                            owner=self.get_authority(owner_key),
-                            active=self.get_authority(active_key),
-                            posting=self.get_authority(posting_key),
+                            owner=get_authority(owner_key),
+                            active=get_authority(active_key),
+                            posting=get_authority(posting_key),
                             memo_key=memo_key,
                             json_metadata=json_meta,
                         ),
@@ -739,9 +725,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
                             new_account_name=new_account_name,
                             json_metadata=json_meta,
                             fee=self.__wallet.connected_node.api.wallet_bridge.get_chain_properties().account_creation_fee,
-                            owner=self.get_authority(owner_key),
-                            active=self.get_authority(active_key),
-                            posting=self.get_authority(posting_key),
+                            owner=get_authority(owner_key),
+                            active=get_authority(active_key),
+                            posting=get_authority(posting_key),
                             memo_key=memo_key,
                         ),
                         broadcast=broadcast,
@@ -2362,9 +2348,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
                 AccountUpdateOperation(
                     account=accountname,
                     json_metadata=json_meta,
-                    owner=self.get_authority(owner),
-                    active=self.get_authority(active),
-                    posting=self.get_authority(posting),
+                    owner=get_authority(owner),
+                    active=get_authority(active),
+                    posting=get_authority(posting),
                     memo_key=memo,
                 ),
                 broadcast=broadcast,
@@ -2733,7 +2719,6 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self._transaction_expiration_offset = timedelta(seconds=30)
         self.logger = logger.bind(target="cli_wallet")
         self.__prepare_directory()
-
         self.run()
 
     def __prepare_directory(self):
@@ -2863,100 +2848,17 @@ class Wallet(UserHandleImplementation, ScopedObject):
     def create_accounts(
         self, number_of_accounts: int, name_base: str = "account", *, secret: str = "secret", import_keys: bool = True
     ) -> list[Account]:
-        previous_transaction_expiration_offset = self._transaction_expiration_offset
-        self._transaction_expiration_offset = timedelta(seconds=1800)
-        accounts_per_transaction: Final[int] = 500
-        private_keys_per_transaction: Final[int] = 500
+        accounts = create_accounts(
+            beekeeper=self.__beekeeper,
+            node=self.connected_node,
+            beekeeper_wallet_name=self.name,
+            beekeeper_wallet_password=self.DEFAULT_PASSWORD,
+            number_of_accounts=number_of_accounts,
+            import_keys=import_keys,
+            name_base=name_base,
+            secret=secret,
+        )
 
-        def send_transaction(accounts_: list[Account]):
-            operations = []
-            accounts_range_message = f"{accounts_[0].name}..{accounts_[-1].name}"
-            for account in accounts_:
-                operation = AccountCreateOperation(
-                    creator="initminer",
-                    new_account_name=account.name,
-                    json_metadata="{}",
-                    fee=Asset.Test(0).as_nai(),
-                    owner=self.api.get_authority(account.public_key),
-                    active=self.api.get_authority(account.public_key),
-                    posting=self.api.get_authority(account.public_key),
-                    memo_key=account.public_key,
-                )  # type: ignore
-
-                operations.append(operation)
-
-            def retry_until_success(predicate: Callable[[], Any], *, fail_message: str, max_retries: int = 20) -> bool:
-                retries = 0
-                while retries <= max_retries:
-                    try:
-                        predicate()
-                        return True
-                    except:
-                        self.logger.error(fail_message)
-                        retries += 1
-                return False
-
-            def ensure_accounts_exists() -> None:
-                listed_accounts = self.api.list_accounts(accounts_[0].name, 1)
-                if accounts_[0].name in listed_accounts:
-                    self.logger.debug(f"Accounts created: {accounts_range_message}")
-
-            # Send transaction
-            while True:
-                if not retry_until_success(
-                    lambda: self._prepare_and_send_transaction(operations, True, True),
-                    fail_message=f"Failed to send transaction: {accounts_range_message}",
-                ):
-                    continue
-
-                if retry_until_success(
-                    ensure_accounts_exists,
-                    fail_message=f"Node ignored create accounts request of accounts {accounts_range_message}, requesting again...",
-                    max_retries=5,
-                ):
-                    return
-
-        def run_in_thread_pool_executor(
-            predicate: Callable[[Any], Any], iterable_args: list[Any], *, max_threads=(os.cpu_count() or 24)
-        ) -> None:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=max_threads) as executor:
-                futures: list[concurrent.futures.Future] = []
-                for args in iterable_args:
-                    futures.append(executor.submit(predicate, args))
-
-                start = time.perf_counter()
-                while (
-                    len((tasks := concurrent.futures.wait(futures, return_when=concurrent.futures.FIRST_COMPLETED))[0])
-                    > 0
-                ):
-                    futures.pop(futures.index(tasks[0].pop()))
-                    self.logger.debug(f"Joined next item after {(time.perf_counter() - start) :.4f} seconds...")
-                    start = time.perf_counter()
-
-        def split(
-            collection: list[Any], items_per_chunk: int, *, predicate: Callable[[Any], Any] = lambda x: x
-        ) -> list[Any]:
-            return [
-                [predicate(item) for item in collection[i : i + items_per_chunk]]
-                for i in range(0, len(collection), items_per_chunk)
-            ]
-
-        accounts = Account.create_multiple(number_of_accounts, name_base, secret=secret)
-        run_in_thread_pool_executor(send_transaction, split(accounts, accounts_per_transaction))
-        if import_keys:
-            self.logger.info("starting importing keys")
-
-            def importing_keys(keys):
-                self.logger.info(f"{threading.get_native_id()}) part of importing keys started")
-                self.api.import_keys(keys)
-                self.logger.info(f"{threading.get_native_id()}) part of importing keys finished")
-
-            run_in_thread_pool_executor(
-                importing_keys, split(accounts, private_keys_per_transaction, predicate=lambda x: x.private_key), max_threads=4
-            )
-            self.logger.info("finished importing keys")
-
-        self._transaction_expiration_offset = previous_transaction_expiration_offset
         return accounts
 
     def list_accounts(self) -> list[str]:
