@@ -53,7 +53,7 @@ class RunnableNodeHandle(NodeHandleBase):
         """Saves node's config to file. Requires that node is not running."""
         return self.__implementation.dump_config()
 
-    def dump_snapshot(self, *, close: bool = False) -> Snapshot:
+    def dump_snapshot(self, *, name: str = "snapshot", close: bool = False) -> Snapshot:
         """
         Closes node and saves snapshot data to node's directory.
 
@@ -62,7 +62,7 @@ class RunnableNodeHandle(NodeHandleBase):
         :param close: If set to True, closes node after snapshot dumping. Otherwise, restarts node after dumping.
         :return: Snapshot object, which can be used by another node to load it at startup.
         """
-        return self.__implementation.dump_snapshot(close=close)
+        return self.__implementation.dump_snapshot(name=name, close=close)
 
     @property
     def block_log(self) -> BlockLog:
