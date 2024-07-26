@@ -15,6 +15,7 @@ from test_tools.__private import (
 from test_tools.__private.account import Account, PrivateKey, PublicKey
 from test_tools.__private.alternate_chain_specs import AlternateChainSpecs, HardforkSchedule, InitialVesting
 from test_tools.__private.block_log import BlockLog
+from test_tools.__private.snapshot import Snapshot
 
 # User handles
 from test_tools.__private.user_handles import ApiNodeHandle as ApiNode
@@ -60,4 +61,4 @@ __all__ = [
 if TYPE_CHECKING:
     from test_tools.__private.type_annotations.any_node import AnyNode  # noqa: TCH004
 
-    __all__ = [*__all__, "AnyNode"]  # noqa: PLE0604
+    __all__ = [*__all__, "AnyNode", "Snapshot"]  # noqa: PLE0604
