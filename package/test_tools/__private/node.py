@@ -152,7 +152,7 @@ class Node(BaseNode, ScopedObject):
 
         self.logger.info("Config dumped")
 
-    def dump_snapshot(self, *, close: bool = False) -> Snapshot:
+    def dump_snapshot(self, *, name: str = "snapshot", close: bool = False) -> Snapshot:
         self.logger.info("Snapshot dumping started...")
         self.__ensure_that_plugin_required_for_snapshot_is_included()
 
@@ -161,11 +161,10 @@ class Node(BaseNode, ScopedObject):
 
         self.close()
 
-        snapshot_path = Path()
         self.__run_process(
             blocking=True,
             with_arguments=[
-                f"--dump-snapshot={snapshot_path}",
+                f"--dump-snapshot={name}",
                 "--exit-before-sync",
             ],
         )
@@ -183,7 +182,7 @@ class Node(BaseNode, ScopedObject):
         self.logger.info("Snapshot dumped")
 
         return Snapshot(
-            self.directory / "snapshot" / snapshot_path,
+            self.directory / "snapshot" / name,
             self.directory / "blockchain/block_log",
             self.directory / "blockchain/block_log.artifacts",
             self,
@@ -402,7 +401,7 @@ class Node(BaseNode, ScopedObject):
             )
 
         self.__ensure_that_plugin_required_for_snapshot_is_included()
-        additional_arguments.append("--load-snapshot=.")
+        additional_arguments.append(f"--load-snapshot={snapshot_source.name}")
         snapshot_source.copy_to(self.directory)
 
     def __handle_replay(self, replay_source: BlockLog | Path | str, additional_arguments: list[str]) -> None:

@@ -6,6 +6,7 @@ import json
 import shutil
 import warnings
 from typing import TYPE_CHECKING
+import warnings
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -40,7 +41,7 @@ class Snapshot:
         self.__copy_file(self.__block_log_path, block_log_directory)
         self.__copy_file(self.__block_log_artifacts_path, block_log_directory, allow_missing=True)
 
-        destination_snapshot_path = node_directory / "snapshot"
+        destination_snapshot_path = node_directory / "snapshot" / self.name
         if self.__snapshot_path != destination_snapshot_path:
             shutil.copytree(self.__snapshot_path, destination_snapshot_path)
         else:
@@ -61,6 +62,10 @@ class Snapshot:
 
     def get_path(self) -> Path:
         return self.__snapshot_path
+
+    @property
+    def name(self) -> str:
+        return self.get_path().parts[-1]
 
     def __repr__(self) -> str:
         optional_creator_info = "" if self.__creator is None else f" from {self.__creator}"
