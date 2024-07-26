@@ -4,6 +4,7 @@ import contextlib
 import filecmp
 import json
 import shutil
+import warnings
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -42,6 +43,11 @@ class Snapshot:
         destination_snapshot_path = node_directory / "snapshot"
         if self.__snapshot_path != destination_snapshot_path:
             shutil.copytree(self.__snapshot_path, destination_snapshot_path)
+        else:
+            warnings.warn(
+                f"Copying from {self.__snapshot_path} to {destination_snapshot_path} did not occurred, because it already exists",
+                stacklevel=1,
+            )
 
     @staticmethod
     def __copy_file(source: Path | None, destination: Path, *, allow_missing: bool = False) -> None:
