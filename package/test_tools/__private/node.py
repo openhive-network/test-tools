@@ -164,7 +164,7 @@ class Node(BaseNode, ScopedObject):
         self.__run_process(
             blocking=True,
             with_arguments=[
-                f"--dump-snapshot=./{name}",
+                f"--dump-snapshot={name}",
                 "--exit-before-sync",
             ],
         )
@@ -182,7 +182,7 @@ class Node(BaseNode, ScopedObject):
         self.logger.info("Snapshot dumped")
 
         return Snapshot(
-            self.directory / name,
+            self.directory / "snapshot" / name,
             self.directory / "blockchain/block_log",
             self.directory / "blockchain/block_log.artifacts",
             self,

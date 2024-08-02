@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import contextlib
 import filecmp
+import hashlib
 import json
 import shutil
 import warnings
 from typing import TYPE_CHECKING
-import warnings
+
+from loguru import logger
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -41,8 +43,10 @@ class Snapshot:
         self.__copy_file(self.__block_log_path, block_log_directory)
         self.__copy_file(self.__block_log_artifacts_path, block_log_directory, allow_missing=True)
 
-        destination_snapshot_path = node_directory / self.name
+        destination_snapshot_path = node_directory / "snapshot" / self.name
         if self.__snapshot_path != destination_snapshot_path:
+            if not destination_snapshot_path.parent.exists():
+                destination_snapshot_path.parent.mkdir()
             shutil.copytree(self.__snapshot_path, destination_snapshot_path)
         else:
             warnings.warn(
@@ -80,9 +84,13 @@ class Snapshot:
         if len(my_files) != len(others_files):
             return False
 
+        is_same = True
         for mine, others in zip(my_files, others_files, strict=False):
             files_are_same = filecmp.cmp(mine, others, shallow=False)
             if not files_are_same:
-                return False
+                logger.warning(
+                    f"files not same {mine.as_posix()} != {others.as_posix()}: {hashlib.md5(mine.read_bytes()).hexdigest()} != {hashlib.md5(others.read_bytes()).hexdigest()}"
+                )
+                is_same = False
 
-        return True
+        return is_same
