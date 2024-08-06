@@ -92,7 +92,12 @@ def prepare_transaction(
     operations: list[AnyOperation], node: AnyNode, beekeeper_wallet: UnlockedWallet
 ) -> WalletResponseBase:
     transaction = generate_transaction_template(node)
+
+    account_creation_fee = node.api.wallet_bridge.get_chain_properties().account_creation_fee
+
     for operation in operations:
+        if isinstance(operation, AccountCreateOperation):
+            operation.fee = account_creation_fee
         transaction.add_operation(operation)
     transaction = sign_transaction(node, transaction, beekeeper_wallet)
 
@@ -121,8 +126,8 @@ def send_transaction(
             try:
                 predicate()
                 return True
-            except:
-                logger.error(fail_message)
+            except Exception as e:
+                logger.error(f"{fail_message} ; {e}")
                 retries += 1
         return False
 
@@ -133,9 +138,12 @@ def send_transaction(
             logger.debug(f"Accounts created: {accounts_range_message}")
 
     def broadcast_transaction(operations: list, node: AnyNode, beekeeper_wallet: UnlockedWallet) -> bool:
-        trx = prepare_transaction(operations, node, beekeeper_wallet)
+        def prepare_and_broadcast():
+            trx = prepare_transaction(operations, node, beekeeper_wallet)
+            node.api.network_broadcast.broadcast_transaction(trx=trx)
+
         return retry_until_success(
-            lambda: node.api.network_broadcast.broadcast_transaction(trx=trx),
+            prepare_and_broadcast,
             fail_message=f"Failed to send transaction: {accounts_range_message}",
         )
 
@@ -166,7 +174,10 @@ def send_transaction(
             keys = []
             for account in accounts_:
                 keys.append(account.private_key)
+            time1 = datetime.now()
             beekeeper_wallet.import_keys(private_keys=keys)
+            time2 = datetime.now()
+            logger.info(f"Czas importu: {time2-time1}")
 
         while True:
             if not broadcast_transaction(operations, node, beekeeper_wallet):
