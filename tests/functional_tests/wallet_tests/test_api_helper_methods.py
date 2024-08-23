@@ -59,3 +59,30 @@ def test_creation_of_huge_number_of_accounts(node: tt.InitNode, wallet: tt.Walle
 
     assert len(created_accounts) == amount_of_accounts_to_create
     assert len(accounts_after.difference(accounts_before)) == amount_of_accounts_to_create
+
+
+@pytest.mark.node_shared_file_size("16G")
+def test_creation_of_huge_number_of_accounts_and_import_keys(node: tt.InitNode, wallet: tt.Wallet) -> None:
+    """
+    Time: 03m 03s
+    Hardware:
+        MEMORY: 16GiB DIMM DDR4 Synchronous Unbuffered (Unregistered) 2133 MHz (0,5 ns)
+        STORAGE: Samsung SSD 980 1TB NVMe disk
+        PROCESSOR: AMD Ryzen 7 5700G with Radeon Graphics 8 core, 16 threads
+    """
+    amount_of_accounts_to_create = 200_000
+
+    # This is required to make possible pushing 21 trxs per block after 21'th block
+    wallet.api.update_witness(
+        witness_name="initminer",
+        url="https://initminer.com",
+        block_signing_key=tt.Account("initminer").public_key,
+        props={
+            "account_creation_fee": tt.Asset.TestT(amount=1),
+            "maximum_block_size": 2097152,
+            "hbd_interest_rate": 0,
+        },
+    )
+    wallet.create_accounts(amount_of_accounts_to_create, import_keys=True)
+
+    assert len(wallet.api.list_keys()) - 1 == amount_of_accounts_to_create, "Keys was not imported correctly"
