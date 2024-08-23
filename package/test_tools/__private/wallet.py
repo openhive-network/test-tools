@@ -2774,14 +2774,18 @@ class Wallet(UserHandleImplementation, ScopedObject):
         )
         self.__beekeeper_session = self.__beekeeper.create_session()
 
-        if self.name in self.__beekeeper_session.created_wallets:
-            self._beekeeper_wallet = self.__beekeeper_session.open_wallet(name=self.name)
-            self._beekeeper_wallet = self._beekeeper_wallet.unlock(self.DEFAULT_PASSWORD)
-        else:
+        try:
             self._beekeeper_wallet = self.__beekeeper_session.create_wallet(
                 name=self.name, password=self.DEFAULT_PASSWORD
             )
             self._beekeeper_wallet.import_key(private_key=Account("initminer").private_key)
+        except helpy.exceptions.RequestError as exception:
+            if f"Wallet with name: '{self.name}' already exists" in exception.error:
+                self._beekeeper_wallet = self.__beekeeper_session.open_wallet(name=self.name)
+                self._beekeeper_wallet = self._beekeeper_wallet.unlock(self.DEFAULT_PASSWORD)
+            else:
+                raise exception
+
 
     def at_exit_from_scope(self):
         self.close()
