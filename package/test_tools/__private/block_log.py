@@ -1,17 +1,18 @@
 from __future__ import annotations
 
+import contextlib
 import json
 import shutil
 import subprocess
 import typing
 from pathlib import Path
-from typing import Final, Literal, overload
+from typing import ClassVar, Final, Literal, overload
 
 from helpy._interfaces.time import Time, TimeFormats
 from schemas.apis.block_api.fundaments_of_responses import BlockLogUtilSignedBlock
 from schemas.transaction import Transaction
 from test_tools.__private import paths_to_executables
-from test_tools.__private.exceptions import BlockLogUtilError, MissingBlockLogArtifactsError
+from test_tools.__private.exceptions import BlockLogError, BlockLogUtilError, MissingBlockLogArtifactsError
 
 if typing.TYPE_CHECKING:
     from datetime import datetime
@@ -20,19 +21,80 @@ BlockLogUtilResult = BlockLogUtilSignedBlock[Transaction]
 
 
 class BlockLog:
-    def __init__(self, path: Path | str) -> None:
+    MONO_BLOCK_FILE_NAME: ClassVar[str] = "block_log"
+    MONO_ARTIFACTS_FILE_NAME: ClassVar[str] = "block_log.artifacts"
+    SPLIT_BLOCK_FILES_PATTERN: ClassVar[str] = "block_log_part.????"
+    SPLIT_ARTIFACT_FILES_PATTERN: ClassVar[str] = "*.????.artifacts"
+
+    def __init__(self, path: Path | str, mode: Literal["monolithic", "split", "auto"] = "auto") -> None:
         self.__path = Path(path)
+        if not self.__path.is_dir():
+            raise BlockLogError(f"{self.__path} is not a directory as required")
+
+        if mode == "auto":
+            self.__is_split = self.__auto_determine_mode()
+        else:
+            self.__is_split = mode == "split"
+
+    def __auto_determine_mode(self) -> bool:
+        """Determine which 'split' mode to use based on files existence."""
+        split_files = BlockLog.get_existing_block_files(True, self.__path)
+        mono_log_exists = (self.__path / self.MONO_BLOCK_FILE_NAME).exists()
+
+        if not mono_log_exists and not split_files:
+            raise BlockLogError(
+                f"Can't use auto mode. Neither single nor split log files found in the directory of {self.__path}."
+            )
+
+        return bool(split_files)
 
     def __repr__(self) -> str:
-        return f"<BlockLog: path={self.__path}>"
+        return f"<BlockLog: path={self.__path}, is_split={self.__is_split}>"
 
     @property
     def path(self) -> Path:
         return self.__path
 
     @property
-    def artifacts_path(self) -> Path:
-        return self.path.with_suffix(".artifacts")
+    def is_split(self) -> bool:
+        return self.__is_split
+
+    @staticmethod
+    def get_existing_block_files(split_files: bool, from_dir: Path) -> list[Path]:
+        if split_files:
+            return list(from_dir.glob(BlockLog.SPLIT_BLOCK_FILES_PATTERN))
+
+        mono_log_path = from_dir / BlockLog.MONO_BLOCK_FILE_NAME
+        if mono_log_path.exists():
+            return [mono_log_path]
+
+        return []  # no files found
+
+    @staticmethod
+    def get_existing_artifact_files(split_files: bool, from_dir: Path) -> list[Path]:
+        if split_files:
+            return list(from_dir.glob(BlockLog.SPLIT_ARTIFACT_FILES_PATTERN))
+
+        mono_artifacts_path = from_dir / BlockLog.MONO_ARTIFACTS_FILE_NAME
+        if mono_artifacts_path.exists():
+            return [mono_artifacts_path]
+
+        return []  # no files found
+
+    @property
+    def block_files(self) -> list[Path]:
+        """Returns an entire list of blocklog files (many in split mode)."""
+        return BlockLog.get_existing_block_files(self.__is_split, self.__path)
+
+    def __block_files_force(self) -> list[Path]:
+        the_files: list[Path] = self.block_files
+        if not the_files:
+            raise BlockLogError(f"No log files found on {self.__path} for is_split={self.__is_split} configuration")
+        return the_files
+
+    @property
+    def artifact_files(self) -> list[Path]:
+        return BlockLog.get_existing_artifact_files(self.__is_split, self.__path)
 
     def copy_to(
         self,
@@ -57,8 +119,9 @@ class BlockLog:
             - "excluded" -- Artifacts are never copied.
         :return: Copy of source block log.
         """
-        assert self.__path.exists()
+        assert self.__path.exists(), f"Given block log path of '{self.__path}' does not exist."
         destination = Path(destination)
+        destination = destination if destination.is_dir() else destination.parent
 
         # Assert that `artifacts` parameter have allowed value, defined in its type hint.
         artifacts_type_hint = typing.get_type_hints(self.copy_to)["artifacts"]
@@ -67,41 +130,18 @@ class BlockLog:
             raise ValueError(f"{artifacts=}, but supported values are: {', '.join(artifacts_allowed_values)}.")
 
         if artifacts != "excluded":
-            if self.artifacts_path.exists():
-                shutil.copy(
-                    self.artifacts_path,
-                    destination if destination.is_dir() else destination.with_suffix(".artifacts"),
-                )
+            file_list = self.artifact_files
+            if file_list:
+                for file in file_list:
+                    shutil.copy(file, destination)
             elif artifacts == "required":
-                self.__raise_missing_artifacts_error(self.artifacts_path)
+                self.__raise_missing_artifacts_error(self.path)
             else:
                 assert artifacts == "optional"
 
-        copied_block_log_path = shutil.copy(self.__path, destination)
-        return BlockLog(copied_block_log_path)
-
-    def truncate(self, output_directory: Path | str, block_number: int) -> BlockLog:
-        """
-        Shorten block log to `block_number` blocks and stores result in `output_directory` as.
-
-            - `output_directory` / block_log,
-            - `output_directory` / block_log.artifacts.
-
-        :param output_directory: In this directory truncated `block_log` and `block_log.artifacts` will be stored.
-        :param block_number: Limit number of blocks in the output block log.
-        :return: Truncated block log.
-        """
-        subprocess.run(
-            [
-                paths_to_executables.get_path_of("compress_block_log"),
-                f"--input-read-only-block-log={self.__path.parent.absolute()}/block_log",
-                f"--output-block-log={Path(output_directory).absolute()}/block_log",
-                f"--block-count={block_number}",
-                "--decompress",
-            ],
-            check=True,
-        )
-        return BlockLog(Path(output_directory) / "block_log")
+        for file in self.block_files:
+            shutil.copy(file, destination)
+        return BlockLog(destination, "split" if self.__is_split else "monolithic")
 
     def __run_and_get_output(self, *args: str) -> str:
         process = subprocess.run(
@@ -115,9 +155,11 @@ class BlockLog:
         return process.stdout.decode().strip()
 
     def generate_artifacts(self) -> None:
-        """Generate block_log.artifacts file."""
-        block_log_arg = ["--block-log", str(self.path)]
-        self.__run_and_get_output("--generate-artifacts", *block_log_arg)
+        """Generate artifacts file(s)."""
+        file_list = self.block_files
+        for file in file_list:
+            block_log_arg = ["--block-log", str(file)]
+            self.__run_and_get_output("--generate-artifacts", *block_log_arg)
 
     def get_head_block_number(self) -> int:
         """
@@ -125,9 +167,11 @@ class BlockLog:
 
         Note: This method works correctly only for block logs with a length of at least 30 blocks.
         """
-        if not self.artifacts_path.exists():
+        block_files = self.__block_files_force()
+        artifacts_list = self.artifact_files
+        if not artifacts_list:
             self.generate_artifacts()
-        block_log_arg = ["--block-log", str(self.path)]
+        block_log_arg = ["--block-log", str(block_files[-1])]
         return int(self.__run_and_get_output("--get-head-block-number", *block_log_arg))
 
     def get_block(self, block_number: int) -> BlockLogUtilResult:
@@ -138,12 +182,22 @@ class BlockLog:
 
         Note: This method works correctly only for block logs with a length of at least 30 blocks.
         """
-        if not self.artifacts_path.exists():
+        artifacts_list = self.artifact_files
+        if not artifacts_list:
             self.generate_artifacts()
-        block_log_arg = ["--block-log", str(self.path)]
+        expected_str: Final[str] = "block_id"
+
+        block_files = self.__block_files_force()
         block_number_arg = ["--block-number", f"{block_number}"]
-        output = self.__run_and_get_output("--get-block", *block_log_arg, *block_number_arg).replace("'", '"')
-        return BlockLogUtilResult(**json.loads(output))
+        output: str = ""
+        for log in block_files:
+            block_log_arg = ["--block-log", str(log)]
+            with contextlib.suppress(BlockLogUtilError):
+                output = self.__run_and_get_output("--get-block", *block_log_arg, *block_number_arg).replace("'", '"')
+            if expected_str in output:
+                return BlockLogUtilResult(**json.loads(output))
+
+        raise BlockLogUtilError(f"Block {block_number} not found or response malformed: `{output}`")
 
     def get_block_ids(self, block_number: int) -> str:
         """
@@ -155,13 +209,20 @@ class BlockLog:
         """
         expected_str: Final[str] = "block_id: "
 
-        if not self.artifacts_path.exists():
+        artifacts_list = self.artifact_files
+        if not artifacts_list:
             self.generate_artifacts()
-        output = self.__run_and_get_output(
-            "--get-block-ids", "-n", f"{block_number}", "--block-log", str(self.path)
-        ).replace("'", '"')
-        assert expected_str in output, f"Response malformed: `{output}`"
-        return output[len(expected_str) :]
+
+        output = ""
+        block_files = self.__block_files_force()
+        for file in block_files:
+            output = self.__run_and_get_output(
+                "--get-block-ids", "-n", f"{block_number}", "--block-log", str(file)
+            ).replace("'", '"')
+            if expected_str in output:
+                return output[len(expected_str) :]
+
+        raise BlockLogUtilError(f"Block not found or response malformed: `{output}`")
 
     @overload
     def get_head_block_time(

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shutil
 from typing import TYPE_CHECKING
 
 import pytest
@@ -28,97 +29,142 @@ def source_directory(tmp_path: Path) -> Path:
 
 
 @pytest.fixture()
-def block_log_stub(source_directory: Path) -> tt.BlockLog:
-    block_log_stub_path = source_directory / "block_log"
-    block_log_stub_path.touch()
-    return tt.BlockLog(block_log_stub_path)
+def block_log_stub(source_directory: Path) -> list[BlockLog]:
+    split_dir = source_directory / "split"
+    split_dir.mkdir()
+    (split_dir / "block_log_part.0001").touch()
+    mono_dir = source_directory / "monolithic"
+    mono_dir.mkdir()
+    (mono_dir / "block_log").touch()
+    return [tt.BlockLog(split_dir, "split"), tt.BlockLog(mono_dir, "monolithic")]
 
 
 @pytest.fixture()
-def artifacts_stub(source_directory: Path) -> Path:
-    artifacts_stub_path = source_directory / "block_log.artifacts"
-    artifacts_stub_path.touch()
-    return artifacts_stub_path
+def artifacts_stub(source_directory: Path) -> None:
+    split_dir = source_directory / "split"
+    (split_dir / "block_log_part.0001.artifacts").touch()
+    mono_dir = source_directory / "monolithic"
+    (mono_dir / "block_log.artifacts").touch()
 
 
 def test_paths_in_copied_block_log(
-    block_log_stub: BlockLog, artifacts_stub: Path, destination_directory: Path  # noqa: ARG001
+    block_log_stub: list[BlockLog], artifacts_stub: Path, destination_directory: Path  # noqa: ARG001
 ) -> None:
-    copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="required")
+    # split log:
+    copied_block_log = block_log_stub[0].copy_to(destination_directory, artifacts="required")
+    assert copied_block_log.path == destination_directory
+    __assert_files_were_copied(block_log_stub[0], copied_block_log, require_artifacts=True)
 
-    assert copied_block_log.path == destination_directory / "block_log"
-    assert copied_block_log.artifacts_path == destination_directory / "block_log.artifacts"
+    shutil.rmtree(destination_directory)
+    destination_directory.mkdir()
+
+    # mono log:
+    copied_block_log = block_log_stub[1].copy_to(destination_directory, artifacts="required")
+    assert copied_block_log.path == destination_directory
+    __assert_files_were_copied(block_log_stub[1], copied_block_log, require_artifacts=True)
 
 
 def test_copying_when_required_artifacts_exists(
-    block_log_stub: BlockLog, artifacts_stub: Path, destination_directory: Path  # noqa: ARG001
+    block_log_stub: list[BlockLog], artifacts_stub: Path, destination_directory: Path  # noqa: ARG001
 ) -> None:
-    copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="required")
-    __assert_files_were_copied(copied_block_log, require_artifacts=True)
+    # split log:
+    copied_block_log = block_log_stub[0].copy_to(destination_directory, artifacts="required")
+    __assert_files_were_copied(block_log_stub[0], copied_block_log, require_artifacts=True)
+
+    shutil.rmtree(destination_directory)
+    destination_directory.mkdir()
+
+    # mono log:
+    copied_block_log = block_log_stub[1].copy_to(destination_directory, artifacts="required")
+    __assert_files_were_copied(block_log_stub[1], copied_block_log, require_artifacts=True)
 
 
-def test_copying_when_required_artifacts_are_missing(block_log_stub: BlockLog, destination_directory: Path) -> None:
+def test_copying_when_required_artifacts_are_missing(
+    block_log_stub: list[BlockLog], destination_directory: Path
+) -> None:
+    # split log:
     with pytest.raises(tt.exceptions.MissingBlockLogArtifactsError):
-        block_log_stub.copy_to(destination_directory, artifacts="required")
+        block_log_stub[0].copy_to(destination_directory, artifacts="required")
+
+    assert __is_empty(destination_directory)  # When error occurs nothing should be copied.
+
+    # mono log:
+    with pytest.raises(tt.exceptions.MissingBlockLogArtifactsError):
+        block_log_stub[1].copy_to(destination_directory, artifacts="required")
 
     assert __is_empty(destination_directory)  # When error occurs nothing should be copied.
 
 
 def test_copying_when_optional_artifacts_exists(
-    block_log_stub: BlockLog, artifacts_stub: Path, destination_directory: Path  # noqa: ARG001
+    block_log_stub: list[BlockLog], artifacts_stub: Path, destination_directory: Path  # noqa: ARG001
 ) -> None:
-    copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="optional")
-    __assert_files_were_copied(copied_block_log, require_artifacts=True)
+    # split log:
+    copied_block_log = block_log_stub[0].copy_to(destination_directory, artifacts="optional")
+    __assert_files_were_copied(block_log_stub[0], copied_block_log, require_artifacts=True)
+
+    shutil.rmtree(destination_directory)
+    destination_directory.mkdir()
+
+    # mono log:
+    copied_block_log = block_log_stub[1].copy_to(destination_directory, artifacts="optional")
+    __assert_files_were_copied(block_log_stub[1], copied_block_log, require_artifacts=True)
 
 
-def test_copying_when_optional_artifacts_are_missing(block_log_stub: BlockLog, destination_directory: Path) -> None:
-    copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="optional")
-    __assert_files_were_copied(copied_block_log, require_artifacts=False)
+def test_copying_when_optional_artifacts_are_missing(
+    block_log_stub: list[BlockLog], destination_directory: Path
+) -> None:
+    # split log:
+    copied_block_log = block_log_stub[0].copy_to(destination_directory, artifacts="optional")
+    __assert_files_were_copied(block_log_stub[0], copied_block_log, require_artifacts=False)
+
+    shutil.rmtree(destination_directory)
+    destination_directory.mkdir()
+
+    # mono log:
+    copied_block_log = block_log_stub[1].copy_to(destination_directory, artifacts="optional")
+    __assert_files_were_copied(block_log_stub[1], copied_block_log, require_artifacts=False)
 
 
 def test_copying_when_excluded_artifacts_exists(
-    block_log_stub: BlockLog, artifacts_stub: Path, destination_directory: Path  # noqa: ARG001
+    block_log_stub: list[BlockLog], artifacts_stub: Path, destination_directory: Path  # noqa: ARG001
 ) -> None:
-    copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="excluded")
-    __assert_files_were_copied(copied_block_log, require_artifacts=False)
+    # split log:
+    copied_block_log = block_log_stub[0].copy_to(destination_directory, artifacts="excluded")
+    __assert_files_were_copied(block_log_stub[0], copied_block_log, require_artifacts=False)
+
+    shutil.rmtree(destination_directory)
+    destination_directory.mkdir()
+
+    # mono log:
+    copied_block_log = block_log_stub[1].copy_to(destination_directory, artifacts="excluded")
+    __assert_files_were_copied(block_log_stub[1], copied_block_log, require_artifacts=False)
 
 
-def test_copying_when_excluded_artifacts_are_missing(block_log_stub: BlockLog, destination_directory: Path) -> None:
-    copied_block_log = block_log_stub.copy_to(destination_directory, artifacts="excluded")
-    __assert_files_were_copied(copied_block_log, require_artifacts=False)
+def test_copying_when_excluded_artifacts_are_missing(
+    block_log_stub: list[BlockLog], destination_directory: Path
+) -> None:
+    # split log:
+    copied_block_log = block_log_stub[0].copy_to(destination_directory, artifacts="excluded")
+    __assert_files_were_copied(block_log_stub[0], copied_block_log, require_artifacts=False)
+
+    shutil.rmtree(destination_directory)
+    destination_directory.mkdir()
+
+    # mono log:
+    copied_block_log = block_log_stub[1].copy_to(destination_directory, artifacts="excluded")
+    __assert_files_were_copied(block_log_stub[1], copied_block_log, require_artifacts=False)
 
 
 def test_error_reporting_when_artifacts_have_unsupported_value(
-    block_log_stub: BlockLog, destination_directory: Path
+    block_log_stub: list[BlockLog], destination_directory: Path
 ) -> None:
+    # split log:
     with pytest.raises(ValueError):  # noqa: PT011
-        block_log_stub.copy_to(destination_directory, artifacts="unsupported_value")  # type: ignore[arg-type]
+        block_log_stub[0].copy_to(destination_directory, artifacts="unsupported_value")  # type: ignore[arg-type]
 
-
-def test_copying_with_specified_destination_directory(destination_directory: Path, node: tt.InitNode) -> None:
-    block_log = __generate_block_log(node)
-
-    copied_block_log = block_log.copy_to(destination_directory)
-
-    __assert_files_were_copied(copied_block_log, require_artifacts=False)
-    assert copied_block_log.path == destination_directory / block_log.path.name
-
-
-def test_copying_with_specified_target_block_log_name(destination_directory: Path, node: tt.InitNode) -> None:
-    block_log = __generate_block_log(node)
-    destination_block_log_path = destination_directory / "block_log_with_changed_name"
-
-    copied_block_log = block_log.copy_to(destination_block_log_path)
-
-    __assert_files_were_copied(copied_block_log, require_artifacts=False)
-    assert copied_block_log.path == destination_block_log_path
-
-
-def __generate_block_log(node: tt.InitNode) -> tt.BlockLog:
-    # Run node to generate a block log.
-    node.close()  # Close node to copy block log in a safe way.
-
-    return node.block_log
+    # mono log:
+    with pytest.raises(ValueError):  # noqa: PT011
+        block_log_stub[1].copy_to(destination_directory, artifacts="unsupported_value")  # type: ignore[arg-type]
 
 
 def __is_empty(directory: Path) -> bool:
@@ -127,13 +173,13 @@ def __is_empty(directory: Path) -> bool:
 
 
 def __assert_files_were_copied(
-    block_log: tt.BlockLog, *, require_artifacts: bool, require_block_log: bool = True
+    source_block_log: tt.BlockLog, block_log: tt.BlockLog, *, require_artifacts: bool, require_block_log: bool = True
 ) -> None:
-    # Make sure, that exactly required number of files are copied and nothing more.
-    assert len(list(block_log.path.parent.iterdir())) == [require_block_log, require_artifacts].count(True)
+    assert block_log.path.exists()
 
+    # Make sure, that exactly required number of files are copied and nothing more.
     if require_block_log:
-        assert block_log.path.exists()
+        assert len(block_log.block_files) == len(source_block_log.block_files)
 
     if require_artifacts:
-        assert block_log.artifacts_path.exists()
+        assert len(block_log.artifact_files) == len(source_block_log.artifact_files)

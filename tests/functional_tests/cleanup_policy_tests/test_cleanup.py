@@ -18,7 +18,11 @@ def important_files_are_removed(node: RunnableNodeHandle) -> bool:
         "blockchain/block_log",
     ]
 
-    return all(not node.directory.joinpath(path).exists() for path in paths_of_important_files)
+    paths_of_split_block_log = node.directory.joinpath("blockchain").glob("block_log_part.????")
+
+    return all(not node.directory.joinpath(path).exists() for path in paths_of_important_files) and all(
+        False for path in paths_of_split_block_log
+    )
 
 
 def unneeded_files_are_removed(node: RunnableNodeHandle) -> bool:
@@ -27,7 +31,11 @@ def unneeded_files_are_removed(node: RunnableNodeHandle) -> bool:
         "blockchain/block_log.artifacts",
     ]
 
-    return all(not node.directory.joinpath(path).exists() for path in paths_of_unneeded_files)
+    paths_of_split_artifacts = node.directory.joinpath("blockchain").glob("*.????.artifacts")
+
+    return all(not node.directory.joinpath(path).exists() for path in paths_of_unneeded_files) and all(
+        False for path in paths_of_split_artifacts
+    )
 
 
 def check_if_node_files_are_removed(

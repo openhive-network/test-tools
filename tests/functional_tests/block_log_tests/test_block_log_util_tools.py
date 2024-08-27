@@ -16,6 +16,23 @@ def node() -> tt.InitNode:
     return node
 
 
+@pytest.fixture()
+def nodes() -> list[tt.InitNode]:
+    node_split = tt.InitNode()
+    node_split.config.block_log_split = 9999
+    node_split.run(time_control=tt.SpeedUpRateTimeControl(speed_up_rate=20))
+    node_split.wait_for_block_with_number(430)  # to force block log file split (at 400)
+    node_split.restart(time_control=tt.StartTimeControl(start_time="head_block_time"))
+
+    node_mono = tt.InitNode()
+    node_mono.config.block_log_split = -1
+    node_mono.run(time_control=tt.SpeedUpRateTimeControl(speed_up_rate=10))
+    node_mono.wait_for_block_with_number(30)
+    node_mono.restart(time_control=tt.StartTimeControl(start_time="head_block_time"))
+
+    return [node_split, node_mono]
+
+
 def test_get_head_block_number(node: tt.InitNode) -> None:
     block_log = node.block_log
 
@@ -60,16 +77,22 @@ def test_get_head_block_time(node: tt.InitNode) -> None:
     ), "Serialized head_block_time from block_log is other than serialized head_block_time from node"
 
 
-def test_generate_artifacts(node: tt.InitNode) -> None:
+def __generate_artifacts_helper(node: tt.InitNode) -> None:
     block_log = node.block_log
     node.close()
 
-    if block_log.artifacts_path.exists():
-        block_log.artifacts_path.unlink()
+    for file in block_log.artifact_files:
+        file.unlink()
 
-    assert not block_log.artifacts_path.exists()
+    assert not block_log.artifact_files
     block_log.generate_artifacts()
-    assert block_log.artifacts_path.exists(), "Block_log.artifacts was not generated"
+    assert block_log.artifact_files, "Block_log.artifacts was not generated"
+
+
+@pytest.mark.timeout(600)
+def test_generate_artifacts(nodes: list[tt.InitNode]) -> None:
+    __generate_artifacts_helper(nodes[0])
+    __generate_artifacts_helper(nodes[1])
 
 
 def test_exception_handling(node: tt.InitNode) -> None:
@@ -78,9 +101,7 @@ def test_exception_handling(node: tt.InitNode) -> None:
     with pytest.raises(BlockLogUtilError) as error:
         block_log.get_block("incorrect_block_num")  # type: ignore
 
-    assert "the argument ('incorrect_block_num') for option '--block-number' is invalid" in str(
-        error.value
-    ), "Incorrect error message"
+    assert "Block incorrect_block_num not found or response malformed:" in str(error.value), "Incorrect error message"
 
 
 def test_get_block_ids(node: tt.InitNode) -> None:

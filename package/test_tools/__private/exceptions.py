@@ -14,10 +14,6 @@ class InternalNodeError(TestToolsError):
     pass
 
 
-class MissingBlockLogArtifactsError(TestToolsError):
-    pass
-
-
 class MissingPathToExecutableError(TestToolsError):
     pass
 
@@ -42,5 +38,13 @@ class BlockWaitTimeoutError(TestToolsError):
     """Raised when the maximum amount of time to wait for a block on a blockchain is reached."""
 
 
-class BlockLogUtilError(TestToolsError):
+class BlockLogError(TestToolsError):
+    """Base class for BlockLog exceptions."""
+
+
+class MissingBlockLogArtifactsError(BlockLogError):
+    pass
+
+
+class BlockLogUtilError(BlockLogError):
     pass

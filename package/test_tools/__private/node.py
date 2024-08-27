@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import math
 import os
 import shutil
@@ -93,7 +94,23 @@ class Node(BaseNode, ScopedObject):
 
     @property
     def block_log(self) -> BlockLog:
-        return BlockLog(self.directory / "blockchain" / "block_log")
+        """
+        TODO: When setting of initial values of node config is restored, change the code below as follows.
+
+        assert self.config.block_log_split is not None, "Should have been set on init!"
+        return BlockLog(
+            self.directory / "blockchain",
+            "monolithic" if self.config.block_log_split == -1 else "split",
+        )
+        """
+        return BlockLog(
+            self.directory / "blockchain",
+            "split"
+            if self.config.block_log_split is None
+            else "monolithic"
+            if self.config.block_log_split == -1
+            else "split",
+        )
 
     @property
     def http_endpoint(self) -> HttpUrl:
@@ -183,8 +200,7 @@ class Node(BaseNode, ScopedObject):
 
         return Snapshot(
             self.directory / "snapshot" / name,
-            self.directory / "blockchain/block_log",
-            self.directory / "blockchain/block_log.artifacts",
+            self.block_log,
             self,
         )
 
@@ -213,6 +229,7 @@ class Node(BaseNode, ScopedObject):
         self.__notifications = self.__create_notifications_server()
         port = self.__notifications.run()
         self.config.notifications_endpoint = f"127.0.0.1:{port}"
+        self.directory.mkdir(exist_ok=True)
 
         if write_config_before_run:
             self.config.write_to_file(self.config_file_path)
@@ -317,7 +334,10 @@ class Node(BaseNode, ScopedObject):
             if isinstance(time_control, StartTimeControl) and time_control.is_start_time_equal_to("head_block_time"):
                 assert (
                     self.block_log.path.exists()
-                ), "Block_log not exist. Block_log is necessary to use 'head_block_time' as time_control"
+                ), "Block log directory does not exist. Block_log is necessary to use 'head_block_time' as time_control"
+                assert (
+                    self.block_log.block_files
+                ), "Could not find block log file(s). Block_log is necessary to use 'head_block_time' as time_control"
                 time_control.apply_head_block_time(self.block_log.get_head_block_time())
 
             time_control = time_control.as_string()
@@ -394,19 +414,38 @@ class Node(BaseNode, ScopedObject):
         self, snapshot_source: str | Path | Snapshot, additional_arguments: list[str]
     ) -> None:
         if not isinstance(snapshot_source, Snapshot):
+            snapshot_source = Path(snapshot_source)
             snapshot_source = Snapshot(
-                snapshot_source if isinstance(snapshot_source, Path) else Path(snapshot_source),
-                Path(snapshot_source).joinpath("../../blockchain/block_log"),
-                Path(snapshot_source).joinpath("../../blockchain/block_log.artifacts"),
+                snapshot_source,
+                BlockLog(snapshot_source.joinpath("../../blockchain"), "auto"),
             )
 
         self.__ensure_that_plugin_required_for_snapshot_is_included()
         additional_arguments.append(f"--load-snapshot={snapshot_source.name}")
-        snapshot_source.copy_to(self.directory)
+        with contextlib.suppress(
+            shutil.SameFileError
+        ):  # It's ok, just skip copying because user want to load node's own snapshot.
+            snapshot_source.copy_to(self.directory)
 
     def __handle_replay(self, replay_source: BlockLog | Path | str, additional_arguments: list[str]) -> None:
         if not isinstance(replay_source, BlockLog):
-            replay_source = BlockLog(replay_source)
+            """
+            TODO: When setting of initial values of node config is restored, change the code below as follows.
+
+            assert self.config.block_log_split is not None, "Should have been set on init!"
+            replay_source = BlockLog(
+                replay_source,
+                "monolithic" if self.config.block_log_split == -1 else "split",
+            )
+            """
+            replay_source = BlockLog(
+                replay_source,
+                "split"
+                if self.config.block_log_split is None
+                else "monolithic"
+                if self.config.block_log_split == -1
+                else "split",
+            )
 
         additional_arguments.append("--force-replay")
 
@@ -414,7 +453,7 @@ class Node(BaseNode, ScopedObject):
         if block_log_directory.exists():
             shutil.rmtree(block_log_directory)
         block_log_directory.mkdir()
-        replay_source.copy_to(block_log_directory / "block_log", artifacts="optional")
+        replay_source.copy_to(block_log_directory, artifacts="optional")
 
     def __log_run_summary(self) -> None:
         if self.is_running():
@@ -530,7 +569,6 @@ class Node(BaseNode, ScopedObject):
     def __remove_unneeded_files(self) -> None:
         unneeded_files_or_directories = [
             "blockchain/shared_memory.bin",
-            "blockchain/block_log.artifacts",
             "snapshot/",
         ]
 
@@ -538,6 +576,11 @@ class Node(BaseNode, ScopedObject):
 
         for unneeded in unneeded_files_or_directories:
             self.__remove(self.directory.joinpath(unneeded))
+
+        artifact_files = BlockLog.get_existing_artifact_files(False, self.directory.joinpath("blockchain"))
+        artifact_files.extend(BlockLog.get_existing_artifact_files(True, self.directory.joinpath("blockchain")))
+        for unneeded_file in artifact_files:
+            self.__remove(unneeded_file)
 
     def __register_rocksdb_data_to_remove(self, unneeded_files_or_directories: list[str]) -> None:
         rocksdb_directory = self.directory.joinpath("blockchain/account-history-rocksdb-storage")
