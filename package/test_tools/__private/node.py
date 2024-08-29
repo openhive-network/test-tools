@@ -396,8 +396,8 @@ class Node(BaseNode, ScopedObject):
         if not isinstance(snapshot_source, Snapshot):
             snapshot_source = Snapshot(
                 snapshot_source if isinstance(snapshot_source, Path) else Path(snapshot_source),
-                Path(snapshot_source).joinpath("../blockchain/block_log"),
-                Path(snapshot_source).joinpath("../blockchain/block_log.artifacts"),
+                Path(snapshot_source).joinpath("../../blockchain/block_log"),
+                Path(snapshot_source).joinpath("../../blockchain/block_log.artifacts"),
             )
 
         self.__ensure_that_plugin_required_for_snapshot_is_included()
