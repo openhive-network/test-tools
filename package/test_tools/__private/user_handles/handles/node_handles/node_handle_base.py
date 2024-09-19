@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import math
+from contextlib import contextmanager
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from test_tools.__private.base_node import BaseNode
@@ -10,6 +12,7 @@ from test_tools.__private.user_handles.handle import Handle
 
 if TYPE_CHECKING:
     import datetime
+    from collections.abc import Iterator
 
     from helpy._handles.hived.api.api_collection import HivedSyncApiCollection
     from helpy._interfaces.url import HttpUrl
@@ -113,3 +116,21 @@ class NodeHandleBase(Handle):
         values like 0.0.0.0 address or 0 port, special values are replaced with actually selected by node.
         """
         return self.__implementation.http_endpoint
+
+    @contextmanager
+    def temporarily_change_timeout(self, *, seconds: int) -> Iterator[None]:
+        """
+        All api calls under `with` statement will be executed with given timeout, which by default is {Settings.timeout}.
+
+        ```python
+        node.api.long_api.call_that_takes_25_seconds()  # FAIL
+        with node.temporarily_change_timeout(seconds=30):
+            node.api.long_api.call_that_takes_25_seconds()  # OK
+        node.api.long_api.call_that_takes_25_seconds()  # FAIL
+        ```
+
+            :param seconds: new temporary timeout value expressed in seconds.
+        """
+        with self.__implementation.restore_settings():
+            self.__implementation.settings.timeout = timedelta(seconds=seconds)
+            yield
