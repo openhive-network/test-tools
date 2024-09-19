@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
 
-from beekeepy.settings import Settings
+from beekeepy import Settings
 
 from helpy import Hived
 from test_tools.__private.scope import context
