@@ -8,7 +8,7 @@ import test_tools as tt
 from test_tools.node_configs.default import create_default_config
 
 if TYPE_CHECKING:
-    from test_tools.__private.node_config import NodeConfig
+    from test_tools.__private.process.node_config import NodeConfig
 
 
 @pytest.fixture()

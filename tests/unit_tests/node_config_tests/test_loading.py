@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 if TYPE_CHECKING:
-    from test_tools.__private.node_config import NodeConfig
+    from test_tools.__private.process.node_config import NodeConfig
 
 
 def test_single_value_loading(config: NodeConfig) -> None:
