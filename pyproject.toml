@@ -103,7 +103,6 @@ ignore = [
     "D105", # missing docstring in magic method
     "D106", # missing docstring in public nested class
     "D107", # missing docstring in __init__
-
 ]
 
 [tool.ruff.isort]

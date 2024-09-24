@@ -7,38 +7,38 @@ import shutil
 import time
 from contextlib import suppress
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
+
+from beekeepy import Settings
 
 from helpy._interfaces.time import StartTimeControl, TimeControl
-from helpy._interfaces.url import HttpUrl
+from helpy._interfaces.url import HttpUrl, P2PUrl, WsUrl
+from helpy._runnable_handle.runnable_handle import RunnableHandle
 from test_tools.__private import cleanup_policy, exceptions, paths_to_executables
 from test_tools.__private.base_node import BaseNode
 from test_tools.__private.block_log import BlockLog
 from test_tools.__private.constants import CleanupPolicy
-from test_tools.__private.executable import Executable
 from test_tools.__private.network import Network
-from test_tools.__private.notifications.node_notification_server import NodeNotificationServer
-from test_tools.__private.process import Process
+from test_tools.__private.process.node_arguments import NodeArguments
+from test_tools.__private.process.node_config import NodeConfig
+from test_tools.__private.process.node_process import HivedVersionOutput, NodeProcess
 from test_tools.__private.scope import ScopedObject, context
 from test_tools.__private.snapshot import Snapshot
 from test_tools.__private.user_handles.get_implementation import get_implementation
-from test_tools.__private.wait_for import wait_for_event
-from test_tools.node_configs.default import create_default_config
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
 
     from loguru import Record
 
-    from helpy._interfaces.url import P2PUrl, WsUrl
     from schemas.apis.network_node_api.response_schemas import SetAllowedPeers
     from test_tools.__private.alternate_chain_specs import AlternateChainSpecs
+    from test_tools.__private.executable_info import ExecutableInfo
     from test_tools.__private.user_handles.handles.network_handle import NetworkHandle
     from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
     from test_tools.__private.wallet.wallet import Wallet
 
 
-class Node(BaseNode, ScopedObject):
+class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], BaseNode, ScopedObject):
     # This pylint warning is right, but this refactor has low priority. Will be done later...
 
     DEFAULT_WAIT_FOR_LIVE_TIMEOUT = int(os.environ.get("TEST_TOOLS_NODE_DEFAULT_WAIT_FOR_LIVE_TIMEOUT", default=30))
@@ -54,29 +54,28 @@ class Node(BaseNode, ScopedObject):
         if self.__network is not None:
             self.__network.add(self)
 
-        self.__executable = Executable("hived")
-        self.__process = Process(self.directory, self.__executable, self.logger)
-        self.__notifications = self.__create_notifications_server()
+        self.__process = NodeProcess(self.directory, self.logger)
         self.__cleanup_policy: CleanupPolicy | None = None
         self.__alternate_chain_specs: AlternateChainSpecs | None = None
 
-        self.config = create_default_config()
-
         self.__wallets: list[Wallet] = []
+
+    @property
+    def config(self) -> NodeConfig:
+        return self.__process.config
+
+    @property
+    def arguments(self) -> NodeArguments:
+        return self.__process.arguments
+
+    @property
+    def __executable(self) -> ExecutableInfo:
+        return self.__process.executable_info
 
     @property
     def config_file_path(self) -> Path:
         return self.directory / "config.ini"
 
-    def __create_notifications_server(self) -> NodeNotificationServer:
-        return NodeNotificationServer(
-            node_name=self.get_name(),
-            logger=self.logger.bind(notifications=True),
-            notification_endpoint=self.settings.notification_endpoint,
-        )
-
-    def is_running(self) -> bool:
-        return self.__process.is_running()
 
     def is_able_to_produce_blocks(self) -> bool:
         conditions = [
@@ -112,35 +111,8 @@ class Node(BaseNode, ScopedObject):
             else "split",
         )
 
-    @property
-    def http_endpoint(self) -> HttpUrl:
-        assert (endpoint := self.__notifications.handler.http_endpoint) is not None
-        return endpoint
-
-    @http_endpoint.setter
-    def http_endpoint(self, value: object | str | HttpUrl | None) -> None:
-        if value is None:
-            value = HttpUrl("0.0.0.0:0", protocol="http")
-
-        assert isinstance(value, str | HttpUrl)
-        value = HttpUrl(value, protocol="http")
-        self.config.webserver_http_endpoint = value.as_string(with_protocol=False)
-        super().http_endpoint = value  #  type: ignore[misc]
-
     def get_supported_plugins(self) -> list[str]:
-        return self.__executable.get_supported_plugins()
-
-    def __wait_for_p2p_plugin_start(self, timeout: float = 10) -> None:
-        if not self.__notifications.handler.p2p_plugin_started_event.wait(timeout=timeout):
-            raise TimeoutError(f"Waiting too long for start of {self} p2p plugin")
-
-    def __wait_for_http_listening(self, timeout: float = 10) -> None:
-        if not self.__notifications.handler.http_listening_event.wait(timeout):
-            raise TimeoutError(f"Waiting too long for {self} to start listening on http port")
-
-    def __wait_for_ws_listening(self, timeout: float = 10) -> None:
-        if not self.__notifications.handler.ws_listening_event.wait(timeout):
-            raise TimeoutError(f"Waiting too long for {self} to start listening on ws port")
+        return self.__process.get_supported_plugins()
 
     def get_id(self) -> str:
         response = self.api.network_node.get_info()
@@ -149,19 +121,19 @@ class Node(BaseNode, ScopedObject):
     def set_allowed_nodes(self, nodes: list[Node]) -> SetAllowedPeers:
         return self.api.network_node.set_allowed_peers(allowed_peers=[node.get_id() for node in nodes])
 
-    def get_version(self) -> dict[str, Any]:
-        return self.__executable.get_version()
+    def get_version(self) -> HivedVersionOutput:  # type: ignore[override]
+        return self.__process.version()
 
     def dump_config(self) -> None:
-        assert not self.is_running()
+        assert not self.is_running
 
         self.logger.info("Config dumping started...")
 
-        config_was_modified = self.config != create_default_config()
-        self.__run_process(blocking=True, with_arguments=["--dump-config"], write_config_before_run=config_was_modified)
+        config_was_modified = self.config != NodeConfig.default()
+        self.__run_process(blocking=True, with_arguments=NodeArguments.just_dump_config(), write_config_before_run=config_was_modified)
 
         try:
-            self.config.load_from_file(self.config_file_path)
+            self.config.load(self.config_file_path)
         except KeyError as exception:
             raise exceptions.ConfigError(
                 f"{self.get_name()} config dump failed because of entry not known to TestTools."
@@ -180,10 +152,10 @@ class Node(BaseNode, ScopedObject):
 
         self.__run_process(
             blocking=True,
-            with_arguments=[
-                f"--dump-snapshot={name}",
-                "--exit-before-sync",
-            ],
+            with_arguments=NodeArguments(
+                dump_snapshot=name,
+                exit_before_sync=True
+            )
         )
 
         if not close:
@@ -222,27 +194,17 @@ class Node(BaseNode, ScopedObject):
         *,
         blocking: bool,
         write_config_before_run: bool = True,
-        with_arguments: Sequence[str] = (),
+        with_arguments: NodeArguments | None = None,
         with_environment_variables: dict[str, str] | None = None,
         with_time_control: str | None = None,
     ) -> None:
-        self.__notifications = self.__create_notifications_server()
-        port = self.__notifications.run()
-        self.config.notifications_endpoint = f"127.0.0.1:{port}"
-        self.directory.mkdir(exist_ok=True)
-
-        if write_config_before_run:
-            self.config.write_to_file(self.config_file_path)
-
         self.__process.run(
             blocking=blocking,
             with_arguments=with_arguments,
+            save_config=write_config_before_run,
             with_time_control=with_time_control,
             with_environment_variables=with_environment_variables,
         )
-
-        if blocking:
-            self.__notifications.close()
 
     def __enable_logging(self) -> None:
         self.__disable_logging()
@@ -275,7 +237,7 @@ class Node(BaseNode, ScopedObject):
         exit_at_block: int | None = None,
         exit_before_synchronization: bool = False,
         wait_for_live: bool | None = None,
-        arguments: list[str] | tuple[str, ...] = (),
+        arguments: NodeArguments | None = None,
         environment_variables: dict[str, str] | None = None,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
         time_control: TimeControl | str | None = None,
@@ -309,7 +271,7 @@ class Node(BaseNode, ScopedObject):
 
         log_message = f"Running {self}"
 
-        additional_arguments = [*arguments]
+        additional_arguments = arguments or self.arguments
         if load_snapshot_from is not None:
             self.__handle_loading_snapshot(load_snapshot_from, additional_arguments)
             log_message += ", loading snapshot"
@@ -317,15 +279,15 @@ class Node(BaseNode, ScopedObject):
         if exit_at_block is not None and stop_at_block is not None:
             raise RuntimeError("exit_at_block and stop_at_block can't be used together")
         if stop_at_block is not None:
-            additional_arguments.append(f"--stop-at-block={stop_at_block}")
+            additional_arguments.stop_at_block=stop_at_block
         if exit_at_block is not None:
-            additional_arguments.append(f"--exit-at-block={exit_at_block}")
+            additional_arguments.exit_at_block=exit_at_block
         if alternate_chain_specs is not None or self.alternate_chain_specs is not None:
             if alternate_chain_specs is not None:  # write or override
                 self.__alternate_chain_specs = alternate_chain_specs
             if self.__alternate_chain_specs is not None:
-                destination = self.__alternate_chain_specs.export_to_file(self.directory).absolute().as_posix()
-                additional_arguments.append(f"--alternate-chain-spec={destination}")
+                destination = self.__alternate_chain_specs.export_to_file(self.directory).absolute()
+                additional_arguments.alternate_chain_spec = destination
         if replay_from is not None:
             self.__handle_replay(replay_from, additional_arguments)
             log_message += ", replaying"
@@ -342,14 +304,14 @@ class Node(BaseNode, ScopedObject):
 
             time_control = time_control.as_string()
 
-        if exit_at_block is not None or exit_before_synchronization or "--exit-before-sync" in additional_arguments:
+        if exit_at_block is not None or exit_before_synchronization or additional_arguments.exit_before_sync:
             if wait_for_live is not None:
                 raise RuntimeError("wait_for_live can't be used with exit_before_synchronization")
 
             wait_for_live = False
 
             if exit_before_synchronization:
-                additional_arguments.append("--exit-before-sync")
+                additional_arguments.exit_before_sync = True
 
             self.logger.info(f"{log_message} and waiting for close...")
         elif wait_for_live is None or wait_for_live is True:
@@ -358,7 +320,7 @@ class Node(BaseNode, ScopedObject):
         else:
             self.logger.info(f"{log_message} and NOT waiting for live...")
 
-        exit_before_synchronization = exit_before_synchronization or "--exit-before-sync" in additional_arguments
+        exit_before_synchronization = bool(exit_before_synchronization) or bool(additional_arguments.exit_before_sync)
 
         self._actions_before_run()
 
@@ -380,38 +342,13 @@ class Node(BaseNode, ScopedObject):
         self.__log_run_summary()
 
     def __wait_for_synchronization(self, deadline: float, timeout: float, wait_for_live: bool) -> None:
-        wait_for_event(
-            self.__notifications.handler.synchronization_started_event,
-            deadline=deadline,
-            exception_message="Synchronization not started on time.",
-        )
-
-        wait_for_event(
-            self.__notifications.handler.http_listening_event,
-            deadline=deadline,
-            exception_message="HTTP server didn't start listening on time.",
-        )
-
-        wait_for_event(
-            self.__notifications.handler.ws_listening_event,
-            deadline=deadline,
-            exception_message="WS server didn't start listening on time.",
-        )
-
-        if wait_for_live:
-            self.wait_for_live_mode(timeout=timeout)
-
-        wait_for_event(
-            self.__notifications.handler.chain_api_ready_event,
-            deadline=deadline,
-            exception_message="Node is not ready at time",
-        )
+        raise NotImplementedError
 
     def _actions_before_run(self) -> None:
         """Override this method to hook just before starting node process."""
 
     def __handle_loading_snapshot(
-        self, snapshot_source: str | Path | Snapshot, additional_arguments: list[str]
+        self, snapshot_source: str | Path | Snapshot, additional_arguments: NodeArguments
     ) -> None:
         if not isinstance(snapshot_source, Snapshot):
             snapshot_source = Path(snapshot_source)
@@ -421,13 +358,10 @@ class Node(BaseNode, ScopedObject):
             )
 
         self.__ensure_that_plugin_required_for_snapshot_is_included()
-        additional_arguments.append(f"--load-snapshot={snapshot_source.name}")
-        with contextlib.suppress(
-            shutil.SameFileError
-        ):  # It's ok, just skip copying because user want to load node's own snapshot.
-            snapshot_source.copy_to(self.directory)
+        additional_arguments.load_snapshot=snapshot_source.name
+        snapshot_source.copy_to(self.directory)
 
-    def __handle_replay(self, replay_source: BlockLog | Path | str, additional_arguments: list[str]) -> None:
+    def __handle_replay(self, replay_source: BlockLog | Path | str, additional_arguments: NodeArguments) -> None:
         if not isinstance(replay_source, BlockLog):
             """
             TODO: When setting of initial values of node config is restored, change the code below as follows.
@@ -447,7 +381,7 @@ class Node(BaseNode, ScopedObject):
                 else "split",
             )
 
-        additional_arguments.append("--force-replay")
+        additional_arguments.force_replay = True
 
         block_log_directory = self.directory.joinpath("blockchain")
         if block_log_directory.exists():
@@ -456,8 +390,8 @@ class Node(BaseNode, ScopedObject):
         replay_source.copy_to(block_log_directory, artifacts="optional")
 
     def __log_run_summary(self) -> None:
-        if self.is_running():
-            message = f"Run with pid {self.__process.get_id()}, "
+        if self.is_running:
+            message = f"Run with pid {self.__process.pid}, "
 
             endpoints = self.__get_opened_endpoints()
             if endpoints:
@@ -467,8 +401,8 @@ class Node(BaseNode, ScopedObject):
         else:
             message = "Run completed"
 
-        message += f", {self.__executable.build_version} build"
-        message += f" commit={self.__executable.get_build_commit_hash()[:8]}"
+        message += f", {self.__process.build_version} build"
+        message += f" commit={self.__process.get_build_commit_hash()[:8]}"
         self.logger.info(message)
 
     def __get_opened_endpoints(self) -> list[tuple[str, str]]:
@@ -482,17 +416,17 @@ class Node(BaseNode, ScopedObject):
 
     def __set_unset_endpoints(self) -> None:
         if self.config.p2p_endpoint is None:
-            self.config.p2p_endpoint = "0.0.0.0:0"
+            self.config.p2p_endpoint = P2PUrl("0.0.0.0:0")
 
         if self.config.webserver_http_endpoint is None:
-            self.config.webserver_http_endpoint = "0.0.0.0:0"
+            self.config.webserver_http_endpoint = HttpUrl("0.0.0.0:0")
 
         if self.config.webserver_ws_endpoint is None:
-            self.config.webserver_ws_endpoint = "0.0.0.0:0"
+            self.config.webserver_ws_endpoint = WsUrl("0.0.0.0:0")
 
     def __check_if_executable_is_built_in_supported_versions(self) -> None:
         supported_builds = ["testnet", "mirrornet"]
-        if self.__executable.build_version not in supported_builds:
+        if self.__process.build_version not in supported_builds:
             raise NotImplementedError(
                 f"You have configured a path to an unsupported version of the hived build.\n"
                 f"At this moment only {supported_builds} builds are supported.\n"
@@ -519,7 +453,6 @@ class Node(BaseNode, ScopedObject):
 
     def close(self) -> None:
         self.__process.close()
-        self.__notifications.close()
         self.__disable_logging()
 
     def at_exit_from_scope(self) -> None:
@@ -528,7 +461,6 @@ class Node(BaseNode, ScopedObject):
 
     def handle_final_cleanup(self) -> None:
         self.close()
-        self.__process.close_opened_files()
         self.__remove_files()
 
     def _actions_after_final_cleanup(self) -> None:
