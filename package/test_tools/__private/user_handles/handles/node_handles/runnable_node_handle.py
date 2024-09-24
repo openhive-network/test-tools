@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from test_tools.__private.alternate_chain_specs import AlternateChainSpecs
     from test_tools.__private.block_log import BlockLog
     from test_tools.__private.constants import CleanupPolicy
-    from test_tools.__private.node_config import NodeConfig
+    from test_tools.__private.process.node_config import NodeConfig
     from test_tools.__private.snapshot import Snapshot
 
 
