@@ -150,7 +150,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
         self, other: NodeConfig, stop_at_first_difference: bool = False
     ) -> dict[str, tuple[Any, Any]]:
         differences = {}
-        for name_of_entry in self.dict(by_alias=True):
+        for name_of_entry in self.dict(by_alias=True, exclude=self.__comparison_excluded_values()):
             mine = getattr(self, name_of_entry)
             his = getattr(other, name_of_entry)
 
@@ -242,3 +242,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
             file_path = Path(file_path)
         with file_path.open(encoding="utf-8") as file:
             self.load_from_lines(file.readlines())
+
+    @classmethod
+    def __comparison_excluded_values(cls) -> set[str]:
+        return {"log_logger"}
