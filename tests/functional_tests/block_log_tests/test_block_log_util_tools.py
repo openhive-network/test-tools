@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import tempfile
+
 import pytest
 import test_tools as tt
 from test_tools.__private.exceptions import BlockLogUtilError
@@ -99,3 +101,14 @@ def test_get_block_ids(node: tt.InitNode) -> None:
     assert (
         block_id_from_node.block.block_id == block_id_from_block_log
     ), "The block_id in node differs from the block_id in block_log."
+
+
+@pytest.mark.parametrize(
+    ("block_log", "truncate_block_number"),
+    [("block_log_empty_30_mono", 20), ("block_log_empty_430_split", 420), ("block_log_empty_430_split", 30)],
+)
+def test_truncate(block_log: str, truncate_block_number: int, request: pytest.FixtureRequest) -> None:
+    truncated_block_log = request.getfixturevalue(block_log).truncate(tempfile.gettempdir(), truncate_block_number)
+    assert (
+        truncated_block_log.get_head_block_number() == truncate_block_number
+    ), "Truncated block log head block number does NOT match truncate block number."

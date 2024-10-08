@@ -62,7 +62,7 @@ class BlockLog:
     @staticmethod
     def get_existing_block_files(split_files: bool, from_dir: Path) -> list[Path]:
         if split_files:
-            return list(from_dir.glob(BlockLog.SPLIT_BLOCK_FILES_PATTERN))
+            return sorted(from_dir.glob(BlockLog.SPLIT_BLOCK_FILES_PATTERN))
 
         mono_log_path = from_dir / BlockLog.MONO_BLOCK_FILE_NAME
         if mono_log_path.exists():
@@ -73,7 +73,7 @@ class BlockLog:
     @staticmethod
     def get_existing_artifact_files(split_files: bool, from_dir: Path) -> list[Path]:
         if split_files:
-            return list(from_dir.glob(BlockLog.SPLIT_ARTIFACT_FILES_PATTERN))
+            return sorted(from_dir.glob(BlockLog.SPLIT_ARTIFACT_FILES_PATTERN))
 
         mono_artifacts_path = from_dir / BlockLog.MONO_ARTIFACTS_FILE_NAME
         if mono_artifacts_path.exists():
@@ -142,6 +142,37 @@ class BlockLog:
         for file in self.block_files:
             shutil.copy(file, destination)
         return BlockLog(destination, "split" if self.__is_split else "monolithic")
+
+    def truncate(self, output_directory: Path | str, block_number: int) -> BlockLog:
+        """
+        Shorten block log to `block_number` blocks and stores result in `output_directory` as.
+
+            - `output_directory` / block_log,
+            - `output_directory` / block_log.artifacts.
+
+        :param output_directory: In this directory truncated `block_log` and `block_log.artifacts` will be stored.
+        :param block_number: Limit number of blocks in the output block log.
+        :return: Truncated block log.
+        """
+        copied = self.copy_to(Path(output_directory))
+        for file in reversed(copied.block_files):
+            process = subprocess.run(
+                [
+                    paths_to_executables.get_path_of("block_log_util"),
+                    f"--block-log={Path(file).absolute()}",
+                    f"--block-number={block_number}",
+                    "--truncate",
+                    "--force",
+                ],
+                check=False,
+            )
+            if process.returncode == 0:
+                return BlockLog(Path(output_directory), "split" if self.__is_split else "monolithic")
+
+            file.unlink()
+
+        split_str = "split" if self.__is_split else "monolithic"
+        raise BlockLogUtilError(f"No file of {split_str} block log in {self.__path} could be sussessfully truncated.")
 
     def __run_and_get_output(self, *args: str) -> str:
         process = subprocess.run(
