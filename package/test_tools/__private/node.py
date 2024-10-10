@@ -310,8 +310,9 @@ class Node(BaseNode, ScopedObject):
         log_message = f"Running {self}"
 
         additional_arguments = [*arguments]
+        snapshot: Snapshot | None = None
         if load_snapshot_from is not None:
-            self.__handle_loading_snapshot(load_snapshot_from, additional_arguments)
+            snapshot = self.__handle_loading_snapshot(load_snapshot_from, additional_arguments)
             log_message += ", loading snapshot"
 
         if exit_at_block is not None and stop_at_block is not None:
@@ -326,8 +327,10 @@ class Node(BaseNode, ScopedObject):
             if self.__alternate_chain_specs is not None:
                 destination = self.__alternate_chain_specs.export_to_file(self.directory).absolute().as_posix()
                 additional_arguments.append(f"--alternate-chain-spec={destination}")
+
+        source_block_log: BlockLog | None = None
         if replay_from is not None:
-            self.__handle_replay(replay_from, additional_arguments)
+            source_block_log = self.__handle_replay(replay_from, additional_arguments)
             log_message += ", replaying"
 
         if isinstance(time_control, TimeControl):
@@ -335,9 +338,33 @@ class Node(BaseNode, ScopedObject):
                 assert (
                     self.block_log.path.exists()
                 ), "Block log directory does not exist. Block_log is necessary to use 'head_block_time' as time_control"
-                assert (
-                    self.block_log.block_files
-                ), "Could not find block log file(s). Block_log is necessary to use 'head_block_time' as time_control"
+                assert self.block_log.block_files, (
+                    f"""Could not find block log file(s). Block_log is necessary to use 'head_block_time' as time_control
+{self.block_log.path.as_posix()=}
+
+{self.block_log.is_split=}
+            """
+                    + (
+                        ""
+                        if snapshot is None
+                        else (
+                            f"{snapshot.get_path().as_posix()}"
+                            + "\n\n"
+                            + f"{snapshot._Snapshot__block_log.path.as_posix()=}"  # type: ignore[attr-defined]
+                            + "\n\n"
+                            + f"{snapshot._Snapshot__block_log.is_split=}"  # type: ignore[attr-defined]
+                        )
+                    )
+                    + (
+                        ""
+                        if source_block_log is None
+                        else f"""
+{source_block_log.path.as_posix()=}
+
+{source_block_log.is_split=}
+            """
+                    )
+                )
                 time_control.apply_head_block_time(self.block_log.get_head_block_time())
 
             time_control = time_control.as_string()
@@ -412,7 +439,7 @@ class Node(BaseNode, ScopedObject):
 
     def __handle_loading_snapshot(
         self, snapshot_source: str | Path | Snapshot, additional_arguments: list[str]
-    ) -> None:
+    ) -> Snapshot:
         if not isinstance(snapshot_source, Snapshot):
             snapshot_source = Path(snapshot_source)
             snapshot_source = Snapshot(
@@ -426,8 +453,9 @@ class Node(BaseNode, ScopedObject):
             shutil.SameFileError
         ):  # It's ok, just skip copying because user want to load node's own snapshot.
             snapshot_source.copy_to(self.directory)
+        return snapshot_source
 
-    def __handle_replay(self, replay_source: BlockLog | Path | str, additional_arguments: list[str]) -> None:
+    def __handle_replay(self, replay_source: BlockLog | Path | str, additional_arguments: list[str]) -> BlockLog:
         if not isinstance(replay_source, BlockLog):
             """
             TODO: When setting of initial values of node config is restored, change the code below as follows.
@@ -454,6 +482,7 @@ class Node(BaseNode, ScopedObject):
             shutil.rmtree(block_log_directory)
         block_log_directory.mkdir()
         replay_source.copy_to(block_log_directory, artifacts="optional")
+        return replay_source
 
     def __log_run_summary(self) -> None:
         if self.is_running():
