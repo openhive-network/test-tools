@@ -10,14 +10,13 @@ from typing import TYPE_CHECKING, Any, Final
 from loguru import logger
 
 import helpy
+from test_tools.__private.wallet.constants import SimpleTransaction, WalletResponseBase
 import wax
 from helpy import wax as wax_helpy
 from helpy._interfaces.asset.asset import Asset
 from schemas.fields.compound import Authority
 from schemas.fields.hive_int import HiveInt
 from schemas.operations.account_create_operation import AccountCreateOperation
-from schemas.operations.representations.hf26_representation import HF26Representation
-from schemas.transaction import Transaction
 from test_tools.__private.account import Account
 from test_tools.__private.remote_node import RemoteNode
 
@@ -29,16 +28,7 @@ if TYPE_CHECKING:
 
     from schemas.fields.basic import PublicKey
     from schemas.operations import AnyOperation
-    from test_tools.__private.wallet import AnyNode
-
-
-class SimpleTransaction(Transaction):
-    def add_operation(self, operation: AnyOperation) -> None:
-        self.operations.append(HF26Representation(type=operation.get_name_with_suffix(), value=operation))
-
-
-class WalletResponseBase(SimpleTransaction):
-    transaction_id: str
+    from test_tools import AnyNode
 
 
 def get_authority(key: PublicKey | str) -> Authority:
