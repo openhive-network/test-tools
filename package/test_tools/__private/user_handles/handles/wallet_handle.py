@@ -10,7 +10,7 @@ from test_tools.__private.user_handles.handles.node_handles.node_handle_base imp
 from test_tools.__private.user_handles.handles.node_handles.remote_node_handle import RemoteNodeHandle
 from test_tools.__private.wallet.constants import WalletResponse, WalletResponseBase
 from test_tools.__private.wallet.single_transaction_context import SingleTransactionContext
-from test_tools.__private.wallet.wallet_api import Wallet
+from test_tools.__private.wallet.wallet import Wallet
 
 if TYPE_CHECKING:
     from pathlib import Path

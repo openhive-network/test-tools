@@ -12,7 +12,6 @@ from test_tools.__private.wallet.constants import (
     SimpleTransaction,
     WalletResponse,
     AccountNameApiType,
-    AccountNameApiType,
     HiveDateTimeApiType,
     PublicKeyApiType,
     WalletResponseBase,
