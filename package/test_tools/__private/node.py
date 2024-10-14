@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from test_tools.__private.alternate_chain_specs import AlternateChainSpecs
     from test_tools.__private.user_handles.handles.network_handle import NetworkHandle
     from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
-    from test_tools.__private.wallet import Wallet
+    from test_tools.__private.wallet.wallet import Wallet
 
 
 class Node(BaseNode, ScopedObject):
