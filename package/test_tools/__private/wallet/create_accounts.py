@@ -199,7 +199,7 @@ def create_accounts(
         beekeeper_wallet_name: str,
         beekeeper_wallet_password: str,
         *,
-        max_threads: int = (os.cpu_count() or 24),
+        max_threads: int = (os.cpu_count() or 24),  # noqa: B008
     ) -> None:
         with concurrent.futures.ProcessPoolExecutor(max_workers=max_threads) as executor:
             futures: list[concurrent.futures.Future[Any]] = []
