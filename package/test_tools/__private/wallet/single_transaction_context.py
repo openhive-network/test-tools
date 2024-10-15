@@ -9,6 +9,7 @@ from test_tools.__private.wallet.constants import WalletResponse, WalletResponse
 if TYPE_CHECKING:
     from test_tools.__private.node import Node
     from test_tools.__private.remote_node import RemoteNode
+
     AnyNode = Node | RemoteNode
     from test_tools.__private.wallet.wallet import Wallet
 

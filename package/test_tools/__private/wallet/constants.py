@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from schemas.operations import AnyOperation
     from test_tools.__private.node import Node
     from test_tools.__private.remote_node import RemoteNode
+
     AnyNode = Node | RemoteNode
 
 
@@ -27,6 +28,7 @@ WitnessUrlApiType = WitnessUrl | str
 HbdExchangeRateApiType = HbdExchangeRate | dict
 
 AuthorityType = Literal["active", "owner", "posting"]
+
 
 @dataclass
 class AuthorityRequirementsHolder:
