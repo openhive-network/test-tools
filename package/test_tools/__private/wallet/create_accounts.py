@@ -28,7 +28,9 @@ if TYPE_CHECKING:
 
     from schemas.fields.basic import PublicKey
     from schemas.operations import AnyOperation
-    from test_tools import AnyNode
+    from test_tools.__private.node import Node
+
+    AnyNode = Node | RemoteNode
 
 
 def get_authority(key: PublicKey | str) -> Authority:
