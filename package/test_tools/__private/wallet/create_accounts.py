@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any, Final
 from loguru import logger
 
 import helpy
-from test_tools.__private.wallet.constants import SimpleTransaction, WalletResponseBase
 import wax
 from helpy import wax as wax_helpy
 from helpy._interfaces.asset.asset import Asset
@@ -19,6 +18,7 @@ from schemas.fields.hive_int import HiveInt
 from schemas.operations.account_create_operation import AccountCreateOperation
 from test_tools.__private.account import Account
 from test_tools.__private.remote_node import RemoteNode
+from test_tools.__private.wallet.constants import SimpleTransaction, WalletResponseBase
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -197,7 +197,7 @@ def create_accounts(
         beekeeper_wallet_name: str,
         beekeeper_wallet_password: str,
         *,
-        max_threads: int = (os.cpu_count() or 24),  # noqa: B008
+        max_threads: int = (os.cpu_count() or 24),
     ) -> None:
         with concurrent.futures.ProcessPoolExecutor(max_workers=max_threads) as executor:
             futures: list[concurrent.futures.Future[Any]] = []

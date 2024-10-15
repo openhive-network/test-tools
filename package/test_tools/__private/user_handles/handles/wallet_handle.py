@@ -8,8 +8,6 @@ from test_tools.__private.user_handles.get_implementation import get_implementat
 from test_tools.__private.user_handles.handle import Handle
 from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase
 from test_tools.__private.user_handles.handles.node_handles.remote_node_handle import RemoteNodeHandle
-from test_tools.__private.wallet.constants import WalletResponse, WalletResponseBase
-from test_tools.__private.wallet.single_transaction_context import SingleTransactionContext
 from test_tools.__private.wallet.wallet import Wallet
 
 if TYPE_CHECKING:
@@ -22,6 +20,8 @@ if TYPE_CHECKING:
     from schemas.operations import AnyOperation
     from test_tools.__private.account import Account
     from test_tools.__private.type_annotations.any_node import AnyNode
+    from test_tools.__private.wallet.constants import WalletResponse, WalletResponseBase
+    from test_tools.__private.wallet.single_transaction_context import SingleTransactionContext
 
 
 class WalletHandle(Handle):

@@ -3,14 +3,12 @@ from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING, Any
 
-
 from helpy._interfaces.context import ContextSync
-
-from test_tools.__private.node import Node
-from test_tools.__private.remote_node import RemoteNode
 from test_tools.__private.wallet.constants import WalletResponse, WalletResponseBase
 
 if TYPE_CHECKING:
+    from test_tools.__private.node import Node
+    from test_tools.__private.remote_node import RemoteNode
     AnyNode = Node | RemoteNode
     from test_tools.__private.wallet.wallet import Wallet
 

@@ -1,21 +1,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-
 from datetime import datetime
 from typing import TYPE_CHECKING, Literal
 
 from schemas.fields.basic import AccountName, EmptyString, PrivateKey, PublicKey, WitnessUrl
-from schemas.fields.basic import PrivateKey, PublicKey
 from schemas.fields.compound import HbdExchangeRate
 from schemas.fields.hive_datetime import HiveDateTime
-from schemas.operations import AnyOperation
 from schemas.operations.representations.hf26_representation import HF26Representation
 from schemas.transaction import Transaction
-from test_tools.__private.node import Node
-from test_tools.__private.remote_node import RemoteNode
 
 if TYPE_CHECKING:
+    from schemas.operations import AnyOperation
+    from test_tools.__private.node import Node
+    from test_tools.__private.remote_node import RemoteNode
     AnyNode = Node | RemoteNode
 
 
@@ -30,9 +28,7 @@ HbdExchangeRateApiType = HbdExchangeRate | dict
 
 AuthorityType = Literal["active", "owner", "posting"]
 
-dataclass
-
-
+@dataclass
 class AuthorityRequirementsHolder:
     active: set[str] = field(default_factory=set)
     owner: set[str] = field(default_factory=set)
