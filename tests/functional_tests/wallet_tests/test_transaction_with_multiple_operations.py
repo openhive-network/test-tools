@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 import test_tools as tt
+from test_tools.__private.exceptions import BroadcastDuringTransactionBuildingError
 
 from helpy import Hf26Asset as Asset
 
@@ -13,9 +14,9 @@ def wallet(node: tt.InitNode) -> tt.Wallet:
 
 def test_sending_transaction_with_multiple_operations(wallet: tt.Wallet) -> None:
     accounts_and_balances = {
-        "first": Asset.Test(100).as_legacy(),
-        "second": Asset.Test(200).as_legacy(),
-        "third": Asset.Test(300).as_legacy(),
+        "first": Asset.Test(100),
+        "second": Asset.Test(200),
+        "third": Asset.Test(300),
     }
 
     with wallet.in_single_transaction():
@@ -46,7 +47,7 @@ def test_setting_broadcast_when_building_transaction(wallet: tt.Wallet) -> None:
 
     This test checks if when user do this, appropriate error is generated.
     """
-    with wallet.in_single_transaction(), pytest.raises(RuntimeError):
+    with pytest.raises(BroadcastDuringTransactionBuildingError), wallet.in_single_transaction():
         wallet.api.create_account("initminer", "alice", "{}", True)
 
 
