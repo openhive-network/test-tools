@@ -40,7 +40,7 @@ class Process(HelpyExecutable[ConfigT, ArgumentT]):
     ) -> AutoCloser:
         environ = with_environment_variables or {}
         if with_time_control:
-            environ.update(configure_fake_time(self._logger, with_time_control))
+            environ.update()
 
         return self._run(
             blocking=blocking,

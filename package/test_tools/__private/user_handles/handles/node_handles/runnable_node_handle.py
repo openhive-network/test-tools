@@ -4,6 +4,7 @@ import math
 from typing import TYPE_CHECKING, Any
 
 from test_tools.__private.node import Node
+from test_tools.__private.process.node_arguments import NodeArguments
 from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase
 
@@ -49,8 +50,8 @@ class RunnableNodeHandle(NodeHandleBase):
         """Returns path to directory, where node runs and generates its files."""
         return self.__implementation.directory
 
-    def dump_config(self) -> None:
-        """Saves node's config to file. Requires that node is not running."""
+    def dump_config(self) -> NodeConfig:
+        """Saves node's config to file and returns it as object. Requires that node is not running."""
         return self.__implementation.dump_config()
 
     def dump_snapshot(self, *, name: str = "snapshot", close: bool = False) -> Snapshot:
@@ -85,7 +86,7 @@ class RunnableNodeHandle(NodeHandleBase):
         exit_at_block: int | None = None,
         exit_before_synchronization: bool = False,
         wait_for_live: bool | None = None,
-        arguments: list[str] | tuple[str, ...] = (),
+        arguments: NodeArguments | None = None,
         environment_variables: dict[str, str] | None = None,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
         time_control: TimeControl | str | None = None,

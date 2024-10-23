@@ -7,13 +7,18 @@ import shutil
 import time
 from contextlib import suppress
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Literal, cast, overload
 
 from beekeepy import Settings
+from helpy._runnable_handle.match_ports import PortMatchingResult
+from test_tools.__private.utilities.fake_time import configure_fake_time
 
 from helpy._interfaces.time import StartTimeControl, TimeControl
-from helpy._interfaces.url import HttpUrl, P2PUrl, WsUrl
+from helpy._interfaces.url import AnyUrl, HttpUrl, P2PUrl, WsUrl
 from helpy._runnable_handle.runnable_handle import RunnableHandle
+from helpy.exceptions import RequestError
+from schemas.apis.app_status_api.fundaments_of_responses import WebserverItem
+from schemas.apis.app_status_api.response_schemas import GetAppStatus
 from test_tools.__private import cleanup_policy, exceptions, paths_to_executables
 from test_tools.__private.base_node import BaseNode
 from test_tools.__private.block_log import BlockLog
@@ -44,17 +49,16 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
     DEFAULT_WAIT_FOR_LIVE_TIMEOUT = int(os.environ.get("TEST_TOOLS_NODE_DEFAULT_WAIT_FOR_LIVE_TIMEOUT", default=30))
 
     def __init__(self, *, name: str, network: NetworkHandle | None = None, handle: NodeHandle | None = None) -> None:
-        super().__init__(name=name, handle=handle)
+        self._set_name(name)
         self.directory = context.get_current_directory().joinpath(self.get_name()).absolute()
+        super().__init__(name=name, handle=handle)
         self.__node_sink_id: int | None = None
-        self.__notification_sink_id: int | None = None
         self.__produced_files = False
 
         self.__network: Network | None = get_implementation(network, Network) if network is not None else None
         if self.__network is not None:
             self.__network.add(self)
 
-        self.__process = NodeProcess(self.directory, self.logger)
         self.__cleanup_policy: CleanupPolicy | None = None
         self.__alternate_chain_specs: AlternateChainSpecs | None = None
 
@@ -69,6 +73,10 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         return self.__process.arguments
 
     @property
+    def __process(self) -> NodeProcess:
+        return self._exec
+
+    @property
     def __executable(self) -> ExecutableInfo:
         return self.__process.executable_info
 
@@ -76,6 +84,21 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
     def config_file_path(self) -> Path:
         return self.directory / "config.ini"
 
+    def _get_settings(self) -> Settings:
+        return self.settings
+
+    def _construct_executable(self) -> NodeProcess:
+        return NodeProcess(self.directory, self.logger)
+
+    def _unify_cli_arguments(self, working_directory: Path, http_endpoint: HttpUrl) -> None:
+        """This is empty to avoid writing obtained values to arguments"""
+
+    def _unify_config(self, working_directory: Path, http_endpoint: HttpUrl) -> None:
+        """This is empty to avoid writing obtained values to config"""
+
+    def _setup_ports(self, ports: PortMatchingResult) -> None:
+        assert ports.http is not None, "Http endpoint must be set"
+        self.http_endpoint = ports.http
 
     def is_able_to_produce_blocks(self) -> bool:
         conditions = [
@@ -124,22 +147,9 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
     def get_version(self) -> HivedVersionOutput:  # type: ignore[override]
         return self.__process.version()
 
-    def dump_config(self) -> None:
+    def dump_config(self) -> NodeConfig:
         assert not self.is_running
-
-        self.logger.info("Config dumping started...")
-
-        config_was_modified = self.config != NodeConfig.default()
-        self.__run_process(blocking=True, with_arguments=NodeArguments.just_dump_config(), write_config_before_run=config_was_modified)
-
-        try:
-            self.config.load(self.config_file_path)
-        except KeyError as exception:
-            raise exceptions.ConfigError(
-                f"{self.get_name()} config dump failed because of entry not known to TestTools."
-            ) from exception
-
-        self.logger.info("Config dumped")
+        return self.generate_default_config_from_executable()
 
     def dump_snapshot(self, *, name: str = "snapshot", close: bool = False) -> Snapshot:
         self.logger.info("Snapshot dumping started...")
@@ -196,37 +206,23 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         write_config_before_run: bool = True,
         with_arguments: NodeArguments | None = None,
         with_environment_variables: dict[str, str] | None = None,
-        with_time_control: str | None = None,
     ) -> None:
-        self.__process.run(
-            blocking=blocking,
-            with_arguments=with_arguments,
-            save_config=write_config_before_run,
-            with_time_control=with_time_control,
-            with_environment_variables=with_environment_variables,
-        )
+        with self.__process.restore_arguments(with_arguments):
+            self._run(
+                blocking=blocking,
+                environment_variables=with_environment_variables,
+                save_config=write_config_before_run,
+                perform_unification=False
+            )
 
     def __enable_logging(self) -> None:
         self.__disable_logging()
-
-        def filter_function(record: Record) -> bool:
-            return (
-                record["extra"].get("notifications", False) is True
-                and record["extra"].get("name", False) == self.get_name()
-            )
-
         self.__node_sink_id: int | None = self.logger.add(self.directory / "latest.log")  # type: ignore[no-redef]
-        self.__notification_sink_id: int | None = self.logger.add(  # type: ignore[no-redef]
-            sink=self.directory / "notifications.log", level="DEBUG", enqueue=True, filter=filter_function
-        )
 
     def __disable_logging(self) -> None:
         if self.__node_sink_id is not None:
             self.logger.remove(self.__node_sink_id)
             self.__node_sink_id = None
-        if self.__notification_sink_id is not None:
-            self.logger.remove(self.__notification_sink_id)
-            self.__notification_sink_id = None
 
     def run(  # noqa: C901, PLR0912, PLR0915
         self,
@@ -268,6 +264,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         self.__enable_logging()
 
         self.__set_unset_endpoints()
+        self.__assure_that_app_status_api_is_enabled()
 
         log_message = f"Running {self}"
 
@@ -292,6 +289,8 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
             self.__handle_replay(replay_from, additional_arguments)
             log_message += ", replaying"
 
+        environment_variables = environment_variables or dict(os.environ)
+
         if isinstance(time_control, TimeControl):
             if isinstance(time_control, StartTimeControl) and time_control.is_start_time_equal_to("head_block_time"):
                 assert (
@@ -302,7 +301,8 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                 ), "Could not find block log file(s). Block_log is necessary to use 'head_block_time' as time_control"
                 time_control.apply_head_block_time(self.block_log.get_head_block_time())
 
-            time_control = time_control.as_string()
+            environment_variables.update(configure_fake_time(self._logger, time_control.as_string()))
+
 
         if exit_at_block is not None or exit_before_synchronization or additional_arguments.exit_before_sync:
             if wait_for_live is not None:
@@ -327,12 +327,11 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         self.__run_process(
             blocking=exit_before_synchronization or bool(exit_at_block),
             with_arguments=additional_arguments,
-            with_time_control=time_control,
             with_environment_variables=environment_variables,
         )
 
         if replay_from is not None and not exit_before_synchronization:
-            self.__notifications.handler.replay_finished_event.wait()
+            self.__wait_for_replay_finish()
 
         self.__produced_files = True
 
@@ -341,8 +340,20 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
 
         self.__log_run_summary()
 
+    def __wait_for_replay_finish(self) -> None:
+        self.__wait_for_status(
+            deadline=math.inf,
+            predicate=lambda _, s: "finished replaying" in s.statuses,
+            message="replay was not finished"
+        )
+
     def __wait_for_synchronization(self, deadline: float, timeout: float, wait_for_live: bool) -> None:
-        raise NotImplementedError
+        self.__wait_for_status(
+            deadline=deadline,
+            predicate=lambda _, s: "syncing" in s.statuses,
+            message="syncing was not finished"
+        )
+
 
     def _actions_before_run(self) -> None:
         """Override this method to hook just before starting node process."""
@@ -424,6 +435,10 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         if self.config.webserver_ws_endpoint is None:
             self.config.webserver_ws_endpoint = WsUrl("0.0.0.0:0")
 
+    def __assure_that_app_status_api_is_enabled(self) -> None:
+        if "app_status_api" not in self.config.plugin:
+            self.__process.config.plugin.append("app_status_api")
+
     def __check_if_executable_is_built_in_supported_versions(self) -> None:
         supported_builds = ["testnet", "mirrornet"]
         if self.__process.build_version not in supported_builds:
@@ -437,19 +452,34 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
             )
 
     def get_p2p_endpoint(self) -> P2PUrl:
-        self.__wait_for_p2p_plugin_start()
-        assert self.__notifications.handler.p2p_endpoint is not None  # mypy check
-        return self.__notifications.handler.p2p_endpoint
+        return cast(P2PUrl, self.__wait_for_endpoint(
+                endpoint_t=P2PUrl,
+                get_endpoint=lambda s: s.webservers.P2P
+            )
+        )
 
     def get_http_endpoint(self) -> HttpUrl:
-        self.__wait_for_http_listening()
-        assert self.__notifications.handler.http_endpoint is not None  # mypy check
-        return self.__notifications.handler.http_endpoint
+        return self.http_endpoint
 
     def get_ws_endpoint(self) -> WsUrl:
-        self.__wait_for_ws_listening()
-        assert self.__notifications.handler.ws_endpoint is not None  # mypy check
-        return self.__notifications.handler.ws_endpoint
+        return cast(WsUrl, self.__wait_for_endpoint(
+                endpoint_t=WsUrl,
+                get_endpoint=lambda s: s.webservers.WS
+            )
+        )
+
+    def __wait_for_endpoint(self, get_endpoint: Callable[[GetAppStatus], WebserverItem | None], endpoint_t: type[AnyUrl]) -> AnyUrl:
+        def retrieve(_: GetAppStatus, status: GetAppStatus) -> bool:
+            return get_endpoint(status) is not None
+
+        self.__wait_for_status(
+            timeout=10.0,
+            predicate=retrieve,
+            message=f"{endpoint_t.__class__.__qualname__} webserver address not received in time"
+        )
+        endpoint = get_endpoint(self.api.app_status.get_app_status())
+        assert endpoint is not None  # mypy check
+        return endpoint_t.factory(port=endpoint.port, address=endpoint.address)
 
     def close(self) -> None:
         self.__process.close()
@@ -531,24 +561,24 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
 
     def wait_for_next_fork(self, timeout: float = math.inf) -> None:
         assert timeout >= 0
-        deadline = time.time() + timeout
-        wait_for_event(
-            self.__notifications.handler.switch_fork_event,
-            deadline=deadline,
-            exception_message="Fork did not happen on time.",
+
+        self.__wait_for_status(
+            timeout=timeout,
+            message="Fork did not happen on time.",
+            predicate=lambda prev, curr: len(curr.forks) > len(prev.forks),
+            previous_required=True
         )
 
     def wait_for_live_mode(self, timeout: float = math.inf) -> None:
         assert timeout >= 0
-        deadline = time.time() + timeout
-        wait_for_event(
-            self.__notifications.handler.live_mode_entered_event,
-            deadline=deadline,
-            exception_message=f"{self.get_name()}: Live mode not activated on time.",
+        self.__wait_for_status(
+            timeout=timeout,
+            predicate=lambda _, s: "entering live mode" in s.statuses,
+            message="replay was not finished"
         )
 
     def get_number_of_forks(self) -> int:
-        return self.__notifications.handler.number_of_forks
+        return len(self.api.app_status.get_app_status().forks)
 
     def register_wallet(self, wallet: Wallet) -> None:
         if wallet not in self.__wallets:
@@ -557,3 +587,51 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
     def unregister_wallet(self, wallet: Wallet) -> None:
         if wallet in self.__wallets:
             self.__wallets.remove(wallet)
+
+    @overload
+    def __wait_for_status(self, *, predicate: Callable[[GetAppStatus, GetAppStatus], bool], message: str, timeout: float, previous_required: bool = False) -> None: ...
+
+    @overload
+    def __wait_for_status(self, *, predicate: Callable[[GetAppStatus, GetAppStatus], bool], message: str, deadline: float, previous_required: bool = False) -> None: ...
+
+    def __wait_for_status(self, *, predicate: Callable[[GetAppStatus, GetAppStatus], bool], message: str, timeout: float | None = None, deadline: float | None = None, previous_required: bool = False) -> None:
+        """
+        Waits for predicate to return true until deadline
+
+        Args:
+            deadline: time till predicate will be checked
+            timeout: time till predicate will be checked
+            predicate: gets previous and current return from app_status_api.get_app_status and returns true if condition is fulfilled, false otherwise
+            previous_required: if set to True there will be initial delay to acquire difference in app state
+        """
+
+        assert "app_status_api" in self.config.plugin, "app_status_api is not enabled, enable it to allow test-tools properly handle hived binary"
+        assert (timeout is not None and deadline is None) or (deadline is not None and timeout is None), "only one of: timeout or deadline can and have to be set"
+        start = time.time()
+
+        def continue_waiting() -> bool:
+            if timeout is not None:
+                return (start + timeout) >= time.time()
+            if deadline is not None:
+                return deadline >= time.time()
+            assert False, "unknown decision path for timeout calculation"
+
+        def get_status() -> GetAppStatus:
+            while continue_waiting():
+                with contextlib.suppress(RequestError):
+                    return self.api.app_status.get_app_status()
+            raise TimeoutError(f"cannot obtain app_status_api.get_app_status; {message}")
+
+        if previous_required:
+            previous_response = get_status()
+            time.sleep(0.1)
+        response = get_status()
+        if not previous_required:
+            previous_response = response
+
+        while continue_waiting() and not predicate(previous_response, response):
+            previous_response = response
+            response = get_status()
+
+        if not continue_waiting():
+            raise TimeoutError(message)

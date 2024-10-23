@@ -6,7 +6,6 @@ from helpy import Hf26Asset as Asset
 from test_tools.__private.exceptions import NodeIsNotRunningError
 from test_tools.__private.vest_price import VestPrice
 from test_tools.__private.witness_node import WitnessNode
-
 if TYPE_CHECKING:
     from test_tools.__private.user_handles.handles.network_handle import NetworkHandle as Network
     from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase as NodeHandle
