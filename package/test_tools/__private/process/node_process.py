@@ -33,11 +33,11 @@ class NodeProcess(Process[NodeConfig, NodeArguments]):
         return self.version().version.hive_revision
 
     def version(self) -> HivedVersionOutput:  # type: ignore[override]
-        assert self.__executable.executable_name == "hived", "version can only be checked for hived binary!"
+        assert self.executable_info.executable_name == "hived", "version can only be checked for hived binary!"
         return HivedVersionOutput.parse_raw(super().version())
 
     def get_supported_plugins(self) -> list[str]:
-        return self.run_and_get_output(arguments=self.__arguments.just_list_plugins()).split("\n")
+        return self.run_and_get_output(arguments=self.arguments.just_list_plugins()).split("\n")
 
     def run(
         self,

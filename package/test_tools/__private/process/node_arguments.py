@@ -47,5 +47,9 @@ class NodeArguments(Arguments, ConfigurationCommonHived):
     def just_list_plugins(cls) -> Self:
         return cls(list_plugins=True)
 
+    @classmethod
+    def just_dump_config(cls) -> Self:
+        return NodeArguments(dump_config=True, data_dir=Path("."))
+
     def _convert_member_value_to_string_default(self, member_value: Any) -> str | Any:
         raise NotImplementedError

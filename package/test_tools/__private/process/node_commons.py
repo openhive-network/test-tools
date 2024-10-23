@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 from pathlib import Path  # noqa: TCH003
-from typing import Iterable, Literal, Any, TypeVar, overload
+from typing import Iterable, Literal, Any, TypeVar, overload, TYPE_CHECKING
 from typing_extensions import Self
 
-from pydantic import ByteSize, ConstrainedStr, Field
+from pydantic import ConstrainedStr, Field
 
 from helpy import HttpUrl, P2PUrl, WsUrl  # noqa: TCH001
+from helpy._interfaces.url import Url
 from schemas._preconfigured_base_model import PreconfiguredBaseModel
+
+if TYPE_CHECKING:
+    from pydantic.typing import CallableGenerator
 
 BacktraceAllowedValues = Literal["yes", "no"]
 SinkAllowedValues = Literal["STDERR", "STDOUT", "WLOG", "ELOG", "DLOG", "ILOG"]
@@ -17,22 +21,26 @@ class QuotedMarker:
     """Following string will be serialized with quotes and will be deserialized without them."""
 
 
-StringQuoted = QuotedMarker | str
-PathQuoted = QuotedMarker | Path
+StringQuoted = str | QuotedMarker
+PathQuoted = Path | QuotedMarker
 T = TypeVar("T")
 
 
 class UniqueList(list[T]):
     def __init__(self, _obj: Iterable[T] | T = []) -> None:  # noqa: B006
         super().__init__(set(_obj) if isinstance(_obj, Iterable) else [_obj])
+        self.sort()
 
     def append(self, __object: T) -> None:
         if __object not in self:
             super().append(__object)
+            self.sort()
 
     def extend(self, __iterable: Iterable[T]) -> None:
-        for item in __iterable:
-            self.append(item)
+        outcome = set([*self, *__iterable])
+        self.clear()
+        super().extend(outcome)
+        self.sort()
 
     def __iadd__(self, _: Any) -> Self:  # type: ignore[override]
         raise NotImplementedError
@@ -96,7 +104,7 @@ class ConfigurationCommonHived(PreconfiguredBaseModel):
     shared_file_dir: PathQuoted | None = None
     shared_file_full_threshold: str | None = None
     shared_file_scale_rate: str | None = None
-    shared_file_size: ByteSize | None = None
+    shared_file_size: str | None = None
     snapshot_root_dir: PathQuoted | None = None
     statsd_batchsize: int | None = None
     statsd_blacklist: list[HttpUrl] | None = None
@@ -111,11 +119,17 @@ class ConfigurationCommonHived(PreconfiguredBaseModel):
     webserver_unix_endpoint: Path | None = None
     webserver_ws_deflate: int | None = None
     webserver_ws_endpoint: WsUrl | None = None
-    witness: list[StringQuoted] | None = None
+    witness: list[StringQuoted] = Field(default_factory=list)
+
+    class Config:
+        arbitrary_types_allowed = True
+        json_encoders = {  # noqa: RUF012
+            Url: lambda u: u.as_string(with_protocol=False)
+        }
 
     @classmethod
     def _require_quotation(cls, member_name_or_type: str | type) -> bool:
-        return "StringQuoted" in (cls._member_annotation(member_name_or_type) if isinstance(member_name_or_type, str) else str(member_name_or_type))
+        return QuotedMarker.__name__ in (cls._member_annotation(member_name_or_type) if isinstance(member_name_or_type, str) else str(member_name_or_type))
 
     @classmethod
     def _member_annotation(cls, member_name: str) -> str:

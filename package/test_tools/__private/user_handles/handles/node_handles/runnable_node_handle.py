@@ -49,8 +49,8 @@ class RunnableNodeHandle(NodeHandleBase):
         """Returns path to directory, where node runs and generates its files."""
         return self.__implementation.directory
 
-    def dump_config(self) -> None:
-        """Saves node's config to file. Requires that node is not running."""
+    def dump_config(self) -> NodeConfig:
+        """Saves node's config to file and returns it as object. Requires that node is not running."""
         return self.__implementation.dump_config()
 
     def dump_snapshot(self, *, name: str = "snapshot", close: bool = False) -> Snapshot:

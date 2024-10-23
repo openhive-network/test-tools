@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 class BaseNode(UserHandleImplementation, Hived):
     def __init__(self, *, name: str, handle: NodeHandleBase | None = None) -> None:
-        self.__name = context.names.register_numbered_name(name)
+        self._set_name(name)
         super().__init__(handle=handle, settings=Settings())
 
     def __str__(self) -> str:
@@ -35,6 +35,10 @@ class BaseNode(UserHandleImplementation, Hived):
 
     def get_http_endpoint(self) -> HttpUrl:
         return self.http_endpoint
+
+    def _set_name(self, name: str) -> None:
+        if not hasattr(self, "_BaseNode__name"):
+            self.__name = context.names.register_numbered_name(name)
 
     @property
     def settings(self) -> Settings:
