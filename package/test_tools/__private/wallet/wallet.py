@@ -228,6 +228,16 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self, number_of_accounts: int, name_base: str = "account", *, secret: str = "secret", import_keys: bool = True
     ) -> list[Account]:
         assert self.__beekeeper is not None, "Beekeeper not exist"
+        max_num_of_accounts_in_single_transaction = 500
+        if number_of_accounts <= max_num_of_accounts_in_single_transaction:
+            accounts = Account.create_multiple(number_of_accounts, name_base, secret=secret)
+            with self.in_single_transaction():
+                for account in accounts:
+                    self.api.create_account("initminer", account.name, "{}")
+            if import_keys:
+                self.api.import_keys([account.private_key for account in accounts])
+            return accounts
+
         return create_accounts(
             beekeeper=self.__beekeeper,
             node=self._force_connected_node,
