@@ -81,7 +81,7 @@ wallet.api.create_account('initminer', 'alice', '')
 wallet.api.transfer_to_vesting('initminer', 'alice', '1000.000 TESTS')
 wallet.api.update_witness(
     'alice', '', tt.Account('alice').public_key,
-    {"account_creation_fee": "3.000 TESTS", "maximum_block_size": 65536, "sbd_interest_rate": 0}
+    {"account_creation_fee": "3.000 TESTS", "maximum_block_size": 65536, "hbd_interest_rate": 0}
 )
 ```
 
