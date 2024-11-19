@@ -7,7 +7,7 @@ from test_tools.__private.node import Node
 from test_tools.__private.process.node_arguments import NodeArguments
 from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase
-
+from test_tools.__private.process.node_process import HivedVersionOutput
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -185,7 +185,7 @@ class RunnableNodeHandle(NodeHandleBase):
         """
         self.__implementation.wait_for_live_mode(timeout=timeout)
 
-    def get_version(self) -> dict[str, Any]:
+    def get_version(self) -> HivedVersionOutput:
         """Returns output from hived for --version flag."""
         return self.__implementation.get_version()
 

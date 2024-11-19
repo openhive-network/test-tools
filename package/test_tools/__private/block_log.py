@@ -133,15 +133,20 @@ class BlockLog:
             file_list = self.artifact_files
             if file_list:
                 for file in file_list:
-                    shutil.copy(file, destination)
+                    if not self.__same_copying_destination(file, destination):
+                        shutil.copy(file, destination)
             elif artifacts == "required":
                 self.__raise_missing_artifacts_error(self.path)
             else:
                 assert artifacts == "optional"
 
         for file in self.block_files:
-            shutil.copy(file, destination)
+            if not self.__same_copying_destination(file, destination):
+                shutil.copy(file, destination)
         return BlockLog(destination, "split" if self.__is_split else "monolithic")
+
+    def __same_copying_destination(self, file: Path, destination: Path) -> bool:
+        return file.parent.resolve() == destination.resolve()
 
     def truncate(self, output_directory: Path | str, block_number: int) -> BlockLog:
         """

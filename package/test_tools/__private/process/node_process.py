@@ -61,7 +61,7 @@ class NodeProcess(Process[NodeConfig, NodeArguments]):
             )
 
     def _construct_arguments(self) -> NodeArguments:
-        return NodeArguments(data_dir=Path())
+        return NodeArguments(data_dir=Path("."))
 
     def _construct_config(self) -> NodeConfig:
         return NodeConfig.default()

@@ -13,7 +13,7 @@ from schemas.policies.testnet_assets import TestnetAssets
 
 @pytest.fixture(autouse=True)
 def _disable_logging() -> None:
-    logger.disable("helpy")
+    logger.enable("helpy")
 
 
 def pytest_sessionstart() -> None:

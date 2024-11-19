@@ -91,10 +91,19 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         return NodeProcess(self.directory, self.logger)
 
     def _unify_cli_arguments(self, working_directory: Path, http_endpoint: HttpUrl) -> None:
-        """This is empty to avoid writing obtained values to arguments"""
+        """This is empty to avoid writing obtained values to config"""
 
     def _unify_config(self, working_directory: Path, http_endpoint: HttpUrl) -> None:
         """This is empty to avoid writing obtained values to config"""
+
+    def _get_http_endpoint_from_cli_arguments(self) -> HttpUrl | None:
+        return self.arguments.webserver_http_endpoint
+
+    def _get_http_endpoint_from_config(self) -> HttpUrl | None:
+        return self.config.webserver_http_endpoint
+
+    def _get_working_directory_from_cli_arguments(self) -> Path | None:
+        return self.arguments.data_dir
 
     def _setup_ports(self, ports: PortMatchingResult) -> None:
         assert ports.http is not None, "Http endpoint must be set"
@@ -268,7 +277,8 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
 
         log_message = f"Running {self}"
 
-        additional_arguments = arguments or self.arguments
+        additional_arguments = arguments or self.arguments.copy()
+        additional_arguments.data_dir = self.directory
         if load_snapshot_from is not None:
             self.__handle_loading_snapshot(load_snapshot_from, additional_arguments)
             log_message += ", loading snapshot"
@@ -323,14 +333,14 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         exit_before_synchronization = bool(exit_before_synchronization) or bool(additional_arguments.exit_before_sync)
 
         self._actions_before_run()
-
+        blocking = exit_before_synchronization or bool(exit_at_block)
         self.__run_process(
-            blocking=exit_before_synchronization or bool(exit_at_block),
+            blocking=blocking,
             with_arguments=additional_arguments,
             with_environment_variables=environment_variables,
         )
 
-        if replay_from is not None and not exit_before_synchronization:
+        if replay_from is not None and not blocking:
             self.__wait_for_replay_finish()
 
         self.__produced_files = True
@@ -406,7 +416,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
 
             endpoints = self.__get_opened_endpoints()
             if endpoints:
-                message += f'with servers: {", ".join([f"{endpoint[1]}://{endpoint[0]}" for endpoint in endpoints])}'
+                message += f'with servers: {", ".join([str(endpoint[0]) for endpoint in endpoints])}'
             else:
                 message += "without any server"
         else:
