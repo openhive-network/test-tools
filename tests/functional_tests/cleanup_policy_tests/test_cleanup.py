@@ -14,7 +14,7 @@ def important_files_are_removed(node: RunnableNodeHandle) -> bool:
     paths_of_important_files = [
         ".",
         "config.ini",
-        "stderr.txt",
+        "stderr.log",
         "blockchain/block_log",
     ]
 

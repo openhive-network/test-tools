@@ -55,7 +55,7 @@ class NodeHandleBase(Handle):
 
     def is_running(self) -> bool:
         """Returns True if node's process is running, False if process is closed."""
-        return self.__implementation.is_running
+        return self.__implementation.is_running()
 
     def wait_number_of_blocks(self, blocks_to_wait: int, *, timeout: float = math.inf) -> None:
         """

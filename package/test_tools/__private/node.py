@@ -50,8 +50,11 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
 
     def __init__(self, *, name: str, network: NetworkHandle | None = None, handle: NodeHandle | None = None) -> None:
         self._set_name(name)
-        self.directory = context.get_current_directory().joinpath(self.get_name()).absolute()
+        self.__directory = context.get_current_directory().joinpath(self.get_name()).absolute()
         super().__init__(name=name, handle=handle)
+        with self.update_settings() as settings:
+            settings.working_directory = self.__directory
+        del self.__directory
         self.__node_sink_id: int | None = None
         self.__produced_files = False
 
@@ -84,11 +87,15 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
     def config_file_path(self) -> Path:
         return self.directory / "config.ini"
 
+    @property
+    def directory(self) -> Path:
+        return self.settings.working_directory
+
     def _get_settings(self) -> Settings:
         return self.settings
 
     def _construct_executable(self) -> NodeProcess:
-        return NodeProcess(self.directory, self.logger)
+        return NodeProcess(self.__directory, self.logger)
 
     def _unify_cli_arguments(self, working_directory: Path, http_endpoint: HttpUrl) -> None:
         """This is empty to avoid writing obtained values to config"""
@@ -157,7 +164,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         return self.__process.version()
 
     def dump_config(self) -> NodeConfig:
-        assert not self.is_running
+        assert not self.is_running()
         return self.generate_default_config_from_executable()
 
     def dump_snapshot(self, *, name: str = "snapshot", close: bool = False) -> Snapshot:
@@ -216,6 +223,8 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         with_arguments: NodeArguments | None = None,
         with_environment_variables: dict[str, str] | None = None,
     ) -> None:
+        args = with_arguments or NodeArguments()
+        args.data_dir = self.directory
         with self.__process.restore_arguments(with_arguments):
             self._run(
                 blocking=blocking,
@@ -278,7 +287,6 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         log_message = f"Running {self}"
 
         additional_arguments = arguments or self.arguments.copy()
-        additional_arguments.data_dir = self.directory
         if load_snapshot_from is not None:
             self.__handle_loading_snapshot(load_snapshot_from, additional_arguments)
             log_message += ", loading snapshot"
@@ -411,7 +419,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         replay_source.copy_to(block_log_directory, artifacts="optional")
 
     def __log_run_summary(self) -> None:
-        if self.is_running:
+        if self.is_running():
             message = f"Run with pid {self.__process.pid}, "
 
             endpoints = self.__get_opened_endpoints()

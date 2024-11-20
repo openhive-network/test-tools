@@ -92,7 +92,7 @@ class ConfigurationCommonHived(PreconfiguredBaseModel):
     p2p_endpoint: P2PUrl | None = None
     p2p_max_connections: int | None = None
     p2p_parameters: str | None = None
-    p2p_seed_node: list[P2PUrl] | None = None
+    p2p_seed_node: list[P2PUrl] = Field(default_factory=list)
     pacemaker_max_offset: int | None = None
     pacemaker_min_offset: int | None = None
     pacemaker_source: str | None = None
