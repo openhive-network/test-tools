@@ -77,12 +77,20 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self._transaction_expiration_offset = timedelta(seconds=30)
         self.__prepare_directory()
         self.run(preconfigure=preconfigure)
-        if (
-            self.connected_node is not None
-            and self._transaction_serialization == "legacy"
-            and self.connected_node.api.database.get_version().node_type == "testnet"
-        ):
-            warnings.warn("Wallet in legacy mode may not work correctly with the testnet hive instance.", stacklevel=1)
+        if self.connected_node is not None:
+            node_version = self.connected_node.api.database.get_version().node_type
+            is_testnet_wax = wax_helpy.get_hive_protocol_config("hive.fund", self.__get_chain_id())["IS_TEST_NET"]
+            if self._transaction_serialization == "legacy":
+                if node_version == "testnet" and is_testnet_wax == "false":
+                    warnings.warn(
+                        "Wallet in legacy mode may not work correctly with the testnet hive instance and wax mainnet instance.",
+                        stacklevel=1,
+                    )
+                elif node_version == "mainnet" and is_testnet_wax == "true":
+                    warnings.warn(
+                        "Wallet in legacy mode may not work correctly with the mainnet hive instance and wax testnet instance.",
+                        stacklevel=1,
+                    )
 
     @property
     def _force_connected_node(self) -> AnyNode:
