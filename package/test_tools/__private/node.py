@@ -375,11 +375,13 @@ class Node(BaseNode, ScopedObject):
         self.__produced_files = True
 
         if not exit_before_synchronization and exit_at_block is None:
-            self.__wait_for_synchronization(deadline, timeout, wait_for_live)
+            self.__wait_for_synchronization(deadline, timeout, wait_for_live, stop_at_block)
 
         self.__log_run_summary()
 
-    def __wait_for_synchronization(self, deadline: float, timeout: float, wait_for_live: bool) -> None:
+    def __wait_for_synchronization(
+        self, deadline: float, timeout: float, wait_for_live: bool, stop_at_block: int | None
+    ) -> None:
         wait_for_event(
             self.__notifications.handler.synchronization_started_event,
             deadline=deadline,
@@ -398,7 +400,9 @@ class Node(BaseNode, ScopedObject):
             exception_message="WS server didn't start listening on time.",
         )
 
-        if wait_for_live:
+        if stop_at_block is not None or "queen" in self.config.plugin:
+            self.wait_for_api_mode(timeout=timeout)
+        elif wait_for_live:
             self.wait_for_live_mode(timeout=timeout)
 
         wait_for_event(
@@ -613,6 +617,15 @@ class Node(BaseNode, ScopedObject):
             self.__notifications.handler.live_mode_entered_event,
             deadline=deadline,
             exception_message=f"{self.get_name()}: Live mode not activated on time.",
+        )
+
+    def wait_for_api_mode(self, timeout: float = math.inf) -> None:
+        assert timeout >= 0
+        deadline = time.time() + timeout
+        wait_for_event(
+            self.__notifications.handler.api_mode_entered_event,
+            deadline=deadline,
+            exception_message=f"{self.get_name()}: API mode not activated on time.",
         )
 
     def get_number_of_forks(self) -> int:
