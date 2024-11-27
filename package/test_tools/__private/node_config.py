@@ -125,6 +125,8 @@ class NodeConfig(BaseModel, validate_assignment=True):
     pacemaker_source: str | None = None
     pacemaker_min_offset: int | None = None
     pacemaker_max_offset: int | None = None
+    queen_block_size: int | None = None
+    queen_tx_count: int | None = None
 
     @validator("witness", "private_key", "p2p_seed_node", pre=True, always=True)
     @classmethod
