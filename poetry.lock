@@ -183,16 +183,16 @@ tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pyte
 
 [[package]]
 name = "beekeepy"
-version = "0.0.1.dev275+3cb93ee"
+version = "0.0.1.dev326+8245998"
 description = "All in one package for beekeeper interaction via Python interface."
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "beekeepy-0.0.1.dev275+3cb93ee-py3-none-any.whl", hash = "sha256:c060c696c409a5f2339013b3c124f604b02af7a53ddb04fe573f805119bcf263"},
+    {file = "beekeepy-0.0.1.dev326+8245998-py3-none-any.whl", hash = "sha256:a69e55c1bd77b21a9c2f6a111b55dc3d2e14c097336c8ad9291e015377ba9084"},
 ]
 
 [package.dependencies]
-helpy = "0.0.1.dev275+3cb93ee"
+helpy = "0.0.1.dev326+8245998"
 
 [package.source]
 type = "legacy"
@@ -458,12 +458,12 @@ hyperframe = ">=6.0,<7"
 
 [[package]]
 name = "helpy"
-version = "0.0.1.dev275+3cb93ee"
+version = "0.0.1.dev326+8245998"
 description = "Easily interact with the Hive blockchain using Python."
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "helpy-0.0.1.dev275+3cb93ee-py3-none-any.whl", hash = "sha256:3fad1b663fbb17f28c2d765bcc6d9d47241789f6659ba4c0c9ac84ef17fc6477"},
+    {file = "helpy-0.0.1.dev326+8245998-py3-none-any.whl", hash = "sha256:e61abeb3e0463cd6b563289d245df3f0e813aa8f2bae24d87f2906113aac311d"},
 ]
 
 [package.dependencies]
@@ -1376,4 +1376,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "37254506753c971903eaf13d6f4dc19208cc934f5188178f8f3f6bb3b967365c"
+content-hash = "1f0f924dffe04453027a76448ab8d96440c3f4ef44795334a1f414c1b451c4b9"
