@@ -8,6 +8,7 @@ from schemas.fields.basic import AccountName, EmptyString, PrivateKey, PublicKey
 from schemas.fields.compound import HbdExchangeRate
 from schemas.fields.hive_datetime import HiveDateTime
 from schemas.operations.representations.hf26_representation import HF26Representation
+from schemas.operations.representations.legacy_representation import LegacyRepresentation
 from schemas.transaction import Transaction
 
 if TYPE_CHECKING:
@@ -60,6 +61,11 @@ class AuthorityHolder:
 class SimpleTransaction(Transaction):
     def add_operation(self, operation: AnyOperation) -> None:
         self.operations.append(HF26Representation(type=operation.get_name_with_suffix(), value=operation))
+
+
+class SimpleTransactionLegacy(Transaction):
+    def add_operation(self, operation: AnyOperation) -> None:
+        self.operations.append(LegacyRepresentation(type=operation.get_name(), value=operation))
 
 
 class WalletResponseBase(SimpleTransaction):
