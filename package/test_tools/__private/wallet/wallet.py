@@ -276,7 +276,6 @@ class Wallet(UserHandleImplementation, ScopedObject):
         ref_block_prefix = tapos_data.ref_block_prefix
 
         assert ref_block_num >= 0, f"ref_block_num value `{ref_block_num}` is invalid`"
-        assert ref_block_prefix > 0, f"ref_block_prefix value `{ref_block_prefix}` is invalid`"
 
         return SimpleTransaction(
             ref_block_num=HiveInt(ref_block_num),
