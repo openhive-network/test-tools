@@ -79,7 +79,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.run(preconfigure=preconfigure)
         if self.connected_node is not None:
             node_version = self.connected_node.api.database.get_version().node_type
-            is_testnet_wax = wax_helpy.get_hive_protocol_config("hive.fund", self.__get_chain_id())["IS_TEST_NET"]
+            is_testnet_wax = wax_helpy.get_hive_protocol_config(self.__get_chain_id())["IS_TEST_NET"]
             if self._transaction_serialization == "legacy":
                 if node_version == "testnet" and is_testnet_wax == "false":
                     warnings.warn(
