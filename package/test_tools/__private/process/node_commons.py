@@ -1,21 +1,22 @@
 from __future__ import annotations
 
-from pathlib import Path  # noqa: TCH003
-from typing import Iterable, Literal, Any, TypeVar, overload, TYPE_CHECKING
-from typing_extensions import Self
+from collections.abc import Iterable
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, overload
 
-from pydantic import ConstrainedStr, Field
+from pydantic import Field
 
 from helpy import HttpUrl, P2PUrl, WsUrl  # noqa: TCH001
 from helpy._interfaces.url import Url
 from schemas._preconfigured_base_model import PreconfiguredBaseModel
 
 if TYPE_CHECKING:
-    from pydantic.typing import CallableGenerator
+    from typing_extensions import Self
 
 BacktraceAllowedValues = Literal["yes", "no"]
 SinkAllowedValues = Literal["STDERR", "STDOUT", "WLOG", "ELOG", "DLOG", "ILOG"]
 ReportTypes = Literal["NONE", "MINIMAL", "REGULAR", "FULL"]
+
 
 class QuotedMarker:
     """Following string will be serialized with quotes and will be deserialized without them."""
@@ -37,7 +38,7 @@ class UniqueList(list[T]):
             self.sort()
 
     def extend(self, __iterable: Iterable[T]) -> None:
-        outcome = set([*self, *__iterable])
+        outcome = {*self, *__iterable}
         self.clear()
         super().extend(outcome)
         self.sort()
@@ -47,6 +48,7 @@ class UniqueList(list[T]):
 
     def __add__(self, _: Any) -> Self:  # type: ignore[override]
         raise NotImplementedError
+
 
 class ConfigurationCommonHived(PreconfiguredBaseModel):
     account_history_rocksdb_blacklist_ops: str | None = None
@@ -123,13 +125,15 @@ class ConfigurationCommonHived(PreconfiguredBaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-        json_encoders = {  # noqa: RUF012
-            Url: lambda u: u.as_string(with_protocol=False)
-        }
+        json_encoders = {Url: lambda u: u.as_string(with_protocol=False)}  # noqa: RUF012
 
     @classmethod
     def _require_quotation(cls, member_name_or_type: str | type) -> bool:
-        return QuotedMarker.__name__ in (cls._member_annotation(member_name_or_type) if isinstance(member_name_or_type, str) else str(member_name_or_type))
+        return QuotedMarker.__name__ in (
+            cls._member_annotation(member_name_or_type)
+            if isinstance(member_name_or_type, str)
+            else str(member_name_or_type)
+        )
 
     @classmethod
     def _member_annotation(cls, member_name: str) -> str:
@@ -137,11 +141,13 @@ class ConfigurationCommonHived(PreconfiguredBaseModel):
 
     @overload
     @classmethod
-    def _apply_quotation(cls, value: QuotedMarker | str | Path) -> str: ...
+    def _apply_quotation(cls, value: QuotedMarker | str | Path) -> str:
+        ...
 
     @overload
     @classmethod
-    def _apply_quotation(cls, value: list[str | Path]) -> list[str]: ...
+    def _apply_quotation(cls, value: list[str | Path]) -> list[str]:
+        ...
 
     @classmethod
     def _apply_quotation(cls, value: QuotedMarker | str | Path | list[str | Path]) -> str | list[str]:

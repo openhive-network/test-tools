@@ -23,7 +23,7 @@ from test_tools.__private.exceptions import CommunicationError, NodeIsNotRunning
 from test_tools.__private.node import Node
 from test_tools.__private.remote_node import RemoteNode
 from test_tools.__private.scope import ScopedObject, context
-from helpy import Time
+from helpy import Time, ContextSync
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
 from test_tools.__private.utilities.fake_time import configure_fake_time
 
@@ -1416,11 +1416,11 @@ class OldWallet(UserHandleImplementation, ScopedObject):
     def __use_nai_assets(self) -> bool:
         return "--transaction-serialization=hf26" in self.additional_arguments
 
-    def in_single_transaction(self, *, broadcast=None):
+    def in_single_transaction(self, *, broadcast=None) -> SingleTransactionContext:
         return SingleTransactionContext(self, broadcast=broadcast)
 
 
-class SingleTransactionContext:
+class SingleTransactionContext(ContextSync):
     def __init__(self, wallet_: OldWallet, *, broadcast):
         self.__wallet = wallet_
         self.__broadcast = broadcast
@@ -1436,10 +1436,10 @@ class SingleTransactionContext:
                 f'You used {OldWallet.__name__}.{OldWallet.in_single_transaction.__name__}() not in "with" statement'
             )
 
-    def __enter__(self):
+    def _enter(self) -> Any:
         self.__wallet.api._start_gathering_operations_for_single_transaction()
         self.__was_run_as_context_manager = True
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def _finally(self) -> None:
         self.__response = self.__wallet.api._send_gathered_operations_as_single_transaction(broadcast=self.__broadcast)

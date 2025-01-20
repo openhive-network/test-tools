@@ -24,7 +24,6 @@ class NodeConfig(Config, ConfigurationCommonHived):  # type: ignore[misc]
     seed_node: str | None = None
     track_account_range: str | None = None
 
-
     @classmethod
     def _convert_member_value_to_config_value(cls, member_name: str, member_value: Any) -> str:
         if cls._require_quotation(member_name):
@@ -36,5 +35,5 @@ class NodeConfig(Config, ConfigurationCommonHived):  # type: ignore[misc]
         return NodeConfig(
             webserver_http_endpoint=HttpUrl("0.0.0.0:0"),
             webserver_ws_endpoint=WsUrl("0.0.0.0:0"),
-            p2p_endpoint=P2PUrl("0.0.0.0:0")
+            p2p_endpoint=P2PUrl("0.0.0.0:0"),
         )

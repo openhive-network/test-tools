@@ -7,19 +7,15 @@ import shutil
 import time
 from contextlib import suppress
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Literal, cast, overload
+from typing import TYPE_CHECKING, cast, overload
 
 from beekeepy import Settings
-from helpy._runnable_handle.match_ports import PortMatchingResult
-from test_tools.__private.utilities.fake_time import configure_fake_time
 
 from helpy._interfaces.time import StartTimeControl, TimeControl
 from helpy._interfaces.url import AnyUrl, HttpUrl, P2PUrl, WsUrl
 from helpy._runnable_handle.runnable_handle import RunnableHandle
 from helpy.exceptions import RequestError
-from schemas.apis.app_status_api.fundaments_of_responses import WebserverItem
-from schemas.apis.app_status_api.response_schemas import GetAppStatus
-from test_tools.__private import cleanup_policy, exceptions, paths_to_executables
+from test_tools.__private import cleanup_policy, paths_to_executables
 from test_tools.__private.base_node import BaseNode
 from test_tools.__private.block_log import BlockLog
 from test_tools.__private.constants import CleanupPolicy
@@ -30,11 +26,14 @@ from test_tools.__private.process.node_process import HivedVersionOutput, NodePr
 from test_tools.__private.scope import ScopedObject, context
 from test_tools.__private.snapshot import Snapshot
 from test_tools.__private.user_handles.get_implementation import get_implementation
+from test_tools.__private.utilities.fake_time import configure_fake_time
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
 
-    from loguru import Record
-
+    from helpy._runnable_handle.match_ports import PortMatchingResult
+    from schemas.apis.app_status_api.fundaments_of_responses import WebserverItem
+    from schemas.apis.app_status_api.response_schemas import GetAppStatus
     from schemas.apis.network_node_api.response_schemas import SetAllowedPeers
     from test_tools.__private.alternate_chain_specs import AlternateChainSpecs
     from test_tools.__private.executable_info import ExecutableInfo
@@ -98,10 +97,10 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         return NodeProcess(self.__directory, self.logger)
 
     def _unify_cli_arguments(self, working_directory: Path, http_endpoint: HttpUrl) -> None:
-        """This is empty to avoid writing obtained values to config"""
+        """Empty to avoid writing obtained values to config."""
 
     def _unify_config(self, working_directory: Path, http_endpoint: HttpUrl) -> None:
-        """This is empty to avoid writing obtained values to config"""
+        """Empty to avoid writing obtained values to config."""
 
     def _get_http_endpoint_from_cli_arguments(self) -> HttpUrl | None:
         return self.arguments.webserver_http_endpoint
@@ -176,13 +175,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
 
         self.close()
 
-        self.__run_process(
-            blocking=True,
-            with_arguments=NodeArguments(
-                dump_snapshot=name,
-                exit_before_sync=True
-            )
-        )
+        self.__run_process(blocking=True, with_arguments=NodeArguments(dump_snapshot=name, exit_before_sync=True))
 
         if not close:
             self.run()
@@ -230,7 +223,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                 blocking=blocking,
                 environment_variables=with_environment_variables,
                 save_config=write_config_before_run,
-                perform_unification=False
+                perform_unification=False,
             )
 
     def __enable_logging(self) -> None:
@@ -294,9 +287,9 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         if exit_at_block is not None and stop_at_block is not None:
             raise RuntimeError("exit_at_block and stop_at_block can't be used together")
         if stop_at_block is not None:
-            additional_arguments.stop_at_block=stop_at_block
+            additional_arguments.stop_at_block = stop_at_block
         if exit_at_block is not None:
-            additional_arguments.exit_at_block=exit_at_block
+            additional_arguments.exit_at_block = exit_at_block
         if alternate_chain_specs is not None or self.alternate_chain_specs is not None:
             if alternate_chain_specs is not None:  # write or override
                 self.__alternate_chain_specs = alternate_chain_specs
@@ -320,7 +313,6 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                 time_control.apply_head_block_time(self.block_log.get_head_block_time())
 
             environment_variables.update(configure_fake_time(self._logger, time_control.as_string()))
-
 
         if exit_at_block is not None or exit_before_synchronization or additional_arguments.exit_before_sync:
             if wait_for_live is not None:
@@ -362,16 +354,13 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         self.__wait_for_status(
             deadline=math.inf,
             predicate=lambda _, s: "finished replaying" in s.statuses,
-            message="replay was not finished"
+            message="replay was not finished",
         )
 
     def __wait_for_synchronization(self, deadline: float, timeout: float, wait_for_live: bool) -> None:
         self.__wait_for_status(
-            deadline=deadline,
-            predicate=lambda _, s: "syncing" in s.statuses,
-            message="syncing was not finished"
+            deadline=deadline, predicate=lambda _, s: "syncing" in s.statuses, message="syncing was not finished"
         )
-
 
     def _actions_before_run(self) -> None:
         """Override this method to hook just before starting node process."""
@@ -387,7 +376,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
             )
 
         self.__ensure_that_plugin_required_for_snapshot_is_included()
-        additional_arguments.load_snapshot=snapshot_source.name
+        additional_arguments.load_snapshot = snapshot_source.name
         snapshot_source.copy_to(self.directory)
 
     def __handle_replay(self, replay_source: BlockLog | Path | str, additional_arguments: NodeArguments) -> None:
@@ -470,30 +459,24 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
             )
 
     def get_p2p_endpoint(self) -> P2PUrl:
-        return cast(P2PUrl, self.__wait_for_endpoint(
-                endpoint_t=P2PUrl,
-                get_endpoint=lambda s: s.webservers.P2P
-            )
-        )
+        return cast(P2PUrl, self.__wait_for_endpoint(endpoint_t=P2PUrl, get_endpoint=lambda s: s.webservers.P2P))
 
     def get_http_endpoint(self) -> HttpUrl:
         return self.http_endpoint
 
     def get_ws_endpoint(self) -> WsUrl:
-        return cast(WsUrl, self.__wait_for_endpoint(
-                endpoint_t=WsUrl,
-                get_endpoint=lambda s: s.webservers.WS
-            )
-        )
+        return cast(WsUrl, self.__wait_for_endpoint(endpoint_t=WsUrl, get_endpoint=lambda s: s.webservers.WS))
 
-    def __wait_for_endpoint(self, get_endpoint: Callable[[GetAppStatus], WebserverItem | None], endpoint_t: type[AnyUrl]) -> AnyUrl:
+    def __wait_for_endpoint(
+        self, get_endpoint: Callable[[GetAppStatus], WebserverItem | None], endpoint_t: type[AnyUrl]
+    ) -> AnyUrl:
         def retrieve(_: GetAppStatus, status: GetAppStatus) -> bool:
             return get_endpoint(status) is not None
 
         self.__wait_for_status(
             timeout=10.0,
             predicate=retrieve,
-            message=f"{endpoint_t.__class__.__qualname__} webserver address not received in time"
+            message=f"{endpoint_t.__class__.__qualname__} webserver address not received in time",
         )
         endpoint = get_endpoint(self.api.app_status.get_app_status())
         assert endpoint is not None  # mypy check
@@ -584,7 +567,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
             timeout=timeout,
             message="Fork did not happen on time.",
             predicate=lambda prev, curr: len(curr.forks) > len(prev.forks),
-            previous_required=True
+            previous_required=True,
         )
 
     def wait_for_live_mode(self, timeout: float = math.inf) -> None:
@@ -592,7 +575,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         self.__wait_for_status(
             timeout=timeout,
             predicate=lambda _, s: "entering live mode" in s.statuses,
-            message="replay was not finished"
+            message="replay was not finished",
         )
 
     def get_number_of_forks(self) -> int:
@@ -607,24 +590,52 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
             self.__wallets.remove(wallet)
 
     @overload
-    def __wait_for_status(self, *, predicate: Callable[[GetAppStatus, GetAppStatus], bool], message: str, timeout: float, previous_required: bool = False) -> None: ...
+    def __wait_for_status(
+        self,
+        *,
+        predicate: Callable[[GetAppStatus, GetAppStatus], bool],
+        message: str,
+        timeout: float,
+        previous_required: bool = False,
+    ) -> None:
+        ...
 
     @overload
-    def __wait_for_status(self, *, predicate: Callable[[GetAppStatus, GetAppStatus], bool], message: str, deadline: float, previous_required: bool = False) -> None: ...
+    def __wait_for_status(
+        self,
+        *,
+        predicate: Callable[[GetAppStatus, GetAppStatus], bool],
+        message: str,
+        deadline: float,
+        previous_required: bool = False,
+    ) -> None:
+        ...
 
-    def __wait_for_status(self, *, predicate: Callable[[GetAppStatus, GetAppStatus], bool], message: str, timeout: float | None = None, deadline: float | None = None, previous_required: bool = False) -> None:
+    def __wait_for_status(
+        self,
+        *,
+        predicate: Callable[[GetAppStatus, GetAppStatus], bool],
+        message: str,
+        timeout: float | None = None,
+        deadline: float | None = None,
+        previous_required: bool = False,
+    ) -> None:
         """
-        Waits for predicate to return true until deadline
+        Waits for predicate to return true until deadline.
 
         Args:
+        ----
             deadline: time till predicate will be checked
             timeout: time till predicate will be checked
             predicate: gets previous and current return from app_status_api.get_app_status and returns true if condition is fulfilled, false otherwise
             previous_required: if set to True there will be initial delay to acquire difference in app state
         """
-
-        assert "app_status_api" in self.config.plugin, "app_status_api is not enabled, enable it to allow test-tools properly handle hived binary"
-        assert (timeout is not None and deadline is None) or (deadline is not None and timeout is None), "only one of: timeout or deadline can and have to be set"
+        assert (
+            "app_status_api" in self.config.plugin
+        ), "app_status_api is not enabled, enable it to allow test-tools properly handle hived binary"
+        assert (timeout is not None and deadline is None) or (
+            deadline is not None and timeout is None
+        ), "only one of: timeout or deadline can and have to be set"
         start = time.time()
 
         def continue_waiting() -> bool:
@@ -632,7 +643,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                 return (start + timeout) >= time.time()
             if deadline is not None:
                 return deadline >= time.time()
-            assert False, "unknown decision path for timeout calculation"
+            raise AssertionError("unknown decision path for timeout calculation")
 
         def get_status() -> GetAppStatus:
             while continue_waiting():

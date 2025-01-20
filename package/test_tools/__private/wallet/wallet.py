@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import shutil
 import warnings
-from datetime import timedelta
-from typing import TYPE_CHECKING, Any, get_args
+from datetime import datetime, timedelta, timezone
+from typing import TYPE_CHECKING, Any, ClassVar, Final, get_args
 
 from beekeepy import Beekeeper, Settings
 
 import helpy
+import test_tools as tt
 import wax
 from helpy import Hf26Asset as Asset
 from helpy import wax as wax_helpy
@@ -52,6 +53,10 @@ if TYPE_CHECKING:
 
 
 class Wallet(UserHandleImplementation, ScopedObject):
+    NODE_NOT_READY_DATETIME: ClassVar[Final[datetime]] = datetime(
+        year=2016, month=1, day=1, hour=0, minute=0, second=0, tzinfo=timezone.utc
+    )
+
     def __init__(
         self,
         *,
@@ -268,6 +273,11 @@ class Wallet(UserHandleImplementation, ScopedObject):
         node: AnyNode,
     ) -> SimpleTransaction:
         gdpo = node.api.database.get_dynamic_global_properties()
+
+        while gdpo.time == self.NODE_NOT_READY_DATETIME:
+            node.wait_number_of_blocks(1)
+            gdpo = node.api.database.get_dynamic_global_properties()
+
         block_id = gdpo.head_block_id
 
         # set header
@@ -341,13 +351,21 @@ class Wallet(UserHandleImplementation, ScopedObject):
         )
 
     def complex_transaction_sign(self, transaction: SimpleTransaction) -> SimpleTransaction:
+        tt.logger.info(f"{transaction.json()=}")
         sig_digest = self.calculate_sig_digest(transaction)
+        tt.logger.info(f"{sig_digest=}")
         sign_keys, retrived_authorities = self.import_required_keys(transaction)
+        tt.logger.info(f"{sign_keys=}")
+        tt.logger.info(f"{retrived_authorities=}")
         signed_transaction = self.sign_transaction(transaction, sig_digest, sign_keys)
+        tt.logger.info(f"{signed_transaction.json()=}")
         if self._use_authority != {}:
             return signed_transaction
         reduced_sign_keys = self.reduce_signatures(signed_transaction, sign_keys, retrived_authorities)
-        return self.sign_transaction(transaction, sig_digest, reduced_sign_keys)
+        tt.logger.info(f"{reduced_sign_keys=}")
+        resigned_trx = self.sign_transaction(transaction, sig_digest, reduced_sign_keys)
+        tt.logger.info(f"{resigned_trx.json()=}")
+        return resigned_trx
 
     def calculate_sig_digest(self, transaction: SimpleTransaction) -> str:
         chain_id = self.__get_chain_id()
