@@ -10,7 +10,7 @@ from helpy import Hf26Asset as Asset
 from helpy import wax as wax_helpy
 from schemas.fields.basic import AccountName, EmptyList, PrivateKey, PublicKey
 from schemas.fields.compound import Authority, HbdExchangeRate, LegacyChainProperties, Proposal
-from schemas.operations import AnyOperation
+from schemas.operations import AnyOperationRepresentation
 from schemas.operations.account_create_operation import AccountCreateOperation
 from schemas.operations.account_create_with_delegation_operation import AccountCreateWithDelegationOperation
 from schemas.operations.account_update_operation import AccountUpdateOperation
@@ -153,13 +153,13 @@ class Api:
         """Helper class for sending multiple operations in single transaction."""
 
         def __init__(self) -> None:
-            self.__operations: EmptyList | list[AnyOperation] = []
+            self.__operations: EmptyList | list[AnyOperationRepresentation] = []
 
         @property
-        def operations(self) -> EmptyList | list[AnyOperation]:
+        def operations(self) -> EmptyList | list[AnyOperationRepresentation]:
             return self.__operations
 
-        def _append_operation(self, operation: AnyOperation) -> None:
+        def _append_operation(self, operation: AnyOperationRepresentation) -> None:
             self.__operations.append(operation)
 
     def __init__(self, wallet: Wallet) -> None:
@@ -190,12 +190,12 @@ class Api:
         return None
 
     def __send_one_op(
-        self, operation: AnyOperation, broadcast: bool | None, blocking: bool = True
+        self, operation: AnyOperationRepresentation, broadcast: bool | None, blocking: bool = True
     ) -> None | WalletResponseBase | WalletResponse:
         return self._send([operation], broadcast, blocking)
 
     def _send(
-        self, operations: list[AnyOperation], broadcast: bool | None, blocking: bool
+        self, operations: list[AnyOperationRepresentation], broadcast: bool | None, blocking: bool
     ) -> None | WalletResponseBase | WalletResponse:
         broadcast = self.__handle_broadcast_parameter(broadcast)
 
@@ -1471,7 +1471,7 @@ class Api:
         :param only_result: This argument is no longer active and should not be provided.
         :return: A dictionary representing the prototype operation.
         """
-        operations = getattr(AnyOperation, "__args__", None)
+        operations = getattr(AnyOperationRepresentation, "__args__", None)
         for operation in operations:  #  type: ignore[union-attr]
             if operation.get_name_with_suffix() == operation_type:
                 return {"type": operation.get_name(), "value": operation.__fields__}

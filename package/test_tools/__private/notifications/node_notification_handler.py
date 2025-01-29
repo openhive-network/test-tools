@@ -49,7 +49,7 @@ class NodeNotificationHandler(HivedNotificationHandler):
         self.number_of_forks = 0
 
     async def on_status_changed(self, notification: Notification[Status]) -> None:
-        match notification.value.current_status:
+        match notification.value["current_status"]:
             case "finished replaying":
                 self.replay_finished_event.set()
             case "finished dumping snapshot":
@@ -80,14 +80,14 @@ class NodeNotificationHandler(HivedNotificationHandler):
 
     async def on_error(self, notification: Notification[Error]) -> None:
         RaiseExceptionHelper.raise_exception_in_main_thread(
-            exceptions.InternalNodeError(f"{self.node_name}: '{notification.value.message}'")
+            exceptions.InternalNodeError(f"{self.node_name}: '{notification.value['message']}'")
         )
 
-    async def handle_notification(self, notification: Notification[KnownNotificationT]) -> None:
-        self.__logger.info(f"Received message: {notification.json(by_alias=True)}")
+    async def handle_notification(self, notification: Notification) -> None:
+        self.__logger.info(f"Received message: {notification.json()}")
         return await super().handle_notification(notification)
 
     def __combine_url_string_from_notification(
         self, notification: Notification[WebserverListening] | Notification[P2PListening]
     ) -> str:
-        return f"{notification.value.address}:{notification.value.port}"
+        return f"{notification.value['address']}:{notification.value['port']}"

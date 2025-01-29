@@ -45,7 +45,7 @@ if TYPE_CHECKING:
     from schemas.fields.assets.hive import AssetHiveHF26
     from schemas.fields.assets.vests import AssetVestsHF26
     from schemas.fields.compound import Authority
-    from schemas.operations import AnyOperation
+    from schemas.operations import AnyOperationRepresentation
     from test_tools.__private.user_handles.handles.wallet_handle import WalletHandle
 
     AnyNode = Node | RemoteNode
@@ -120,7 +120,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         return self._beekeeper_wallet
 
     def send(
-        self, operations: list[AnyOperation], broadcast: bool, blocking: bool
+        self, operations: list[AnyOperationRepresentation], broadcast: bool, blocking: bool
     ) -> None | WalletResponseBase | WalletResponse:
         return self.api._send(operations, broadcast, blocking)
 
@@ -288,7 +288,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         )
 
     def _prepare_and_send_transaction(
-        self, operations: list[AnyOperation], blocking: bool, broadcast: bool
+        self, operations: list[AnyOperationRepresentation], blocking: bool, broadcast: bool
     ) -> WalletResponseBase | WalletResponse:
         transaction = self.__generate_transaction_template(self._force_connected_node)
         for operation in operations:

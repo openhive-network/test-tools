@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from beekeepy._interface.abc.synchronous.wallet import UnlockedWallet
 
     from schemas.fields.basic import PublicKey
-    from schemas.operations import AnyOperation
+    from schemas.operations import AnyOperationRepresentation
     from test_tools.__private.node import Node
 
     AnyNode = Node | RemoteNode
@@ -87,7 +87,7 @@ def sign_transaction(
 
 
 def prepare_transaction(
-    operations: list[AnyOperation], node: RemoteNode, beekeeper_wallet: UnlockedWallet
+    operations: list[AnyOperationRepresentation], node: RemoteNode, beekeeper_wallet: UnlockedWallet
 ) -> WalletResponseBase:
     transaction = generate_transaction_template(node)
 
@@ -136,7 +136,7 @@ def send_transaction(  # noqa: C901
             logger.debug(f"Accounts created: {accounts_range_message}")
 
     def broadcast_transaction(
-        operations: list[AnyOperation], node: RemoteNode, beekeeper_wallet: UnlockedWallet
+        operations: list[AnyOperationRepresentation], node: RemoteNode, beekeeper_wallet: UnlockedWallet
     ) -> bool:
         def prepare_and_broadcast() -> None:
             trx = prepare_transaction(operations, node, beekeeper_wallet)
@@ -149,7 +149,7 @@ def send_transaction(  # noqa: C901
             fail_message=f"Failed to send transaction: {accounts_range_message}",
         )
 
-    operations: list[AnyOperation] = []
+    operations: list[AnyOperationRepresentation] = []
     beekeeper = packed_beekeeper.unpack()
     node = RemoteNode(http_endpoint=node_address)
 

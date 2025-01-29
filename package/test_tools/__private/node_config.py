@@ -5,13 +5,13 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from pydantic import BaseModel, ConstrainedStr, Field, validator
+import msgspec
 
 if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-class StringQuotedMarker(ConstrainedStr):
+class StringQuotedMarker(str):
     """Following string will be serialized with quotes and will be deserialized without them."""
 
 
@@ -38,13 +38,13 @@ class UniqueList(list[T]):
         raise NotImplementedError
 
 
-class NodeConfig(BaseModel, validate_assignment=True):
+class NodeConfig(msgspec.Struct):
     log_appender: str | None = None
     log_console_appender: str | None = None
     log_file_appender: str | None = None
     log_logger: str | None = None
     backtrace: str | None = None
-    plugin: UniqueList[str] = Field(default_factory=UniqueList)
+    plugin: UniqueList[str] = msgspec.field(default_factory=UniqueList)
     account_history_track_account_range: str | None = None
     track_account_range: str | None = None
     account_history_whitelist_ops: str | None = None
@@ -78,7 +78,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
     p2p_endpoint: str | None = None
     p2p_max_connections: str | None = None
     seed_node: str | None = None
-    p2p_seed_node: list[str] = Field(default_factory=list)
+    p2p_seed_node: list[str] = msgspec.field(default_factory=list)
     p2p_parameters: str | None = None
     rc_stats_report_type: str | None = None
     rc_stats_report_output: str | None = None
@@ -97,8 +97,8 @@ class NodeConfig(BaseModel, validate_assignment=True):
     webserver_thread_pool_size: str | None = None
     enable_stale_production: bool | None = None
     required_participation: int | None = None
-    witness: list[StringQuoted] = Field(default_factory=list)
-    private_key: list[str] = Field(default_factory=list)
+    witness: list[StringQuoted] = msgspec.field(default_factory=list)
+    private_key: list[str] = msgspec.field(default_factory=list)
     psql_url: str | None = None
     psql_index_threshold: int | None = None
     psql_operations_threads_number: int | None = None
@@ -126,8 +126,6 @@ class NodeConfig(BaseModel, validate_assignment=True):
     pacemaker_min_offset: int | None = None
     pacemaker_max_offset: int | None = None
 
-    @validator("witness", "private_key", "p2p_seed_node", pre=True, always=True)
-    @classmethod
     def _transform_lists(cls, value: Any) -> list[Any]:
         if value is None:
             return []
@@ -135,8 +133,6 @@ class NodeConfig(BaseModel, validate_assignment=True):
             return [value]
         return value
 
-    @validator("plugin", pre=True)
-    @classmethod
     def _transform_to_uniquelist(cls, value: Any) -> UniqueList[str]:
         if value is None or value == [] or value == UniqueList():
             return UniqueList()
@@ -165,7 +161,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
 
     @classmethod
     def __is_member_quoted(cls, member_name: str) -> bool:
-        return "StringQuoted" in str(NodeConfig.__fields__[member_name].annotation)
+        return "StringQuoted" in str(getattr(NodeConfig, member_name))
 
     def write_to_lines(self) -> list[str]:
         def __serialize_depending_on_type(member_name: str, value: str | list[str] | bool | int) -> list[str]:
@@ -186,7 +182,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
             raise TypeError(member_name, value, type(value))
 
         result = []
-        for member_name, member_value in self.dict(by_alias=True).items():
+        for member_name, member_value in self.dict().items():
             if not (member_value is None or (isinstance(member_value, list) and len(member_value) == 0)):
                 result.extend(__serialize_depending_on_type(member_name, member_value))
         return result
@@ -246,3 +242,30 @@ class NodeConfig(BaseModel, validate_assignment=True):
     @classmethod
     def __comparison_excluded_values(cls) -> set[str]:
         return {"log_logger"}
+
+    DictStrAny = dict[str, Any]
+
+    def dict(  # noqa: A003
+        self,
+        *,
+        exclude_none: bool = False,
+        exclude_defaults: bool = False,
+    ) -> DictStrAny:
+        # Convert the object to a builtins dictionary first
+        data = msgspec.structs.asdict(self)
+
+        # Filter out keys based on the provided options
+        if exclude_none:
+            data = {key: value for key, value in data.items() if value is not None}
+
+        if exclude_defaults:
+            # Use __struct_defaults__ to compare against default values
+            if hasattr(self, "__struct_defaults__"):
+                defaults = dict(zip(self.__struct_fields__, self.__struct_defaults__))
+                data = {
+                    key: value
+                    for key, value in data.items()
+                    if key in defaults and value != defaults[key]
+                }
+
+        return data

@@ -11,7 +11,7 @@ from schemas.operations.representations.hf26_representation import HF26Represent
 from schemas.transaction import Transaction
 
 if TYPE_CHECKING:
-    from schemas.operations import AnyOperation
+    from schemas.operations import AnyOperationRepresentation
     from test_tools.__private.node import Node
     from test_tools.__private.remote_node import RemoteNode
 
@@ -58,7 +58,7 @@ class AuthorityHolder:
 
 
 class SimpleTransaction(Transaction):
-    def add_operation(self, operation: AnyOperation) -> None:
+    def add_operation(self, operation: AnyOperationRepresentation) -> None:
         self.operations.append(HF26Representation(type=operation.get_name_with_suffix(), value=operation))
 
 

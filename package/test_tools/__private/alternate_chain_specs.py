@@ -1,24 +1,28 @@
 from __future__ import annotations
 
+from enum import Enum
 from pathlib import Path
 from typing import ClassVar
 
-from pydantic import BaseModel, Protocol
+import msgspec
 
 from test_tools.__private.user_handles import context
 
+class Protocol(str, Enum):
+    json = 'json'
+    pickle = 'pickle'
 
-class InitialVesting(BaseModel):
+class InitialVesting(msgspec.Struct):
     vests_per_hive: int
     hive_amount: int
 
 
-class HardforkSchedule(BaseModel):
+class HardforkSchedule(msgspec.Struct):
     hardfork: int
     block_num: int
 
 
-class AlternateChainSpecs(BaseModel):
+class AlternateChainSpecs(msgspec.Struct):
     FILENAME: ClassVar[str] = "alternate-chain-spec.json"
 
     genesis_time: int
