@@ -161,7 +161,7 @@ class NodeConfig(msgspec.Struct):
 
     @classmethod
     def __is_member_quoted(cls, member_name: str) -> bool:
-        return "StringQuoted" in str(getattr(NodeConfig, member_name))
+        return "StringQuoted" in NodeConfig.__annotations__[member_name]
 
     def write_to_lines(self) -> list[str]:
         def __serialize_depending_on_type(member_name: str, value: str | list[str] | bool | int) -> list[str]:
@@ -224,7 +224,7 @@ class NodeConfig(msgspec.Struct):
 
     def __check_if_key_from_file_is_valid(self, key_to_check: str) -> None:
         """Keys from file have hyphens instead of underscores."""
-        valid_keys = [key.replace("_", "-") for key in self.dict(by_alias=True)]
+        valid_keys = [key.replace("_", "-") for key in self.dict()]
 
         if key_to_check not in valid_keys:
             raise KeyError(f'Unknown config entry name: "{key_to_check}".')
