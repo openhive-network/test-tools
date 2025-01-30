@@ -524,6 +524,7 @@ class Node(BaseNode, ScopedObject):
     def close(self) -> None:
         self.__process.close()
         self.__notifications.close()
+        self.teardown()
         self.__disable_logging()
 
     def at_exit_from_scope(self) -> None:
