@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import TYPE_CHECKING, Any, cast
 
 from beekeepy import Settings
@@ -16,7 +17,10 @@ if TYPE_CHECKING:
 class BaseNode(UserHandleImplementation, Hived):
     def __init__(self, *, name: str, handle: NodeHandleBase | None = None) -> None:
         self.__name = context.names.register_numbered_name(name)
-        super().__init__(handle=handle, settings=Settings())
+        super().__init__(handle=handle, settings=Settings(
+            period_between_retries=timedelta(seconds=0.5),
+            max_retries=8,
+        ))
 
     def __str__(self) -> str:
         return self.__name
