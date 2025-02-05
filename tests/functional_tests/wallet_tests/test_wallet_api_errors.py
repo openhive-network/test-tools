@@ -4,6 +4,7 @@ import pytest
 import test_tools as tt
 
 from helpy import Hf26Asset as Asset
+from helpy.exceptions import ErrorInResponseError
 
 
 @pytest.fixture()
@@ -17,6 +18,6 @@ def test_if_raise_when_parameters_are_bad(wallet: tt.Wallet) -> None:
 
 
 def test_if_raise_when_operation_is_invalid(wallet: tt.Wallet) -> None:
-    with pytest.raises(tt.exceptions.CommunicationError):
+    with pytest.raises(ErrorInResponseError):
         # Operation is invalid because account "alice" doesn't exists
         wallet.api.transfer("initminer", "alice", Asset.Test(1), "memo")

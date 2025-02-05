@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from helpy.exceptions import RequestError
-
 
 class TestToolsError(Exception):
     """Base exception class for test-tools package."""
@@ -9,9 +7,6 @@ class TestToolsError(Exception):
 
 class WalletError(TestToolsError):
     """Base exception class for Wallet."""
-
-
-CommunicationError = RequestError
 
 
 class InternalNodeError(TestToolsError):

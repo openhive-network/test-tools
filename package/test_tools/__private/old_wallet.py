@@ -19,7 +19,8 @@ from loguru import logger
 from test_tools.__private import communication, paths_to_executables
 from test_tools.__private.account import Account
 from helpy import Hf26Asset as Asset
-from test_tools.__private.exceptions import CommunicationError, NodeIsNotRunningError
+from test_tools.__private.exceptions import NodeIsNotRunningError
+from helpy.exceptions import CommunicationError
 from test_tools.__private.node import Node
 from test_tools.__private.remote_node import RemoteNode
 from test_tools.__private.scope import ScopedObject, context
