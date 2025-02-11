@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, cast
 from beekeepy import Settings
 
 from helpy import Hived
+from helpy._communication.overseers import StrictOverseer
 from test_tools.__private.scope import context
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
 
@@ -19,10 +20,7 @@ class BaseNode(UserHandleImplementation, Hived):
         self.__name = context.names.register_numbered_name(name)
         super().__init__(
             handle=handle,
-            settings=Settings(
-                period_between_retries=timedelta(seconds=0.5),
-                max_retries=8,
-            ),
+            settings=Settings(period_between_retries=timedelta(seconds=0.5), max_retries=8, overseer=StrictOverseer),
         )
 
     def __str__(self) -> str:

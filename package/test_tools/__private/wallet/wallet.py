@@ -10,6 +10,7 @@ from beekeepy import Beekeeper, Settings
 import wax
 from helpy import Hf26Asset as Asset
 from helpy import wax as wax_helpy
+from helpy._communication.overseers import StrictOverseer
 from helpy.exceptions import ErrorInResponseError
 from schemas.fields.basic import PublicKey
 from schemas.fields.hex import Hex
@@ -157,7 +158,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
         if self.connected_node is not None and not self.connected_node.is_running():
             raise exceptions.NodeIsNotRunningError("Before attaching wallet you have to run node")
 
-        self.__beekeeper = Beekeeper.factory(settings=Settings(working_directory=self.directory))
+        self.__beekeeper = Beekeeper.factory(
+            settings=Settings(working_directory=self.directory, overseer=StrictOverseer)
+        )
         self.__beekeeper_session = self.__beekeeper.create_session()
 
         try:
