@@ -17,7 +17,10 @@ def configure_fake_time(logger: Logger, env: dict[str, str], time_control: str) 
     env["FAKETIME_DONT_FAKE_MONOTONIC"] = "1"
     env["TZ"] = "UTC"
 
-    logger.debug(f"Following environments are set after fake time configuration:\n{dict(env)}")
+    logger.debug(
+        "Following environments are set after fake time configuration:\n"
+        + str(dict(filter(lambda kv: kv[0].startswith("CI_"), env.items())))
+    )
 
 
 def get_fake_time_path(logger: Logger) -> Path:
