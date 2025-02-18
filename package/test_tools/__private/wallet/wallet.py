@@ -164,8 +164,8 @@ class Wallet(UserHandleImplementation, ScopedObject):
             self._beekeeper_wallet = self.__beekeeper_session.create_wallet(name=self.name, password=DEFAULT_PASSWORD)
             if preconfigure:
                 self._beekeeper_wallet.import_key(private_key=Account("initminer").private_key)
-        except helpy.exceptions.RequestError as exception:
-            if f"Wallet with name: '{self.name}' already exists" in exception.error:
+        except helpy.exceptions.BatchRequestError as exception:
+            if f"Wallet with name: '{self.name}' already exists" in str(exception):
                 locked_wallet = self.__beekeeper_session.open_wallet(name=self.name)
                 self._beekeeper_wallet = locked_wallet.unlock(DEFAULT_PASSWORD)
             else:

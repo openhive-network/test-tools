@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from helpy.exceptions import RequestError
+from helpy.exceptions import BatchRequestError
 
 
 class TestToolsError(Exception):
@@ -11,7 +11,7 @@ class WalletError(TestToolsError):
     """Base exception class for Wallet."""
 
 
-CommunicationError = RequestError
+CommunicationError = BatchRequestError
 
 
 class InternalNodeError(TestToolsError):

@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from helpy.exceptions import RequestError
+from helpy.exceptions import BatchRequestError
 
 if TYPE_CHECKING:
     import test_tools as tt
 
 
 def test_if_raise_when_parameters_are_bad(node: tt.InitNode) -> None:
-    with pytest.raises(RequestError):
+    with pytest.raises(BatchRequestError):
         node.api.database.list_accounts(name=[])  # type: ignore[call-arg]
