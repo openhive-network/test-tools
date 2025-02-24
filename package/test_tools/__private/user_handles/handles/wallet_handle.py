@@ -13,13 +13,13 @@ from test_tools.__private.wallet.wallet import Wallet
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from helpy import Hf26Asset as Asset
     from schemas.fields.hex import Hex
     from schemas.operations import AnyOperation
     from test_tools.__private.account import Account
     from test_tools.__private.type_annotations.any_node import AnyNode
     from test_tools.__private.wallet.constants import TransactionSerializationTypes, WalletResponse, WalletResponseBase
     from test_tools.__private.wallet.single_transaction_context import SingleTransactionContext
+    from wax.helpy import Hf26Asset as Asset
 
 
 class WalletHandle(Handle):

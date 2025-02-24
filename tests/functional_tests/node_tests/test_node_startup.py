@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 import test_tools as tt
 
-from helpy import Time
+from wax.helpy import Time
 
 if TYPE_CHECKING:
     from test_tools.__private.type_annotations.any_node import AnyNode

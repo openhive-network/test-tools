@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import pytest
 import test_tools as tt
-
-from helpy.exceptions import ErrorInResponseError
+from beekeepy.exceptions import ErrorInResponseError
 
 
 @pytest.fixture()

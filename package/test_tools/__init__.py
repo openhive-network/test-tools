@@ -4,8 +4,6 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from helpy import Hf26Asset as Asset
-from helpy import OffsetTimeControl, SpeedUpRateTimeControl, StartTimeControl, Time, TimeFormats
 from test_tools.__private import (
     cleanup_policy,
     constants,
@@ -28,6 +26,8 @@ from test_tools.__private.user_handles import RemoteNodeHandle as RemoteNode
 from test_tools.__private.user_handles import WalletHandle as Wallet
 from test_tools.__private.user_handles import WitnessNodeHandle as WitnessNode
 from test_tools.__private.user_handles import context
+from wax.helpy import Hf26Asset as Asset
+from wax.helpy import OffsetTimeControl, SpeedUpRateTimeControl, StartTimeControl, Time, TimeFormats
 
 __all__ = [
     "ApiNode",

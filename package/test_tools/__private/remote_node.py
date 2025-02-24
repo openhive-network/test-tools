@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from helpy import HttpUrl, WsUrl
-from helpy._interfaces.url import P2PUrl
+from beekeepy.interfaces import HttpUrl, P2PUrl, WsUrl
+
 from test_tools.__private.base_node import BaseNode
 
 if TYPE_CHECKING:

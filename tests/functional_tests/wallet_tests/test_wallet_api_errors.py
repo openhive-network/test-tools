@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import pytest
 import test_tools as tt
+from beekeepy.exceptions import ErrorInResponseError
 
-from helpy import Hf26Asset as Asset
-from helpy.exceptions import ErrorInResponseError
+from wax.helpy import Hf26Asset as Asset
 
 
 @pytest.fixture()

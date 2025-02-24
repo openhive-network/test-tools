@@ -7,8 +7,8 @@ import pytest
 import test_tools as tt
 from local_tools.network import get_head_block_number, get_head_block_numbers_for_networks
 
-from helpy import Hf26Asset as Asset
-from helpy import Time
+from wax.helpy import Hf26Asset as Asset
+from wax.helpy import Time
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

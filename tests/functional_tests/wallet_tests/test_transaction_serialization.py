@@ -5,7 +5,7 @@ from typing import Literal
 import pytest
 import test_tools as tt
 
-from helpy import Hf26Asset as Asset
+from wax.helpy import Hf26Asset as Asset
 
 
 @pytest.mark.parametrize("transaction_serialization", ["legacy", "hf26"])

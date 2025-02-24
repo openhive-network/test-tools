@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from helpy import Hf26Asset as Asset
 from test_tools.__private.exceptions import NodeIsNotRunningError
 from test_tools.__private.vest_price import VestPrice
 from test_tools.__private.witness_node import WitnessNode
+from wax.helpy import Hf26Asset as Asset
 
 if TYPE_CHECKING:
     from test_tools.__private.user_handles.handles.network_handle import NetworkHandle as Network

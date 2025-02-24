@@ -10,13 +10,14 @@ from test_tools.__private.user_handles.handles.node_handles.node_handle_base imp
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from helpy._interfaces.time import TimeControl
-    from helpy._interfaces.url import HttpUrl, P2PUrl, WsUrl
+    from beekeepy.interfaces import HttpUrl, P2PUrl, WsUrl
+
     from test_tools.__private.alternate_chain_specs import AlternateChainSpecs
     from test_tools.__private.block_log import BlockLog
     from test_tools.__private.constants import CleanupPolicy
     from test_tools.__private.node_config import NodeConfig
     from test_tools.__private.snapshot import Snapshot
+    from wax.helpy._interfaces.time import TimeControl
 
 
 class RunnableNodeHandle(NodeHandleBase):

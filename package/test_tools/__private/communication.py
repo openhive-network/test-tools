@@ -13,9 +13,10 @@ from schemas.fields.assets import AssetBase
 from schemas.fields.json_string import JsonString
 from schemas._preconfigured_base_model import PreconfiguredBaseModel
 from schemas.operations.representations import LegacyRepresentation
-from helpy.exceptions import CommunicationError
+from beekeepy.exceptions import CommunicationError
 from loguru import logger
-from helpy import HttpUrl, Time
+from beekeepy.interfaces import HttpUrl
+from wax.helpy import Time
 
 
 class CommonJsonEncoder(json.JSONEncoder):

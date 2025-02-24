@@ -14,8 +14,9 @@ if TYPE_CHECKING:
     import datetime
     from collections.abc import Iterator
 
-    from helpy._handles.hived.api.api_collection import HivedSyncApiCollection
-    from helpy._interfaces.url import HttpUrl
+    from beekeepy.interfaces import HttpUrl
+
+    from wax.helpy._handles.hived.api.api_collection import HivedSyncApiCollection
 
 
 class NodeHandleBase(Handle):

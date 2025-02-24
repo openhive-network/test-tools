@@ -6,7 +6,7 @@ from test_tools.__private.remote_node import RemoteNode
 from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase
 
 if TYPE_CHECKING:
-    from helpy._interfaces.url import HttpUrl, WsUrl
+    from beekeepy.interfaces import HttpUrl, WsUrl
 
 
 class RemoteNodeHandle(NodeHandleBase):
