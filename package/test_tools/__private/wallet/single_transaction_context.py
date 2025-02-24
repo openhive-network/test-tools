@@ -3,7 +3,8 @@ from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING, Any
 
-from helpy._interfaces.context import ContextSync
+from beekeepy.interfaces import ContextSync
+
 from test_tools.__private.wallet.constants import WalletResponse, WalletResponseBase
 
 if TYPE_CHECKING:

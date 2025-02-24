@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from helpy._communication.universal_notification_server import UniversalNotificationServer
+from beekeepy._communication.universal_notification_server import UniversalNotificationServer
+
 from test_tools.__private.notifications.node_notification_handler import NodeNotificationHandler
 
 if TYPE_CHECKING:
+    from beekeepy.interfaces import HttpUrl
     from loguru import Logger
-
-    from helpy import HttpUrl
 
 
 class NodeNotificationServer(UniversalNotificationServer):

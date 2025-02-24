@@ -6,8 +6,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 from typing import TYPE_CHECKING, Any, ParamSpec, cast
 
-from helpy import Hf26Asset as Asset
-from helpy import wax as wax_helpy
+from schemas.fields.assets.hive import AssetHiveHF26
 from schemas.fields.basic import AccountName, EmptyList, PrivateKey, PublicKey
 from schemas.fields.compound import Authority, HbdExchangeRate, LegacyChainProperties, Proposal
 from schemas.operations import AnyOperation
@@ -70,6 +69,18 @@ from test_tools.__private.wallet.constants import (
 from test_tools.__private.wallet.create_accounts import (
     get_authority,
 )
+from wax import (
+    calculate_public_key,
+    create_wax_foundation,
+    decode_encrypted_memo,
+    encode_encrypted_memo,
+    generate_password_based_private_key,
+    suggest_brain_key,
+)
+from wax._private.core.encoders import to_cpp_string, to_python_string
+from wax._private.exceptions import WaxValidationFailedError
+from wax._private.result_tools import expose_result_as_python_string, validate_wax_result
+from wax.helpy import Hf26Asset as Asset
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -77,7 +88,6 @@ if TYPE_CHECKING:
     from beekeepy._interface.abc.synchronous.wallet import UnlockedWallet
 
     import schemas.apis.database_api.fundaments_of_reponses as fundaments_database_api
-    from helpy._handles.hived.api.wallet_bridge_api.sync_api import WalletBridgeApi
     from schemas.apis.block_api.fundaments_of_responses import Hf26Block
     from schemas.apis.wallet_bridge_api.response_schemas import (
         FindProposals,
@@ -108,7 +118,6 @@ if TYPE_CHECKING:
     )
     from schemas.fields.assets._base import AssetHF26
     from schemas.fields.assets.hbd import AssetHbdHF26
-    from schemas.fields.assets.hive import AssetHiveHF26
     from schemas.fields.assets.vests import AssetVestsHF26
     from schemas.fields.hex import Hex
     from schemas.fields.hive_int import HiveInt
@@ -118,6 +127,7 @@ if TYPE_CHECKING:
     from test_tools.__private.remote_node import RemoteNode
     from test_tools.__private.wallet.single_transaction_context import SingleTransactionContext
     from test_tools.__private.wallet.wallet import Wallet
+    from wax.helpy._handles.hived.api.wallet_bridge_api.sync_api import WalletBridgeApi
 
     AnyNode = Node | RemoteNode
 
@@ -235,8 +245,10 @@ class Api:
     def __check_memo(self, account: AccountNameApiType, memo: str) -> None:
         if isinstance(memo, PrivateKey):
             try:
-                public_key = wax_helpy.calculate_public_key(wif=memo)
-            except wax_helpy.WaxOperationFailedError:
+                wax_result = calculate_public_key(wif=to_cpp_string(memo))
+                validate_wax_result(wax_result)
+                public_key = expose_result_as_python_string(wax_result)
+            except WaxValidationFailedError:
                 return
             get_account = self.get_account(account_name=account)
             if self.__wallet.beekeeper_wallet.has_matching_private_key(key=public_key):
@@ -830,9 +842,13 @@ class Api:
         :param only_result: This argument is no longer active and should not be provided.
         :return: The decrypted memo.
         """
-        decrypt_memo = wax_helpy.decrypt_memo(
-            content=memo, second_step_callback=self.__wallet.beekeeper_wallet.decrypt_data  # type: ignore[arg-type]
+        encrypted_memo = decode_encrypted_memo(to_cpp_string(memo))
+        decrypt_memo = self.__wallet.beekeeper_wallet.decrypt_data(
+            from_key=to_python_string(encrypted_memo.main_encryption_key),  # type: ignore[arg-type]
+            to_key=to_python_string(encrypted_memo.other_encryption_key),  # type: ignore[arg-type]
+            content=to_python_string(encrypted_memo.encrypted_content),
         )
+
         if decrypt_memo.startswith("#"):
             return decrypt_memo[1:]
         return None
@@ -1149,11 +1165,19 @@ class Api:
         :param only_result: This argument is no longer active and should not be provided.
         :return: Estimated hive collateral.
         """
-        return wax_helpy.estimate_hive_collateral(
-            current_median_history=self.get_feed_history().current_median_history,
-            current_min_history=self.get_feed_history().current_min_history,
-            hbd_amount_to_get=hbd_amount_to_get,
+        wax_base_api = create_wax_foundation()
+        current_median_history = self.get_feed_history().current_median_history
+        current_min_history = self.get_feed_history().current_min_history
+
+        wax_asset = wax_base_api.estimate_hive_collateral(
+            current_median_history.base.dict(),
+            current_median_history.quote.dict(),
+            current_min_history.base.dict(),
+            current_min_history.quote.dict(),
+            hbd_amount_to_get.dict(),
         )
+
+        return AssetHiveHF26(amount=int(wax_asset.amount), nai=wax_asset.nai, precision=wax_asset.precision)
 
     @warn_if_only_result_set()
     def exit(self, only_result: bool | None = None) -> None:  # noqa: ARG002 A003
@@ -1370,12 +1394,14 @@ class Api:
                 from_key=from_key, to_key=to_key, content=content, nonce=nonce
             )
 
-        return wax_helpy.encrypt_memo(
-            main_encryption_key=from_account.memo_key,
-            other_encryption_key=to_account.memo_key,
-            content=memo,
-            second_step_callback=proxy_encrypt_data,  # type: ignore[arg-type]
+        encrypted_memo = proxy_encrypt_data(from_account.memo_key, to_account.memo_key, memo)
+        encoded_encrypted_memo = encode_encrypted_memo(
+            encrypted_content=to_cpp_string(encrypted_memo),
+            main_encryption_key=to_cpp_string(from_account.memo_key),
+            other_encryption_key=to_cpp_string(to_account.memo_key),
         )
+
+        return to_python_string(encoded_encrypted_memo)
 
     @warn_if_only_result_set()
     def get_feed_history(self, only_result: bool | None = None) -> GetFeedHistory:  # noqa: ARG002
@@ -1458,7 +1484,8 @@ class Api:
         :param only_result: This argument is no longer active and should not be provided.
         :return: A list containing the associated public key and the private key in WIF format.
         """
-        return wax_helpy.generate_password_based_private_key(account_name=account, role=role, password=password)
+        wax_result = generate_password_based_private_key(account=account, role=role, password=password)
+        return [to_python_string(wax_result.associated_public_key), to_python_string(wax_result.wif_private_key)]
 
     @warn_if_only_result_set()
     def get_prototype_operation(
@@ -2124,7 +2151,13 @@ class Api:
         :param only_result: This argument is no longer active and should not be provided.
         :return: A dictionary containing the suggested brain key, associated WIF private key, and public key.
         """
-        return wax_helpy.suggest_brain_key()
+        wax_result = suggest_brain_key()
+
+        return {
+            "brain_priv_key": to_python_string(wax_result.brain_key),
+            "wif_priv_key": to_python_string(wax_result.wif_private_key),
+            "pub_key": to_python_string(wax_result.associated_public_key),
+        }
 
     @require_unlocked_wallet
     @warn_if_only_result_set()

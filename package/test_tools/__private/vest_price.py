@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING
 from schemas.fields.compound import Price
 
 if TYPE_CHECKING:
-    from helpy import Hf26Asset
     from schemas.apis.database_api import GetDynamicGlobalProperties
+    from wax.helpy import Hf26Asset
 
 
 @dataclass

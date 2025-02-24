@@ -9,8 +9,8 @@ from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from helpy._interfaces.time import StartTimeControl, TimeControl
-from helpy._interfaces.url import HttpUrl
+from beekeepy.interfaces import HttpUrl
+
 from test_tools.__private import cleanup_policy, exceptions, paths_to_executables
 from test_tools.__private.base_node import BaseNode
 from test_tools.__private.block_log import BlockLog
@@ -24,13 +24,14 @@ from test_tools.__private.snapshot import Snapshot
 from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.wait_for import wait_for_event
 from test_tools.node_configs.default import create_default_config
+from wax.helpy._interfaces.time import StartTimeControl, TimeControl
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from beekeepy.interfaces import P2PUrl, WsUrl
     from loguru import Record
 
-    from helpy._interfaces.url import P2PUrl, WsUrl
     from schemas.apis.network_node_api.response_schemas import SetAllowedPeers
     from test_tools.__private.alternate_chain_specs import AlternateChainSpecs
     from test_tools.__private.user_handles.handles.network_handle import NetworkHandle
