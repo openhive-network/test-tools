@@ -4,14 +4,15 @@ from datetime import timedelta
 from typing import TYPE_CHECKING, Any, cast
 
 from beekeepy import Settings
+from beekeepy._communication.overseers import StrictOverseer
 
-from helpy import Hived
-from helpy._communication.overseers import StrictOverseer
 from test_tools.__private.scope import context
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
+from wax.helpy import Hived
 
 if TYPE_CHECKING:
-    from helpy._interfaces.url import HttpUrl
+    from beekeepy.interfaces import HttpUrl
+
     from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase
 
 

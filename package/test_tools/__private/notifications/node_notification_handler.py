@@ -3,10 +3,11 @@ from __future__ import annotations
 from threading import Event
 from typing import TYPE_CHECKING, Any
 
-from helpy import HivedNotificationHandler, HttpUrl
-from helpy._interfaces.url import P2PUrl, WsUrl
+from beekeepy.interfaces import HttpUrl, P2PUrl, WsUrl
+
 from test_tools.__private import exceptions
 from test_tools.__private.raise_exception_helper import RaiseExceptionHelper
+from wax.helpy import HivedNotificationHandler
 
 if TYPE_CHECKING:
     from loguru import Logger

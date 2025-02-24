@@ -18,13 +18,13 @@ from loguru import logger
 
 from test_tools.__private import communication, paths_to_executables
 from test_tools.__private.account import Account
-from helpy import Hf26Asset as Asset
+from wax.helpy import Hf26Asset as Asset
 from test_tools.__private.exceptions import NodeIsNotRunningError
-from helpy.exceptions import CommunicationError
+from beekeepy.exceptions import CommunicationError
 from test_tools.__private.node import Node
 from test_tools.__private.remote_node import RemoteNode
 from test_tools.__private.scope import ScopedObject, context
-from helpy import Time
+from wax.helpy import Time
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
 from test_tools.__private.utilities.fake_time import configure_fake_time
 
