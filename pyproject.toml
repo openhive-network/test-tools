@@ -14,7 +14,7 @@ source = [
     { name = "PyPI", priority = "primary" },
     { name = "gitlab-schemas", url = "https://gitlab.syncad.com/api/v4/projects/362/packages/pypi/simple", priority = "supplemental" },
     { name = "gitlab-wax", url = "https://gitlab.syncad.com/api/v4/projects/419/packages/pypi/simple", priority = "supplemental" },
-    { name = "gitlab-helpy-beekeepy", url = "https://gitlab.syncad.com/api/v4/projects/434/packages/pypi/simple", priority = "supplemental" },
+    { name = "gitlab-beekeepy", url = "https://gitlab.syncad.com/api/v4/projects/434/packages/pypi/simple", priority = "supplemental" },
 ]
 packages = [
     { include = "test_tools", from = "package" },
@@ -27,7 +27,9 @@ requests = "2.27.1"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 loguru = "0.7.2"
-beekeepy = "0.0.1.dev327+6dbc448"
+typing-extensions="4.12.2"
+beekeepy = "0.0.1.dev338+58e0bf7"
+wax = "0.3.10.dev558+3a636d1"
 
 
 [tool.poetry.group.dev.dependencies]
