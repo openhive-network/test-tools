@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any
 
 from loguru import logger
 
-import wax
 from schemas.fields.compound import Authority
 from schemas.fields.hive_int import HiveInt
 from schemas.operations.account_create_operation import AccountCreateOperation
@@ -21,8 +20,12 @@ from test_tools.__private.wallet.constants import (
     SimpleTransaction,
     WalletResponseBase,
 )
-from wax._private.core.encoders import to_cpp_string
-from wax._private.result_tools import expose_result_as_python_string
+from test_tools.__private.wax_wrapper import (
+    calculate_sig_digest,
+    calculate_transaction_id,
+    get_tapos_data,
+    validate_transaction,
+)
 from wax.helpy._interfaces.asset.asset import Asset
 
 if TYPE_CHECKING:
@@ -48,7 +51,7 @@ def generate_transaction_template(node: RemoteNode) -> SimpleTransaction:
     block_id = gdpo.head_block_id
 
     # set header
-    tapos_data = wax.get_tapos_data(block_id.encode())
+    tapos_data = get_tapos_data(block_id)
     ref_block_num = tapos_data.ref_block_num
     ref_block_prefix = tapos_data.ref_block_prefix
 
@@ -68,12 +71,10 @@ def generate_transaction_template(node: RemoteNode) -> SimpleTransaction:
 def sign_transaction(
     node: RemoteNode, transaction: SimpleTransaction, beekeeper_wallet: UnlockedWallet
 ) -> SimpleTransaction:
-    transaction_as_bytes = to_cpp_string(transaction.json())
-    wax.calculate_transaction_id(transaction_as_bytes)
+    calculate_transaction_id(transaction)
     node_config = node.api.database.get_config()
 
-    wax_result = wax.calculate_sig_digest(transaction_as_bytes, to_cpp_string(node_config.HIVE_CHAIN_ID))
-    sig_digest = expose_result_as_python_string(wax_result)
+    sig_digest = calculate_sig_digest(transaction, node_config.HIVE_CHAIN_ID)
     key_to_sign_with = beekeeper_wallet.import_key(private_key=Account("initminer").private_key)
 
     time_before = datetime.now()
@@ -83,9 +84,7 @@ def sign_transaction(
     transaction.signatures.append(signature)
 
     transaction.signatures = list(set(transaction.signatures))
-
-    transaction_as_bytes = to_cpp_string(transaction.json())
-    wax.validate_transaction(transaction_as_bytes)
+    validate_transaction(transaction)
 
     return transaction
 
@@ -102,10 +101,9 @@ def prepare_transaction(
             operation.fee = account_creation_fee  # type: ignore[assignment]
         transaction.add_operation(operation)
     transaction = sign_transaction(node, transaction, beekeeper_wallet)
-    transaction_as_bytes = to_cpp_string(transaction.json())
 
     return WalletResponseBase(
-        transaction_id=expose_result_as_python_string(wax.calculate_transaction_id(transaction_as_bytes)),
+        transaction_id=calculate_transaction_id(transaction),
         ref_block_num=transaction.ref_block_num,
         ref_block_prefix=transaction.ref_block_prefix,
         expiration=transaction.expiration,
