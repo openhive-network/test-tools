@@ -9,6 +9,7 @@ from test_tools.__private import (
     constants,
     exceptions,
     paths_to_executables,
+    wax_wrapper,
 )
 from test_tools.__private.account import Account, PrivateKey, PublicKey
 from test_tools.__private.alternate_chain_specs import AlternateChainSpecs, HardforkSchedule, InitialVesting
@@ -58,6 +59,7 @@ __all__ = [
     "OffsetTimeControl",
     "SpeedUpRateTimeControl",
     "StartTimeControl",
+    "wax_wrapper",
 ]
 
 if TYPE_CHECKING:
