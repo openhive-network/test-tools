@@ -9,7 +9,6 @@ from beekeepy import Beekeeper, Settings
 from beekeepy.communication import StrictOverseer
 from beekeepy.exceptions import ErrorInResponseError
 
-import wax
 from schemas.fields.basic import PublicKey
 from schemas.fields.hex import Hex
 from schemas.fields.hive_int import HiveInt
@@ -27,15 +26,23 @@ from test_tools.__private.wallet.constants import (
     WalletResponse,
     WalletResponseBase,
 )
-from test_tools.__private.wallet.create_accounts import (
-    create_accounts,
-)
+from test_tools.__private.wallet.create_accounts import create_accounts
 from test_tools.__private.wallet.single_transaction_context import SingleTransactionContext
 from test_tools.__private.wallet.wallet_api import Api
-from wax._private.core.encoders import to_cpp_string, to_python_string
-from wax._private.result_tools import expose_result_as_python_string
+from test_tools.__private.wax_wrapper import (
+    calculate_legacy_sig_digest,
+    calculate_legacy_transaction_id,
+    calculate_sig_digest,
+    calculate_transaction_id,
+    collect_signing_keys,
+    get_hive_protocol_config,
+    get_tapos_data,
+    minimize_required_signatures,
+    to_wax_authorities,
+    validate_transaction,
+    wax_authorities,
+)
 from wax.helpy import Hf26Asset as Asset
-from wax.wax_result import python_minimize_required_signatures_data
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -43,11 +50,6 @@ if TYPE_CHECKING:
     from beekeepy._interface.abc.synchronous.session import Session
     from beekeepy._interface.abc.synchronous.wallet import UnlockedWallet
 
-    from schemas.apis.wallet_bridge_api.fundaments_of_responses import Account as AccountSchema
-    from schemas.fields.assets.hbd import AssetHbdHF26
-    from schemas.fields.assets.hive import AssetHiveHF26
-    from schemas.fields.assets.vests import AssetVestsHF26
-    from schemas.fields.compound import Authority
     from schemas.operations import AnyOperation
     from test_tools.__private.user_handles.handles.wallet_handle import WalletHandle
 
@@ -82,10 +84,8 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.run(preconfigure=preconfigure)
         if self.connected_node is not None:
             node_version = self.connected_node.api.database.get_version().node_type
-            protocol_config = {
-                key.decode(): value.decode()
-                for key, value in wax.get_hive_protocol_config(to_cpp_string(self.__get_chain_id())).items()
-            }
+            protocol_config = get_hive_protocol_config(self.__get_chain_id())
+
             is_testnet_wax = protocol_config["IS_TEST_NET"]
             if self._transaction_serialization == "legacy":
                 if node_version == "testnet" and is_testnet_wax == "false":
@@ -288,7 +288,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         block_id = gdpo.head_block_id
 
         # set header
-        tapos_data = wax.get_tapos_data(block_id.encode())
+        tapos_data = get_tapos_data(block_id)
         ref_block_num = tapos_data.ref_block_num
         ref_block_prefix = tapos_data.ref_block_prefix
 
@@ -327,11 +327,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
                 return WalletResponse(
                     transaction_id=(
-                        expose_result_as_python_string(
-                            wax.calculate_transaction_id(self.__transaction_to_cpp_string(transaction))
-                            if self._transaction_serialization == "hf26"
-                            else wax.calculate_legacy_transaction_id(self.__transaction_to_cpp_string(transaction))
-                        )
+                        calculate_transaction_id(transaction)
+                        if self._transaction_serialization == "hf26"
+                        else calculate_legacy_transaction_id(transaction)
                     ),
                     block_num=broadcast_response.block_num,
                     transaction_num=broadcast_response.trx_num,
@@ -347,13 +345,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
         return WalletResponseBase(
             transaction_id=(
-                expose_result_as_python_string(
-                    wax.calculate_transaction_id(self.__transaction_to_cpp_string(transaction))
-                )
+                calculate_transaction_id(transaction)
                 if self._transaction_serialization == "hf26"
-                else expose_result_as_python_string(
-                    wax.calculate_legacy_transaction_id(self.__transaction_to_cpp_string(transaction))
-                )
+                else calculate_legacy_transaction_id(transaction)
             ),
             ref_block_num=transaction.ref_block_num,
             ref_block_prefix=transaction.ref_block_prefix,
@@ -375,13 +369,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
     def calculate_sig_digest(self, transaction: SimpleTransaction) -> str:
         chain_id = self.__get_chain_id()
         return (
-            expose_result_as_python_string(
-                wax.calculate_sig_digest(self.__transaction_to_cpp_string(transaction), to_cpp_string(chain_id))
-            )
+            calculate_sig_digest(transaction, chain_id)
             if self._transaction_serialization == "hf26"
-            else expose_result_as_python_string(
-                wax.calculate_legacy_sig_digest(self.__transaction_to_cpp_string(transaction), to_cpp_string(chain_id))
-            )
+            else calculate_legacy_sig_digest(transaction, chain_id)
         )
 
     def sign_transaction(
@@ -393,72 +383,38 @@ class Wallet(UserHandleImplementation, ScopedObject):
             transaction.signatures.append(signature)
         transaction.signatures = list(set(transaction.signatures))
 
-        wax.validate_transaction(self.__transaction_to_cpp_string(transaction))
+        validate_transaction(transaction)
         return transaction
 
     def reduce_signatures(
         self,
         transaction: SimpleTransaction,
         keys_to_sign_with: list[PublicKey],
-        retrived_authorities: dict[bytes, wax.python_authorities],
+        retrived_authorities: dict[bytes, wax_authorities],
     ) -> list[str] | list[Any]:
         def retrieve_witness_key(wittnes_name: bytes) -> bytes:
             get_witness = self._force_connected_node.api.wallet_bridge.get_witness(wittnes_name.decode())
             assert get_witness is not None
             return get_witness.signing_key.encode()
 
-        return [
-            to_python_string(pub_key)
-            for pub_key in wax.minimize_required_signatures(
-                self.__transaction_to_cpp_string(transaction),
-                python_minimize_required_signatures_data(
-                    chain_id=to_cpp_string(self.__get_chain_id()),
-                    available_keys=[to_cpp_string(key) for key in keys_to_sign_with],
-                    authorities_map=retrived_authorities,
-                    get_witness_key=retrieve_witness_key,
-                ),
-            )
-        ]
+        return minimize_required_signatures(
+            transaction, self.__get_chain_id(), keys_to_sign_with, retrived_authorities, retrieve_witness_key
+        )
 
     def import_required_keys(
         self, transaction: SimpleTransaction
-    ) -> tuple[list[PublicKey], dict[bytes, wax.python_authorities]]:
-        def list_to_dict(list_: list[Any]) -> dict[bytes, int]:
-            result: dict[bytes, int] = {}
-            for i in list_:
-                result[i[0].encode()] = i[1]
-            return result
+    ) -> tuple[list[PublicKey], dict[bytes, wax_authorities]]:
+        retrived_authorities: dict[bytes, wax_authorities] = {}
 
-        def to_python_authority(account_authority: Authority) -> wax.python_authority:
-            return wax.python_authority(
-                weight_threshold=account_authority.weight_threshold,
-                account_auths=list_to_dict(account_authority.account_auths),
-                key_auths=list_to_dict(account_authority.key_auths),
-            )
-
-        def to_python_authorities(
-            account_authorities: AccountSchema[AssetHiveHF26, AssetHbdHF26, AssetVestsHF26]
-        ) -> wax.python_authorities:
-            return wax.python_authorities(
-                active=to_python_authority(account_authorities.active),
-                owner=to_python_authority(account_authorities.owner),
-                posting=to_python_authority(account_authorities.posting),
-            )
-
-        retrived_authorities: dict[bytes, wax.python_authorities] = {}
-
-        def retrieve_authorities(account_names: list[bytes]) -> dict[bytes, wax.python_authorities]:
+        def retrieve_authorities(account_names: list[bytes]) -> dict[bytes, wax_authorities]:
             accounts = self._force_connected_node.api.wallet_bridge.get_accounts(
                 [account_name.decode() for account_name in account_names]
             )
-            retrived_authoritity = {acc.name.encode(): to_python_authorities(acc) for acc in accounts}
+            retrived_authoritity = {acc.name.encode(): to_wax_authorities(acc) for acc in accounts}
             retrived_authorities.update(retrived_authoritity)
             return retrived_authoritity
 
-        keys_for_signing = [
-            key.decode()
-            for key in wax.collect_signing_keys(self.__transaction_to_cpp_string(transaction), retrieve_authorities)
-        ]
+        keys_for_signing = collect_signing_keys(transaction, retrieve_authorities)
 
         if self._use_authority != {}:
             account_name = next(iter(self._use_authority.keys()))
@@ -477,6 +433,3 @@ class Wallet(UserHandleImplementation, ScopedObject):
         if broadcast is None:
             broadcast = True
         return SingleTransactionContext(self, broadcast=broadcast, blocking=blocking)
-
-    def __transaction_to_cpp_string(self, transaction: SimpleTransaction) -> bytes:
-        return to_cpp_string(transaction.json())
