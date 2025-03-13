@@ -8,7 +8,8 @@ import typing
 from pathlib import Path
 from typing import ClassVar, Final, Literal, overload
 
-from schemas.apis.block_api.fundaments_of_responses import BlockLogUtilSignedBlock
+from wax.helpy import Time, TimeFormats
+from schemas.apis.block_api.fundaments_of_responses import BlockLogUtilSignedBlockBase
 from schemas.transaction import Transaction
 from test_tools.__private import paths_to_executables
 from test_tools.__private.exceptions import BlockLogError, BlockLogUtilError, MissingBlockLogArtifactsError
@@ -17,7 +18,7 @@ from wax.helpy._interfaces.time import Time, TimeFormats
 if typing.TYPE_CHECKING:
     from datetime import datetime
 
-BlockLogUtilResult = BlockLogUtilSignedBlock[Transaction]
+BlockLogUtilResult = BlockLogUtilSignedBlockBase
 
 
 class BlockLog:

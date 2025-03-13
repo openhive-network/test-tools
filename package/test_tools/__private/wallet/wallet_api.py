@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, ParamSpec, cast
 
 from schemas.fields.basic import AccountName, EmptyList, PrivateKey, PublicKey
 from schemas.fields.compound import Authority, HbdExchangeRate, LegacyChainProperties, Proposal
-from schemas.operations import AnyOperation
+from schemas.operations import AnyHf26Operation
 from schemas.operations.account_create_operation import AccountCreateOperation
 from schemas.operations.account_create_with_delegation_operation import AccountCreateWithDelegationOperation
 from schemas.operations.account_update_operation import AccountUpdateOperation
@@ -38,7 +38,7 @@ from schemas.operations.limit_order_create_operation import LimitOrderCreateOper
 from schemas.operations.recover_account_operation import RecoverAccountOperation
 from schemas.operations.recurrent_transfer_operation import RecurrentTransferOperation
 from schemas.operations.remove_proposal_operation import RemoveProposalOperation
-from schemas.operations.representations.hf26_representation import HF26Representation
+from schemas.operations import Hf26OperationRepresentation
 from schemas.operations.request_account_recovery_operation import RequestAccountRecoveryOperation
 from schemas.operations.set_withdraw_vesting_route_operation import SetWithdrawVestingRouteOperation
 from schemas.operations.transfer_from_savings_operation import TransferFromSavingsOperation
@@ -161,13 +161,13 @@ class Api:
         """Helper class for sending multiple operations in single transaction."""
 
         def __init__(self) -> None:
-            self.__operations: EmptyList | list[AnyOperation] = []
+            self.__operations: EmptyList | list[AnyHf26Operation] = []
 
         @property
-        def operations(self) -> EmptyList | list[AnyOperation]:
+        def operations(self) -> EmptyList | list[AnyHf26Operation]:
             return self.__operations
 
-        def _append_operation(self, operation: AnyOperation) -> None:
+        def _append_operation(self, operation: AnyHf26Operation) -> None:
             self.__operations.append(operation)
 
     def __init__(self, wallet: Wallet) -> None:
@@ -198,12 +198,12 @@ class Api:
         return None
 
     def __send_one_op(
-        self, operation: AnyOperation, broadcast: bool | None, blocking: bool = True
+        self, operation: AnyHf26Operation, broadcast: bool | None, blocking: bool = True
     ) -> None | WalletResponseBase | WalletResponse:
         return self._send([operation], broadcast, blocking)
 
     def _send(
-        self, operations: list[AnyOperation], broadcast: bool | None, blocking: bool
+        self, operations: list[AnyHf26Operation], broadcast: bool | None, blocking: bool
     ) -> None | WalletResponseBase | WalletResponse:
         broadcast = self.__handle_broadcast_parameter(broadcast)
 
@@ -874,7 +874,7 @@ class Api:
             required_auths=[],
             required_posting_auths=[from_],
             id_="rc",
-            json_=HF26Representation(
+            json_=Hf26OperationRepresentation(
                 type=delegate_rc_operation.get_name_with_suffix(), value=delegate_rc_operation
             ).json(),
         )
@@ -1244,7 +1244,7 @@ class Api:
             required_auths=[],
             required_posting_auths=[follower],
             id_="follow",
-            json_=HF26Representation(type=follow_operation.get_name_with_suffix(), value=follow_operation).json(),
+            json_=Hf26OperationRepresentation(type=follow_operation.get_name_with_suffix(), value=follow_operation).json(),
         )
         return self.__send_one_op(
             operation=operation,
@@ -1483,7 +1483,7 @@ class Api:
         :param only_result: This argument is no longer active and should not be provided.
         :return: A dictionary representing the prototype operation.
         """
-        operations = getattr(AnyOperation, "__args__", None)
+        operations = getattr(AnyHf26Operation, "__args__", None)
         for operation in operations:  #  type: ignore[union-attr]
             if operation.get_name_with_suffix() == operation_type:
                 return {"type": operation.get_name(), "value": operation.__fields__}

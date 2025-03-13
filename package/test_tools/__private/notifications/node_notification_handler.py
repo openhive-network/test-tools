@@ -13,13 +13,12 @@ if TYPE_CHECKING:
     from loguru import Logger
 
     from schemas.notifications import (
-        Error,
-        KnownNotificationT,
-        Notification,
-        P2PListening,
-        Status,
-        SwitchingForks,
-        WebserverListening,
+        ErrorNotification,
+        P2PListeningNotification,
+        StatusNotification,
+        SwitchingForksNotification,
+        WebserverListeningNotification,
+        KnownNotificationT
     )
 
 
@@ -50,7 +49,7 @@ class NodeNotificationHandler(HivedNotificationHandler):
         self.switch_fork_event = Event()
         self.number_of_forks = 0
 
-    async def on_status_changed(self, notification: Notification[Status]) -> None:
+    async def on_status_changed(self, notification: StatusNotification) -> None:
         match notification.value.current_status:
             case "finished replaying":
                 self.replay_finished_event.set()
@@ -65,33 +64,33 @@ class NodeNotificationHandler(HivedNotificationHandler):
             case "entering API mode":
                 self.api_mode_entered_event.set()
 
-    async def on_http_webserver_bind(self, notification: Notification[WebserverListening]) -> None:
+    async def on_http_webserver_bind(self, notification: WebserverListeningNotification) -> None:
         self.http_endpoint = HttpUrl(self.__combine_url_string_from_notification(notification), protocol="http")
         self.http_listening_event.set()
 
-    async def on_ws_webserver_bind(self, notification: Notification[WebserverListening]) -> None:
+    async def on_ws_webserver_bind(self, notification: WebserverListeningNotification) -> None:
         self.ws_endpoint = WsUrl(self.__combine_url_string_from_notification(notification), protocol="ws")
         self.ws_listening_event.set()
 
-    async def on_p2p_server_bind(self, notification: Notification[P2PListening]) -> None:
+    async def on_p2p_server_bind(self, notification: P2PListeningNotification) -> None:
         self.p2p_endpoint = P2PUrl(self.__combine_url_string_from_notification(notification))
         self.p2p_plugin_started_event.set()
 
-    async def on_switching_forks(self, _: Notification[SwitchingForks]) -> None:
+    async def on_switching_forks(self, _: SwitchingForksNotification) -> None:
         self.number_of_forks += 1
         self.switch_fork_event.set()
         self.switch_fork_event.clear()
 
-    async def on_error(self, notification: Notification[Error]) -> None:
+    async def on_error(self, notification: ErrorNotification) -> None:
         RaiseExceptionHelper.raise_exception_in_main_thread(
-            exceptions.InternalNodeError(f"{self.node_name}: '{notification.value.message}'")
+            exceptions.InternalNodeError(f"{self.node_name}: '{notification.value['message']}'")
         )
 
-    async def handle_notification(self, notification: Notification[KnownNotificationT]) -> None:
-        self.__logger.info(f"Received message: {notification.json(by_alias=True)}")
+    async def handle_notification(self, notification: KnownNotificationT) -> None:
+        self.__logger.info(f"Received message: {notification.json()}")
         return await super().handle_notification(notification)
 
     def __combine_url_string_from_notification(
-        self, notification: Notification[WebserverListening] | Notification[P2PListening]
+        self, notification: WebserverListeningNotification | P2PListeningNotification
     ) -> str:
-        return f"{notification.value.address}:{notification.value.port}"
+        return f"{notification.value['address']}:{notification.value['port']}"

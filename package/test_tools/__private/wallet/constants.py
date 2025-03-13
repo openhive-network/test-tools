@@ -7,12 +7,10 @@ from typing import TYPE_CHECKING, Final, Literal
 from schemas.fields.basic import AccountName, EmptyString, PrivateKey, PublicKey, WitnessUrl
 from schemas.fields.compound import HbdExchangeRate
 from schemas.fields.hive_datetime import HiveDateTime
-from schemas.operations.representations.hf26_representation import HF26Representation
-from schemas.operations.representations.legacy_representation import LegacyRepresentation
 from schemas.transaction import Transaction
-
+from schemas.operation import Operation
+from schemas.operations import convert_to_representation
 if TYPE_CHECKING:
-    from schemas.operations import AnyOperation
     from test_tools.__private.node import Node
     from test_tools.__private.remote_node import RemoteNode
 
@@ -59,13 +57,14 @@ class AuthorityHolder:
 
 
 class SimpleTransaction(Transaction):
-    def add_operation(self, operation: AnyOperation) -> None:
-        self.operations.append(HF26Representation(type=operation.get_name_with_suffix(), value=operation))
+    def add_operation(self, operation: Operation) -> None:
+        representation = convert_to_representation(operation)
+        self.operations.append(representation)
 
 
-class SimpleTransactionLegacy(Transaction):
-    def add_operation(self, operation: AnyOperation) -> None:
-        self.operations.append(LegacyRepresentation(type=operation.get_name(), value=operation))
+    def add_operation(self, operation: Operation) -> None:
+        representation = convert_to_representation(operation)
+        self.operations.append(representation)
 
 
 class WalletResponseBase(SimpleTransaction):

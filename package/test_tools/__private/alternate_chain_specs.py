@@ -1,24 +1,31 @@
 from __future__ import annotations
 
+from enum import Enum
 from pathlib import Path
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
-from pydantic import BaseModel, Protocol
-
+import msgspec
+from schemas._preconfigured_base_model import PreconfiguredBaseModel
 from test_tools.__private.user_handles import context
+if TYPE_CHECKING:
+    from schemas.decoders import DecoderFactory
 
 
-class InitialVesting(BaseModel):
+class Protocol(str, Enum):
+    json = 'json'
+    pickle = 'pickle'
+
+class InitialVesting(msgspec.Struct):
     vests_per_hive: int
     hive_amount: int
 
 
-class HardforkSchedule(BaseModel):
+class HardforkSchedule(msgspec.Struct):
     hardfork: int
     block_num: int
 
 
-class AlternateChainSpecs(BaseModel):
+class AlternateChainSpecs(PreconfiguredBaseModel):
     FILENAME: ClassVar[str] = "alternate-chain-spec.json"
 
     genesis_time: int
@@ -42,22 +49,13 @@ class AlternateChainSpecs(BaseModel):
         return destination
 
     @classmethod
-    def parse_file(
-        cls: type[AlternateChainSpecs],
-        path: str | Path,
-        *,
-        content_type: str | None = None,
-        encoding: str = "utf8",
-        proto: Protocol | None = None,
-        allow_pickle: bool = False,
-    ) -> AlternateChainSpecs:
+    def parse_file(cls, path: str | Path, decoder_factory: DecoderFactory) -> 'AlternateChainSpecs':
         if isinstance(path, str):
             path = Path(path)
 
         if path.is_dir():
-            path = path / AlternateChainSpecs.FILENAME
+            path = path / cls.FILENAME
 
-        assert path.is_file(), f"Given path: `{path.as_posix()}` is not pointing to file!"
-        return super().parse_file(
-            path, content_type=content_type, encoding=encoding, proto=proto, allow_pickle=allow_pickle  # type: ignore
-        )
+        assert path.is_file(), f"Podana ścieżka: `{path.as_posix()}` nie wskazuje na plik!"
+
+        return super().parse_file(path, decoder_factory)
