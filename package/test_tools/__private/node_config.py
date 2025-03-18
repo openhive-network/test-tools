@@ -64,7 +64,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
     shared_file_size: str | None = None
     shared_file_full_threshold: str | None = None
     shared_file_scale_rate: str | None = None
-    checkpoint: str | None = None
+    checkpoint: UniqueList[tuple[int, str]] = Field(default_factory=UniqueList)
     flush_state_interval: str | None = None
     cashout_logging_starting_block: str | None = None
     cashout_logging_ending_block: str | None = None
@@ -137,7 +137,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
             return [value]
         return value
 
-    @validator("plugin", pre=True)
+    @validator("plugin", "checkpoint", pre=True)
     @classmethod
     def _transform_to_uniquelist(cls, value: Any) -> UniqueList[str]:
         if value is None or value == [] or value == UniqueList():
@@ -169,7 +169,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
     def __is_member_quoted(cls, member_name: str) -> bool:
         return "StringQuoted" in str(NodeConfig.__fields__[member_name].annotation)
 
-    def write_to_lines(self) -> list[str]:
+    def write_to_lines(self) -> list[str]:  # noqa: C901
         def __serialize_depending_on_type(member_name: str, value: str | list[str] | bool | int) -> list[str]:
             def quote_on_demand(value: str) -> str:
                 return f'"{value}"' if self.__is_member_quoted(member_name) else value
@@ -180,6 +180,8 @@ class NodeConfig(BaseModel, validate_assignment=True):
             if isinstance(value, str):
                 return format_list([quote_on_demand(value)])
             if isinstance(value, list):
+                if len(value) > 0 and len(value[0]) == 2 and isinstance(value[0], tuple):  # noqa: PLR2004
+                    return format_list([f"[{item[0]}, {item[1]}]" for item in value])
                 return format_list([quote_on_demand(item) for item in value])
             if isinstance(value, bool):
                 return format_list(["1" if value else "0"])
