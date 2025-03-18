@@ -247,9 +247,10 @@ class BlockLog:
         output = ""
         block_files = self.__block_files_force()
         for file in block_files:
-            output = self.__run_and_get_output(
-                "--get-block-ids", "-n", f"{block_number}", "--block-log", str(file)
-            ).replace("'", '"')
+            with contextlib.suppress(BlockLogUtilError):
+                output = self.__run_and_get_output(
+                    "--get-block-ids", "-n", f"{block_number}", "--block-log", str(file)
+                ).replace("'", '"')
             if expected_str in output:
                 return output[len(expected_str) :]
 
