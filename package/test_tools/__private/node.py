@@ -452,12 +452,12 @@ class Node(BaseNode, ScopedObject):
                 else "split",
             )
 
-        additional_arguments.append("--force-replay")
+        additional_arguments.append("--replay-blockchain")
 
         block_log_directory = self.directory.joinpath("blockchain")
-        if block_log_directory.exists():
+        if block_log_directory.exists() and "--force-replay" in additional_arguments:
             shutil.rmtree(block_log_directory)
-        block_log_directory.mkdir()
+        block_log_directory.mkdir(exist_ok=True)
         replay_source.copy_to(block_log_directory, artifacts="optional")
 
     def __log_run_summary(self) -> None:
