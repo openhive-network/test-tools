@@ -1056,10 +1056,10 @@ class OldWallet(UserHandleImplementation, ScopedObject):
         return str(self)
 
     def get_stdout_file_path(self) -> Path:
-        return self.directory / "stdout.txt"
+        return self.directory / "stdout.log"
 
     def get_stderr_file_path(self) -> Path:
-        return self.directory / "stderr.txt"
+        return self.directory / "stderr.log"
 
     def is_running(self):
         if not self.process:

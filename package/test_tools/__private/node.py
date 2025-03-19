@@ -14,7 +14,7 @@ from beekeepy import Settings
 from helpy._interfaces.time import StartTimeControl, TimeControl
 from helpy._interfaces.url import AnyUrl, HttpUrl, P2PUrl, WsUrl
 from helpy._runnable_handle.runnable_handle import RunnableHandle
-from helpy.exceptions import RequestError
+from test_tools.__private.exceptions import RequestError
 from test_tools.__private import cleanup_policy, paths_to_executables
 from test_tools.__private.base_node import BaseNode
 from test_tools.__private.block_log import BlockLog
@@ -244,7 +244,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         exit_at_block: int | None = None,
         exit_before_synchronization: bool = False,
         wait_for_live: bool | None = None,
-        arguments: NodeArguments | None = None,
+        arguments: NodeArguments | list[str] | None = None,
         environment_variables: dict[str, str] | None = None,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
         time_control: TimeControl | str | None = None,
@@ -276,7 +276,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
 
         self.__set_unset_endpoints()
         self.__assure_that_app_status_api_is_enabled()
-
+        arguments = self.__convert_to_node_arguments(arguments)
         log_message = f"Running {self}"
 
         additional_arguments = arguments or self.arguments.copy()
@@ -359,7 +359,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
 
     def __wait_for_synchronization(self, deadline: float, timeout: float, wait_for_live: bool) -> None:
         self.__wait_for_status(
-            deadline=deadline, predicate=lambda _, s: "syncing" in s.statuses, message="syncing was not finished"
+            deadline=deadline, predicate=lambda _, s: "entering live mode" in s.statuses, message="syncing was not finished"
         )
 
     def _actions_before_run(self) -> None:
@@ -378,6 +378,15 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         self.__ensure_that_plugin_required_for_snapshot_is_included()
         additional_arguments.load_snapshot = snapshot_source.name
         snapshot_source.copy_to(self.directory)
+
+    def __convert_to_node_arguments(self, arguments: NodeArguments | list[str] | None) -> NodeArguments:
+        if arguments is None:
+            return NodeArguments()
+        
+        if isinstance(arguments, NodeArguments):
+            return arguments
+        
+        return NodeArguments.parse_cli_input(arguments)
 
     def __handle_replay(self, replay_source: BlockLog | Path | str, additional_arguments: NodeArguments) -> None:
         if not isinstance(replay_source, BlockLog):

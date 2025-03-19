@@ -13,7 +13,7 @@ from schemas.fields.assets import AssetBase
 from schemas.fields.json_string import JsonString
 from schemas._preconfigured_base_model import PreconfiguredBaseModel
 from schemas.operations.representations import LegacyRepresentation
-from test_tools.__private.exceptions import CommunicationError
+from helpy.exceptions import UnableToAcquireDatabaseLockError, UnableToAcquireForkdbLockError, CommunicationError
 from loguru import logger
 from helpy import Time
 
@@ -53,18 +53,13 @@ def __workaround_communication_problem_with_node(send_request: Callable) -> Call
         while True:
             try:
                 return send_request(*args, **kwargs)
-            except CommunicationError as exception:
-                if (
-                    "Unable to acquire database lock" in exception.error
-                    or "Unable to acquire forkdb lock" in exception.error
-                ):
-                    message = str(args[1])
-                    logger.debug(
-                        f'Ignored "Unable to acquire {"database" if "database" in exception.error else "forkdb"} lock" error during sending request: {message}'
-                    )
-                    continue
-
-                raise
+            except (UnableToAcquireDatabaseLockError, UnableToAcquireForkdbLockError) as exception:
+                logger.debug(
+                    "Ignored \"Unable to acquire "
+                    f"{'database' if isinstance(UnableToAcquireDatabaseLockError, exception) else 'forkdb'} lock"
+                    f"error during sending request: {exception.request}"
+                )
+                continue
 
     return __implementation
 
@@ -100,7 +95,7 @@ def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=
             if "error" in response:
                 logger.debug(f"Error in response from {url}: message={body}, response={response}")
             else:
-                raise CommunicationError(f"Unknown response format from {url}: ", body, response)
+                raise CommunicationError(url, request=body, response=response)
         else:
             logger.debug(
                 f"Received bad status code {status_code} != 200 from {url}, message={body}, response={response}"
@@ -109,4 +104,4 @@ def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=
         if attempts_left > 0:
             time.sleep(seconds_between_attempts)
 
-    raise CommunicationError(body, decoded_content)
+    raise CommunicationError(url, request=body, response=decoded_content)
