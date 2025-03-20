@@ -27,7 +27,7 @@ requests = "2.27.1"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 loguru = "0.7.2"
-beekeepy = { path = "/workspace/hive/helpy/beekeepy", develop = true }
+beekeepy = "0.0.1.dev345+af91538"
 
 
 [tool.poetry.group.dev.dependencies]
