@@ -7,9 +7,6 @@ variables:
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
   PACKAGES_TO_CHECK: "package/test_tools/ tests/"
-  # uses registry.gitlab.syncad.com/hive/hive/ci-base-image:ubuntu22.04-7
-  CI_BASE_IMAGE_TAG: "@sha256:8f68baf07c6e581e1e8034a1447c4ff1268239fc886bfe4b02aa3f4182bf78bb"
-  CI_BASE_IMAGE: "registry.gitlab.syncad.com/hive/hive/ci-base-image${CI_BASE_IMAGE_TAG}"
   # colors:
   TXT_BLUE: "\e[1;34m"
   TXT_CLEAR: "\e[0m"
@@ -17,12 +14,11 @@ variables:
 
 include:
   - project: 'hive/common-ci-configuration'
-    ref: b5202fecccf40845099da351cbc0c38a6205339c # develop
+    ref: fccc10fc5c8b847d82ca7446c957caa49a7440f6
     file: '/templates/python_projects.gitlab-ci.yml'
 
 
-image: "${CI_BASE_IMAGE}"
-
+image: "${PYTHON_IMAGE}"
 
 default:
   tags:
