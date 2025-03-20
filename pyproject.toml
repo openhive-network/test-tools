@@ -22,14 +22,14 @@ packages = [
 
 
 [tool.poetry.dependencies]
-python = "^3.10"
-requests = "2.27.1"
+python = "^3.12"
+requests = "2.32.3"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 loguru = "0.7.2"
 typing-extensions="4.12.2"
-beekeepy = "0.0.1.dev338+58e0bf7"
-wax = "0.3.10.dev558+3a636d1"
+beekeepy = "0.0.1.dev351+7c750ab"
+wax = "0.3.10.dev597+751bb00"
 
 
 [tool.poetry.group.dev.dependencies]
