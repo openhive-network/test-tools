@@ -115,7 +115,8 @@ class Node(BaseNode, ScopedObject):
 
     @property
     def http_endpoint(self) -> HttpUrl:
-        assert (endpoint := self.__notifications.handler.http_endpoint) is not None
+        endpoint = self.__notifications.handler.http_endpoint
+        assert endpoint is not None
         return endpoint
 
     @http_endpoint.setter
