@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from test_tools.__private.user_handles import NetworkHandle
 
 
-@pytest.mark.requires_hived_executables()
+@pytest.mark.requires_hived_executables
 def test_connecting_two_networks(two_networks_connected: Iterable[NetworkHandle]) -> None:
     # ARRANGE AND ACT is done in two_networks_connected fixture
     networks: list[Network] = [get_implementation(network, Network) for network in two_networks_connected]
@@ -22,7 +22,7 @@ def test_connecting_two_networks(two_networks_connected: Iterable[NetworkHandle]
     assert networks[1].connected_networks == {networks[0]}
 
 
-@pytest.mark.requires_hived_executables()
+@pytest.mark.requires_hived_executables
 @pytest.mark.parametrize(
     "broadcast", [True, False], ids=("first_connecting_to_third_only", "second_connecting_to_third_also")
 )
@@ -41,7 +41,7 @@ def test_connecting_three_networks(broadcast: bool, three_networks_connected: It
     assert networks[2].connected_networks == {networks[i] for i in [0, 1]}
 
 
-@pytest.mark.requires_hived_executables()
+@pytest.mark.requires_hived_executables
 def test_connecting_four_networks(four_networks_connected: Iterable[NetworkHandle]) -> None:
     # ARRANGE AND ACT is partly done in four_networks_connected fixture
     networks: list[Network] = [get_implementation(network, Network) for network in four_networks_connected]

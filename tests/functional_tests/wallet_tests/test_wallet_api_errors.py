@@ -7,7 +7,7 @@ from beekeepy.exceptions import ErrorInResponseError
 from wax.helpy import Hf26Asset as Asset
 
 
-@pytest.fixture()
+@pytest.fixture
 def wallet(node: tt.InitNode) -> tt.Wallet:
     return tt.Wallet(attach_to=node)
 

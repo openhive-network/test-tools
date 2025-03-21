@@ -4,7 +4,7 @@ import pytest
 import test_tools as tt
 
 
-@pytest.mark.requires_hived_executables()
+@pytest.mark.requires_hived_executables
 @pytest.mark.parametrize(
     ("name", "expected_key"),
     [
@@ -16,7 +16,7 @@ def test_private_key_generation(name: str, expected_key: str) -> None:
     assert tt.Account(name).private_key == expected_key
 
 
-@pytest.mark.requires_hived_executables()
+@pytest.mark.requires_hived_executables
 @pytest.mark.parametrize(
     ("name", "expected_key"),
     [

@@ -1167,7 +1167,7 @@ class Api:
         return wax_estimate_hive_collateral(hbd_amount_to_get, current_median_history, current_min_history)
 
     @warn_if_only_result_set()
-    def exit(self, only_result: bool | None = None) -> None:  # noqa: ARG002 A003
+    def exit(self, only_result: bool | None = None) -> None:  # noqa: ARG002
         """
         Exits the wallet.
 
@@ -1542,7 +1542,7 @@ class Api:
         raise exceptions.MethodDeprecatedInBeekeeperWalletError
 
     @warn_if_only_result_set()
-    def help(self, only_result: bool | None = None) -> None:  # noqa: ARG002 A003
+    def help(self, only_result: bool | None = None) -> None:  # noqa: ARG002
         """
         Raises an exception to indicate that the method is deprecated.
 
