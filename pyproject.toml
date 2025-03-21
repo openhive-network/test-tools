@@ -124,4 +124,5 @@ testpaths = ["tests"]
 [tool.mypy]
 strict = true
 disallow_untyped_decorators = false
+allow_any_generics = true
 plugins = "pydantic.mypy"
