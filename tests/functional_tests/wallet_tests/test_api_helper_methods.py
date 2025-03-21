@@ -4,7 +4,7 @@ import pytest
 import test_tools as tt
 
 
-@pytest.fixture()
+@pytest.fixture
 def node(request: pytest.FixtureRequest) -> tt.InitNode:
     init_node = tt.InitNode()
     init_node.config.plugin.append("condenser_api")
@@ -17,7 +17,7 @@ def node(request: pytest.FixtureRequest) -> tt.InitNode:
     return init_node
 
 
-@pytest.fixture()
+@pytest.fixture
 def wallet(node: tt.InitNode) -> tt.Wallet:
     return tt.Wallet(attach_to=node)
 

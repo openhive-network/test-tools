@@ -33,7 +33,7 @@ def get_head_block_numbers_for_networks(networks: Iterable[tt.Network]) -> dict[
     return head_block_numbers
 
 
-@pytest.fixture()
+@pytest.fixture
 def two_networks_connected() -> Iterable[tt.Network]:
     # ARRANGE
     first_network = tt.Network()
@@ -48,7 +48,7 @@ def two_networks_connected() -> Iterable[tt.Network]:
     return [first_network, second_network]
 
 
-@pytest.fixture()
+@pytest.fixture
 def three_networks_connected(two_networks_connected: Iterable[tt.Network]) -> Iterable[tt.Network]:
     # ARRANGE AND ACT is partly done in two_networks_connected fixture
     first_network, second_network = two_networks_connected
@@ -64,7 +64,7 @@ def three_networks_connected(two_networks_connected: Iterable[tt.Network]) -> It
     return [first_network, second_network, third_network]
 
 
-@pytest.fixture()
+@pytest.fixture
 def four_networks_connected(three_networks_connected: Iterable[tt.Network]) -> Iterable[tt.Network]:
     # ARRANGE AND ACT is partly done in three_networks_connected fixture
     first_network, second_network, third_network = three_networks_connected

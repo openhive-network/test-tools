@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from test_tools.__private.node_config import NodeConfig
 
 
-@pytest.fixture()
+@pytest.fixture
 def generated_config() -> NodeConfig:
     node = tt.RawNode()
     node.set_cleanup_policy(tt.constants.CleanupPolicy.REMOVE_EVERYTHING)

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
 
-@pytest.fixture()
+@pytest.fixture
 def paths() -> _PathsToExecutables:
     """
     Returns PathsToExecutables object without any value from current environment.
@@ -48,17 +48,17 @@ def __executables() -> list[ExecutableInitParams]:
     ]
 
 
-@pytest.fixture()
+@pytest.fixture
 def executables() -> list[ExecutableInitParams]:
     return __executables()
 
 
-@pytest.fixture()
+@pytest.fixture
 def executable() -> ExecutableInitParams:
     return __executables()[0]
 
 
-@pytest.fixture()
+@pytest.fixture
 def prepare_build_like_dir() -> Iterator[Path]:
     with TemporaryDirectory() as temp_path:
         path = Path(temp_path)

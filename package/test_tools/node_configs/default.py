@@ -12,6 +12,7 @@ def create_default_config(*, skip_address: bool = False) -> NodeConfig:
     Returns
     -------
         NodeConfig: with default values.
+
     """
     hived_logger_settings = [
         {"name": "default", "level": "debug", "appenders": ["stderr"]},

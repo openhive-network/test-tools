@@ -9,7 +9,7 @@ from test_tools.__private.exceptions import BlockLogUtilError
 from schemas.apis.block_api.response_schemas import GetBlockBase
 
 
-@pytest.fixture()
+@pytest.fixture
 def node() -> tt.InitNode:
     node = tt.InitNode()
     node.run(time_control=tt.SpeedUpRateTimeControl(speed_up_rate=10))

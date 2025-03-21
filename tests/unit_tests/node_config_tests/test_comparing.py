@@ -6,7 +6,7 @@ from test_tools.__private.node_config import NodeConfig
 ConfigsFixtureReturn = tuple[NodeConfig, NodeConfig, NodeConfig]
 
 
-@pytest.fixture()
+@pytest.fixture
 def configs() -> ConfigsFixtureReturn:
     return NodeConfig(), NodeConfig(), NodeConfig()
 

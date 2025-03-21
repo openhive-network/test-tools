@@ -68,6 +68,7 @@ def to_wax_authority(account_authority: Authority) -> wax_authority:
     Args:
     ----
     account_authority: The authority (not account!) object returned from the API.
+
     """
 
     def list_to_dict(list_: list[Any]) -> dict[bytes, int]:
@@ -96,6 +97,7 @@ def to_wax_authorities(
     Returns:
     -------
     The converted python authorities.
+
     """
     return wax_authorities(
         active=to_wax_authority(account_authorities.active),
@@ -125,6 +127,7 @@ def validate_transaction(transaction: Transaction) -> None:
     Raises:
     ------
     WaxValidationError: If the transaction is invalid.
+
     """
     result = wax_validate_transaction(to_cpp_string(transaction.json()))
     validate_wax_result(result)
@@ -145,6 +148,7 @@ def calculate_transaction_id(transaction: Transaction) -> str:
     Raises:
     ------
     WaxValidationError: If the transaction id could not be calculated.
+
     """
     result = wax_calculate_transaction_id(to_cpp_string(transaction.json()))
     validate_wax_result(result)
@@ -166,6 +170,7 @@ def calculate_legacy_transaction_id(transaction: Transaction) -> str:
     Raises:
     ------
     WaxValidationError: If the transaction id could not be calculated.
+
     """
     result = wax_calculate_legacy_transaction_id(to_cpp_string(transaction.json()))
     validate_wax_result(result)
@@ -188,6 +193,7 @@ def calculate_sig_digest(transaction: Transaction, chain_id: str) -> str:
     Raises:
     ------
     WaxValidationError: If the signature digest could not be calculated.
+
     """
     result = wax_calculate_sig_digest(to_cpp_string(transaction.json()), to_cpp_string(chain_id))
     validate_wax_result(result)
@@ -210,6 +216,7 @@ def calculate_legacy_sig_digest(transaction: Transaction, chain_id: str) -> str:
     Raises:
     ------
     WaxValidationError: If the sig digest could not be calculated.
+
     """
     result = wax_calculate_legacy_sig_digest(to_cpp_string(transaction.json()), to_cpp_string(chain_id))
     validate_wax_result(result)
@@ -244,6 +251,7 @@ def minimize_required_signatures(
     Returns:
     -------
     The minimized required signatures.
+
     """
     result = wax_minimize_required_signatures(
         to_cpp_string(transaction.json()),
@@ -271,6 +279,7 @@ def collect_signing_keys(
     Returns:
     -------
     The collected signing keys.
+
     """
     return [
         to_python_string(key)
@@ -296,6 +305,7 @@ def estimate_hive_collateral(
     Returns:
     -------
     The estimated hive collateral.
+
     """
     wax_base_api = create_wax_foundation()
     wax_asset = wax_base_api.estimate_hive_collateral(

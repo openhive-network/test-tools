@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from test_tools.__private.block_log import BlockLog
 
 
-@pytest.fixture()
+@pytest.fixture
 def destination_directory(tmp_path: Path) -> Path:
     """Block log files in tests are copied to this directory."""
     directory = tmp_path / "destination"
@@ -20,7 +20,7 @@ def destination_directory(tmp_path: Path) -> Path:
     return directory
 
 
-@pytest.fixture()
+@pytest.fixture
 def source_directory(tmp_path: Path) -> Path:
     """Block log files in tests are created here and copied from this directory."""
     directory = tmp_path / "source"
@@ -28,7 +28,7 @@ def source_directory(tmp_path: Path) -> Path:
     return directory
 
 
-@pytest.fixture()
+@pytest.fixture
 def block_log_stub(source_directory: Path) -> list[BlockLog]:
     split_dir = source_directory / "split"
     split_dir.mkdir()
@@ -39,7 +39,7 @@ def block_log_stub(source_directory: Path) -> list[BlockLog]:
     return [tt.BlockLog(split_dir, "split"), tt.BlockLog(mono_dir, "monolithic")]
 
 
-@pytest.fixture()
+@pytest.fixture
 def artifacts_stub(source_directory: Path) -> None:
     split_dir = source_directory / "split"
     (split_dir / "block_log_part.0001.artifacts").touch()
