@@ -43,7 +43,8 @@ class Executable:
 
     def get_version(self) -> dict[str, Any]:
         assert self.executable_name == "hived", "version can only be checked for hived binary!"
-        assert isinstance(result := json.loads(self.__run_and_get_output("--version")), dict)
+        result = json.loads(self.__run_and_get_output("--version"))
+        assert isinstance(result, dict)
         return result
 
     def __run_and_get_output(self, *arguments: str) -> str:
