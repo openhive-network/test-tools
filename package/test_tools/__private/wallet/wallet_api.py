@@ -76,7 +76,7 @@ from test_tools.__private.wax_wrapper import (
     suggest_brain_key,
 )
 from test_tools.__private.wax_wrapper import estimate_hive_collateral as wax_estimate_hive_collateral
-from wax._private.exceptions import WaxValidationFailedError
+from wax.exceptions import WaxValidationFailedError
 from wax.helpy import Hf26Asset as Asset
 
 if TYPE_CHECKING:
