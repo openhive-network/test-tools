@@ -36,10 +36,10 @@ wax = "0.3.10.dev597+751bb00"
 black = "22.8.0"
 local-tools = { path = "tests/local-tools", develop = true }
 pre-commit = "2.20.0"
-mypy = "1.4.1"
-ruff = "0.0.277"
-pytest = "7.1.2"
-pytest-xdist = "2.5.0"
+mypy = "1.11.2"
+ruff = "0.6.5"
+pytest = "8.3.5"
+pytest-xdist = "3.6.1"
 
 
 [tool.black]
