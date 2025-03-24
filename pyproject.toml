@@ -28,14 +28,14 @@ python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 loguru = "0.7.2"
 typing-extensions="4.12.2"
-beekeepy = "0.0.1.dev351+7c750ab"
-wax = "0.3.10.dev597+751bb00"
+beekeepy = "0.0.1.dev352+ef6b8c6"
+wax = "0.3.10.dev599+8fff596"
 
 
 [tool.poetry.group.dev.dependencies]
 black = "22.8.0"
 local-tools = { path = "tests/local-tools", develop = true }
-pre-commit = "2.20.0"
+pre-commit = "2.21.0"
 mypy = "1.11.2"
 ruff = "0.6.5"
 pytest = "8.3.5"
