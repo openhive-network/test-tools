@@ -29,7 +29,7 @@ abstractcp = "0.9.9"
 loguru = "0.7.2"
 typing-extensions="4.12.2"
 beekeepy = "0.0.1.dev352+ef6b8c6"
-wax = "0.3.10.dev599+8fff596"
+wax = "0.3.10.dev606+7d17dff"
 
 
 [tool.poetry.group.dev.dependencies]
