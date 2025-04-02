@@ -26,7 +26,7 @@ python = "^3.12"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 loguru = "0.7.2"
-wax = "0.3.10.dev712+7e6218a0"
+wax = "0.3.10.dev715+da47c42b"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -122,4 +122,3 @@ testpaths = ["tests"]
 strict = true
 disallow_untyped_decorators = false
 allow_any_generics = true
-plugins = "pydantic.mypy"
