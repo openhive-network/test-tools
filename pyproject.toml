@@ -28,8 +28,8 @@ python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 loguru = "0.7.2"
 typing-extensions="4.12.2"
-beekeepy = "0.0.1.dev349+9aaf4aa"
-wax = "0.3.10.dev567+96af3b7"
+beekeepy = "0.0.1.dev350+96c5428"
+wax = "0.3.10.dev568+7a6c6bd"
 
 
 [tool.poetry.group.dev.dependencies]
