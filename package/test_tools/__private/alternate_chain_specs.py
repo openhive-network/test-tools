@@ -5,15 +5,20 @@ from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
 import msgspec
+
 from schemas._preconfigured_base_model import PreconfiguredBaseModel
 from test_tools.__private.user_handles import context
+
 if TYPE_CHECKING:
-    from schemas.decoders import DecoderFactory
+    from collections.abc import Callable
+
+    from schemas.decoders import T
 
 
 class Protocol(str, Enum):
-    json = 'json'
-    pickle = 'pickle'
+    json = "json"
+    pickle = "pickle"
+
 
 class InitialVesting(msgspec.Struct):
     vests_per_hive: int
@@ -49,13 +54,15 @@ class AlternateChainSpecs(PreconfiguredBaseModel):
         return destination
 
     @classmethod
-    def parse_file(cls, path: str | Path, decoder_factory: DecoderFactory) -> 'AlternateChainSpecs':
+    def parse_file(
+        cls, path: str | Path, decoder_factory: Callable[[type[T]], msgspec.json.Decoder[T]]
+    ) -> AlternateChainSpecs:
         if isinstance(path, str):
             path = Path(path)
 
         if path.is_dir():
             path = path / cls.FILENAME
 
-        assert path.is_file(), f"Podana ścieżka: `{path.as_posix()}` nie wskazuje na plik!"
+        assert path.is_file(), f"Given path: `{path.as_posix()}` is not pointing to file!"
 
         return super().parse_file(path, decoder_factory)

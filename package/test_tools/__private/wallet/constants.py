@@ -7,10 +7,11 @@ from typing import TYPE_CHECKING, Final, Literal
 from schemas.fields.basic import AccountName, EmptyString, PrivateKey, PublicKey, WitnessUrl
 from schemas.fields.compound import HbdExchangeRate
 from schemas.fields.hive_datetime import HiveDateTime
-from schemas.transaction import Transaction
-from schemas.operation import Operation
 from schemas.operations import convert_to_representation
+from schemas.transaction import Transaction
+
 if TYPE_CHECKING:
+    from schemas.operation import Operation
     from test_tools.__private.node import Node
     from test_tools.__private.remote_node import RemoteNode
 
@@ -60,7 +61,6 @@ class SimpleTransaction(Transaction):
     def add_operation(self, operation: Operation) -> None:
         representation = convert_to_representation(operation)
         self.operations.append(representation)
-
 
     def add_operation(self, operation: Operation) -> None:
         representation = convert_to_representation(operation)

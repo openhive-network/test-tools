@@ -6,9 +6,10 @@ from datetime import datetime, timedelta
 from functools import wraps
 from typing import TYPE_CHECKING, Any, ParamSpec, cast
 
+from schemas.decoders import is_matching_model
 from schemas.fields.basic import AccountName, EmptyList, PrivateKey, PublicKey
 from schemas.fields.compound import Authority, HbdExchangeRate, LegacyChainProperties, Proposal
-from schemas.operations import AnyHf26Operation
+from schemas.operations import AnyHf26Operation, Hf26OperationRepresentation
 from schemas.operations.account_create_operation import AccountCreateOperation
 from schemas.operations.account_create_with_delegation_operation import AccountCreateWithDelegationOperation
 from schemas.operations.account_update_operation import AccountUpdateOperation
@@ -38,7 +39,6 @@ from schemas.operations.limit_order_create_operation import LimitOrderCreateOper
 from schemas.operations.recover_account_operation import RecoverAccountOperation
 from schemas.operations.recurrent_transfer_operation import RecurrentTransferOperation
 from schemas.operations.remove_proposal_operation import RemoveProposalOperation
-from schemas.operations import Hf26OperationRepresentation
 from schemas.operations.request_account_recovery_operation import RequestAccountRecoveryOperation
 from schemas.operations.set_withdraw_vesting_route_operation import SetWithdrawVestingRouteOperation
 from schemas.operations.transfer_from_savings_operation import TransferFromSavingsOperation
@@ -241,7 +241,7 @@ class Api:
         return self.__transaction_builder is not None
 
     def __check_memo(self, account: AccountNameApiType, memo: str) -> None:
-        if isinstance(memo, PrivateKey):
+        if is_matching_model(memo, PrivateKey):
             try:
                 public_key = calculate_public_key(wif=memo)
             except WaxValidationFailedError:
@@ -1244,7 +1244,9 @@ class Api:
             required_auths=[],
             required_posting_auths=[follower],
             id_="follow",
-            json_=Hf26OperationRepresentation(type=follow_operation.get_name_with_suffix(), value=follow_operation).json(),
+            json_=Hf26OperationRepresentation(
+                type=follow_operation.get_name_with_suffix(), value=follow_operation
+            ).json(),
         )
         return self.__send_one_op(
             operation=operation,

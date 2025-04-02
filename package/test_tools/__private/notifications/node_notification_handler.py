@@ -14,11 +14,11 @@ if TYPE_CHECKING:
 
     from schemas.notifications import (
         ErrorNotification,
+        KnownNotificationT,
         P2PListeningNotification,
         StatusNotification,
         SwitchingForksNotification,
         WebserverListeningNotification,
-        KnownNotificationT
     )
 
 

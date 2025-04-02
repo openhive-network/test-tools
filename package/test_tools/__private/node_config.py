@@ -205,7 +205,6 @@ class NodeConfig(msgspec.Struct):
         def is_entry_line(line: str) -> bool:
             return parse_entry_line(line) is not None
 
-        # self.__clear_values()
         for line in lines:
             if is_entry_line(line):
                 parsed = parse_entry_line(line)
@@ -265,10 +264,6 @@ class NodeConfig(msgspec.Struct):
             # Use __struct_defaults__ to compare against default values
             if hasattr(self, "__struct_defaults__"):
                 defaults = dict(zip(self.__struct_fields__, self.__struct_defaults__))
-                data = {
-                    key: value
-                    for key, value in data.items()
-                    if key in defaults and value != defaults[key]
-                }
+                data = {key: value for key, value in data.items() if key in defaults and value != defaults[key]}
 
         return data
