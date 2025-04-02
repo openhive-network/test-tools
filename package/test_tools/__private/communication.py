@@ -10,9 +10,9 @@ from typing import Any, Callable
 import requests
 
 from schemas.fields.assets import AssetBase
-from schemas.fields.json_string import JsonString
+from schemas.fields.resolvables import JsonString
 from schemas._preconfigured_base_model import PreconfiguredBaseModel
-from schemas.operations.representations import LegacyRepresentation
+from schemas.operations import AnyLegacyOperation
 from beekeepy.exceptions import CommunicationError
 from loguru import logger
 from beekeepy.interfaces import HttpUrl
@@ -35,8 +35,8 @@ class LegacyJsonEncoder(CommonJsonEncoder):
     def default(self, o: Any):
         if isinstance(o, AssetBase):
             return o.as_legacy()
-        if isinstance(o, LegacyRepresentation):
-            return (o[0], o[1].dict(by_alias=True, exclude_none=True))
+        if isinstance(o, AnyLegacyOperation):
+            return (o[0], o[1].dict(exclude_none=True))
         return super().default(o)
 
 

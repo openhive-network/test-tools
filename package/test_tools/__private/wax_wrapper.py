@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from schemas.fields.assets.hive import AssetHiveHF26
 from wax import create_wax_foundation
 from wax._private.result_tools import (
     expose_result_as_python_string,
@@ -34,8 +33,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from schemas.apis.wallet_bridge_api.fundaments_of_responses import Account as AccountSchema
-    from schemas.fields.assets.hbd import AssetHbdHF26
-    from schemas.fields.assets.vests import AssetVestsHF26
     from schemas.fields.basic import PublicKey
     from schemas.fields.compound import Authority, Price
     from schemas.transaction import Transaction
