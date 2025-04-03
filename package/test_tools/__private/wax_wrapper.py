@@ -3,7 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from schemas.fields.assets._base import AssetHive, AssetNaiAmount, HiveInt
+from schemas.fields.assets import AssetHive
+from schemas.fields.assets._base import AssetNaiAmount
+from schemas.fields.hive_int import HiveInt
 from wax import create_wax_foundation
 from wax._private.result_tools import (
     expose_result_as_python_string,

@@ -151,7 +151,7 @@ class NodeConfig(PreconfiguredBaseModel):
     def dict(  # noqa: A003
         self,
         *,
-        exclude: dict[str] | None = None,
+        exclude: set[str] | None = None,
         exclude_none: bool = False,
         exclude_defaults: bool = False,
     ) -> DictStrAny:

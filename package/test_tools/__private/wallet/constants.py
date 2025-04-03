@@ -28,7 +28,7 @@ EmptyStringApiType = EmptyString | str
 HiveDateTimeApiType = HiveDateTime | datetime | str
 PublicKeyApiType = PublicKey | str
 WitnessUrlApiType = WitnessUrl | str
-HbdExchangeRateApiType = HbdExchangeRate | dict[str]
+HbdExchangeRateApiType = HbdExchangeRate | dict[str, str]
 
 AuthorityType = Literal["active", "owner", "posting"]
 TransactionSerializationTypes = Literal["hf26", "legacy"]

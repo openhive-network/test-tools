@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 from loguru import logger
 
 from schemas.fields.assets import AssetHive
+from schemas.fields.assets._base import AssetNaiAmount
 from schemas.fields.compound import Authority
 from schemas.fields.hive_int import HiveInt
 from schemas.operations.account_create_operation import AccountCreateOperation
@@ -162,7 +163,7 @@ def send_transaction(  # noqa: C901
             creator="initminer",
             new_account_name=account.name,
             json_metadata="{}",
-            fee=AssetHive(1),
+            fee=AssetHive(AssetNaiAmount(1)),
             owner=get_authority(account.public_key),
             active=get_authority(account.public_key),
             posting=get_authority(account.public_key),

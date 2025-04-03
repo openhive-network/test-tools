@@ -4,13 +4,16 @@ import time
 import warnings
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import TYPE_CHECKING, Any, ParamSpec, cast
+from typing import TYPE_CHECKING, Any, ParamSpec
 
 from schemas.decoders import is_matching_model
 from schemas.fields.assets import AssetHive
+from schemas.fields.assets._base import AssetNaiAmount
 from schemas.fields.basic import AccountName, EmptyList, PrivateKey, PublicKey
 from schemas.fields.compound import Authority, HbdExchangeRate, LegacyChainProperties, Proposal
-from schemas.operations import AnyHf26Operation, Hf26OperationRepresentation, Hf26Operations, convert_to_representation
+from schemas.fields.hive_datetime import HiveDateTime
+from schemas.fields.integers import Int64t
+from schemas.operations import AnyHf26Operation, Hf26OperationRepresentation, Hf26Operations
 from schemas.operations.account_create_operation import AccountCreateOperation
 from schemas.operations.account_create_with_delegation_operation import AccountCreateWithDelegationOperation
 from schemas.operations.account_update_operation import AccountUpdateOperation
@@ -112,6 +115,7 @@ if TYPE_CHECKING:
         ListRcAccounts,
         ListRcDirectDelegations,
         ListWitnesses,
+        _GetActiveWitnesseslist,
     )
     from schemas.fields.assets import AssetHbd, AssetVests
     from schemas.fields.hex import Hex
@@ -204,9 +208,7 @@ class Api:
         self, operations: list[Hf26Operations], broadcast: bool | None, blocking: bool
     ) -> None | WalletResponseBase | WalletResponse:
         broadcast = self.__handle_broadcast_parameter(broadcast)
-        # operations_representations = []
         # for op in operations:
-        #     operations_representations.append(convert_to_representation(op))
         if not self.__is_transaction_build_in_progress():
             return self.__wallet._prepare_and_send_transaction(operations, blocking, broadcast)
         for operation in operations:
@@ -512,7 +514,7 @@ class Api:
                 creator=creator,
                 new_account_name=new_account_name,
                 json_metadata=json_meta,
-                fee=self.__wallet._force_connected_node.api.wallet_bridge.get_chain_properties().account_creation_fee.as_serialized_nai(),
+                fee=self.__wallet._force_connected_node.api.wallet_bridge.get_chain_properties().account_creation_fee,
                 owner=get_authority(owner_key["pub_key"]),
                 active=get_authority(active_key["pub_key"]),
                 posting=get_authority(posting_key["pub_key"]),
@@ -720,7 +722,7 @@ class Api:
                     broadcast=broadcast,
                 )
 
-            if initial_amount > AssetHive(0):
+            if initial_amount > AssetHive(AssetNaiAmount(0)):
                 self.transfer(from_=creator, to=new_account_name, amount=initial_amount, memo=memo)
 
         return trx
@@ -796,8 +798,8 @@ class Api:
             CreateProposalOperation(
                 creator=creator,
                 receiver=receiver,
-                start_date=start_date,
-                end_date=end_date,
+                start_date=start_date if isinstance(start_date, HiveDateTime) else HiveDateTime(start_date),
+                end_date=end_date if isinstance(end_date, HiveDateTime) else HiveDateTime(end_date),
                 daily_pay=daily_pay,
                 subject=subject,
                 permlink=permlink,
@@ -1140,11 +1142,15 @@ class Api:
                 to=to,
                 agent=agent,
                 escrow_id=escrow_id,
-                hbd_amount=hbd_amount.as_serialized_nai(),
-                hive_amount=hive_amount.as_serialized_nai(),
-                fee=fee.as_serialized_nai(),
-                ratification_deadline=ratification_deadline,
-                escrow_expiration=escrow_expiration,
+                hbd_amount=hbd_amount,
+                hive_amount=hive_amount,
+                fee=fee,
+                ratification_deadline=ratification_deadline
+                if isinstance(ratification_deadline, HiveDateTime)
+                else HiveDateTime(ratification_deadline),
+                escrow_expiration=escrow_expiration
+                if isinstance(escrow_expiration, HiveDateTime)
+                else HiveDateTime(escrow_expiration),
                 json_meta=json_meta,
             ),
             broadcast=broadcast,
@@ -1179,7 +1185,7 @@ class Api:
     @warn_if_only_result_set()
     def find_proposals(
         self, proposal_ids: list[int], as_list: bool = False, only_result: bool | None = None  # noqa: ARG002
-    ) -> FindProposals | HiveList[Proposal[AssetHbd]]:
+    ) -> FindProposals | HiveList[Proposal]:
         """
         Finds proposals by their IDs.
 
@@ -1300,7 +1306,7 @@ class Api:
     @warn_if_only_result_set()
     def get_active_witnesses(
         self, include_future: bool, only_witnesses: bool = False, only_result: bool | None = None  # noqa: ARG002
-    ) -> list[AccountNameApiType] | GetActiveWitnesses:
+    ) -> _GetActiveWitnesseslist | GetActiveWitnesses:
         """
         Retrieves the list of active witnesses.
 
@@ -1641,7 +1647,7 @@ class Api:
         :param only_result: This argument is no longer active and should not be provided.
         :return:  The list of accounts created with this wallet.
         """
-        keys = cast(list[str], self.__wallet.beekeeper_wallet.public_keys)
+        keys = self.__wallet.beekeeper_wallet.public_keys
 
         return self.__wallet._force_connected_node.api.wallet_bridge.list_my_accounts(keys)
 
@@ -1976,7 +1982,7 @@ class Api:
         :return: The response from the blockchain.
         """
         return self.__send_one_op(
-            RemoveProposalOperation(proposal_owner=deleter, proposal_ids=ids),
+            RemoveProposalOperation(proposal_owner=deleter, proposal_ids=[Int64t(id_) for id_ in ids]),
             broadcast=broadcast,
         )
 
@@ -2125,7 +2131,7 @@ class Api:
         :return: The response from the blockchain.
         """
         if update_tapos:
-            operations = [operation.value for operation in tx.operations]  # type: ignore[attr-defined]
+            operations = [operation.value for operation in tx.operations]
             return self.__wallet.send(operations=operations, blocking=True, broadcast=broadcast)
         trx = self.__wallet.complex_transaction_sign(tx)
         return self.__wallet.broadcast_transaction(transaction=trx, blocking=True, broadcast=broadcast)
@@ -2544,7 +2550,7 @@ class Api:
         if end_date:
             return self.__send_one_op(
                 UpdateProposalOperation(
-                    proposal_id=proposal_id,
+                    proposal_id=Int64t(proposal_id),
                     creator=creator,
                     daily_pay=daily_pay,
                     subject=subject,
@@ -2555,7 +2561,7 @@ class Api:
             )
         return self.__send_one_op(
             UpdateProposalOperation(
-                proposal_id=proposal_id,
+                proposal_id=Int64t(proposal_id),
                 creator=creator,
                 daily_pay=daily_pay,
                 subject=subject,
@@ -2587,7 +2593,7 @@ class Api:
         return self.__send_one_op(
             UpdateProposalVotesOperation(
                 voter=voter,
-                proposal_ids=proposals,
+                proposal_ids=[Int64t(id_) for id_ in proposals],
                 approve=approve,
             ),
             broadcast=broadcast,

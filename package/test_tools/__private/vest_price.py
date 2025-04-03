@@ -27,7 +27,7 @@ class VestPrice:
         return cls(quote=dgpo.total_vesting_shares, base=dgpo.total_vesting_fund_hive)
 
     def as_nai(self) -> dict[str, dict[str, str]]:
-        return {"quote": self.quote.dict(), "base": self.base.dict()}
+        return {"quote": self.quote.as_nai(), "base": self.base.as_nai()}
 
-    def as_schema(self) -> Price[Hf26Asset.HiveT, Hf26Asset.HbdT, Hf26Asset.VestsT]:
+    def as_schema(self) -> Price:
         return Price(base=self.base, quote=self.quote)
