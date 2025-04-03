@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 from loguru import logger
 
+from schemas.fields.assets import AssetHive
 from schemas.fields.compound import Authority
 from schemas.fields.hive_int import HiveInt
 from schemas.operations.account_create_operation import AccountCreateOperation
@@ -26,7 +27,6 @@ from test_tools.__private.wax_wrapper import (
     get_tapos_data,
     validate_transaction,
 )
-from wax.helpy._interfaces.asset.asset import Asset
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -36,14 +36,14 @@ if TYPE_CHECKING:
     from beekeepy.interfaces import HttpUrl
 
     from schemas.fields.basic import PublicKey
-    from schemas.operations import AnyOperationRepresentation
+    from schemas.operations import Hf26Operations
     from test_tools.__private.node import Node
 
     AnyNode = Node | RemoteNode
 
 
 def get_authority(key: PublicKey | str) -> Authority:
-    return Authority(weight_threshold=1, account_auths=[], key_auths=[[key, 1]])
+    return Authority(weight_threshold=HiveInt(1), account_auths=[], key_auths=[[key, 1]])
 
 
 def generate_transaction_template(node: RemoteNode) -> SimpleTransaction:
@@ -90,7 +90,7 @@ def sign_transaction(
 
 
 def prepare_transaction(
-    operations: list[AnyOperationRepresentation], node: RemoteNode, beekeeper_wallet: UnlockedWallet
+    operations: list[Hf26Operations], node: RemoteNode, beekeeper_wallet: UnlockedWallet
 ) -> WalletResponseBase:
     transaction = generate_transaction_template(node)
 
@@ -98,7 +98,7 @@ def prepare_transaction(
 
     for operation in operations:
         if isinstance(operation, AccountCreateOperation):
-            operation.fee = account_creation_fee  # type: ignore[assignment]
+            operation.fee = account_creation_fee
         transaction.add_operation(operation)
     transaction = sign_transaction(node, transaction, beekeeper_wallet)
 
@@ -139,7 +139,7 @@ def send_transaction(  # noqa: C901
             logger.debug(f"Accounts created: {accounts_range_message}")
 
     def broadcast_transaction(
-        operations: list[AnyOperationRepresentation], node: RemoteNode, beekeeper_wallet: UnlockedWallet
+        operations: list[Hf26Operations], node: RemoteNode, beekeeper_wallet: UnlockedWallet
     ) -> bool:
         def prepare_and_broadcast() -> None:
             trx = prepare_transaction(operations, node, beekeeper_wallet)
@@ -152,7 +152,7 @@ def send_transaction(  # noqa: C901
             fail_message=f"Failed to send transaction: {accounts_range_message}",
         )
 
-    operations: list[AnyOperationRepresentation] = []
+    operations: list[Hf26Operations] = []
     beekeeper = packed_beekeeper.unpack()
     node = RemoteNode(http_endpoint=node_address)
 
@@ -162,7 +162,7 @@ def send_transaction(  # noqa: C901
             creator="initminer",
             new_account_name=account.name,
             json_metadata="{}",
-            fee=Asset.Test(1).as_nai(),
+            fee=AssetHive(1),
             owner=get_authority(account.public_key),
             active=get_authority(account.public_key),
             posting=get_authority(account.public_key),

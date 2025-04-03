@@ -1,18 +1,13 @@
 from __future__ import annotations
 
 from enum import Enum
-from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
-
-import msgspec
 
 from schemas._preconfigured_base_model import PreconfiguredBaseModel
 from test_tools.__private.user_handles import context
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
-    from schemas.decoders import T
+    from pathlib import Path
 
 
 class Protocol(str, Enum):
@@ -20,12 +15,12 @@ class Protocol(str, Enum):
     pickle = "pickle"
 
 
-class InitialVesting(msgspec.Struct):
+class InitialVesting(PreconfiguredBaseModel):
     vests_per_hive: int
     hive_amount: int
 
 
-class HardforkSchedule(msgspec.Struct):
+class HardforkSchedule(PreconfiguredBaseModel):
     hardfork: int
     block_num: int
 
@@ -53,16 +48,10 @@ class AlternateChainSpecs(PreconfiguredBaseModel):
             json_file.write(self.json(exclude_none=True))
         return destination
 
-    @classmethod
-    def parse_file(
-        cls, path: str | Path, decoder_factory: Callable[[type[T]], msgspec.json.Decoder[T]]
-    ) -> AlternateChainSpecs:
-        if isinstance(path, str):
-            path = Path(path)
+    # @classmethod
+    # def parse_file(
+    #     cls, path: str | Path, decoder_factory: Callable[[type[T]], msgspec.json.Decoder[T]]
+    # ) -> AlternateChainSpecs:
+    #     if isinstance(path, str):
 
-        if path.is_dir():
-            path = path / cls.FILENAME
-
-        assert path.is_file(), f"Given path: `{path.as_posix()}` is not pointing to file!"
-
-        return super().parse_file(path, decoder_factory)
+    #     if path.is_dir():

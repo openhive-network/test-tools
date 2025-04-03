@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
+from schemas.fields.assets._base import AssetHive, AssetNaiAmount, HiveInt
 from wax import create_wax_foundation
 from wax._private.result_tools import (
     expose_result_as_python_string,
@@ -33,6 +34,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from schemas.apis.wallet_bridge_api.fundaments_of_responses import Account as AccountSchema
+    from schemas.fields.assets._base import AssetHbd
     from schemas.fields.basic import PublicKey
     from schemas.fields.compound import Authority, Price
     from schemas.transaction import Transaction
@@ -74,15 +76,13 @@ def to_wax_authority(account_authority: Authority) -> wax_authority:
         return result
 
     return wax_authority(
-        weight_threshold=account_authority.weight_threshold,
+        weight_threshold=account_authority.weight_threshold.value,
         account_auths=list_to_dict(account_authority.account_auths),
         key_auths=list_to_dict(account_authority.key_auths),
     )
 
 
-def to_wax_authorities(
-    account_authorities: AccountSchema[AssetHiveHF26, AssetHbdHF26, AssetVestsHF26]
-) -> wax_authorities:
+def to_wax_authorities(account_authorities: AccountSchema) -> wax_authorities:
     """
     Convert the given account authorities (api form) to python authorities (wax form).
 
@@ -276,10 +276,10 @@ def collect_signing_keys(
 
 
 def estimate_hive_collateral(
-    hbd_amount_to_get: AssetHbdHF26,
-    current_median_history: Price[AssetHiveHF26, AssetHbdHF26, AssetVestsHF26],
-    current_min_history: Price[AssetHiveHF26, AssetHbdHF26, AssetVestsHF26],
-) -> AssetHiveHF26:
+    hbd_amount_to_get: AssetHbd,
+    current_median_history: Price,
+    current_min_history: Price,
+) -> AssetHive:
     """
     Estimate the hive collateral for the given HBD amount to get.
 
@@ -296,13 +296,13 @@ def estimate_hive_collateral(
     """
     wax_base_api = create_wax_foundation()
     wax_asset = wax_base_api.estimate_hive_collateral(
-        current_median_history.base.dict(),
-        current_median_history.quote.dict(),
-        current_min_history.base.dict(),
-        current_min_history.quote.dict(),
-        hbd_amount_to_get.dict(),
+        current_median_history.base.as_nai(),
+        current_median_history.quote.as_nai(),
+        current_min_history.base.as_nai(),
+        current_min_history.quote.as_nai(),
+        hbd_amount_to_get.as_nai(),
     )
-    return AssetHiveHF26(amount=int(wax_asset.amount), nai=wax_asset.nai, precision=wax_asset.precision)
+    return AssetHive(amount=AssetNaiAmount(wax_asset.amount), nai=wax_asset.nai, precision=HiveInt(wax_asset.precision))
 
 
 def generate_password_based_private_key(account: AccountNameApiType, role: str, password: str) -> WaxPrivateKeyData:

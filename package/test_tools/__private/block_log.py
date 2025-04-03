@@ -11,7 +11,6 @@ from typing import ClassVar, Final, Literal, overload
 from schemas.apis.block_api.fundaments_of_responses import BlockLogUtilSignedBlockBase
 from test_tools.__private import paths_to_executables
 from test_tools.__private.exceptions import BlockLogError, BlockLogUtilError, MissingBlockLogArtifactsError
-from wax.helpy import Time, TimeFormats
 from wax.helpy._interfaces.time import Time, TimeFormats
 
 if typing.TYPE_CHECKING:
@@ -281,8 +280,8 @@ class BlockLog:
         head_block_num = self.get_head_block_number()
         head_block_timestamp = self.get_block(head_block_num).timestamp
         if serialize:
-            return Time.serialize(head_block_timestamp, format_=serialize_format)
-        return head_block_timestamp
+            return Time.serialize(head_block_timestamp.value, format_=serialize_format)
+        return head_block_timestamp.value
 
     @staticmethod
     def __raise_missing_artifacts_error(block_log_artifacts_path: Path) -> None:

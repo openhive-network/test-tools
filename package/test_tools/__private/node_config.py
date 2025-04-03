@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING, Any, TypeVar
 
 import msgspec
 
+from schemas._preconfigured_base_model import PreconfiguredBaseModel
+
 if TYPE_CHECKING:
     from typing_extensions import Self
 
@@ -38,7 +40,7 @@ class UniqueList(list[T]):
         raise NotImplementedError
 
 
-class NodeConfig(msgspec.Struct):
+class NodeConfig(PreconfiguredBaseModel):
     log_appender: str | None = None
     log_console_appender: str | None = None
     log_file_appender: str | None = None
@@ -128,14 +130,14 @@ class NodeConfig(msgspec.Struct):
     queen_block_size: int | None = None
     queen_tx_count: int | None = None
 
-    def _transform_lists(cls, value: Any) -> list[Any]:
+    def _transform_lists(self, value: Any) -> list[Any]:
         if value is None:
             return []
         if not isinstance(value, list):
             return [value]
         return value
 
-    def _transform_to_uniquelist(cls, value: Any) -> UniqueList[str]:
+    def _transform_to_uniquelist(self, value: Any) -> UniqueList[str]:
         if value is None or value == [] or value == UniqueList():
             return UniqueList()
         return UniqueList(value)
@@ -144,11 +146,25 @@ class NodeConfig(msgspec.Struct):
         assert isinstance(other, NodeConfig)
         return len(self.get_differences_between(other)) == 0
 
+    DictStrAny = dict[str, Any]
+
+    def dict(  # noqa: A003
+        self,
+        *,
+        exclude: dict[str] | None = None,
+        exclude_none: bool = False,
+        exclude_defaults: bool = False,
+    ) -> DictStrAny:
+        data = super().dict(exclude_none=exclude_none, exclude_defaults=exclude_defaults)
+        if exclude is not None:
+            return {k: v for k, v in data.items() if k not in exclude}
+        return data
+
     def get_differences_between(
         self, other: NodeConfig, stop_at_first_difference: bool = False
     ) -> dict[str, tuple[Any, Any]]:
         differences = {}
-        for name_of_entry in self.dict(by_alias=True, exclude=self.__comparison_excluded_values()):
+        for name_of_entry in self.dict(exclude=self.__comparison_excluded_values()):
             mine = getattr(self, name_of_entry)
             his = getattr(other, name_of_entry)
 
@@ -245,25 +261,15 @@ class NodeConfig(msgspec.Struct):
     def __comparison_excluded_values(cls) -> set[str]:
         return {"log_logger"}
 
-    DictStrAny = dict[str, Any]
+    # def dict(
+    #     self,
+    #     *,
+    # ) -> DictStrAny:
+    #     # Convert the object to a builtins dictionary first
 
-    def dict(  # noqa: A003
-        self,
-        *,
-        exclude_none: bool = False,
-        exclude_defaults: bool = False,
-    ) -> DictStrAny:
-        # Convert the object to a builtins dictionary first
-        data = msgspec.structs.asdict(self)
+    #     # Filter out keys based on the provided options
+    #     if exclude_none:
 
-        # Filter out keys based on the provided options
-        if exclude_none:
-            data = {key: value for key, value in data.items() if value is not None}
-
-        if exclude_defaults:
-            # Use __struct_defaults__ to compare against default values
-            if hasattr(self, "__struct_defaults__"):
-                defaults = dict(zip(self.__struct_fields__, self.__struct_defaults__))
-                data = {key: value for key, value in data.items() if key in defaults and value != defaults[key]}
-
-        return data
+    #     if exclude_defaults:
+    #         # Use __struct_defaults__ to compare against default values
+    #         if hasattr(self, "__struct_defaults__"):

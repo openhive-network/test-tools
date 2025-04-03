@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 ExecutableAvailableNames = Literal["hived", "cli_wallet", "get_dev_key", "compress_block_log", "block_log_util"]
 NodeTypesReturnType = Literal["testnet", "mirrornet", "mainnet"]
-NodeTypes: tuple[str, str, str] = get_args(NodeTypesReturnType)  # type: ignore[assignment]
+NodeTypes: tuple[str, str, str] = get_args(NodeTypesReturnType)
 
 
 class Executable:

@@ -50,7 +50,7 @@ if TYPE_CHECKING:
     from beekeepy._interface.abc.synchronous.session import Session
     from beekeepy._interface.abc.synchronous.wallet import UnlockedWallet
 
-    from schemas.operations import AnyOperationRepresentation
+    from schemas.operations import Hf26Operations
     from test_tools.__private.user_handles.handles.wallet_handle import WalletHandle
 
     AnyNode = Node | RemoteNode
@@ -109,7 +109,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         if self.__chain_id != "default":
             assert self.__chain_id.isdigit(), "Invalid chain_id value: it must be a digit string"
             chain_id = self.__chain_id[:64]
-            return Hex(Hex.validate(chain_id.ljust(64, "0")))
+            return Hex(chain_id.ljust(64, "0"))
         return node_config.HIVE_CHAIN_ID
 
     def __prepare_directory(self) -> None:
@@ -135,7 +135,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         return self._beekeeper_wallet
 
     def send(
-        self, operations: list[AnyOperationRepresentation], broadcast: bool, blocking: bool
+        self, operations: list[Hf26Operations], broadcast: bool, blocking: bool
     ) -> None | WalletResponseBase | WalletResponse:
         return self.api._send(operations, broadcast, blocking)
 
@@ -304,7 +304,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         )
 
     def _prepare_and_send_transaction(
-        self, operations: list[AnyOperationRepresentation], blocking: bool, broadcast: bool
+        self, operations: list[Hf26Operations], blocking: bool, broadcast: bool
     ) -> WalletResponseBase | WalletResponse:
         transaction = self.__generate_transaction_template(self._force_connected_node)
         for operation in operations:
@@ -331,9 +331,9 @@ class Wallet(UserHandleImplementation, ScopedObject):
                         if self._transaction_serialization == "hf26"
                         else calculate_legacy_transaction_id(transaction)
                     ),
-                    block_num=broadcast_response.block_num,
-                    transaction_num=broadcast_response.trx_num,
-                    rc_cost=broadcast_response.rc_cost,
+                    block_num=broadcast_response.block_num.value,
+                    transaction_num=broadcast_response.trx_num.value,
+                    rc_cost=broadcast_response.rc_cost.value if broadcast_response.rc_cost is not None else None,
                     ref_block_num=transaction.ref_block_num,
                     ref_block_prefix=transaction.ref_block_prefix,
                     expiration=transaction.expiration,

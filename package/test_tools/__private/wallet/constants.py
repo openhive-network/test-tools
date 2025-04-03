@@ -28,7 +28,7 @@ EmptyStringApiType = EmptyString | str
 HiveDateTimeApiType = HiveDateTime | datetime | str
 PublicKeyApiType = PublicKey | str
 WitnessUrlApiType = WitnessUrl | str
-HbdExchangeRateApiType = HbdExchangeRate | dict
+HbdExchangeRateApiType = HbdExchangeRate | dict[str]
 
 AuthorityType = Literal["active", "owner", "posting"]
 TransactionSerializationTypes = Literal["hf26", "legacy"]
@@ -58,10 +58,6 @@ class AuthorityHolder:
 
 
 class SimpleTransaction(Transaction):
-    def add_operation(self, operation: Operation) -> None:
-        representation = convert_to_representation(operation)
-        self.operations.append(representation)
-
     def add_operation(self, operation: Operation) -> None:
         representation = convert_to_representation(operation)
         self.operations.append(representation)
