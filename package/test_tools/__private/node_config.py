@@ -260,16 +260,3 @@ class NodeConfig(PreconfiguredBaseModel):
     @classmethod
     def __comparison_excluded_values(cls) -> set[str]:
         return {"log_logger"}
-
-    # def dict(
-    #     self,
-    #     *,
-    # ) -> DictStrAny:
-    #     # Convert the object to a builtins dictionary first
-
-    #     # Filter out keys based on the provided options
-    #     if exclude_none:
-
-    #     if exclude_defaults:
-    #         # Use __struct_defaults__ to compare against default values
-    #         if hasattr(self, "__struct_defaults__"):
