@@ -5,13 +5,15 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from pydantic import BaseModel, ConstrainedStr, Field, validator
+import msgspec
+
+from schemas._preconfigured_base_model import PreconfiguredBaseModel
 
 if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-class StringQuotedMarker(ConstrainedStr):
+class StringQuotedMarker(str):
     """Following string will be serialized with quotes and will be deserialized without them."""
 
 
@@ -38,13 +40,13 @@ class UniqueList(list[T]):
         raise NotImplementedError
 
 
-class NodeConfig(BaseModel, validate_assignment=True):
+class NodeConfig(PreconfiguredBaseModel):
     log_appender: str | None = None
     log_console_appender: str | None = None
     log_file_appender: str | None = None
     log_logger: str | None = None
     backtrace: str | None = None
-    plugin: UniqueList[str] = Field(default_factory=UniqueList)
+    plugin: UniqueList[str] = msgspec.field(default_factory=UniqueList)
     account_history_track_account_range: str | None = None
     track_account_range: str | None = None
     account_history_whitelist_ops: str | None = None
@@ -64,7 +66,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
     shared_file_size: str | None = None
     shared_file_full_threshold: str | None = None
     shared_file_scale_rate: str | None = None
-    checkpoint: UniqueList[tuple[int, str]] = Field(default_factory=UniqueList)
+    checkpoint: UniqueList[tuple[int, str]] = msgspec.field(default_factory=UniqueList)
     flush_state_interval: str | None = None
     cashout_logging_starting_block: str | None = None
     cashout_logging_ending_block: str | None = None
@@ -78,7 +80,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
     p2p_endpoint: str | None = None
     p2p_max_connections: str | None = None
     seed_node: str | None = None
-    p2p_seed_node: list[str] = Field(default_factory=list)
+    p2p_seed_node: list[str] = msgspec.field(default_factory=list)
     p2p_parameters: str | None = None
     rc_stats_report_type: str | None = None
     rc_stats_report_output: str | None = None
@@ -97,8 +99,8 @@ class NodeConfig(BaseModel, validate_assignment=True):
     webserver_thread_pool_size: str | None = None
     enable_stale_production: bool | None = None
     required_participation: int | None = None
-    witness: list[StringQuoted] = Field(default_factory=list)
-    private_key: list[str] = Field(default_factory=list)
+    witness: list[StringQuoted] = msgspec.field(default_factory=list)
+    private_key: list[str] = msgspec.field(default_factory=list)
     psql_url: str | None = None
     psql_index_threshold: int | None = None
     psql_operations_threads_number: int | None = None
@@ -128,18 +130,14 @@ class NodeConfig(BaseModel, validate_assignment=True):
     queen_block_size: int | None = None
     queen_tx_count: int | None = None
 
-    @validator("witness", "private_key", "p2p_seed_node", pre=True, always=True)
-    @classmethod
-    def _transform_lists(cls, value: Any) -> list[Any]:
+    def _transform_lists(self, value: Any) -> list[Any]:
         if value is None:
             return []
         if not isinstance(value, list):
             return [value]
         return value
 
-    @validator("plugin", "checkpoint", pre=True)
-    @classmethod
-    def _transform_to_uniquelist(cls, value: Any) -> UniqueList[str]:
+    def _transform_to_uniquelist(self, value: Any) -> UniqueList[str]:
         if value is None or value == [] or value == UniqueList():
             return UniqueList()
         return UniqueList(value)
@@ -148,15 +146,29 @@ class NodeConfig(BaseModel, validate_assignment=True):
         assert isinstance(other, NodeConfig)
         return len(self.get_differences_between(other)) == 0
 
+    DictStrAny = dict[str, Any]
+
+    def dict(
+        self,
+        *,
+        exclude: set[str] | None = None,
+        exclude_none: bool = False,
+        exclude_defaults: bool = False,
+    ) -> DictStrAny:
+        data = super().dict(exclude_none=exclude_none, exclude_defaults=exclude_defaults)
+        if exclude is not None:
+            return {k: v for k, v in data.items() if k not in exclude}
+        return data
+
     def get_differences_between(
         self, other: NodeConfig, stop_at_first_difference: bool = False
     ) -> dict[str, tuple[Any, Any]]:
         differences = {}
-        for name_of_entry in self.dict(by_alias=True, exclude=self.__comparison_excluded_values()):
+        for name_of_entry in self.dict(exclude=self.__comparison_excluded_values()):
             mine = getattr(self, name_of_entry)
             his = getattr(other, name_of_entry)
 
-            if mine == his or (isinstance(mine, list) and sorted(mine) == sorted(his)):
+            if mine == his or (isinstance(mine, list) and isinstance(his, list) and sorted(mine) == sorted(his)):
                 continue
 
             differences[name_of_entry] = (mine, his)
@@ -167,7 +179,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
 
     @classmethod
     def __is_member_quoted(cls, member_name: str) -> bool:
-        return "StringQuoted" in str(NodeConfig.__fields__[member_name].annotation)
+        return "StringQuoted" in NodeConfig.__annotations__[member_name]
 
     def write_to_lines(self) -> list[str]:  # noqa: C901
         def __serialize_depending_on_type(member_name: str, value: str | list[str] | bool | int) -> list[str]:
@@ -190,7 +202,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
             raise TypeError(member_name, value, type(value))
 
         result = []
-        for member_name, member_value in self.dict(by_alias=True).items():
+        for member_name, member_value in self.dict().items():
             if not (member_value is None or (isinstance(member_value, list) and len(member_value) == 0)):
                 result.extend(__serialize_depending_on_type(member_name, member_value))
         return result
@@ -201,7 +213,7 @@ class NodeConfig(BaseModel, validate_assignment=True):
         with file_path.open("w", encoding="utf-8") as file:
             file.write("\n".join(self.write_to_lines()))
 
-    def load_from_lines(self, lines: list[str]) -> None:
+    def load_from_lines(self, lines: list[str]) -> None:  # noqa: C901
         assert isinstance(lines, list)
 
         def parse_entry_line(line: str) -> tuple[str, str] | None:
@@ -225,27 +237,40 @@ class NodeConfig(BaseModel, validate_assignment=True):
                     return item.strip('"') if self.__is_member_quoted(member_name) else item
 
                 if value != "":
-                    if isinstance(attr := getattr(self, key), list):
-                        attr.extend(strip_item(key, item) for item in value.split(" "))
+                    attr = getattr(self, key)
+
+                    if isinstance(attr, list):
+                        items = [strip_item(key, item) for item in value.split(" ")]
+                        # Dodaj tylko te, których jeszcze nie ma
+                        for item in items:
+                            if item not in attr:
+                                attr.append(item)
                     else:
-                        setattr(self, key, strip_item(key, value))
+                        stripped = strip_item(key, value)
+                        if isinstance(attr, bool):
+                            setattr(self, key, stripped == "1")
+                        elif isinstance(attr, int):
+                            setattr(self, key, int(stripped))
+                        else:
+                            setattr(self, key, stripped)
 
     def __check_if_key_from_file_is_valid(self, key_to_check: str) -> None:
         """Keys from file have hyphens instead of underscores."""
-        valid_keys = [key.replace("_", "-") for key in self.dict(by_alias=True)]
+        valid_keys = [key.replace("_", "-") for key in self.dict()]
 
         if key_to_check not in valid_keys:
             raise KeyError(f'Unknown config entry name: "{key_to_check}".')
 
     def __clear_values(self) -> None:
-        for entry in self.dict():
-            setattr(self, entry, None)
+        for entry_key, entry_value in NodeConfig().dict().items():
+            setattr(self, entry_key, entry_value)
 
     def load_from_file(self, file_path: str | Path) -> None:
         if isinstance(file_path, str):
             file_path = Path(file_path)
         with file_path.open(encoding="utf-8") as file:
-            self.load_from_lines(file.readlines())
+            lines = file.readlines()
+            self.load_from_lines(lines)
 
     @classmethod
     def __comparison_excluded_values(cls) -> set[str]:

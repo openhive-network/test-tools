@@ -287,3 +287,4 @@ pyrightconfig.json
 **/*_path
 **/path_set_*
 **/path_of_*
+.qodo

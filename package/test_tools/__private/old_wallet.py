@@ -1410,7 +1410,6 @@ class OldWallet(UserHandleImplementation, ScopedObject):
             "method": method,
             "params": list(params),
         }
-
         return communication.request(endpoint, message, self.__use_nai_assets)
 
     @property

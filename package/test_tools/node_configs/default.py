@@ -22,7 +22,7 @@ def create_default_config(*, skip_address: bool = False) -> NodeConfig:
 
     return NodeConfig(
         **(
-            {
+            {  # type: ignore[arg-type]
                 "p2p_endpoint": "0.0.0.0:0",
                 "webserver_http_endpoint": "0.0.0.0:0",
                 "webserver_ws_endpoint": "0.0.0.0:0",
