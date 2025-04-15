@@ -75,4 +75,4 @@ class WalletResponseBase(SimpleTransaction):
 class WalletResponse(WalletResponseBase):
     block_num: int
     transaction_num: int
-    rc_cost: None | int
+    rc_cost: None | int = None
