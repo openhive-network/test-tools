@@ -30,6 +30,7 @@ loguru = "0.7.2"
 typing-extensions="4.12.2"
 beekeepy = "0.0.1.dev352+ef6b8c6"
 wax = "0.3.10.dev606+7d17dff"
+schemas = { git = "https://gitlab.syncad.com/hive/schemas.git", rev = "8af0f6e3f8a45cd4007bf611afcbeede312e1457" }
 
 
 [tool.poetry.group.dev.dependencies]
