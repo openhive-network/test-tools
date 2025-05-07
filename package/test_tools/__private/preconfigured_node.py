@@ -17,10 +17,12 @@ class PreconfiguredNode(RawNode):
 
         self._enable_api_plugins(
             plugins=[
+                "app_status_api",
                 "witness",
                 "account_by_key",
                 "account_by_key_api",
                 "state_snapshot",
+                "rc_api",
                 "block_api",
                 "database_api",
                 "debug_node_api",

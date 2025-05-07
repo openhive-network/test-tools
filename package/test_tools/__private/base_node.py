@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from beekeepy import Settings
 from beekeepy._communication.overseers import StrictOverseer
 
 from test_tools.__private.scope import context
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
-from wax.helpy import Hived
+from wax.helpy import HivedTemplate
 
 if TYPE_CHECKING:
     from beekeepy.interfaces import HttpUrl
@@ -16,12 +16,16 @@ if TYPE_CHECKING:
     from test_tools.__private.user_handles.handles.node_handles.node_handle_base import NodeHandleBase
 
 
-class BaseNode(UserHandleImplementation, Hived):
+class BaseNode(UserHandleImplementation, HivedTemplate[Settings]):
     def __init__(self, *, name: str, handle: NodeHandleBase | None = None) -> None:
-        self.__name = context.names.register_numbered_name(name)
+        self._set_name(name)
         super().__init__(
             handle=handle,
-            settings=Settings(period_between_retries=timedelta(seconds=0.5), max_retries=8, overseer=StrictOverseer),
+            settings=Settings(
+                period_between_retries=timedelta(seconds=0.5),
+                max_retries=8,
+                overseer=StrictOverseer,
+            ),
         )
 
     def __str__(self) -> str:
@@ -42,6 +46,6 @@ class BaseNode(UserHandleImplementation, Hived):
     def get_http_endpoint(self) -> HttpUrl:
         return self.http_endpoint
 
-    @property
-    def settings(self) -> Settings:
-        return cast(Settings, super().settings)
+    def _set_name(self, name: str) -> None:
+        if not hasattr(self, "_BaseNode__name"):
+            self.__name = context.names.register_numbered_name(name)

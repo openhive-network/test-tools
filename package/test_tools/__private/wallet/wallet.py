@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import shutil
 import warnings
-from datetime import timedelta
-from typing import TYPE_CHECKING, Any, get_args
+from datetime import datetime, timedelta, timezone
+from typing import TYPE_CHECKING, Any, Final, get_args
 
 from beekeepy import Beekeeper, Settings
 from beekeepy.communication import StrictOverseer
@@ -57,6 +57,10 @@ if TYPE_CHECKING:
 
 
 class Wallet(UserHandleImplementation, ScopedObject):
+    NODE_NOT_READY_DATETIME: Final[datetime] = datetime(
+        year=2016, month=1, day=1, hour=0, minute=0, second=0, tzinfo=timezone.utc
+    )
+
     def __init__(
         self,
         *,
@@ -146,10 +150,10 @@ class Wallet(UserHandleImplementation, ScopedObject):
         return str(self)
 
     def get_stdout_file_path(self) -> Path:
-        return self.directory / "stdout.txt"
+        return self.directory / "stdout.log"
 
     def get_stderr_file_path(self) -> Path:
-        return self.directory / "stderr.txt"
+        return self.directory / "stderr.log"
 
     def is_running(self) -> bool:
         return self._beekeeper_wallet is not None
@@ -285,6 +289,11 @@ class Wallet(UserHandleImplementation, ScopedObject):
         node: AnyNode,
     ) -> SimpleTransaction:
         gdpo = node.api.database.get_dynamic_global_properties()
+
+        while gdpo.time == self.NODE_NOT_READY_DATETIME:
+            node.wait_number_of_blocks(1)
+            gdpo = node.api.database.get_dynamic_global_properties()
+
         block_id = gdpo.head_block_id
 
         # set header

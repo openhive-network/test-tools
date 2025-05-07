@@ -75,7 +75,7 @@ class Network(UserHandleImplementation):
         endpoint = seed_node.get_p2p_endpoint()
 
         for node in nodes_connecting_to_seed:
-            node.config.p2p_seed_node.append(endpoint.as_string())
+            node.config.p2p_seed_node.append(endpoint)
             node.run(wait_for_live=wait_for_live, environment_variables=environment_variables)
 
     def connect_with(self, network: Network) -> None:
