@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from test_tools.__private.node import Node
 from test_tools.__private.user_handles.get_implementation import get_implementation
@@ -15,7 +15,9 @@ if TYPE_CHECKING:
     from test_tools.__private.alternate_chain_specs import AlternateChainSpecs
     from test_tools.__private.block_log import BlockLog
     from test_tools.__private.constants import CleanupPolicy
-    from test_tools.__private.node_config import NodeConfig
+    from test_tools.__private.process.node_arguments import NodeArguments
+    from test_tools.__private.process.node_config import NodeConfig
+    from test_tools.__private.process.node_process import HivedVersionOutput
     from test_tools.__private.snapshot import Snapshot
     from wax.helpy._interfaces.time import TimeControl
 
@@ -50,8 +52,8 @@ class RunnableNodeHandle(NodeHandleBase):
         """Returns path to directory, where node runs and generates its files."""
         return self.__implementation.directory
 
-    def dump_config(self) -> None:
-        """Saves node's config to file. Requires that node is not running."""
+    def dump_config(self) -> NodeConfig:
+        """Saves node's config to file and returns it as object. Requires that node is not running."""
         return self.__implementation.dump_config()
 
     def dump_snapshot(self, *, name: str = "snapshot", close: bool = False) -> Snapshot:
@@ -86,10 +88,10 @@ class RunnableNodeHandle(NodeHandleBase):
         exit_at_block: int | None = None,
         exit_before_synchronization: bool = False,
         wait_for_live: bool | None = None,
-        arguments: list[str] | tuple[str, ...] = (),
+        arguments: NodeArguments | None = None,
         environment_variables: dict[str, str] | None = None,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
-        time_control: TimeControl | str | None = None,
+        time_control: TimeControl | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
     ) -> None:
         """
@@ -123,7 +125,7 @@ class RunnableNodeHandle(NodeHandleBase):
             is reached, `TimeoutError` exception is thrown. Expressed in seconds.
         :param time_control:
             Allows to change system date and time a node sees (without changing real OS time). Can be specified either
-            absolutely, relatively and speed up or slow down clock. Value passed in `time_control` is written to
+            absolutely, relatively and speed up or slow down clock. TimeControl object is resolved to proper
             `FAKETIME` environment variable. For details and examples see libfaketime official documentation:
             https://github.com/wolfcw/libfaketime.
         :param alternate_chain_specs:
@@ -149,7 +151,7 @@ class RunnableNodeHandle(NodeHandleBase):
         self,
         wait_for_live: bool = True,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
-        time_control: TimeControl | str | None = None,
+        time_control: TimeControl | None = None,
     ) -> None:
         """
         Stops node and immediately starts it again. Whole restart is performed synchronously.
@@ -185,7 +187,7 @@ class RunnableNodeHandle(NodeHandleBase):
         """
         self.__implementation.wait_for_live_mode(timeout=timeout)
 
-    def get_version(self) -> dict[str, Any]:
+    def get_version(self) -> HivedVersionOutput:
         """Returns output from hived for --version flag."""
         return self.__implementation.get_version()
 

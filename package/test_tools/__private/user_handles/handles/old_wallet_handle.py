@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
-    from helpy import Hf26Asset as Asset
+    from wax.helpy import Hf26Asset as Asset
     from test_tools.__private.account import Account
 
 
