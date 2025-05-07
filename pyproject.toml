@@ -23,17 +23,14 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.12"
-requests = "2.32.3"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 loguru = "0.7.2"
-typing-extensions="4.12.2"
-beekeepy = "0.0.1.dev352+ef6b8c6"
-wax = "0.3.10.dev606+7d17dff"
+wax = "0.3.10.dev687+21a136bb"
 
 
 [tool.poetry.group.dev.dependencies]
-black = "22.8.0"
+black = "23.3.0"
 local-tools = { path = "tests/local-tools", develop = true }
 pre-commit = "2.21.0"
 mypy = "1.11.2"
