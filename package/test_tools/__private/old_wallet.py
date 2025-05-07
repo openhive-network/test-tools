@@ -1151,7 +1151,7 @@ class OldWallet(UserHandleImplementation, ScopedObject):
         environment_variables = dict(os.environ)
 
         if time_control is not None:
-            configure_fake_time(self.logger, environment_variables, time_control)
+            environment_variables.update(configure_fake_time(self.logger, time_control))
 
         # Process created here have to exist longer than current scope
         self.process = subprocess.Popen(

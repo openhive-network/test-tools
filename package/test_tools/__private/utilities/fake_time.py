@@ -8,8 +8,9 @@ if TYPE_CHECKING:
     from loguru import Logger
 
 
-def configure_fake_time(logger: Logger, env: dict[str, str], time_control: str) -> None:
+def configure_fake_time(logger: Logger, time_control: str) -> dict[str, str]:
     logger.info(f"Using time_control {time_control}")
+    env = {}
 
     env["LD_PRELOAD"] = get_fake_time_path(logger).as_posix()
     env["FAKETIME"] = time_control
@@ -17,10 +18,8 @@ def configure_fake_time(logger: Logger, env: dict[str, str], time_control: str) 
     env["FAKETIME_DONT_FAKE_MONOTONIC"] = "1"
     env["TZ"] = "UTC"
 
-    logger.debug(
-        "Following environments are set after fake time configuration:\n"
-        + str(dict(filter(lambda kv: kv[0].startswith("CI_"), env.items())))
-    )
+    logger.debug(f"Following environments are set after fake time configuration:\n{dict(env)}")
+    return env
 
 
 def get_fake_time_path(logger: Logger) -> Path:
