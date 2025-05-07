@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from test_tools.__private.node_config import NodeConfig
+    from test_tools.__private.process.node_config import NodeConfig
 
 
 def test_single_entry_serialization(config: NodeConfig) -> None:

@@ -1,25 +1,21 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import pytest
-
-if TYPE_CHECKING:
-    from test_tools.__private.node_config import NodeConfig
+from test_tools.__private.process.node_config import NodeConfig
 
 
 def test_single_value_loading(config: NodeConfig) -> None:
-    config.load_from_lines(["block-log-info-print-file = ILOG"])
+    config = NodeConfig.load_from_lines(["block-log-info-print-file = ILOG"])
     assert config.block_log_info_print_file == "ILOG"
 
 
-def test_incorrect_value_with_underscores_loading(config: NodeConfig) -> None:
+def test_incorrect_value_with_underscores_loading() -> None:
     with pytest.raises(KeyError):
-        config.load_from_lines(["block_log_info_print_file = ILOG"])
+        NodeConfig.load_from_lines(["block_log_info_print_file = ILOG"])
 
 
-def test_double_quoted_string_loading(config: NodeConfig) -> None:
-    config.load_from_lines(
+def test_double_quoted_string_loading() -> None:
+    config = NodeConfig.load_from_lines(
         [
             'account-history-rocksdb-path = "blockchain/account-history-rocksdb-storage"',
             'shared-file-dir = "blockchain"',
@@ -28,18 +24,18 @@ def test_double_quoted_string_loading(config: NodeConfig) -> None:
     )
 
     # Output should not contain double quotes inside string
-    assert config.account_history_rocksdb_path == "blockchain/account-history-rocksdb-storage"
-    assert config.shared_file_dir == "blockchain"
-    assert config.snapshot_root_dir == "snapshot"
+    assert str(config.account_history_rocksdb_path) == "blockchain/account-history-rocksdb-storage"
+    assert str(config.shared_file_dir) == "blockchain"
+    assert str(config.snapshot_root_dir) == "snapshot"
 
 
-def test_correct_plugins(config: NodeConfig) -> None:
-    config.load_from_lines(["plugin = witness p2p account_by_key"])
+def test_correct_plugins() -> None:
+    config = NodeConfig.load_from_lines(["plugin = witness p2p account_by_key"])
     assert all(plugin in config.plugin for plugin in ["witness", "p2p", "account_by_key"])
 
 
-def test_single_line_entry_loading(config: NodeConfig) -> None:
-    config.load_from_lines(
+def test_single_line_entry_loading() -> None:
+    config = NodeConfig.load_from_lines(
         [
             "plugin = account_by_key",
             "plugin = condenser_api",
@@ -50,8 +46,8 @@ def test_single_line_entry_loading(config: NodeConfig) -> None:
     assert "condenser_api" in config.plugin
 
 
-def test_multi_line_entry_loading(config: NodeConfig) -> None:
-    config.load_from_lines(
+def test_multi_line_entry_loading() -> None:
+    config = NodeConfig.load_from_lines(
         [
             'witness = "initminer"',
             'witness = "other-witness"',
@@ -66,14 +62,14 @@ def test_multi_line_entry_loading(config: NodeConfig) -> None:
     assert "5JcCHFFWPW2DryUFDVd7ZXVj2Zo67rqMcvcq5inygZGBAPR1JoR" in config.private_key
 
 
-def test_entry_without_value_loading(config: NodeConfig) -> None:
-    config.load_from_lines(["plugin = "])
+def test_entry_without_value_loading() -> None:
+    config = NodeConfig.load_from_lines(["plugin = "])
 
     assert not config.plugin
 
 
-def test_if_entries_without_value_not_clears_previous(config: NodeConfig) -> None:
-    config.load_from_lines(
+def test_if_entries_without_value_not_clears_previous() -> None:
+    config = NodeConfig.load_from_lines(
         [
             "plugin = account_by_key",
             "plugin = condenser_api",
@@ -84,12 +80,12 @@ def test_if_entries_without_value_not_clears_previous(config: NodeConfig) -> Non
     assert config.plugin == ["account_by_key", "condenser_api"]
 
 
-def test_unknown_entry_loading(config: NodeConfig) -> None:
+def test_unknown_entry_loading() -> None:
     # ARRANGE
     unknown_entry_name = "unknown_entry"
 
     # ACT & ASSERT
     with pytest.raises(KeyError) as exception:
-        config.load_from_lines([f"{unknown_entry_name} = 1"])
+        NodeConfig.load_from_lines([f"{unknown_entry_name} = 1"])
 
-    assert str(exception.value.args[0]) == f'Unknown config entry name: "{unknown_entry_name}".'
+    assert str(exception.value.args[0]) == f"Unknown config entry name: `{unknown_entry_name}`."

@@ -1,14 +1,9 @@
 # This test forces that create_default_config will be always up to date.
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import pytest
 import test_tools as tt
-from test_tools.node_configs.default import create_default_config
-
-if TYPE_CHECKING:
-    from test_tools.__private.node_config import NodeConfig
+from test_tools.__private.process.node_config import NodeConfig
 
 
 @pytest.fixture
@@ -21,7 +16,7 @@ def generated_config() -> NodeConfig:
 
 
 def test_default_config_values(generated_config: NodeConfig) -> None:
-    default_config = create_default_config(skip_address=True)
+    default_config = NodeConfig.default(skip_address=False)
     if default_config != generated_config:
         tt.logger.info("Found differences:")
         differences = default_config.get_differences_between(generated_config)
