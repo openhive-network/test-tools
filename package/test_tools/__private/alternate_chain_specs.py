@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from enum import Enum
+from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
 from schemas._preconfigured_base_model import PreconfiguredBaseModel
 from test_tools.__private.user_handles import context
 
 if TYPE_CHECKING:
-    from pathlib import Path
+    from schemas.decoders import DecoderFactory
 
 
 class Protocol(str, Enum):
@@ -48,10 +49,19 @@ class AlternateChainSpecs(PreconfiguredBaseModel):
             json_file.write(self.json(exclude_none=True))
         return destination
 
-    # @classmethod
-    # def parse_file(
-    #     cls, path: str | Path, decoder_factory: Callable[[type[T]], msgspec.json.Decoder[T]]
-    # ) -> AlternateChainSpecs:
-    #     if isinstance(path, str):
+    @classmethod
+    def parse_file(cls, path: Path, custom_decoder_factory: DecoderFactory | None = None) -> AlternateChainSpecs:
+        # Default decoder is hf26_decoder
+        if custom_decoder_factory is None:
+            from schemas.decoders import get_hf26_decoder
 
-    #     if path.is_dir():
+            custom_decoder_factory = get_hf26_decoder
+
+        if isinstance(path, str):
+            path = Path(path)
+
+        if path.is_dir():
+            path = path / AlternateChainSpecs.FILENAME
+
+        assert path.is_file(), f"Given path: `{path.as_posix()}` is not pointing to file!"
+        return super().parse_file(path, custom_decoder_factory)

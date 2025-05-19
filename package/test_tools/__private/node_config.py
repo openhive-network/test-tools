@@ -241,15 +241,16 @@ class NodeConfig(PreconfiguredBaseModel):
 
                     if isinstance(attr, list):
                         items = [strip_item(key, item) for item in value.split(" ")]
-                        # Dodaj tylko te, których jeszcze nie ma
                         for item in items:
                             if item not in attr:
                                 attr.append(item)
                     else:
+                        type_ = eval(self.__annotations__[key].split()[0])
+
                         stripped = strip_item(key, value)
-                        if isinstance(attr, bool):
-                            setattr(self, key, stripped == "1")
-                        elif isinstance(attr, int):
+                        if type_ is bool:
+                            setattr(self, key, bool(stripped))
+                        elif type_ is int:
                             setattr(self, key, int(stripped))
                         else:
                             setattr(self, key, stripped)
