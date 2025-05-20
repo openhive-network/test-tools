@@ -148,18 +148,6 @@ class NodeConfig(PreconfiguredBaseModel):
 
     DictStrAny = dict[str, Any]
 
-    def dict(
-        self,
-        *,
-        exclude: set[str] | None = None,
-        exclude_none: bool = False,
-        exclude_defaults: bool = False,
-    ) -> DictStrAny:
-        data = super().dict(exclude_none=exclude_none, exclude_defaults=exclude_defaults)
-        if exclude is not None:
-            return {k: v for k, v in data.items() if k not in exclude}
-        return data
-
     def get_differences_between(
         self, other: NodeConfig, stop_at_first_difference: bool = False
     ) -> dict[str, tuple[Any, Any]]:
@@ -176,6 +164,18 @@ class NodeConfig(PreconfiguredBaseModel):
                 break
 
         return differences
+
+    def dict(
+        self,
+        *,
+        exclude: set[str] | None = None,
+        exclude_none: bool = False,
+        exclude_defaults: bool = False,
+    ) -> DictStrAny:
+        data = super().dict(exclude_none=exclude_none, exclude_defaults=exclude_defaults)
+        if exclude is not None:
+            return {k: v for k, v in data.items() if k not in exclude}
+        return data
 
     @classmethod
     def __is_member_quoted(cls, member_name: str) -> bool:
