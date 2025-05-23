@@ -65,6 +65,8 @@ class Node(BaseNode, ScopedObject):
 
         self.__wallets: list[Wallet] = []
 
+        self.__is_testnet: bool | None = None
+
     @property
     def config_file_path(self) -> Path:
         return self.directory / "config.ini"
@@ -641,3 +643,8 @@ class Node(BaseNode, ScopedObject):
     def unregister_wallet(self, wallet: Wallet) -> None:
         if wallet in self.__wallets:
             self.__wallets.remove(wallet)
+
+    def is_testnet(self) -> bool:
+        if self.__is_testnet is None:
+            self.__is_testnet = (self.get_version()["version"]["node_type"]) == "testnet"
+        return self.__is_testnet
