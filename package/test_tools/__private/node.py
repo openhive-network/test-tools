@@ -91,6 +91,16 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
     def directory(self) -> Path:
         return self.settings.ensured_working_directory
 
+    @property
+    def shared_file_path(self) -> Path:
+        shm_path = None
+        if self.config.shared_file_dir is not None:
+            shm_path = Path(str(self.config.shared_file_dir))
+        else:
+            shm_path = self.directory / "state" / "mmapfiles"
+
+        return shm_path / "shared_memory.bin"
+
     def _get_settings(self) -> Settings:
         return self.settings
 
@@ -570,7 +580,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
 
     def __remove_unneeded_files(self) -> None:
         unneeded_files_or_directories = [
-            "blockchain/shared_memory.bin",
+            str(self.shared_file_path),
             "snapshot/",
         ]
 
@@ -585,7 +595,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
             self.__remove(unneeded_file)
 
     def __register_rocksdb_data_to_remove(self, unneeded_files_or_directories: list[str]) -> None:
-        rocksdb_directory = self.directory.joinpath("blockchain/account-history-rocksdb-storage")
+        rocksdb_directory = self.directory.joinpath("state/rocksdb/account-history-rocksdb-storage")
         if not rocksdb_directory:
             return
 
