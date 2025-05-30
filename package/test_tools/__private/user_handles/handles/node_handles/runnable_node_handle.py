@@ -52,6 +52,11 @@ class RunnableNodeHandle(NodeHandleBase):
         """Returns path to directory, where node runs and generates its files."""
         return self.__implementation.directory
 
+    @property
+    def shared_file_path(self) -> Path:
+        """Returns path to directory, where node stores its shared memory file."""
+        return self.__implementation.shared_file_path
+
     def dump_config(self) -> NodeConfig:
         """Saves node's config to file and returns it as object. Requires that node is not running."""
         return self.__implementation.dump_config()
