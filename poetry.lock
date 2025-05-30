@@ -178,12 +178,12 @@ tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pyte
 
 [[package]]
 name = "beekeepy"
-version = "0.0.1.dev360+74594c0"
+version = "0.0.1.dev361+79aa065"
 description = "All in one package for beekeeper interaction via Python interface."
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "beekeepy-0.0.1.dev360+74594c0-py3-none-any.whl", hash = "sha256:91a8be98a0c2384fb74490bb1d2adcc3f97710306805ff3ae9455b93b58fa44a"},
+    {file = "beekeepy-0.0.1.dev361+79aa065-py3-none-any.whl", hash = "sha256:c00757a329ad01647353cbc6f98b63d7f0dff135d42ea11970375966ed53e0dd"},
 ]
 
 [package.dependencies]
@@ -193,7 +193,7 @@ loguru = "0.7.2"
 pydantic = "1.10.18"
 python-dateutil = "2.8.2"
 requests = "2.32.3"
-schemas = "0.0.1.dev347+94ce3ba"
+schemas = "0.0.1.dev349+077a195"
 setuptools = "77.0.3"
 types-setuptools = "76.0.0.20250313"
 
@@ -1223,12 +1223,12 @@ files = [
 
 [[package]]
 name = "schemas"
-version = "0.0.1.dev347+94ce3ba"
+version = "0.0.1.dev349+077a195"
 description = "Tools for checking if message fits expected format"
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "schemas-0.0.1.dev347+94ce3ba-py3-none-any.whl", hash = "sha256:3d4181dc287e84e07b179c344e32508d144ee9ff39ac0c12a519cadd8e29c843"},
+    {file = "schemas-0.0.1.dev349+077a195-py3-none-any.whl", hash = "sha256:f42397a1e3b31d84292b9e6e17b235bb0c8d1743e86c1646d58524f58a8195cc"},
 ]
 
 [package.dependencies]
@@ -1345,17 +1345,17 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 
 [[package]]
 name = "wax"
-version = "0.3.10.dev649+7c6e70f5"
+version = "0.3.10.dev650+bdbee9ff"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "wax-0.3.10.dev649+7c6e70f5-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:e54ac0f3e82b0564a7f2b35e4ff37783e78c9f04967097201df4b5dcac7ac44b"},
+    {file = "wax-0.3.10.dev650+bdbee9ff-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:15e141ce244f6f7389b2424d6116f4e83af14621ec95e2cee039d3317ea00775"},
 ]
 
 [package.dependencies]
 aiohttp = "3.11.14"
-beekeepy = "0.0.1.dev360+74594c0"
+beekeepy = "0.0.1.dev361+79aa065"
 httpx = {version = "0.23.3", extras = ["http2"]}
 loguru = "0.7.2"
 protobuf = "4.24.4"
@@ -1480,4 +1480,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "525e1fa143261548a3241a8fb773f01b744587d35ecc8e661da12fb669cce92c"
+content-hash = "fa5ce8c5e83d6acb7b572f79d76fae0e8354184a3b63fba9b94f748381b5a8f8"
