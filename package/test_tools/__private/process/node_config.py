@@ -21,6 +21,7 @@ class NodeConfig(Config, ConfigurationCommonHived):  # type: ignore[misc]
     psql_operations_threads_number: int | None = None
     psql_transactions_threads_number: int | None = None
     psql_url: str | None = None
+    psql_livesync_threshold: int | None = None
     rpc_endpoint: str | None = None
     seed_node: str | None = None
     track_account_range: str | None = None
