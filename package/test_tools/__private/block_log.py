@@ -8,8 +8,12 @@ import typing
 from pathlib import Path
 from typing import ClassVar, Final, Literal, overload
 
-from schemas.apis.block_api.fundaments_of_responses import BlockLogUtilSignedBlock
-from schemas.transaction import Transaction
+import msgspec
+
+from schemas.apis.block_api.fundaments_of_responses import (
+    BlockLogUtilSignedBlockBaseTransaction,
+    BlockLogUtilSignedBlockBaseTransactionLegacy,
+)
 from test_tools.__private import paths_to_executables
 from test_tools.__private.exceptions import BlockLogError, BlockLogUtilError, MissingBlockLogArtifactsError
 from wax.helpy._interfaces.time import Time, TimeFormats
@@ -17,7 +21,8 @@ from wax.helpy._interfaces.time import Time, TimeFormats
 if typing.TYPE_CHECKING:
     from datetime import datetime
 
-BlockLogUtilResult = BlockLogUtilSignedBlock[Transaction]
+BlockLogUtilResultTransaction = BlockLogUtilSignedBlockBaseTransaction
+BlockLogUtilResultTransactionLegacy = BlockLogUtilSignedBlockBaseTransactionLegacy
 
 
 class BlockLog:
@@ -210,7 +215,7 @@ class BlockLog:
         block_log_arg = ["--block-log", str(block_files[-1])]
         return int(self.__run_and_get_output("--get-head-block-number", *block_log_arg))
 
-    def get_block(self, block_number: int) -> BlockLogUtilResult:
+    def get_block(self, block_number: int) -> BlockLogUtilResultTransaction | BlockLogUtilResultTransactionLegacy:
         """
         Returns a block from block_log.
 
@@ -231,8 +236,10 @@ class BlockLog:
             with contextlib.suppress(BlockLogUtilError):
                 output = self.__run_and_get_output("--get-block", *block_log_arg, *block_number_arg).replace("'", '"')
             if expected_str in output:
-                return BlockLogUtilResult(**json.loads(output))
-
+                try:
+                    return BlockLogUtilResultTransaction.parse_builtins(json.loads(output))
+                except msgspec.ValidationError:
+                    return BlockLogUtilResultTransactionLegacy.parse_builtins(json.loads(output))
         raise BlockLogUtilError(f"Block {block_number} not found or response malformed: `{output}`")
 
     def get_block_ids(self, block_number: int) -> str:

@@ -24,7 +24,7 @@ class RemoteNode(BaseNode):
         self.__ws_endpoint: WsUrl | None = WsUrl(ws_endpoint, protocol="ws") if ws_endpoint is not None else None
 
     def get_version(self) -> dict[str, str]:
-        return self.api.database.get_version().dict(by_alias=True)
+        return self.api.database.get_version().dict()
 
     def get_ws_endpoint(self) -> WsUrl | None:
         if self.__ws_endpoint is None:

@@ -67,6 +67,8 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
 
         self.__wallets: list[Wallet] = []
 
+        self.__is_testnet: bool | None = None
+
     @property
     def config(self) -> NodeConfig:
         return self.__process.config
@@ -735,3 +737,8 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
     def __validate_timeout(self, timeout: float) -> None:
         if timeout < 0:
             raise TimeoutError(f"Timeout must be greater than or equal to 0, but is: {timeout :.4f}")
+
+    def is_testnet(self) -> bool:
+        if self.__is_testnet is None:
+            self.__is_testnet = (self.get_version()["version"]["node_type"]) == "testnet"
+        return self.__is_testnet
