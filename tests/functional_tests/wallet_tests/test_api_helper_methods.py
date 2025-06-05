@@ -3,6 +3,8 @@ from __future__ import annotations
 import pytest
 import test_tools as tt
 
+from schemas.fields.assets._base import AssetNaiAmount
+
 
 @pytest.fixture
 def node(request: pytest.FixtureRequest) -> tt.InitNode:
@@ -39,7 +41,7 @@ def test_creation_of_huge_number_of_accounts(node: tt.InitNode, wallet: tt.Walle
         url="https://initminer.com",
         block_signing_key=tt.Account("initminer").public_key,
         props={
-            "account_creation_fee": tt.Asset.TestT(amount=1),
+            "account_creation_fee": tt.Asset.TestT(amount=AssetNaiAmount(1)),
             "maximum_block_size": 2097152,
             "hbd_interest_rate": 0,
         },
@@ -80,7 +82,7 @@ def test_creation_of_huge_number_of_accounts_and_import_keys(node: tt.InitNode, 
         url="https://initminer.com",
         block_signing_key=tt.Account("initminer").public_key,
         props={
-            "account_creation_fee": tt.Asset.TestT(amount=1),
+            "account_creation_fee": tt.Asset.TestT(amount=AssetNaiAmount(1)),
             "maximum_block_size": 2097152,
             "hbd_interest_rate": 0,
         },
