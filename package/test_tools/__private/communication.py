@@ -10,9 +10,9 @@ from typing import Any, Callable
 import requests
 
 from schemas.fields.assets import AssetBase
-from schemas.fields.json_string import JsonString
+from schemas.fields.resolvables import JsonString
 from schemas._preconfigured_base_model import PreconfiguredBaseModel
-from schemas.operations.representations import LegacyRepresentation
+from schemas.operations import AnyLegacyOperation
 from beekeepy.exceptions import UnableToAcquireDatabaseLockError, UnableToAcquireForkdbLockError, CommunicationError
 from loguru import logger
 from beekeepy.interfaces import HttpUrl
@@ -35,15 +35,15 @@ class LegacyJsonEncoder(CommonJsonEncoder):
     def default(self, o: Any):
         if isinstance(o, AssetBase):
             return o.as_legacy()
-        if isinstance(o, LegacyRepresentation):
-            return (o[0], o[1].dict(by_alias=True, exclude_none=True))
+        if isinstance(o, AnyLegacyOperation):
+            return (o[0], o[1].dict(exclude_none=True))
         return super().default(o)
 
 
 class Hf26JsonEncoder(CommonJsonEncoder):
     def default(self, o: Any):
         if isinstance(o, AssetBase):
-            return o.as_nai()
+            return o.as_serialized_nai()
         return super().default(o)
 
 
@@ -66,7 +66,13 @@ def __workaround_communication_problem_with_node(send_request: Callable) -> Call
 
 
 @__workaround_communication_problem_with_node
-def request(url: str, message: dict, use_nai_assets: bool = False, max_attempts=3, seconds_between_attempts=0.2):
+def request(
+    url: str,
+    message: dict,
+    use_nai_assets: bool = False,
+    max_attempts=3,
+    seconds_between_attempts=0.2,
+):
     assert max_attempts > 0
 
     json_encoder = LegacyJsonEncoder if not use_nai_assets else Hf26JsonEncoder
