@@ -7,12 +7,11 @@ from typing import TYPE_CHECKING, Final, Literal
 from schemas.fields.basic import AccountName, EmptyString, PrivateKey, PublicKey, WitnessUrl
 from schemas.fields.compound import HbdExchangeRate
 from schemas.fields.hive_datetime import HiveDateTime
-from schemas.operations.representations.hf26_representation import HF26Representation
-from schemas.operations.representations.legacy_representation import LegacyRepresentation
-from schemas.transaction import Transaction
+from schemas.operations import convert_to_representation, convert_to_representation_legacy
+from schemas.transaction import Transaction, TransactionLegacy
 
 if TYPE_CHECKING:
-    from schemas.operations import AnyOperation
+    from schemas.operation import Operation
     from test_tools.__private.node import Node
     from test_tools.__private.remote_node import RemoteNode
 
@@ -29,7 +28,7 @@ EmptyStringApiType = EmptyString | str
 HiveDateTimeApiType = HiveDateTime | datetime | str
 PublicKeyApiType = PublicKey | str
 WitnessUrlApiType = WitnessUrl | str
-HbdExchangeRateApiType = HbdExchangeRate | dict
+HbdExchangeRateApiType = HbdExchangeRate | dict[str, str]
 
 AuthorityType = Literal["active", "owner", "posting"]
 TransactionSerializationTypes = Literal["hf26", "legacy"]
@@ -59,13 +58,15 @@ class AuthorityHolder:
 
 
 class SimpleTransaction(Transaction):
-    def add_operation(self, operation: AnyOperation) -> None:
-        self.operations.append(HF26Representation(type=operation.get_name_with_suffix(), value=operation))
+    def add_operation(self, operation: Operation) -> None:
+        representation = convert_to_representation(operation)
+        self.operations.append(representation)
 
 
-class SimpleTransactionLegacy(Transaction):
-    def add_operation(self, operation: AnyOperation) -> None:
-        self.operations.append(LegacyRepresentation(type=operation.get_name(), value=operation))
+class SimpleTransactionLegacy(TransactionLegacy):
+    def add_operation(self, operation: Operation) -> None:
+        representation = convert_to_representation_legacy(operation)
+        self.operations.append(representation)
 
 
 class WalletResponseBase(SimpleTransaction):
@@ -75,4 +76,4 @@ class WalletResponseBase(SimpleTransaction):
 class WalletResponse(WalletResponseBase):
     block_num: int
     transaction_num: int
-    rc_cost: None | int
+    rc_cost: None | int = None

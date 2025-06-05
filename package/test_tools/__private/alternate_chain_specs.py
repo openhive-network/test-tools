@@ -1,24 +1,32 @@
 from __future__ import annotations
 
+from enum import Enum
 from pathlib import Path
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
-from pydantic import BaseModel, Protocol
-
+from schemas._preconfigured_base_model import PreconfiguredBaseModel
 from test_tools.__private.user_handles import context
 
+if TYPE_CHECKING:
+    from schemas.decoders import DecoderFactory
 
-class InitialVesting(BaseModel):
+
+class Protocol(str, Enum):
+    json = "json"
+    pickle = "pickle"
+
+
+class InitialVesting(PreconfiguredBaseModel):
     vests_per_hive: int
     hive_amount: int
 
 
-class HardforkSchedule(BaseModel):
+class HardforkSchedule(PreconfiguredBaseModel):
     hardfork: int
     block_num: int
 
 
-class AlternateChainSpecs(BaseModel):
+class AlternateChainSpecs(PreconfiguredBaseModel):
     FILENAME: ClassVar[str] = "alternate-chain-spec.json"
 
     genesis_time: int
@@ -42,15 +50,13 @@ class AlternateChainSpecs(BaseModel):
         return destination
 
     @classmethod
-    def parse_file(
-        cls: type[AlternateChainSpecs],
-        path: str | Path,
-        *,
-        content_type: str | None = None,
-        encoding: str = "utf8",
-        proto: Protocol | None = None,
-        allow_pickle: bool = False,
-    ) -> AlternateChainSpecs:
+    def parse_file(cls, path: Path, custom_decoder_factory: DecoderFactory | None = None) -> AlternateChainSpecs:
+        # Default decoder is hf26_decoder
+        if custom_decoder_factory is None:
+            from schemas.decoders import get_hf26_decoder
+
+            custom_decoder_factory = get_hf26_decoder
+
         if isinstance(path, str):
             path = Path(path)
 
@@ -58,6 +64,4 @@ class AlternateChainSpecs(BaseModel):
             path = path / AlternateChainSpecs.FILENAME
 
         assert path.is_file(), f"Given path: `{path.as_posix()}` is not pointing to file!"
-        return super().parse_file(
-            path, content_type=content_type, encoding=encoding, proto=proto, allow_pickle=allow_pickle  # type: ignore
-        )
+        return super().parse_file(path, custom_decoder_factory)

@@ -4,11 +4,20 @@ import time
 import warnings
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import TYPE_CHECKING, Any, ParamSpec, cast
+from typing import TYPE_CHECKING, Annotated, Any, ParamSpec, cast
 
+from schemas.decoders import is_matching_model
+from schemas.fields.assets import AssetHive
+from schemas.fields.assets._base import AssetNaiAmount
 from schemas.fields.basic import AccountName, EmptyList, PrivateKey, PublicKey
 from schemas.fields.compound import Authority, HbdExchangeRate, LegacyChainProperties, Proposal
-from schemas.operations import AnyOperation
+from schemas.fields.hive_datetime import HiveDateTime
+from schemas.fields.integers import Int64t
+from schemas.fields.resolvables import JsonString
+from schemas.operations import (
+    AnyHf26Operation,
+    Hf26Operations,
+)
 from schemas.operations.account_create_operation import AccountCreateOperation
 from schemas.operations.account_create_with_delegation_operation import AccountCreateWithDelegationOperation
 from schemas.operations.account_update_operation import AccountUpdateOperation
@@ -38,7 +47,10 @@ from schemas.operations.limit_order_create_operation import LimitOrderCreateOper
 from schemas.operations.recover_account_operation import RecoverAccountOperation
 from schemas.operations.recurrent_transfer_operation import RecurrentTransferOperation
 from schemas.operations.remove_proposal_operation import RemoveProposalOperation
-from schemas.operations.representations.hf26_representation import HF26Representation
+from schemas.operations.representation_types import (
+    HF26RepresentationDelegateRcOperation,
+    HF26RepresentationFollowOperation,
+)
 from schemas.operations.request_account_recovery_operation import RequestAccountRecoveryOperation
 from schemas.operations.set_withdraw_vesting_route_operation import SetWithdrawVestingRouteOperation
 from schemas.operations.transfer_from_savings_operation import TransferFromSavingsOperation
@@ -77,11 +89,11 @@ from test_tools.__private.wax_wrapper import (
 )
 from test_tools.__private.wax_wrapper import estimate_hive_collateral as wax_estimate_hive_collateral
 from wax.exceptions import WaxValidationFailedError
-from wax.helpy import Hf26Asset as Asset
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    import msgspec
     from beekeepy._interface.abc.synchronous.wallet import UnlockedWallet
 
     import schemas.apis.database_api.fundaments_of_reponses as fundaments_database_api
@@ -113,13 +125,11 @@ if TYPE_CHECKING:
         ListRcDirectDelegations,
         ListWitnesses,
     )
-    from schemas.fields.assets._base import AssetHF26
-    from schemas.fields.assets.hbd import AssetHbdHF26
-    from schemas.fields.assets.hive import AssetHiveHF26
-    from schemas.fields.assets.vests import AssetVestsHF26
+    from schemas.fields.assets import AssetHbd, AssetVests
     from schemas.fields.hex import Hex
     from schemas.fields.hive_int import HiveInt
     from schemas.fields.hive_list import HiveList
+    from schemas.fields.resolvables import AssetUnionAssetHiveAssetHbd
     from schemas.transaction import Transaction
     from test_tools.__private.node import Node
     from test_tools.__private.remote_node import RemoteNode
@@ -161,14 +171,14 @@ class Api:
         """Helper class for sending multiple operations in single transaction."""
 
         def __init__(self) -> None:
-            self.__operations: EmptyList | list[AnyOperation] = []
+            self.__operations: EmptyList | list[AnyHf26Operation] = []
 
         @property
-        def operations(self) -> EmptyList | list[AnyOperation]:
+        def operations(self) -> EmptyList | list[AnyHf26Operation]:
             return self.__operations
 
-        def _append_operation(self, operation: AnyOperation) -> None:
-            self.__operations.append(operation)
+        def _append_operation(self, operation: AnyHf26Operation) -> None:
+            self.__operations.append(operation)  # type: ignore[arg-type]
 
     def __init__(self, wallet: Wallet) -> None:
         self.__wallet: Wallet = wallet
@@ -191,26 +201,25 @@ class Api:
     ) -> WalletResponseBase | WalletResponse | None:
         if self.__transaction_builder is not None:
             transaction = self.__wallet._prepare_and_send_transaction(
-                operations=self.__transaction_builder.operations, broadcast=broadcast, blocking=blocking
+                operations=self.__transaction_builder.operations, broadcast=broadcast, blocking=blocking  # type: ignore[arg-type]
             )
             self.__transaction_builder = None
             return transaction
         return None
 
     def __send_one_op(
-        self, operation: AnyOperation, broadcast: bool | None, blocking: bool = True
+        self, operation: Hf26Operations, broadcast: bool | None, blocking: bool = True
     ) -> None | WalletResponseBase | WalletResponse:
         return self._send([operation], broadcast, blocking)
 
     def _send(
-        self, operations: list[AnyOperation], broadcast: bool | None, blocking: bool
+        self, operations: list[Hf26Operations], broadcast: bool | None, blocking: bool
     ) -> None | WalletResponseBase | WalletResponse:
         broadcast = self.__handle_broadcast_parameter(broadcast)
-
         if not self.__is_transaction_build_in_progress():
             return self.__wallet._prepare_and_send_transaction(operations, blocking, broadcast)
         for operation in operations:
-            self._transaction_builder._append_operation(operation)
+            self._transaction_builder._append_operation(operation)  # type: ignore[arg-type]
         return None
 
     def __handle_broadcast_parameter(self, broadcast: bool | None) -> bool:
@@ -241,7 +250,7 @@ class Api:
         return self.__transaction_builder is not None
 
     def __check_memo(self, account: AccountNameApiType, memo: str) -> None:
-        if isinstance(memo, PrivateKey):
+        if is_matching_model(memo, PrivateKey):
             try:
                 public_key = calculate_public_key(wif=memo)
             except WaxValidationFailedError:
@@ -357,7 +366,7 @@ class Api:
     def claim_account_creation(
         self,
         creator: AccountNameApiType,
-        fee: AssetHiveHF26,
+        fee: AssetHive,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
     ) -> None | WalletResponseBase | WalletResponse:
@@ -378,7 +387,7 @@ class Api:
     def claim_account_creation_nonblocking(
         self,
         creator: AccountNameApiType,
-        fee: AssetHiveHF26,
+        fee: AssetHive,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
     ) -> None | WalletResponseBase | WalletResponse:
@@ -403,9 +412,9 @@ class Api:
     def claim_reward_balance(
         self,
         account: AccountNameApiType,
-        reward_hive: AssetHiveHF26,
-        reward_hbd: AssetHbdHF26,
-        reward_vests: AssetVestsHF26,
+        reward_hive: AssetHive,
+        reward_hbd: AssetHbd,
+        reward_vests: AssetVests,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
     ) -> None | WalletResponseBase | WalletResponse:
@@ -433,7 +442,7 @@ class Api:
     def convert_hbd(
         self,
         from_: AccountNameApiType,
-        amount: AssetHbdHF26,
+        amount: AssetHbd,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
     ) -> None | WalletResponseBase | WalletResponse:
@@ -457,7 +466,7 @@ class Api:
     def convert_hive_with_collateral(
         self,
         from_: AccountNameApiType,
-        collateral_amount: AssetHiveHF26,
+        collateral_amount: AssetHive,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
     ) -> None | WalletResponseBase | WalletResponse:
@@ -512,7 +521,7 @@ class Api:
                 creator=creator,
                 new_account_name=new_account_name,
                 json_metadata=json_meta,
-                fee=self.__wallet._force_connected_node.api.wallet_bridge.get_chain_properties().account_creation_fee.as_nai(),
+                fee=self.__wallet._force_connected_node.api.wallet_bridge.get_chain_properties().account_creation_fee,
                 owner=get_authority(owner_key["pub_key"]),
                 active=get_authority(active_key["pub_key"]),
                 posting=get_authority(posting_key["pub_key"]),
@@ -526,8 +535,8 @@ class Api:
     def create_account_delegated(
         self,
         creator: AccountNameApiType,
-        hive_fee: AssetHiveHF26,
-        delegated_vests: AssetVestsHF26,
+        hive_fee: AssetHive,
+        delegated_vests: AssetVests,
         new_account_name: AccountNameApiType,
         json_meta: str,
         broadcast: bool | None = None,
@@ -617,8 +626,8 @@ class Api:
     def create_account_with_keys_delegated(
         self,
         creator: AccountNameApiType,
-        hive_fee: AssetHiveHF26,
-        delegated_vests: AssetVestsHF26,
+        hive_fee: AssetHive,
+        delegated_vests: AssetVests,
         newname: AccountNameApiType,
         json_meta: str,
         owner: PublicKeyApiType,
@@ -665,7 +674,7 @@ class Api:
         self,
         creator: AccountNameApiType,
         new_account_name: AccountNameApiType,
-        initial_amount: AssetHiveHF26,
+        initial_amount: AssetHive,
         memo: PublicKeyApiType,
         json_meta: str,
         owner_key: PublicKeyApiType,
@@ -720,7 +729,7 @@ class Api:
                     broadcast=broadcast,
                 )
 
-            if initial_amount > Asset.Test(0):
+            if initial_amount > AssetHive(AssetNaiAmount(0)):
                 self.transfer(from_=creator, to=new_account_name, amount=initial_amount, memo=memo)
 
         return trx
@@ -731,8 +740,8 @@ class Api:
         self,
         owner: AccountNameApiType,
         order_id: int,
-        amount_to_sell: AssetHiveHF26 | AssetHbdHF26,
-        min_to_receive: AssetHiveHF26 | AssetHbdHF26,
+        amount_to_sell: AssetUnionAssetHiveAssetHbd,
+        min_to_receive: AssetUnionAssetHiveAssetHbd,
         fill_or_kill: bool,
         expiration: int,
         broadcast: bool | None = None,
@@ -772,7 +781,7 @@ class Api:
         receiver: AccountNameApiType,
         start_date: HiveDateTimeApiType,
         end_date: HiveDateTimeApiType,
-        daily_pay: AssetHbdHF26,
+        daily_pay: AssetHbd,
         subject: str,
         permlink: str,
         broadcast: bool | None = None,
@@ -796,8 +805,8 @@ class Api:
             CreateProposalOperation(
                 creator=creator,
                 receiver=receiver,
-                start_date=start_date,
-                end_date=end_date,
+                start_date=start_date if isinstance(start_date, HiveDateTime) else HiveDateTime(start_date),
+                end_date=end_date if isinstance(end_date, HiveDateTime) else HiveDateTime(end_date),
                 daily_pay=daily_pay,
                 subject=subject,
                 permlink=permlink,
@@ -874,9 +883,7 @@ class Api:
             required_auths=[],
             required_posting_auths=[from_],
             id_="rc",
-            json_=HF26Representation(
-                type=delegate_rc_operation.get_name_with_suffix(), value=delegate_rc_operation
-            ).json(),
+            json_=cast(JsonString, HF26RepresentationDelegateRcOperation(value=delegate_rc_operation).json()),
         )
         return self.__send_one_op(
             operation=operation,
@@ -889,7 +896,7 @@ class Api:
         self,
         delegator: AccountNameApiType,
         delegatee: AccountNameApiType,
-        vesting_shares: Asset.VestsT,
+        vesting_shares: AssetVests,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
     ) -> None | WalletResponseBase | WalletResponse:
@@ -920,8 +927,8 @@ class Api:
         self,
         delegator: AccountNameApiType,
         delegatee: AccountNameApiType,
-        vesting_shares: Asset.VestsT,
-        transfer_amount: Asset.HiveT | Asset.HbdT,
+        vesting_shares: AssetVests,
+        transfer_amount: AssetUnionAssetHiveAssetHbd,
         transfer_memo: str,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
@@ -948,8 +955,8 @@ class Api:
         self,
         delegator: AccountNameApiType,
         delegatee: AccountNameApiType,
-        vesting_shares: Asset.VestsT,
-        transfer_amount: Asset.HiveT | Asset.HbdT,
+        vesting_shares: AssetVests,
+        transfer_amount: AssetUnionAssetHiveAssetHbd,
         transfer_memo: str,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
@@ -976,7 +983,7 @@ class Api:
         self,
         delegator: AccountNameApiType,
         delegatee: AccountNameApiType,
-        vesting_shares: Asset.VestsT,
+        vesting_shares: AssetVests,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
     ) -> None | WalletResponseBase | WalletResponse:
@@ -1066,8 +1073,8 @@ class Api:
         who: AccountNameApiType,
         receiver: AccountNameApiType,
         escrow_id: int,
-        hbd_amount: AssetHbdHF26,
-        hive_amount: AssetHiveHF26,
+        hbd_amount: AssetHbd,
+        hive_amount: AssetHive,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
     ) -> None | WalletResponseBase | WalletResponse:
@@ -1108,9 +1115,9 @@ class Api:
         to: AccountNameApiType,
         agent: AccountNameApiType,
         escrow_id: int,
-        hbd_amount: AssetHbdHF26,
-        hive_amount: AssetHiveHF26,
-        fee: AssetHiveHF26 | AssetHbdHF26,
+        hbd_amount: AssetHbd,
+        hive_amount: AssetHive,
+        fee: AssetUnionAssetHiveAssetHbd,
         ratification_deadline: HiveDateTimeApiType,
         escrow_expiration: HiveDateTimeApiType,
         json_meta: str,
@@ -1140,11 +1147,15 @@ class Api:
                 to=to,
                 agent=agent,
                 escrow_id=escrow_id,
-                hbd_amount=hbd_amount.as_nai(),
-                hive_amount=hive_amount.as_nai(),
-                fee=fee.as_nai(),
-                ratification_deadline=ratification_deadline,
-                escrow_expiration=escrow_expiration,
+                hbd_amount=hbd_amount,
+                hive_amount=hive_amount,
+                fee=fee,
+                ratification_deadline=ratification_deadline
+                if isinstance(ratification_deadline, HiveDateTime)
+                else HiveDateTime(ratification_deadline),
+                escrow_expiration=escrow_expiration
+                if isinstance(escrow_expiration, HiveDateTime)
+                else HiveDateTime(escrow_expiration),
                 json_meta=json_meta,
             ),
             broadcast=broadcast,
@@ -1152,8 +1163,8 @@ class Api:
 
     @warn_if_only_result_set()
     def estimate_hive_collateral(
-        self, hbd_amount_to_get: AssetHbdHF26, only_result: bool | None = None  # noqa: ARG002
-    ) -> AssetHF26:
+        self, hbd_amount_to_get: AssetHbd, only_result: bool | None = None  # noqa: ARG002
+    ) -> AssetHive:
         """
         Estimate hive collateral.
 
@@ -1179,7 +1190,7 @@ class Api:
     @warn_if_only_result_set()
     def find_proposals(
         self, proposal_ids: list[int], as_list: bool = False, only_result: bool | None = None  # noqa: ARG002
-    ) -> FindProposals | HiveList[Proposal[AssetHbdHF26]]:
+    ) -> FindProposals | HiveList[Proposal]:
         """
         Finds proposals by their IDs.
 
@@ -1244,7 +1255,7 @@ class Api:
             required_auths=[],
             required_posting_auths=[follower],
             id_="follow",
-            json_=HF26Representation(type=follow_operation.get_name_with_suffix(), value=follow_operation).json(),
+            json_=cast(JsonString, HF26RepresentationFollowOperation(value=follow_operation).json()),
         )
         return self.__send_one_op(
             operation=operation,
@@ -1298,7 +1309,7 @@ class Api:
     @warn_if_only_result_set()
     def get_active_witnesses(
         self, include_future: bool, only_witnesses: bool = False, only_result: bool | None = None  # noqa: ARG002
-    ) -> list[AccountNameApiType] | GetActiveWitnesses:
+    ) -> Annotated[list[AccountName], msgspec.Meta(min_length=1, max_length=21)] | GetActiveWitnesses:
         """
         Retrieves the list of active witnesses.
 
@@ -1483,7 +1494,7 @@ class Api:
         :param only_result: This argument is no longer active and should not be provided.
         :return: A dictionary representing the prototype operation.
         """
-        operations = getattr(AnyOperation, "__args__", None)
+        operations = getattr(AnyHf26Operation, "__args__", None)
         for operation in operations:  #  type: ignore[union-attr]
             if operation.get_name_with_suffix() == operation_type:
                 return {"type": operation.get_name(), "value": operation.__fields__}
@@ -1639,7 +1650,7 @@ class Api:
         :param only_result: This argument is no longer active and should not be provided.
         :return:  The list of accounts created with this wallet.
         """
-        keys = cast(list[str], self.__wallet.beekeeper_wallet.public_keys)
+        keys = self.__wallet.beekeeper_wallet.public_keys
 
         return self.__wallet._force_connected_node.api.wallet_bridge.list_my_accounts(keys)
 
@@ -1843,8 +1854,8 @@ class Api:
             FeedPublishOperation(
                 publisher=witness,
                 exchange_rate=HbdExchangeRate(
-                    base=exchange_rate["base"],
-                    quote=exchange_rate["quote"],
+                    base=exchange_rate["base"],  # type: ignore[arg-type]
+                    quote=exchange_rate["quote"],  # type: ignore[arg-type]
                 ),
             ),
             broadcast=broadcast,
@@ -1885,7 +1896,7 @@ class Api:
         self,
         from_: AccountNameApiType,
         to: AccountNameApiType,
-        amount: AssetHiveHF26 | AssetHbdHF26,
+        amount: AssetUnionAssetHiveAssetHbd,
         memo: str,
         recurrence: int,
         executions: int,
@@ -1919,7 +1930,7 @@ class Api:
         self,
         from_: AccountNameApiType,
         to: AccountNameApiType,
-        amount: AssetHiveHF26 | AssetHbdHF26,
+        amount: AssetUnionAssetHiveAssetHbd,
         memo: str,
         recurrence: int,
         executions: int,
@@ -1974,7 +1985,7 @@ class Api:
         :return: The response from the blockchain.
         """
         return self.__send_one_op(
-            RemoveProposalOperation(proposal_owner=deleter, proposal_ids=ids),
+            RemoveProposalOperation(proposal_owner=deleter, proposal_ids=[Int64t(id_) for id_ in ids]),
             broadcast=broadcast,
         )
 
@@ -2123,7 +2134,7 @@ class Api:
         :return: The response from the blockchain.
         """
         if update_tapos:
-            operations = [operation.value for operation in tx.operations]  # type: ignore[attr-defined]
+            operations = [operation.value for operation in tx.operations]
             return self.__wallet.send(operations=operations, blocking=True, broadcast=broadcast)
         trx = self.__wallet.complex_transaction_sign(tx)
         return self.__wallet.broadcast_transaction(transaction=trx, blocking=True, broadcast=broadcast)
@@ -2150,7 +2161,7 @@ class Api:
         self,
         from_: AccountNameApiType,
         to: AccountNameApiType,
-        amount: Asset.HiveT | Asset.HbdT,
+        amount: AssetUnionAssetHiveAssetHbd,
         memo: str,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
@@ -2179,7 +2190,7 @@ class Api:
         from_: AccountNameApiType,
         request_id: int,
         to: AccountNameApiType,
-        amount: AssetHiveHF26 | AssetHbdHF26,
+        amount: AssetUnionAssetHiveAssetHbd,
         memo: str,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
@@ -2208,7 +2219,7 @@ class Api:
         self,
         from_: AccountNameApiType,
         to: AccountNameApiType,
-        amount: Asset.HiveT | Asset.HbdT,
+        amount: AssetUnionAssetHiveAssetHbd,
         memo: str,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
@@ -2237,7 +2248,7 @@ class Api:
         self,
         from_: AccountNameApiType,
         to: AccountNameApiType,
-        amount: AssetHiveHF26 | AssetHbdHF26,
+        amount: AssetUnionAssetHiveAssetHbd,
         memo: str,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
@@ -2265,7 +2276,7 @@ class Api:
         self,
         from_: AccountNameApiType,
         to: AccountNameApiType | EmptyStringApiType,
-        amount: AssetHiveHF26,
+        amount: AssetHive,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
     ) -> None | WalletResponseBase | WalletResponse:
@@ -2290,7 +2301,7 @@ class Api:
         self,
         from_: AccountNameApiType,
         to: AccountNameApiType | EmptyStringApiType,
-        amount: AssetHiveHF26,
+        amount: AssetHive,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
     ) -> WalletResponseBase | WalletResponse | None:
@@ -2519,7 +2530,7 @@ class Api:
         self,
         proposal_id: int,
         creator: AccountNameApiType,
-        daily_pay: AssetHbdHF26,
+        daily_pay: AssetHbd,
         subject: str,
         permlink: str,
         end_date: datetime | str | None,
@@ -2542,7 +2553,7 @@ class Api:
         if end_date:
             return self.__send_one_op(
                 UpdateProposalOperation(
-                    proposal_id=proposal_id,
+                    proposal_id=Int64t(proposal_id),
                     creator=creator,
                     daily_pay=daily_pay,
                     subject=subject,
@@ -2553,7 +2564,7 @@ class Api:
             )
         return self.__send_one_op(
             UpdateProposalOperation(
-                proposal_id=proposal_id,
+                proposal_id=Int64t(proposal_id),
                 creator=creator,
                 daily_pay=daily_pay,
                 subject=subject,
@@ -2585,7 +2596,7 @@ class Api:
         return self.__send_one_op(
             UpdateProposalVotesOperation(
                 voter=voter,
-                proposal_ids=proposals,
+                proposal_ids=[Int64t(id_) for id_ in proposals],
                 approve=approve,
             ),
             broadcast=broadcast,
@@ -2598,7 +2609,7 @@ class Api:
         witness_name: AccountNameApiType,
         url: WitnessUrlApiType,
         block_signing_key: PublicKeyApiType,
-        props: LegacyChainProperties[AssetHiveHF26],
+        props: LegacyChainProperties,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
     ) -> None | WalletResponseBase | WalletResponse:
@@ -2699,7 +2710,7 @@ class Api:
     def withdraw_vesting(
         self,
         from_: AccountNameApiType,
-        vesting_shares: AssetVestsHF26,
+        vesting_shares: AssetVests,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
     ) -> None | WalletResponseBase | WalletResponse:

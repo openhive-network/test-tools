@@ -1,19 +1,25 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from dataclasses import dataclass
 
+from schemas.fields.basic import PrivateKey as PrivateKeyType
+from schemas.fields.basic import PublicKey as PublicKeyType
 from test_tools.__private.key_generator import KeyGenerator, KeyGeneratorItem
 
-if TYPE_CHECKING:
-    from schemas.fields.basic import PrivateKey as PrivateKeyType
-    from schemas.fields.basic import PublicKey as PublicKeyType
+
+@dataclass
+class SafeAccount:
+    secret: str
+    private_key: str
+    public_key: str
+    name: str
 
 
 class Account:
     def __init__(self, name_or_generated_item: str | KeyGeneratorItem, secret: str = "secret") -> None:
         self.__secret = secret
-        self.__private_key: PrivateKeyType | None = None
-        self.__public_key: PublicKeyType | None = None
+        self.__private_key: str | None = None
+        self.__public_key: str | None = None
         self.__name: str = ""
 
         if not isinstance(name_or_generated_item, str):
@@ -36,14 +42,19 @@ class Account:
         if self.__private_key is None:
             self.__generate_keys()
         assert self.__private_key is not None  # mypy check
-        return self.__private_key
+        return PrivateKeyType(self.__private_key)
 
     @property
     def public_key(self) -> PublicKeyType:
         if self.__public_key is None:
             self.__generate_keys()
         assert self.__public_key is not None  # mypy check
-        return self.__public_key
+        return PublicKeyType(self.__public_key)
+
+    def safe(self) -> SafeAccount:
+        return SafeAccount(
+            name=str(self.name), private_key=str(self.private_key), public_key=str(self.public_key), secret=self.secret
+        )
 
     @staticmethod
     def create_multiple(
