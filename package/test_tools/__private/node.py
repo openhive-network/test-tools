@@ -615,7 +615,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         self.__wait_for_status(
             timeout=timeout,
             predicate=lambda _, s: "entering live mode" in s.statuses,
-            message="replay was not finished",
+            message=f"{self.get_name()}: Live mode not activated on time.",
         )
 
     def wait_for_api_or_live_mode(self, timeout: float = math.inf) -> None:
@@ -623,7 +623,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         self.__wait_for_status(
             timeout=timeout,
             predicate=lambda _, s: (("entering live mode" in s.statuses) or ("entering API mode" in s.statuses)),
-            message="replay was not finished",
+            message=f"{self.get_name()}: API or live mode not activated on time.",
         )
 
     def wait_for_chain_api_ready(self, timeout: float = math.inf) -> None:
