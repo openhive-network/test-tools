@@ -14,6 +14,8 @@ from test_tools.__private import (
 from test_tools.__private.account import Account, PrivateKey, PublicKey
 from test_tools.__private.alternate_chain_specs import AlternateChainSpecs, HardforkSchedule, InitialVesting
 from test_tools.__private.block_log import BlockLog
+from test_tools.__private.process.node_arguments import NodeArguments
+from test_tools.__private.process.node_config import NodeConfig
 from test_tools.__private.snapshot import Snapshot
 
 # User handles
@@ -53,6 +55,8 @@ __all__ = [
     "Time",
     "TimeFormats",
     "Wallet",
+    "NodeArguments",
+    "NodeConfig",
     "WitnessNode",
     "cleanup_policy",
     "constants",
