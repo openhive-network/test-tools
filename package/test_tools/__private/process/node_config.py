@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Final, Literal, TypeGuard, overload
+from typing import Any, Final, TypeGuard, overload
 
 from beekeepy.handle.runnable import Config
 from beekeepy.interfaces import HttpUrl, P2PUrl, Url, WsUrl
@@ -40,10 +40,10 @@ class NodeConfig(Config):
     account_history_rocksdb_track_account_range: str | None = None
     account_history_rocksdb_whitelist_ops: str | None = None
     backtrace: BacktraceAllowedValues | None = None
-    block_data_export_file: Path | Literal["NONE"] | None = None
+    block_data_export_file: str | None = None
     block_data_skip_empty: bool | None = None
     block_log_compression_level: int | None = None
-    block_log_info_print_file: SinkAllowedValues | Path | None = None
+    block_log_info_print_file: SinkAllowedValues | str | None = None
     block_log_info_print_interval_seconds: int | None = None
     block_log_info_print_irreversible: int | None = None
     block_log_split: int | None = None
