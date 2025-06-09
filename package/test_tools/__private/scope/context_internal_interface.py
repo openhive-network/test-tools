@@ -25,7 +25,8 @@ class ContextInternalHandle:
         return self.__context.get_current_directory()
 
     def get_current_directory(self) -> Path:
-        assert self.__current_directory.exists()
+        if not self.__current_directory.exists():
+            self.__current_directory.mkdir()
         return self.__current_directory
 
     def get_logger(self) -> Logger:
