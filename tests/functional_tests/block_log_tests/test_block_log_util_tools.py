@@ -6,8 +6,6 @@ import pytest
 import test_tools as tt
 from test_tools.__private.exceptions import BlockLogUtilError
 
-from schemas.apis.block_api.response_schemas import GetBlockBase
-
 
 @pytest.fixture
 def node() -> tt.InitNode:
@@ -35,9 +33,8 @@ def test_get_block(node: tt.InitNode) -> None:
     node.close()
 
     block_from_block_log = block_log.get_block(block_number=10)
-    assert isinstance(block_from_node, GetBlockBase)
     assert (
-        block_from_node.block.previous == block_from_block_log.previous
+        block_from_node.ensure.block.previous == block_from_block_log.previous
     ), "Get_block from block_log getting other block than get_block from node"
 
 
@@ -97,9 +94,8 @@ def test_get_block_ids(node: tt.InitNode) -> None:
     node.close()
 
     block_id_from_block_log = block_log.get_block_ids(block_number=10)
-    assert isinstance(block_id_from_node, GetBlockBase)
     assert (
-        block_id_from_node.block.block_id == block_id_from_block_log
+        block_id_from_node.ensure.block.block_id == block_id_from_block_log
     ), "The block_id in node differs from the block_id in block_log."
 
 
