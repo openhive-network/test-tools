@@ -93,6 +93,7 @@ class RunnableNodeHandle(NodeHandleBase):
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
         time_control: TimeControl | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
+        explicit_blocking: bool = False,
     ) -> None:
         """
         Starts node synchronously. By default, program execution is blocked until node enters live mode (see `wait_for_live` parameter for details).
@@ -145,6 +146,7 @@ class RunnableNodeHandle(NodeHandleBase):
             timeout=timeout,
             time_control=time_control,
             alternate_chain_specs=alternate_chain_specs,
+            explicit_blocking=explicit_blocking,
         )
 
     def restart(

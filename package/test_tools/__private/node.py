@@ -250,6 +250,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
         time_control: TimeControl | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
+        explicit_blocking: bool = False,
     ) -> None:
         """
         Runs node.
@@ -339,7 +340,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         exit_before_synchronization = bool(exit_before_synchronization) or bool(additional_arguments.exit_before_sync)
 
         self._actions_before_run()
-        blocking = exit_before_synchronization or bool(exit_at_block)
+        blocking = explicit_blocking or exit_before_synchronization or bool(exit_at_block)
         with Stopwatch() as sw:
             self.__run_process(
                 blocking=blocking,
