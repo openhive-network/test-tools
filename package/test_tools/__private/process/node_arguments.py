@@ -44,6 +44,7 @@ class NodeArguments(Arguments, ConfigurationCommonHived):
     stop_at_block: int | None = None
     validate_database_invariants: bool | None = None
     validate_during_replay: bool | None = None
+    psql_livesync_threshold: int | None = None
 
     class Config(Arguments.Config, ConfigurationCommonHived.Config):
         pass
