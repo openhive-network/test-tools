@@ -1,0 +1,16 @@
+# fmt: off
+# ruff: noqa
+from __future__ import annotations
+
+from pathlib import Path  # noqa: TCH003
+
+from beekeepy._communication import HttpUrl, P2PUrl, WsUrl  # noqa: TCH002
+
+from schemas._preconfigured_base_model import PreconfiguredBaseModel
+from test_tools.__private.process.node_defaults import NodeDefaults
+
+
+# All config items are automatically generated
+class NodeCommon(PreconfiguredBaseModel):
+    """Parameters used in command line and in config file."""
+{GENERATED-ITEMS}

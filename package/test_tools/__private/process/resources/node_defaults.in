@@ -1,0 +1,15 @@
+# fmt: off
+# ruff: noqa
+from __future__ import annotations
+
+from pathlib import Path
+from typing import ClassVar
+
+from beekeepy._communication import HttpUrl, P2PUrl, WsUrl  # noqa: TCH002
+from msgspec import field
+
+from schemas._preconfigured_base_model import PreconfiguredBaseModel
+
+
+class NodeDefaults(PreconfiguredBaseModel):
+{GENERATED-ITEMS}

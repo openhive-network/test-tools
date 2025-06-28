@@ -1,0 +1,24 @@
+# fmt: off
+# ruff: noqa
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from beekeepy._executable.abc.arguments import Arguments
+from msgspec import field
+
+from test_tools.__private.process.node_common import NodeCommon
+from test_tools.__private.process.node_defaults import NodeDefaults
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+
+# All config items are automatically generated
+class NodeArguments(NodeCommon, Arguments):
+    """Parameters used in command line."""
+
+    @classmethod
+    def just_list_plugins(cls) -> NodeArguments:
+        return cls(list_plugins=True)
+{GENERATED-ITEMS}

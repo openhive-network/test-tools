@@ -1,0 +1,15 @@
+from __future__ import annotations
+
+from beekeepy._executable.abc import Config
+
+from test_tools.__private.process.node_common import NodeCommon
+
+
+# All config items are automatically generated
+class NodeConfig(NodeCommon, Config):
+    """Parameters used in config file."""
+
+    @classmethod
+    def default(cls) -> NodeConfig:
+        return cls()
+{GENERATED-ITEMS}
