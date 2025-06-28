@@ -30,13 +30,13 @@ class PreconfiguredNode(RawNode):
                 "wallet_bridge_api",
             ]
         )
-        self.config.log_logger = (
-            '{"name":"default","level":"debug","appender":"stderr"} '
-            '{"name":"user","level":"debug","appender":"stderr"} '
-            '{"name":"chainlock","level":"debug","appender":"p2p"} '
-            '{"name":"sync","level":"debug","appender":"p2p"} '
-            '{"name":"p2p","level":"debug","appender":"p2p"}'
-        )
+        self.config.log_logger = [
+            '{"name":"default","level":"debug","appender":"stderr"}',
+            '{"name":"user","level":"debug","appender":"stderr"}',
+            '{"name":"chainlock","level":"debug","appender":"p2p"}',
+            '{"name":"sync","level":"debug","appender":"p2p"}',
+            '{"name":"p2p","level":"debug","appender":"p2p"}',
+        ]
         self.config.shared_file_size = "128M"
 
     def _enable_api_plugins(self, *, plugins: list[str]) -> None:

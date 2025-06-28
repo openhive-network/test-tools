@@ -148,7 +148,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
             "split"
             if self.config.block_log_split is None
             else "monolithic"
-            if self.config.block_log_split == -1
+            if self.config.block_log_split == "-1"
             else "split",
         )
 
@@ -302,7 +302,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                 self.__alternate_chain_specs = alternate_chain_specs
             if self.__alternate_chain_specs is not None:
                 destination = self.__alternate_chain_specs.export_to_file(self.directory).absolute()
-                additional_arguments.alternate_chain_spec = destination
+                additional_arguments.alternate_chain_spec = destination.as_posix()
         if replay_from is not None:
             self.__handle_replay(replay_from, additional_arguments)
             log_message += ", replaying"
@@ -434,7 +434,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                 "split"
                 if self.config.block_log_split is None
                 else "monolithic"
-                if self.config.block_log_split == -1
+                if self.config.block_log_split == "-1"
                 else "split",
             )
 
