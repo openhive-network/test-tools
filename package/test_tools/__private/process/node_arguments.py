@@ -1,166 +1,178 @@
+# fmt: off
+# ruff: noqa
 from __future__ import annotations
 
-from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, overload
+from typing import TYPE_CHECKING
 
-from beekeepy.handle.runnable import Arguments
-from beekeepy.interfaces import HttpUrl, P2PUrl, Url, WsUrl
+from beekeepy._executable.abc.arguments import Arguments
 from msgspec import field
 
-from test_tools.__private.process.node_commons import PathQuoted, QuotedMarker, StringQuoted, UniqueList
+from test_tools.__private.process.node_common import NodeCommon
+from test_tools.__private.process.node_defaults import NodeDefaults
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
-
-BacktraceAllowedValues = Literal["yes", "no"]
-SinkAllowedValues = Literal["STDERR", "STDOUT", "WLOG", "ELOG", "DLOG", "ILOG"]
-ReportTypes = Literal["NONE", "MINIMAL", "REGULAR", "FULL"]
+    from pathlib import Path
 
 
-class NodeArguments(Arguments):
-    account_history_rocksdb_dump_balance_history: str | None = None
-    account_history_rocksdb_stop_import_at_block: str | None = None
-    advanced_benchmark: bool | None = None
-    alternate_chain_spec: Path | None = None
-    chain_id: str | None = None
-    check_locks: bool | None = None
-    config: Path | None = None
-    data_dir: Path | None = None
-    disable_get_block: bool | None = None
-    dump_memory_details: bool | None = None
-    dump_snapshot: str | None = None
-    exit_at_block: int | None = None
-    exit_before_sync: bool | None = None
-    flush_state_interval: int | None = None
-    force_replay: bool | None = None
-    generate_completions: bool | None = None
-    list_plugins: bool | None = None
-    load_snapshot: str | None = None
-    p2p_force_validate: bool | None = None
-    process_snapshot_threads_num: str | None = None
-    replay_blockchain: bool | None = None
-    resync_blockchain: bool | None = None
-    set_benchmark_interval: str | None = None
-    skeleton_key: str | None = None
-    statsd_record_on_replay: bool | None = None
-    stop_at_block: int | None = None
-    validate_database_invariants: bool | None = None
-    validate_during_replay: bool | None = None
-    account_history_rocksdb_blacklist_ops: str | None = None
-    account_history_rocksdb_path: PathQuoted | None = None
-    account_history_rocksdb_track_account_range: str | None = None
-    account_history_rocksdb_whitelist_ops: str | None = None
-    backtrace: BacktraceAllowedValues | None = None
-    block_data_export_file: Path | Literal["NONE"] | None = None
-    block_data_skip_empty: bool | None = None
-    block_log_compression_level: int | None = None
-    block_log_info_print_file: SinkAllowedValues | Path | None = None
-    block_log_info_print_interval_seconds: int | None = None
-    block_log_info_print_irreversible: int | None = None
-    block_log_split: int | None = None
-    block_stats_report_output: SinkAllowedValues | None = None
-    block_stats_report_type: ReportTypes | None = None
-    blockchain_thread_pool_size: int | None = None
-    cashout_logging_ending_block: int | None = None
-    cashout_logging_log_path_dir: Path | None = None
-    cashout_logging_starting_block: int | None = None
-    checkpoint: UniqueList[tuple[int, str]] = field(default_factory=UniqueList)
-    colony_article: str | None = None
-    colony_custom: str | None = None
-    colony_no_broadcast: bool | None = None
-    colony_reply: str | None = None
-    colony_sign_with: list[str] | None = None
-    colony_start_at_block: int | None = None
-    colony_threads: int | None = None
-    colony_transactions_per_block: int | None = None
-    colony_transfer: str | None = None
-    colony_vote: str | None = None
-    debug_node_edit_script: str | None = None
-    enable_block_log_auto_fixing: bool | None = None
-    enable_block_log_compression: bool | None = None
-    enable_stale_production: bool | None = None
-    log_appender: str | None = None
-    log_console_appender: str | None = None
-    log_file_appender: str | None = None
-    log_json_rpc: Path | None = None
-    log_logger: str | None = None
-    market_history_bucket_size: str | None = None
-    market_history_buckets_per_size: str | None = None
-    p2p_endpoint: P2PUrl | None = None
-    p2p_max_connections: int | None = None
-    p2p_parameters: str | None = None
-    p2p_seed_node: list[P2PUrl] = field(default_factory=list)
-    pacemaker_max_offset: int | None = None
-    pacemaker_min_offset: int | None = None
-    pacemaker_source: str | None = None
-    plugin: UniqueList[str] = field(default_factory=UniqueList)
-    private_key: list[str] = field(default_factory=list)
-    rc_stats_report_output: SinkAllowedValues | None = None
-    rc_stats_report_type: ReportTypes | None = None
-    required_participation: int | None = None
-    shared_file_dir: PathQuoted | None = None
-    shared_file_full_threshold: str | None = None
-    shared_file_scale_rate: str | None = None
-    shared_file_size: str | None = None
-    snapshot_root_dir: PathQuoted | None = None
-    statsd_batchsize: int | None = None
-    statsd_blacklist: list[HttpUrl] | None = None
-    statsd_endpoint: HttpUrl | None = None
-    statsd_whitelist: list[HttpUrl] | None = None
-    transaction_status_block_depth: int | None = None
-    webserver_http_endpoint: HttpUrl | None = None
-    webserver_https_certificate_file_name: Path | None = None
-    webserver_https_endpoint: HttpUrl | None = None
-    webserver_https_key_file_name: Path | None = None
-    webserver_thread_pool_size: int | None = None
-    webserver_unix_endpoint: Path | None = None
-    webserver_ws_deflate: int | None = None
-    webserver_ws_endpoint: WsUrl | None = None
-    witness: list[StringQuoted] = field(default_factory=list)
-
-    class Config(Arguments.Config):
-        arbitrary_types_allowed = True
-        json_encoders = {Url: lambda u: u.as_string(with_protocol=False)}  # noqa: RUF012
+# All config items are automatically generated
+class NodeArguments(NodeCommon, Arguments):
+    """Parameters used in command line."""
 
     @classmethod
-    def just_list_plugins(cls) -> Self:
+    def just_list_plugins(cls) -> NodeArguments:
         return cls(list_plugins=True)
 
-    @classmethod
-    def just_dump_config(cls) -> Self:
-        return cls(dump_config=True, data_dir=Path())
+    account_history_rocksdb_dump_balance_history: str | None = NodeDefaults.DEFAULT_ACCOUNT_HISTORY_ROCKSDB_DUMP_BALANCE_HISTORY
+    """
+    Dumps balances for all tracked accounts to a CSV file every time they change
+    """
 
-    def _convert_member_value_to_string_default(self, member_value: Any) -> str | Any:
-        return super()._convert_member_value_to_string_default(member_value)  # type: ignore[safe-super]
+    account_history_rocksdb_stop_import_at_block: int = NodeDefaults.DEFAULT_ACCOUNT_HISTORY_ROCKSDB_STOP_IMPORT_AT_BLOCK
+    """
+    Allows to specify block number, the data import process should stop at.
+    """
 
-    @classmethod
-    def _require_quotation(cls, member_name_or_type: str | type) -> bool:
-        return QuotedMarker.__name__ in (
-            cls._member_annotation(member_name_or_type)
-            if isinstance(member_name_or_type, str)
-            else str(member_name_or_type)
-        )
+    advanced_benchmark: bool = NodeDefaults.DEFAULT_ADVANCED_BENCHMARK
+    """
+    Make profiling for every plugin.
+    """
 
-    @classmethod
-    def _member_annotation(cls, member_name: str) -> str:
-        return str(cls.__annotations__[member_name])
+    chain_id: str = NodeDefaults.DEFAULT_CHAIN_ID
+    """
+    chain ID to connect to
+    """
 
-    @overload
-    @classmethod
-    def _apply_quotation(cls, value: QuotedMarker | str | Path) -> str:
-        ...
+    check_locks: bool = NodeDefaults.DEFAULT_CHECK_LOCKS
+    """
+    Check correctness of chainbase locking
+    """
 
-    @overload
-    @classmethod
-    def _apply_quotation(cls, value: list[str | Path]) -> list[str]:
-        ...
+    comments_rocksdb_path: Path = NodeDefaults.DEFAULT_COMMENTS_ROCKSDB_PATH
+    """
+    the location of the comments data files
+    """
 
-    @classmethod
-    def _apply_quotation(cls, value: QuotedMarker | str | Path | list[str | Path]) -> str | list[str]:
-        if isinstance(value, list):
-            return [cls._apply_quotation(item) for item in value]
-        if isinstance(value, str):
-            return f'"{value}"'
-        if isinstance(value, Path):
-            return cls._apply_quotation(value.as_posix())
-        raise TypeError(f"Unsupported type: {value.__class__.__name__}")
+    config: Path = NodeDefaults.DEFAULT_CONFIG
+    """
+    Configuration file name relative to data-dir
+    """
+
+    data_dir: Path | None = NodeDefaults.DEFAULT_DATA_DIR
+    """
+    Directory containing configuration file config.ini. Default location: $HOME/.hived or CWD/. hived
+    """
+
+    disable_get_block: bool = NodeDefaults.DEFAULT_DISABLE_GET_BLOCK
+    """
+    Disable get_block API call
+    """
+
+    dump_config: bool = NodeDefaults.DEFAULT_DUMP_CONFIG
+    """
+    Dump configuration and exit
+    """
+
+    dump_memory_details: bool = NodeDefaults.DEFAULT_DUMP_MEMORY_DETAILS
+    """
+    Dump database objects memory usage info. Use set-benchmark-interval to set dump interval.
+    """
+
+    dump_options: bool = NodeDefaults.DEFAULT_DUMP_OPTIONS
+    """
+    Dump information about all supported command line and config options in JSON format and exit
+    """
+
+    dump_snapshot: str | None = NodeDefaults.DEFAULT_DUMP_SNAPSHOT
+    """
+    Allows to force immediate snapshot dump at plugin startup. All data in the snaphsot storage are overwritten
+    """
+
+    exit_at_block: int | None = NodeDefaults.DEFAULT_EXIT_AT_BLOCK
+    """
+    Same as --stop-at-block, but also exit the application
+    """
+
+    exit_before_sync: bool = NodeDefaults.DEFAULT_EXIT_BEFORE_SYNC
+    """
+    Exits before starting sync, handy for dumping snapshot without starting replay
+    """
+
+    force_replay: bool = NodeDefaults.DEFAULT_FORCE_REPLAY
+    """
+    Before replaying clean all old files. If specifed, `--replay-blockchain` flag is implied
+    """
+
+    generate_completions: bool = NodeDefaults.DEFAULT_GENERATE_COMPLETIONS
+    """
+    Generate bash auto-complete script (try: eval "$(hived --generate-completions)")
+    """
+
+    help_: bool = field(name="help", default=NodeDefaults.DEFAULT_HELP_)
+    """
+    Print this help message and exit.
+    """
+
+    list_plugins: bool = NodeDefaults.DEFAULT_LIST_PLUGINS
+    """
+    Print names of all available plugins and exit
+    """
+
+    load_snapshot: str | None = NodeDefaults.DEFAULT_LOAD_SNAPSHOT
+    """
+    Allows to force immediate snapshot import at plugin startup. All data in state storage are overwritten
+    """
+
+    p2p_force_validate: bool = NodeDefaults.DEFAULT_P2P_FORCE_VALIDATE
+    """
+    Force validation of all transactions.
+    """
+
+    process_snapshot_threads_num: int | None = NodeDefaults.DEFAULT_PROCESS_SNAPSHOT_THREADS_NUM
+    """
+    Number of threads intended for snapshot processing. By default set to detected available threads count.
+    """
+
+    replay_blockchain: bool = NodeDefaults.DEFAULT_REPLAY_BLOCKCHAIN
+    """
+    clear chain database and replay all blocks
+    """
+
+    resync_blockchain: bool = NodeDefaults.DEFAULT_RESYNC_BLOCKCHAIN
+    """
+    clear chain database and block log
+    """
+
+    set_benchmark_interval: int | None = NodeDefaults.DEFAULT_SET_BENCHMARK_INTERVAL
+    """
+    Print time and memory usage every given number of blocks
+    """
+
+    skeleton_key: str = NodeDefaults.DEFAULT_SKELETON_KEY
+    """
+    WIF PRIVATE key to be used as skeleton key for all accounts
+    """
+
+    statsd_record_on_replay: bool = NodeDefaults.DEFAULT_STATSD_RECORD_ON_REPLAY
+    """
+    Records statsd events during replay
+    """
+
+    stop_at_block: int | None = NodeDefaults.DEFAULT_STOP_AT_BLOCK
+    """
+    Stop after reaching given block number
+    """
+
+    validate_database_invariants: bool = NodeDefaults.DEFAULT_VALIDATE_DATABASE_INVARIANTS
+    """
+    Validate all supply invariants check out
+    """
+
+    validate_during_replay: bool = NodeDefaults.DEFAULT_VALIDATE_DURING_REPLAY
+    """
+    Runs all validations that are normally turned off during replay
+    """
+
+    version_: bool = field(name="version", default=NodeDefaults.DEFAULT_VERSION_)
+    """
+    Print version information.
+    """
