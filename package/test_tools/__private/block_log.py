@@ -8,8 +8,7 @@ import typing
 from pathlib import Path
 from typing import ClassVar, Final, Literal, overload
 
-import msgspec
-
+from schemas.aliases import ValidationError
 from schemas.apis.block_api.fundaments_of_responses import (
     BlockLogUtilSignedBlockBaseTransaction,
     BlockLogUtilSignedBlockBaseTransactionLegacy,
@@ -238,7 +237,7 @@ class BlockLog:
             if expected_str in output:
                 try:
                     return BlockLogUtilResultTransaction.parse_builtins(json.loads(output))
-                except msgspec.ValidationError:
+                except ValidationError:
                     return BlockLogUtilResultTransactionLegacy.parse_builtins(json.loads(output))
         raise BlockLogUtilError(f"Block {block_number} not found or response malformed: `{output}`")
 
