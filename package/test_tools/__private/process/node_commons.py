@@ -4,8 +4,7 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar, get_args
 
-import msgspec
-
+from schemas.base import convert
 from schemas.fields.resolvables import Resolvable
 
 if TYPE_CHECKING:
@@ -81,7 +80,7 @@ class UniqueList(list[T], Resolvable["UniqueList[T]", list[T]], Generic[T]):
         if len(value) == 0:
             return UniqueList()
         non_empty_str_t = get_args(incoming_cls)[0]
-        return UniqueList(msgspec.convert(value, type=list[non_empty_str_t]))  # type: ignore[valid-type]
+        return UniqueList(convert(value, type=list[non_empty_str_t]))  # type: ignore[valid-type]
 
     def serialize(self) -> Any:
         return list(self)
