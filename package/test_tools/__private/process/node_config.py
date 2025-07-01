@@ -84,6 +84,8 @@ class NodeConfig(Config):
     pacemaker_source: str | None = None
     plugin: UniqueList[str] = field(default_factory=UniqueList)
     private_key: list[str] = field(default_factory=list)
+    queen_block_size: int | None = None
+    queen_tx_count: int | None = None
     rc_stats_report_output: SinkAllowedValues | None = None
     rc_stats_report_type: ReportTypes | None = None
     required_participation: int | None = None
