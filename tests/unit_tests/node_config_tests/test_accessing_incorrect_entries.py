@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 def test_getting_unset_but_correct_entry(config: NodeConfig) -> None:
-    assert config.required_participation is None
+    assert config.statsd_endpoint is None
 
 
 def test_setting_correct_entry(config: NodeConfig) -> None:

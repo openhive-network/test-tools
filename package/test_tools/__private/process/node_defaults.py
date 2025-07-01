@@ -70,12 +70,7 @@ class NodeDefaults(PreconfiguredBaseModel):
     DEFAULT_PACEMAKER_MAX_OFFSET: ClassVar[str] = "20000"
     DEFAULT_PACEMAKER_MIN_OFFSET: ClassVar[str] = "-300"
     DEFAULT_PACEMAKER_SOURCE: ClassVar[Path | None] = None
-    DEFAULT_PLUGIN: ClassVar[list[str]] = field(default_factory=lambda: [
-        "witness",
-        "account_by_key",
-        "account_by_key_api",
-        "state_snapshot"
-    ])
+    DEFAULT_PLUGIN: ClassVar[list[str]] = []
     DEFAULT_PRIVATE_KEY: ClassVar[list[str]] = []
     DEFAULT_QUEEN_BLOCK_SIZE: ClassVar[int] = 0
     DEFAULT_QUEEN_TX_COUNT: ClassVar[int] = 0

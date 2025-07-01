@@ -3,8 +3,10 @@
 ### 1. Generate dumps.json
 
 ```bash
-hived --dump-options > /path/to/dumps.json
+hived --dump-options | jq '(.common[] | select(.name == "plugin") | .value.default_value) = []' > /path/to/dumps.json
 ```
+
+If you don't have `jq` installed, just replace default value in common/plugin to `[]`
 
 ### 2. Run following script
 

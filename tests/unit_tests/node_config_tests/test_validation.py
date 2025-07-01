@@ -8,4 +8,4 @@ if TYPE_CHECKING:
 
 def test_detection_of_duplicated_plugins(config: NodeConfig) -> None:
     config.plugin.extend(["condenser_api", "condenser_api"])
-    assert list(config.plugin) == ["condenser_api"]
+    assert config.write_to_lines() == ["plugin = condenser_api"]

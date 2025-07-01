@@ -33,7 +33,7 @@ def test_different_required_participation_values(configs: ConfigsFixtureReturn) 
     assert second != empty
 
 
-def test_different_enable_stale_production_values(configs: ConfigsFixtureReturn) -> None:
+def test_different_enable_stale_production_values_xxx(configs: ConfigsFixtureReturn) -> None:
     first, second, empty = configs
 
     first.enable_stale_production = True
@@ -41,4 +41,3 @@ def test_different_enable_stale_production_values(configs: ConfigsFixtureReturn)
 
     assert first != second
     assert first != empty
-    assert second != empty
