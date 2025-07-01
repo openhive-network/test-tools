@@ -738,6 +738,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         if timeout < 0:
             raise TimeoutError(f"Timeout must be greater than or equal to 0, but is: {timeout :.4f}")
 
+    @property
     def is_testnet(self) -> bool:
         if self.__is_testnet is None:
             self.__is_testnet = (self.get_version()["version"]["node_type"]) == "testnet"
