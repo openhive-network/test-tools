@@ -5,8 +5,8 @@ from typing import Any, Final, TypeGuard, overload
 
 from beekeepy.handle.runnable import Config
 from beekeepy.interfaces import HttpUrl, P2PUrl, Url, WsUrl
-from msgspec import field
 
+from schemas.base import field
 from test_tools.__private.process.node_commons import (
     BacktraceAllowedValues,
     PathQuoted,
