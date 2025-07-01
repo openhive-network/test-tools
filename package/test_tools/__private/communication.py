@@ -15,7 +15,6 @@ from schemas._preconfigured_base_model import PreconfiguredBaseModel
 from schemas.operations import AnyLegacyOperation
 from beekeepy.exceptions import UnableToAcquireDatabaseLockError, UnableToAcquireForkdbLockError, CommunicationError
 from loguru import logger
-from beekeepy.interfaces import HttpUrl
 from wax.helpy import Time
 
 
