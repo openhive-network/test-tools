@@ -25,7 +25,7 @@ class CommonJsonEncoder(json.JSONEncoder):
         if isinstance(o, JsonString):
             return o.serialize()
         if isinstance(o, PreconfiguredBaseModel):
-            return o.shallow_dict()
+            return o.dict()
 
         return super().default(o)
 
