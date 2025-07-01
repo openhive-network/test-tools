@@ -8,12 +8,11 @@ import typing
 from pathlib import Path
 from typing import ClassVar, Final, Literal, overload
 
-import msgspec
-
 from schemas.apis.block_api.fundaments_of_responses import (
     BlockLogUtilSignedBlockBaseTransaction,
     BlockLogUtilSignedBlockBaseTransactionLegacy,
 )
+from schemas.errors import ValidationError
 from test_tools.__private import paths_to_executables
 from test_tools.__private.exceptions import BlockLogError, BlockLogUtilError, MissingBlockLogArtifactsError
 from wax.helpy._interfaces.time import Time, TimeFormats
@@ -238,7 +237,7 @@ class BlockLog:
             if expected_str in output:
                 try:
                     return BlockLogUtilResultTransaction.parse_builtins(json.loads(output))
-                except msgspec.ValidationError:
+                except ValidationError:
                     return BlockLogUtilResultTransactionLegacy.parse_builtins(json.loads(output))
         raise BlockLogUtilError(f"Block {block_number} not found or response malformed: `{output}`")
 

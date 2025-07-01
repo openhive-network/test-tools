@@ -93,7 +93,6 @@ from wax.exceptions import WaxValidationFailedError
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    import msgspec
     from beekeepy._interface.abc.synchronous.wallet import UnlockedWallet
 
     import schemas.apis.database_api.fundaments_of_reponses as fundaments_database_api
@@ -125,6 +124,7 @@ if TYPE_CHECKING:
         ListRcDirectDelegations,
         ListWitnesses,
     )
+    from schemas.base import Meta
     from schemas.fields.assets import AssetHbd, AssetVests
     from schemas.fields.hex import Hex
     from schemas.fields.hive_int import HiveInt
@@ -1309,7 +1309,7 @@ class Api:
     @warn_if_only_result_set()
     def get_active_witnesses(
         self, include_future: bool, only_witnesses: bool = False, only_result: bool | None = None  # noqa: ARG002
-    ) -> Annotated[list[AccountName], msgspec.Meta(min_length=1, max_length=21)] | GetActiveWitnesses:
+    ) -> Annotated[list[AccountName], Meta(min_length=1, max_length=21)] | GetActiveWitnesses:
         """
         Retrieves the list of active witnesses.
 
