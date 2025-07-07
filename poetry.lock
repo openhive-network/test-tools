@@ -184,13 +184,13 @@ tests-no-zope = ["cloudpickle ; platform_python_implementation == \"CPython\"", 
 
 [[package]]
 name = "beekeepy"
-version = "0.0.1.dev394+5d35228"
+version = "0.0.1.dev395+ee5b8b2"
 description = "All in one package for beekeeper interaction via Python interface."
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "beekeepy-0.0.1.dev394+5d35228-py3-none-any.whl", hash = "sha256:b3517e82d719b2b476f527db85a9cfa98006459b2f852f2d625e83dd6e871e0f"},
+    {file = "beekeepy-0.0.1.dev395+ee5b8b2-py3-none-any.whl", hash = "sha256:cd298a4f9c55dfc0a9265d38b013a60f46459f02b43b73f0b44fc980483fa643"},
 ]
 
 [package.dependencies]
@@ -200,7 +200,7 @@ loguru = "0.7.2"
 psutil = "7.0.0"
 python-dateutil = "2.8.2"
 requests = "2.32.3"
-schemas = "0.0.1.dev358+d03426f"
+schemas = "0.0.1.dev360+ace7a05"
 setuptools = "77.0.3"
 types-setuptools = "76.0.0.20250313"
 
@@ -1239,13 +1239,13 @@ files = [
 
 [[package]]
 name = "schemas"
-version = "0.0.1.dev358+d03426f"
+version = "0.0.1.dev360+ace7a05"
 description = "Tools for checking if message fits expected format"
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "schemas-0.0.1.dev358+d03426f-py3-none-any.whl", hash = "sha256:956cf88edbadf16eea97935370e2efeefd994eef40bf11f7e3025b74e4e2a80d"},
+    {file = "schemas-0.0.1.dev360+ace7a05-py3-none-any.whl", hash = "sha256:dc7527bc0ac54f449769fcf4cc269941fb59a36724691b3b53eead2909c841d5"},
 ]
 
 [package.dependencies]
@@ -1369,17 +1369,17 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 
 [[package]]
 name = "wax"
-version = "0.3.10.dev722+cabed72b"
+version = "0.3.10.dev754+1e94d13f"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "wax-0.3.10.dev722+cabed72b-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:9b1cb9a50ee7737eebb87bb05c96f8ae8eb31644a9ff3dea14bd12f1994317b4"},
+    {file = "wax-0.3.10.dev754+1e94d13f-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:769d69728faa0548233c11c2683de18af2320659dcf6a950c8eeaea425adaa6a"},
 ]
 
 [package.dependencies]
-beekeepy = "0.0.1.dev394+5d35228"
+beekeepy = "0.0.1.dev395+ee5b8b2"
 httpx = {version = "0.23.3", extras = ["http2"]}
 loguru = "0.7.2"
 protobuf = "4.24.4"
@@ -1507,4 +1507,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "5fcea7de24521274e16fd53d437e032f64cbdaa0cd285638522a0083a6c10264"
+content-hash = "b6738ffcc06ab427f94646702239894c8c9d43fc5c15e2aa595bc175eb87bcdd"
