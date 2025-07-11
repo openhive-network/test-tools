@@ -8,7 +8,7 @@ from loguru import logger
 from test_tools.__private.scope.scope_fixtures import *  # noqa: F403
 
 from schemas.policies.policy import set_policies
-from schemas.policies.testnet_assets import TestnetAssets
+from schemas.policies.testnet_assets import TestnetAssetsPolicy
 
 
 @pytest.fixture(autouse=True)
@@ -24,7 +24,7 @@ def pytest_sessionstart() -> None:
 
 @pytest.fixture(autouse=True)
 def _use_testnet_assets() -> None:
-    set_policies(TestnetAssets(use_testnet_assets=True))
+    set_policies(TestnetAssetsPolicy(use_testnet_assets=True))
 
 
 @pytest.fixture(name="node")
