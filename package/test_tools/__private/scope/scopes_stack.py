@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import atexit
+import importlib
 import inspect
-import pkgutil
 import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -50,10 +50,10 @@ class ScopesStack:
     @property
     def __current_scope(self) -> Scope | None:
         def get_module_path(module_name: str) -> Path:
-            loader = pkgutil.get_loader(module_name)
-            assert loader is not None
-            module_path = loader.path  # type: ignore[attr-defined]
-            return Path(module_path).absolute()
+            spec = importlib.util.find_spec(module_name)
+            if spec is None or spec.origin is None:
+                raise ImportError(f"Cannot find module '{module_name}'")
+            return Path(spec.origin).absolute()
 
         scope_fixtures_definitions_path = get_module_path("test_tools.__private.scope.scope_fixtures_definitions")
         pytest_fixtures_caller_path = get_module_path("_pytest.fixtures")
