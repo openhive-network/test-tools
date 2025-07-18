@@ -31,11 +31,11 @@ class PreconfiguredNode(RawNode):
             ]
         )
         self.config.log_logger = (
-            '{"name":"default","level":"debug","appender":"stderr"} '
-            '{"name":"user","level":"debug","appender":"stderr"} '
-            '{"name":"chainlock","level":"debug","appender":"p2p"} '
-            '{"name":"sync","level":"debug","appender":"p2p"} '
-            '{"name":"p2p","level":"debug","appender":"p2p"}'
+            '{"name":"default","level":"info","appender":"stderr"} '
+            '{"name":"user","level":"info","appender":"stderr"} '
+            '{"name":"chainlock","level":"info","appender":"p2p"} '
+            '{"name":"sync","level":"info","appender":"p2p"} '
+            '{"name":"p2p","level":"info","appender":"p2p"}'
         )
         self.config.shared_file_size = "128M"
 
