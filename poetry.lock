@@ -184,13 +184,13 @@ tests-no-zope = ["cloudpickle ; platform_python_implementation == \"CPython\"", 
 
 [[package]]
 name = "beekeepy"
-version = "0.0.1.dev413+0bc0d4b"
+version = "0.0.1.dev414+a1fd695"
 description = "All in one package for beekeeper interaction via Python interface."
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "beekeepy-0.0.1.dev413+0bc0d4b-py3-none-any.whl", hash = "sha256:f9a17976648a43accc91b345fb46989feb93b376616f59dc9808198001d62e47"},
+    {file = "beekeepy-0.0.1.dev414+a1fd695-py3-none-any.whl", hash = "sha256:94195d6912545baeb684c45e666c77a0baf6b30fa5f43fd2d8445448cb53edf7"},
 ]
 
 [package.dependencies]
@@ -200,7 +200,7 @@ loguru = "0.7.2"
 psutil = "7.0.0"
 python-dateutil = "2.8.2"
 requests = "2.32.3"
-schemas = "0.0.1.dev424+eeb5c94"
+schemas = "0.0.1.dev425+b2a4daf"
 
 [package.source]
 type = "legacy"
@@ -324,17 +324,17 @@ markers = {main = "sys_platform == \"win32\"", dev = "platform_system == \"Windo
 
 [[package]]
 name = "database-api"
-version = "1.27.11rc6.dev353+108f17fef"
+version = "1.27.11rc6.dev361+065e680fd"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "database_api-1.27.11rc6.dev353+108f17fef-py3-none-any.whl", hash = "sha256:0946e7532a45667a29744866ff1f8c6c539949b07bbb2cafa49bfba2142369af"},
+    {file = "database_api-1.27.11rc6.dev361+065e680fd-py3-none-any.whl", hash = "sha256:0d05b7efef761ffaf844ac4ee063be5be80ba29b65f20ac3383861197bb73075"},
 ]
 
 [package.dependencies]
-beekeepy = "0.0.1.dev413+0bc0d4b"
+beekeepy = "0.0.1.dev414+a1fd695"
 
 [package.source]
 type = "legacy"
@@ -825,17 +825,17 @@ files = [
 
 [[package]]
 name = "network-broadcast-api"
-version = "1.27.11rc6.dev353+108f17fef"
+version = "1.27.11rc6.dev361+065e680fd"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "network_broadcast_api-1.27.11rc6.dev353+108f17fef-py3-none-any.whl", hash = "sha256:34b4a4925415fd4f0474bc523a8b37caa3faaf716188f9bd47e10792cac0192d"},
+    {file = "network_broadcast_api-1.27.11rc6.dev361+065e680fd-py3-none-any.whl", hash = "sha256:24cb8ab03a615f708adcf4cb53cf9ed139035425801a08d0a8b3c9ab5da6f163"},
 ]
 
 [package.dependencies]
-beekeepy = "0.0.1.dev413+0bc0d4b"
+beekeepy = "0.0.1.dev414+a1fd695"
 
 [package.source]
 type = "legacy"
@@ -1275,13 +1275,13 @@ files = [
 
 [[package]]
 name = "schemas"
-version = "0.0.1.dev424+eeb5c94"
+version = "0.0.1.dev425+b2a4daf"
 description = "Tools for checking if message fits expected format"
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "schemas-0.0.1.dev424+eeb5c94-py3-none-any.whl", hash = "sha256:eaa87991fbec3878d1f3fbba1cf9562995364b80530787d1eb7598ad62bdea72"},
+    {file = "schemas-0.0.1.dev425+b2a4daf-py3-none-any.whl", hash = "sha256:99e51fcb9fc490fa55eddc4b9ac2de22a98e08fd8146de5d8775998591985aa8"},
 ]
 
 [package.dependencies]
@@ -1389,20 +1389,20 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 
 [[package]]
 name = "wax"
-version = "0.3.10.dev841+5ac4412f"
+version = "0.3.10.dev843+010cc568"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "wax-0.3.10.dev841+5ac4412f-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:7b472a060529bcd9fd4e7e4ddde1ab32c0453563b2260bb756da8215c15bd3e3"},
+    {file = "wax-0.3.10.dev843+010cc568-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:ea4858c9823c73e09f6b4fc98797accd66a6bfdcee67a064fd5eb20084dfa383"},
 ]
 
 [package.dependencies]
-database-api = "1.27.11rc6.dev353+108f17fef"
+database-api = "1.27.11rc6.dev361+065e680fd"
 httpx = {version = "0.23.3", extras = ["http2"]}
 loguru = "0.7.2"
-network-broadcast-api = "1.27.11rc6.dev353+108f17fef"
+network-broadcast-api = "1.27.11rc6.dev361+065e680fd"
 protobuf = "4.24.4"
 python-dateutil = "2.8.2"
 requests = "2.32.3"
@@ -1528,4 +1528,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "c58a645709f14142ed70c9115526c5fbb465b831ea027ff8ea22ae1d8b121ac4"
+content-hash = "70d0f229275e6e1048141bfcd928448162fb2870d6d043494e4773ef9ff97a1c"
