@@ -324,13 +324,13 @@ markers = {main = "sys_platform == \"win32\"", dev = "platform_system == \"Windo
 
 [[package]]
 name = "database-api"
-version = "1.27.11rc6.dev362+7acaaa13f"
+version = "1.27.11rc6.dev374+5ef1748ae"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "database_api-1.27.11rc6.dev362+7acaaa13f-py3-none-any.whl", hash = "sha256:7a09127ecf4ead182cc8a4fa00d8c96ad336434843f404fd9e313ff0000e760c"},
+    {file = "database_api-1.27.11rc6.dev374+5ef1748ae-py3-none-any.whl", hash = "sha256:eb94950f4ca4851b72689514ad75ff3a1c2f4a2fffde9cf10e289d7280f0908b"},
 ]
 
 [package.dependencies]
@@ -825,13 +825,13 @@ files = [
 
 [[package]]
 name = "network-broadcast-api"
-version = "1.27.11rc6.dev362+7acaaa13f"
+version = "1.27.11rc6.dev374+5ef1748ae"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "network_broadcast_api-1.27.11rc6.dev362+7acaaa13f-py3-none-any.whl", hash = "sha256:d22a89d88f322da315ac5c7e955358e549429dc98b26985e9d4bdfcd0f41a63c"},
+    {file = "network_broadcast_api-1.27.11rc6.dev374+5ef1748ae-py3-none-any.whl", hash = "sha256:546f2e234c4c78aac1fe03f448234d5b7a89e982bb3c360c501d2efe47506d29"},
 ]
 
 [package.dependencies]
@@ -1389,20 +1389,20 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 
 [[package]]
 name = "wax"
-version = "0.3.10.dev843+418a1012"
+version = "0.3.10.dev848+12896494"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "wax-0.3.10.dev843+418a1012-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:cb79fffdc6faf9bdfe2e8f479cf99500ee3831be3ff3fe1676a0292f6322fbfc"},
+    {file = "wax-0.3.10.dev848+12896494-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:39482947d22bdabb9a99bba97725d4b69d5142b1123d8318a75c9dae053c1328"},
 ]
 
 [package.dependencies]
-database-api = "1.27.11rc6.dev362+7acaaa13f"
+database-api = "1.27.11rc6.dev374+5ef1748ae"
 httpx = {version = "0.23.3", extras = ["http2"]}
 loguru = "0.7.2"
-network-broadcast-api = "1.27.11rc6.dev362+7acaaa13f"
+network-broadcast-api = "1.27.11rc6.dev374+5ef1748ae"
 protobuf = "4.24.4"
 python-dateutil = "2.8.2"
 requests = "2.32.3"
@@ -1528,4 +1528,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "2042bd436a1c240e65ba12d9979c43639631f0b9af1cc0282049d520bef43fa8"
+content-hash = "d11edbb3bd6b33aed6552019b0d44276096b6076a8afdb523deac0ed94ce2eb1"
