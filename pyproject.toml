@@ -28,7 +28,7 @@ python = "^3.12"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 loguru = "0.7.2"
-wax = "0.3.10.dev860+c5e9bffa"
+wax = "0.3.10.dev888+069f7f2f"
 
 
 [tool.poetry.group.dev.dependencies]
