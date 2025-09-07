@@ -218,7 +218,9 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         write_config_before_run: bool = True,
         with_arguments: NodeArguments | None = None,
         with_environment_variables: dict[str, str] | None = None,
+        process_startup_timeout: float | None = None,
     ) -> None:
+        process_startup_timeout = process_startup_timeout or self.settings.initialization_timeout.total_seconds()
         args = with_arguments or NodeArguments()
         args.data_dir = self.directory
         with self.__process.restore_arguments(with_arguments):
@@ -227,6 +229,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                 environment_variables=with_environment_variables,
                 save_config=write_config_before_run,
                 perform_unification=False,
+                timeout=process_startup_timeout,
             )
 
     def __enable_logging(self) -> None:
@@ -269,6 +272,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         # This pylint warning is right, but this refactor has low priority. Will be done later...
 
         self.__validate_timeout(timeout)
+        process_startup_timeout: float | None = None
         assert time_control is None or isinstance(
             time_control, TimeControl
         ), "time_control can only be subclass of TimeControl class"
@@ -343,11 +347,14 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
 
         self._actions_before_run()
         blocking = explicit_blocking or exit_before_synchronization or bool(exit_at_block)
+        if blocking:
+            process_startup_timeout = math.inf
         with Stopwatch() as sw:
             self.__run_process(
                 blocking=blocking,
                 with_arguments=additional_arguments,
                 with_environment_variables=environment_variables,
+                process_startup_timeout=process_startup_timeout,
             )
         self.logger.info(f"Waiting for process start of {self.get_name()} took {sw.seconds_delta :.2f} seconds")
 
