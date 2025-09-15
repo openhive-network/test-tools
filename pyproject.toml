@@ -13,10 +13,9 @@ repository = "https://gitlab.syncad.com/hive/test-tools"
 source = [
     { name = "PyPI", priority = "primary" },
     { name = "gitlab-schemas", url = "https://gitlab.syncad.com/api/v4/projects/362/packages/pypi/simple", priority = "supplemental" },
-    { name = "gitlab-wax", url = "https://gitlab.syncad.com/api/v4/projects/419/packages/pypi/simple", priority = "supplemental" },
     { name = "gitlab-beekeepy", url = "https://gitlab.syncad.com/api/v4/projects/434/packages/pypi/simple", priority = "supplemental" },
-    { name = "gitlab-database_api", url = "https://gitlab.syncad.com/api/v4/projects/198/packages/pypi/simple", priority = "supplemental" },
-    { name = "gitlab-network_broadcast_api", url = "https://gitlab.syncad.com/api/v4/projects/198/packages/pypi/simple", priority = "supplemental" },
+    { name = "gitlab-wax", url = "https://gitlab.syncad.com/api/v4/projects/419/packages/pypi/simple", priority = "supplemental" },
+    { name = "gitlab-api-packages", url = "https://gitlab.syncad.com/api/v4/projects/198/packages/pypi/simple", priority = "supplemental" },
 ]
 packages = [
     { include = "test_tools", from = "package" },
@@ -28,7 +27,7 @@ python = "^3.12"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 loguru = "0.7.2"
-wax = "0.3.10.dev892+158ee8a8"
+wax = "0.3.10.dev894+98c1edda"
 
 
 [tool.poetry.group.dev.dependencies]
