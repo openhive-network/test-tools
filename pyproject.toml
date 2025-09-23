@@ -27,7 +27,7 @@ python = "^3.12"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 loguru = "0.7.2"
-hiveio-wax = "0.3.10.dev898+fe053737"
+hiveio-wax = "0.3.10.dev903+474150e0"
 
 
 [tool.poetry.group.dev.dependencies]
