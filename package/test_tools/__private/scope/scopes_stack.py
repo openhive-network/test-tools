@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import atexit
-import importlib
+import importlib.util
 import inspect
 import warnings
 from pathlib import Path
