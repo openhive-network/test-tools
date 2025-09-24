@@ -11,7 +11,7 @@ from test_tools.__private.process.node_config import NodeConfig
 from test_tools.__private.process.process import Process
 
 if TYPE_CHECKING:
-    from beekeepy.handle.runnable import AutoCloser
+    from beekeepy.handle.runnable.executable import AutoCloser
     from loguru import Logger
 
     from schemas.fields.basic import NodeType

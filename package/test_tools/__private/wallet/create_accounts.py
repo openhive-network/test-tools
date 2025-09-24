@@ -32,9 +32,9 @@ from test_tools.__private.wax_wrapper import (
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from beekeepy import Beekeeper, PackedSyncBeekeeper
     from beekeepy._interface.abc.synchronous.wallet import UnlockedWallet
     from beekeepy.interfaces import HttpUrl
+    from beekeepy.synchronous import Beekeeper, PackedSyncBeekeeper
 
     from schemas.fields.basic import PublicKey
     from schemas.operations import Hf26Operations

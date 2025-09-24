@@ -442,13 +442,13 @@ hyperframe = ">=6.0,<7"
 
 [[package]]
 name = "hiveio-beekeepy"
-version = "0.0.1.dev430+d766238"
+version = "0.0.1.dev432+e5cab69"
 description = "All in one package for beekeeper interaction via Python interface."
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "hiveio_beekeepy-0.0.1.dev430+d766238-py3-none-any.whl", hash = "sha256:530af9ac95801e50f41e714f00b533a22c75ab313b53d075062872961c350434"},
+    {file = "hiveio_beekeepy-0.0.1.dev432+e5cab69-py3-none-any.whl", hash = "sha256:bff8619672fa17c90e053fb47e363f1251c597a1e67ffbe62e187295dd45d518"},
 ]
 
 [package.dependencies]
@@ -467,17 +467,17 @@ reference = "gitlab-beekeepy"
 
 [[package]]
 name = "hiveio-database-api"
-version = "1.27.12rc3.dev3+4e61e68ce"
+version = "1.27.12rc3.dev10+0a0c46ef4"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "hiveio_database_api-1.27.12rc3.dev3+4e61e68ce-py3-none-any.whl", hash = "sha256:f282879003f3f034a3eab60ece574cf399aeaabf758903fa8f76f9e47d65dd06"},
+    {file = "hiveio_database_api-1.27.12rc3.dev10+0a0c46ef4-py3-none-any.whl", hash = "sha256:2058f3ab5ceaefe96caea6df8a0d581ccc9d19d18069d0e8a74cb6f7f9eee035"},
 ]
 
 [package.dependencies]
-hiveio-beekeepy = "0.0.1.dev430+d766238"
+hiveio-beekeepy = "0.0.1.dev432+e5cab69"
 
 [package.source]
 type = "legacy"
@@ -486,17 +486,17 @@ reference = "gitlab-api-packages"
 
 [[package]]
 name = "hiveio-network-broadcast-api"
-version = "1.27.12rc3.dev3+4e61e68ce"
+version = "1.27.12rc3.dev10+0a0c46ef4"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "hiveio_network_broadcast_api-1.27.12rc3.dev3+4e61e68ce-py3-none-any.whl", hash = "sha256:035f16492eb42fc2e488841d19355a713eb7153f638a88cbde435b7d40f385e1"},
+    {file = "hiveio_network_broadcast_api-1.27.12rc3.dev10+0a0c46ef4-py3-none-any.whl", hash = "sha256:3a1fdc4394c11de464c146fa00129349a0ab32f467db863504e4f468f05a98d2"},
 ]
 
 [package.dependencies]
-hiveio-beekeepy = "0.0.1.dev430+d766238"
+hiveio-beekeepy = "0.0.1.dev432+e5cab69"
 
 [package.source]
 type = "legacy"
@@ -524,18 +524,18 @@ reference = "gitlab-schemas"
 
 [[package]]
 name = "hiveio-wax"
-version = "0.3.10.dev898+fe053737"
+version = "0.3.10.dev905+e8c045a2"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "hiveio_wax-0.3.10.dev898+fe053737-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:755a608ce0e98f5baa0d33f156d939bef2f4760f97356cc89597c5761630ca6f"},
+    {file = "hiveio_wax-0.3.10.dev905+e8c045a2-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:811ebc42aad938bd14a9706fcbe027c4679f22a3cd2fd9174e1814982eb89154"},
 ]
 
 [package.dependencies]
-hiveio-database-api = "1.27.12rc3.dev3+4e61e68ce"
-hiveio-network-broadcast-api = "1.27.12rc3.dev3+4e61e68ce"
+hiveio-database-api = "1.27.12rc3.dev10+0a0c46ef4"
+hiveio-network-broadcast-api = "1.27.12rc3.dev10+0a0c46ef4"
 httpx = {version = "0.23.3", extras = ["http2"]}
 loguru = "0.7.2"
 protobuf = "4.24.4"
@@ -1528,4 +1528,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "5b1fa63af4e219d7288fdd9f8c40c3300693df5edae0946c00a199188f236d85"
+content-hash = "1ef3996ba4b63cf3e41288ebcdbb843456790381fd24bcd69a05a9f76936783f"

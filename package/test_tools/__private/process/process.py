@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from beekeepy.handle.runnable import ArgumentT, AutoCloser, ConfigT
-from beekeepy.handle.runnable import Executable as AbstractExecutable
+from beekeepy.handle.runnable.executable import ArgumentT, AutoCloser, ConfigT
+from beekeepy.handle.runnable.executable import Executable as AbstractExecutable
 
 if TYPE_CHECKING:
     from loguru import Logger

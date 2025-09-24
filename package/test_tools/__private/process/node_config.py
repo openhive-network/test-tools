@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Final, TypeGuard, overload
 
-from beekeepy.handle.runnable import Config
+from beekeepy.handle.runnable.executable import Config
 from beekeepy.interfaces import HttpUrl, P2PUrl, Url, WsUrl
 
 from schemas.base import field

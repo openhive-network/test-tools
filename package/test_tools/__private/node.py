@@ -9,10 +9,10 @@ from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING, cast, overload
 
-from beekeepy import Settings
 from beekeepy.exceptions import CommunicationError
-from beekeepy.handle.runnable import RunnableHandle
+from beekeepy.handle.runnable.synchronous import RunnableHandle
 from beekeepy.interfaces import AnyUrl, HttpUrl, P2PUrl, Stopwatch, WsUrl
+from beekeepy.synchronous import Settings
 
 from test_tools.__private import cleanup_policy, paths_to_executables
 from test_tools.__private.base_node import BaseNode
@@ -31,7 +31,7 @@ from wax.helpy import StartTimeControl, TimeControl
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from beekeepy.handle.runnable import PortMatchingResult
+    from beekeepy.handle.runnable.synchronous import PortMatchingResult
 
     from schemas.apis.app_status_api.fundaments_of_responses import WebserverItem
     from schemas.apis.app_status_api.response_schemas import GetAppStatus
