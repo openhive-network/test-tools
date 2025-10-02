@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
     from beekeepy.interfaces import HttpUrl
 
-    from wax.helpy._handles.hived.api.api_collection import HivedSyncApiCollection
+    from test_tools.__private.hived.api.api_collection import HivedSyncApiCollection
 
 
 class NodeHandleBase(Handle):

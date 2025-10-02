@@ -131,11 +131,11 @@ if TYPE_CHECKING:
     from schemas.fields.hive_list import HiveList
     from schemas.fields.resolvables import AssetUnionAssetHiveAssetHbd
     from schemas.transaction import Transaction
+    from test_tools.__private.hived.api.wallet_bridge_api.sync_api import WalletBridgeApi
     from test_tools.__private.node import Node
     from test_tools.__private.remote_node import RemoteNode
     from test_tools.__private.wallet.single_transaction_context import SingleTransactionContext
     from test_tools.__private.wallet.wallet import Wallet
-    from wax.helpy._handles.hived.api.wallet_bridge_api.sync_api import WalletBridgeApi
 
     AnyNode = Node | RemoteNode
 

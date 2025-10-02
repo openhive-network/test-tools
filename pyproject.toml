@@ -108,6 +108,9 @@ ignore = [
     "D107", # missing docstring in __init__
 
 ]
+"package/test_tools/__private/hived/api/**" = [
+    "TCH001", # API response models cannot be placed in the type checking block
+]
 
 [tool.ruff.lint.isort]
 known-first-party = ["helpy", "schemas", "wax"]

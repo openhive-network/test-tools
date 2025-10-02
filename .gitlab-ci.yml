@@ -60,4 +60,24 @@ unit_tests_launch:
     reports:
       junit: report.xml
 
+test_hived_handle:
+  stage: tests
+  needs:
+    job:
+      unit_tests_launch
+  extends: .project_develop_configuration_template
+  variables:
+    HIVED_HTTP_ENDPOINT: "https://api.hive.blog/"
+  script:
+    - if [ -z "${HIVED_HTTP_ENDPOINT}" ]; then HIVED_HTTP_ENDPOINT=""; else HIVED_HTTP_ENDPOINT="--hived-http-endpoint=${HIVED_HTTP_ENDPOINT}"; fi
+    - echo -e "${TXT_BLUE}Launching tests...${TXT_CLEAR}"
+    - cd tests/hived_handle_tests
+    - python3 -m pytest -n auto --durations 0 --junitxml=${CI_PROJECT_DIR}/report.xml ${HIVED_HTTP_ENDPOINT}
+    - echo -e "${TXT_BLUE}Tests succesfully...${TXT_CLEAR}"
+  artifacts:
+    when: always
+    expire_in: 1 week
+    reports:
+      junit: $CI_PROJECT_DIR/report.xml
+
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| TESTS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

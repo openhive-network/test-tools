@@ -6,9 +6,9 @@ from typing import TYPE_CHECKING, Any
 from beekeepy.communication import StrictOverseer
 from beekeepy.settings import RunnableHandleSettings as Settings
 
+from test_tools.__private.hived.sync_handle import HivedTemplate
 from test_tools.__private.scope import context
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation
-from wax.helpy import HivedTemplate
 
 if TYPE_CHECKING:
     from beekeepy.interfaces import HttpUrl
