@@ -5,8 +5,9 @@ import warnings
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any, Final, get_args
 
-from beekeepy import Beekeeper, Settings
-from beekeepy.communication import StrictOverseer
+from beekeepy import Beekeeper
+from beekeepy import InterfaceSettings as Settings
+from beekeepy.communication.overseer import StrictOverseer
 from beekeepy.exceptions import ErrorInResponseError
 
 from schemas.fields.basic import PublicKey
@@ -47,8 +48,7 @@ from wax.helpy import Hf26Asset as Asset
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from beekeepy._interface.abc.synchronous.session import Session
-    from beekeepy._interface.abc.synchronous.wallet import UnlockedWallet
+    from beekeepy import Session, UnlockedWallet
 
     from schemas.operations import Hf26Operations
     from test_tools.__private.user_handles.handles.wallet_handle import WalletHandle

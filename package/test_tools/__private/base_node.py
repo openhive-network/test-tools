@@ -3,8 +3,8 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
-from beekeepy import Settings
-from beekeepy._communication.overseers import StrictOverseer
+from beekeepy.communication.overseer import StrictOverseer
+from beekeepy.handle.settings import RunnableHandleSettings as Settings
 
 from test_tools.__private.scope import context
 from test_tools.__private.user_handles.implementation import Implementation as UserHandleImplementation

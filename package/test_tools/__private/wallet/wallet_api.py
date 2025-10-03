@@ -93,7 +93,7 @@ from wax.exceptions import WaxValidationFailedError
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from beekeepy._interface.abc.synchronous.wallet import UnlockedWallet
+    from beekeepy import UnlockedWallet
 
     import schemas.apis.database_api.fundaments_of_reponses as fundaments_database_api
     from schemas.apis.block_api.fundaments_of_responses import Hf26Block

@@ -9,9 +9,9 @@ from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING, cast, overload
 
-from beekeepy import Settings
 from beekeepy.exceptions import CommunicationError
 from beekeepy.handle.runnable import RunnableHandle
+from beekeepy.handle.settings import RunnableHandleSettings as Settings
 from beekeepy.interfaces import AnyUrl, HttpUrl, P2PUrl, Stopwatch, WsUrl
 
 from test_tools.__private import cleanup_policy, paths_to_executables
