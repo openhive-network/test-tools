@@ -6,9 +6,9 @@ from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any, Final, get_args
 
 from beekeepy import Beekeeper
-from beekeepy import InterfaceSettings as Settings
-from beekeepy.communication.overseer import StrictOverseer
+from beekeepy.communication import StrictOverseer
 from beekeepy.exceptions import ErrorInResponseError
+from beekeepy.settings import InterfaceSettings as Settings
 
 from schemas.fields.basic import PublicKey
 from schemas.fields.hex import Hex
