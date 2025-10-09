@@ -108,6 +108,7 @@ class NodeConfig(Config):
     webserver_ws_deflate: int | None = None
     webserver_ws_endpoint: WsUrl | None = None
     witness: list[StringQuoted] = field(default_factory=list)
+    accounts_always_in_shm: bool | None = None
 
     @classmethod
     def _convert_member_value_to_config_value(cls, member_name: str, member_value: Any) -> str | list[str]:

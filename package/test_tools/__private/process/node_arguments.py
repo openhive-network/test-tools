@@ -117,6 +117,7 @@ class NodeArguments(Arguments):
     webserver_ws_deflate: int | None = None
     webserver_ws_endpoint: WsUrl | None = None
     witness: list[StringQuoted] = field(default_factory=list)
+    accounts_always_in_shm: bool | None = None
 
     class Config(Arguments.Config):
         arbitrary_types_allowed = True
