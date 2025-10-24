@@ -49,6 +49,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from beekeepy import Session, UnlockedWallet
+    from database_api.database_api_description import GetConfigResponse
 
     from schemas.operations import Hf26Operations
     from test_tools.__private.user_handles.handles.wallet_handle import WalletHandle
@@ -109,7 +110,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         return self.connected_node
 
     def __get_chain_id(self) -> Hex:
-        node_config = self._force_connected_node.api.database.get_config()
+        node_config: GetConfigResponse = self._force_connected_node.api.database.get_config()
         if self.__chain_id != "default":
             assert self.__chain_id.isdigit(), "Invalid chain_id value: it must be a digit string"
             chain_id = self.__chain_id[:64]
