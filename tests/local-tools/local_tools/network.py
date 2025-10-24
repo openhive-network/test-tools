@@ -20,8 +20,8 @@ def get_head_block_number(*, node: AnyNode | None = None, network: tt.Network | 
         _node = network.nodes[0]
     else:
         raise ValueError("Either node or network must be provided")
-
-    return _node.api.database.get_dynamic_global_properties().head_block_number
+    gdgo: int = _node.api.database.get_dynamic_global_properties().head_block_number
+    return gdgo
 
 
 def get_head_block_numbers_for_networks(networks: Iterable[tt.Network]) -> dict[tt.Network, int]:

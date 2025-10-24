@@ -7,6 +7,8 @@ from beekeepy.interfaces import HttpUrl, P2PUrl, WsUrl
 from test_tools.__private.base_node import BaseNode
 
 if TYPE_CHECKING:
+    from database_api.database_api_description import GetVersionResponse
+
     from test_tools.__private.user_handles.handles.node_handles.remote_node_handle import RemoteNodeHandle
 
 
@@ -23,8 +25,9 @@ class RemoteNode(BaseNode):
         self.http_endpoint = HttpUrl(http_endpoint, protocol="http")
         self.__ws_endpoint: WsUrl | None = WsUrl(ws_endpoint, protocol="ws") if ws_endpoint is not None else None
 
-    def get_version(self) -> dict[str, str]:
-        return self.api.database.get_version().dict()
+    def get_version(self) -> GetVersionResponse:
+        version: GetVersionResponse = self.api.database.get_version()
+        return version
 
     def get_ws_endpoint(self) -> WsUrl | None:
         if self.__ws_endpoint is None:

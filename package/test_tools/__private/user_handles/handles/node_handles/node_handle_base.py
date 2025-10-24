@@ -2,16 +2,16 @@ from __future__ import annotations
 
 import math
 from contextlib import contextmanager
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 from test_tools.__private.base_node import BaseNode
 from test_tools.__private.node import Node
 from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.user_handles.handle import Handle
+from wax.helpy._interfaces.time import Time
 
 if TYPE_CHECKING:
-    import datetime
     from collections.abc import Iterator
 
     from beekeepy.interfaces import HttpUrl
@@ -46,9 +46,9 @@ class NodeHandleBase(Handle):
         """Returns number of the last irreversible block known to node."""
         return self.__implementation.get_last_irreversible_block_number()
 
-    def get_head_block_time(self) -> datetime.datetime:
+    def get_head_block_time(self) -> datetime:
         """Returns head block time."""
-        return self.__implementation.get_head_block_time()
+        return Time.parse(self.__implementation.get_head_block_time())
 
     def get_current_witness(self) -> str:
         """Returns current witness."""

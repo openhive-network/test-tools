@@ -11,4 +11,4 @@ if TYPE_CHECKING:
 
 def test_if_raise_when_parameters_are_bad(node: tt.InitNode) -> None:
     with pytest.raises(ErrorInResponseError):
-        node.api.database.list_accounts(name=[])  # type: ignore[call-arg]
+        node.api.database.list_accounts(name=[])
