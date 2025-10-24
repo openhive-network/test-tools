@@ -94,6 +94,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from beekeepy import UnlockedWallet
+    from database_api.database_api_description import GetTransactionHexResponse
 
     import schemas.apis.database_api.fundaments_of_reponses as fundaments_database_api
     from schemas.apis.block_api.fundaments_of_responses import Hf26Block
@@ -2037,8 +2038,10 @@ class Api:
         :param only_result: This argument is no longer active and should not be provided.
         :return: The serialized transaction.
         """
-        transaction_hex = self.__wallet._force_connected_node.api.database.get_transaction_hex(trx=tx)
-        return transaction_hex.hex_
+        transaction_hex: GetTransactionHexResponse = (
+            self.__wallet._force_connected_node.api.database.get_transaction_hex(trx=tx)
+        )
+        return transaction_hex.hex
 
     @warn_if_only_result_set()
     def set_password(self, password: str, only_result: bool | None = None) -> None:  # noqa: ARG002
