@@ -537,13 +537,13 @@ msgspec = "0.18.6"
 
 [[package]]
 name = "hiveio-wax"
-version = "1.27.12rc4.dev19+0a7331b6"
+version = "1.27.12rc4.dev24+12516cd3"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "hiveio_wax-1.27.12rc4.dev19+0a7331b6-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:9c79fa923d5705e0e9fe41ba18483836b2ca18d0ce07698eec54eb2b00db2bdd"},
+    {file = "hiveio_wax-1.27.12rc4.dev24+12516cd3-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:66fb50e1ba550c568267a72d80a9cbc25fcab347cd133ec5289c6326e63bd10b"},
 ]
 
 [package.dependencies]
@@ -1542,4 +1542,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "5e8279e7029c2daf85090961db1bf46eeeee793749d0a90f8542aa7ed512308e"
+content-hash = "7c97c36a61c9c9f561d060664b044c1ea04df54d6f78c38626234bde67850d10"
