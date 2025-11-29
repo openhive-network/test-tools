@@ -37,7 +37,7 @@ def test_loading_own_snapshot(node: tt.InitNode) -> None:
 def test_loading_snapshot_from_other_node(node: tt.InitNode) -> None:
     make_transaction_for_test(node)
     generate_blocks(node, 22)  # To make sure, that block with test operation will be stored in block log
-    snapshot = node.dump_snapshot()
+    snapshot = node.dump_snapshot(close=True)
 
     loading_node = tt.InitNode()
     loading_node.run(load_snapshot_from=snapshot, wait_for_live=False)
@@ -47,7 +47,7 @@ def test_loading_snapshot_from_other_node(node: tt.InitNode) -> None:
 def test_loading_snapshot_from_custom_path(node: tt.InitNode) -> None:
     make_transaction_for_test(node)
     generate_blocks(node, 22)  # To make sure, that block with test operation will be stored in block log
-    snapshot = node.dump_snapshot()
+    snapshot = node.dump_snapshot(close=True)
 
     loading_node = tt.InitNode()
     loading_node.run(load_snapshot_from=snapshot.get_path(), wait_for_live=False)
