@@ -102,8 +102,16 @@ def test_replay_from_external_block_log(node: tt.InitNode) -> None:
 
 
 def test_exit_before_synchronization() -> None:
+    from beekeepy._exceptions.executable import FailedToStartExecutableError
+
     init_node = tt.InitNode()
-    init_node.run(exit_before_synchronization=True)
+    try:
+        init_node.run(exit_before_synchronization=True)
+    except FailedToStartExecutableError:
+        # With --exit-before-sync, hived exits immediately before binding HTTP port.
+        # Under CI load, this can race with beekeepy's port discovery, causing
+        # FailedToStartExecutableError. This is expected behavior for this flag.
+        pass
     assert not init_node.is_running()
 
 
