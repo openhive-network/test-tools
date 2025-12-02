@@ -457,7 +457,7 @@ class Api:
         :return: Response object containing information about the transaction.
         """
         return self.__send_one_op(
-            ConvertOperation(owner=from_, amount=amount, requestid=int(time.time())),
+            ConvertOperation(owner=from_, amount=amount, requestid=time.time_ns() % (2**32)),
             broadcast=broadcast,
         )
 
@@ -481,7 +481,7 @@ class Api:
         :return: Response object containing information about the transaction.
         """
         return self.__send_one_op(
-            CollateralizedConvertOperation(owner=from_, amount=collateral_amount, requestid=int(time.time())),
+            CollateralizedConvertOperation(owner=from_, amount=collateral_amount, requestid=time.time_ns() % (2**32)),
             broadcast=broadcast,
         )
 
