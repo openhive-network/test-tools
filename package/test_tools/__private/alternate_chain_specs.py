@@ -40,6 +40,7 @@ class AlternateChainSpecs(PreconfiguredBaseModel):
     hf_21_stall_block: int | None = None
     min_root_comment_interval: int | None = None
     witness_custom_op_block_limit: int | None = None
+    hive_cashout_window_seconds: int | None = None
 
     def export_to_file(self, output_dir: Path | None = None) -> Path:
         if output_dir is None:
