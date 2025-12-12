@@ -577,6 +577,9 @@ class OldWallet(UserHandleImplementation, ScopedObject):
         def get_feed_history(self, only_result: bool = True):
             return self.__send("get_feed_history", only_result=only_result)
 
+        def get_metadata(self, account, only_result: bool = True):
+            return self.__send("get_metadata", account=account, only_result=only_result)
+
         def get_open_orders(self, accountname, only_result: bool = True):
             return self.__send("get_open_orders", accountname=accountname, only_result=only_result)
 

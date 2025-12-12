@@ -44,7 +44,7 @@ class WalletApiTranslator:
         self.api_methods: list[Method] = []
 
     def parse_wallet_methods(self) -> None:
-        wallet = tt.Wallet(additional_arguments=["--output-formatter=json"])
+        wallet = tt.OldWallet(additional_arguments=["--output-formatter=json"])
         method_signatures = wallet.api.help()
         wallet_directory = wallet.directory
         wallet.close()

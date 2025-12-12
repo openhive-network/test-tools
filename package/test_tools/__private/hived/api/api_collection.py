@@ -12,6 +12,7 @@ from test_tools.__private.hived.api.database_api import SyncDatabaseApi
 from test_tools.__private.hived.api.debug_node_api import SyncDebugNodeApi
 from test_tools.__private.hived.api.jsonrpc import SyncJsonrpc
 from test_tools.__private.hived.api.market_history_api import SyncMarketHistoryApi
+from test_tools.__private.hived.api.metadata_api import SyncMetadataApi
 from test_tools.__private.hived.api.network_broadcast_api import SyncNetworkBroadcastApi
 from test_tools.__private.hived.api.network_node_api import SyncNetworkNodeApi
 from test_tools.__private.hived.api.rc_api import SyncRcApi
@@ -40,6 +41,7 @@ class HivedSyncApiCollection(AppStatusProbeSyncApiCollection):
         self.reputation = SyncReputationApi(owner=self._owner)
         self.transaction_status = SyncTransactionStatusApi(owner=self._owner)
         self.wallet_bridge = SyncWalletBridgeApi(owner=self._owner)
+        self.metadata = SyncMetadataApi(owner=self._owner)
 
         self.account_by_key_api = self.account_by_key
         self.account_history_api = self.account_history
@@ -55,3 +57,4 @@ class HivedSyncApiCollection(AppStatusProbeSyncApiCollection):
         self.reputation_api = self.reputation
         self.transaction_status_api = self.transaction_status
         self.wallet_bridge_api = self.wallet_bridge
+        self.metadata_api = self.metadata

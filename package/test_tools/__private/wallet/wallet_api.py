@@ -131,6 +131,7 @@ if TYPE_CHECKING:
     from schemas.fields.hive_list import HiveList
     from schemas.fields.resolvables import AssetUnionAssetHiveAssetHbd
     from schemas.transaction import Transaction
+    from test_tools.__private.hived.api.metadata_api.models import GetMetadata
     from test_tools.__private.hived.api.wallet_bridge_api.sync_api import WalletBridgeApi
     from test_tools.__private.node import Node
     from test_tools.__private.remote_node import RemoteNode
@@ -1437,6 +1438,17 @@ class Api:
         :return: The feed history.
         """
         return self.__wallet._force_connected_node.api.wallet_bridge.get_feed_history()
+
+    @warn_if_only_result_set()
+    def get_metadata(self, account: AccountNameApiType, only_result: bool | None = None) -> GetMetadata:  # noqa: ARG002
+        """
+        Retrieves the metadata for a given account.
+
+        :param account: The name of the account.
+        :param only_result: This argument is no longer active and should not be provided.
+        :return: The account metadata containing json_metadata and posting_json_metadata.
+        """
+        return self.__wallet._force_connected_node.api.metadata.get_metadata(account=account)
 
     @warn_if_only_result_set()
     def get_open_orders(
