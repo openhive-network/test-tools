@@ -181,7 +181,9 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         # Retry logic to handle transient failures during snapshot dump (e.g., under CI load)
         for attempt in range(max_retries):
             try:
-                self.__run_process(blocking=True, with_arguments=NodeArguments(dump_snapshot=name, exit_before_sync=True))
+                self.__run_process(
+                    blocking=True, with_arguments=NodeArguments(dump_snapshot=name, exit_before_sync=True)
+                )
                 break
             except FailedToStartExecutableError as e:
                 if attempt < max_retries - 1:
