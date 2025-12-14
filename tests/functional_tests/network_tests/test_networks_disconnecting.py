@@ -165,10 +165,12 @@ def test_separating_1_active_from_3_networks(
         # Final read after retries
         head_block_numbers = get_head_block_numbers_for_networks(three_networks_connected)
 
-    assert head_block_numbers[first_network] > head_block_numbers[second_network], \
-        f"First network should be ahead: first={head_block_numbers[first_network]}, second={head_block_numbers[second_network]}"
-    assert head_block_numbers[second_network] == head_block_numbers[third_network], \
-        f"Second and third should be synchronized: second={head_block_numbers[second_network]}, third={head_block_numbers[third_network]}"
+    assert (
+        head_block_numbers[first_network] > head_block_numbers[second_network]
+    ), f"First network should be ahead: first={head_block_numbers[first_network]}, second={head_block_numbers[second_network]}"
+    assert (
+        head_block_numbers[second_network] == head_block_numbers[third_network]
+    ), f"Second and third should be synchronized: second={head_block_numbers[second_network]}, third={head_block_numbers[third_network]}"
 
 
 def test_separating_2_networks_producing_blocks_from_3_networks(three_networks_connected: Iterable[tt.Network]) -> None:
