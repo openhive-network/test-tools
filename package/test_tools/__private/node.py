@@ -9,7 +9,7 @@ from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING, cast, overload
 
-from beekeepy.exceptions import CommunicationError
+from beekeepy.exceptions import CommunicationError, FailedToStartExecutableError
 from beekeepy.handle.runnable import RunnableHandle
 from beekeepy.interfaces import AnyUrl, HttpUrl, P2PUrl, Stopwatch, WsUrl
 from beekeepy.settings import RunnableHandleSettings as Settings
@@ -169,7 +169,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         assert not self.is_running()
         return self.generate_default_config_from_executable()
 
-    def dump_snapshot(self, *, name: str = "snapshot", close: bool = False) -> Snapshot:
+    def dump_snapshot(self, *, name: str = "snapshot", close: bool = False, max_retries: int = 3) -> Snapshot:
         self.logger.info("Snapshot dumping started...")
         self.__ensure_that_plugin_required_for_snapshot_is_included()
 
@@ -178,7 +178,17 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
 
         self.close()
 
-        self.__run_process(blocking=True, with_arguments=NodeArguments(dump_snapshot=name, exit_before_sync=True))
+        # Retry logic to handle transient failures during snapshot dump (e.g., under CI load)
+        for attempt in range(max_retries):
+            try:
+                self.__run_process(blocking=True, with_arguments=NodeArguments(dump_snapshot=name, exit_before_sync=True))
+                break
+            except FailedToStartExecutableError as e:
+                if attempt < max_retries - 1:
+                    self.logger.warning(f"Snapshot dump failed (attempt {attempt + 1}/{max_retries}): {e}, retrying...")
+                    time.sleep(1)
+                else:
+                    raise
 
         if not close:
             self.run()
