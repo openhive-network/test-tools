@@ -152,7 +152,7 @@ def test_separating_1_active_from_3_networks(
     import time
 
     max_sync_attempts = 10
-    for attempt in range(max_sync_attempts):
+    for _attempt in range(max_sync_attempts):
         head_block_numbers = get_head_block_numbers_for_networks(three_networks_connected)
 
         # Check if second and third are synchronized
