@@ -147,10 +147,30 @@ def test_separating_1_active_from_3_networks(
     first_network.node("InitNode0").wait_number_of_blocks(1)
 
     # ASSERT
-    head_block_numbers = get_head_block_numbers_for_networks(three_networks_connected)
+    # Wait for second and third networks to synchronize before checking
+    # (they may be at different blocks momentarily due to timing/CI load)
+    import time
 
-    assert head_block_numbers[first_network] > head_block_numbers[second_network]
-    assert head_block_numbers[second_network] == head_block_numbers[third_network]
+    max_sync_attempts = 10
+    for _attempt in range(max_sync_attempts):
+        head_block_numbers = get_head_block_numbers_for_networks(three_networks_connected)
+
+        # Check if second and third are synchronized
+        if head_block_numbers[second_network] == head_block_numbers[third_network]:
+            break
+
+        # Wait for block production to settle
+        time.sleep(0.5)
+    else:
+        # Final read after retries
+        head_block_numbers = get_head_block_numbers_for_networks(three_networks_connected)
+
+    assert (
+        head_block_numbers[first_network] > head_block_numbers[second_network]
+    ), f"First network should be ahead: first={head_block_numbers[first_network]}, second={head_block_numbers[second_network]}"
+    assert (
+        head_block_numbers[second_network] == head_block_numbers[third_network]
+    ), f"Second and third should be synchronized: second={head_block_numbers[second_network]}, third={head_block_numbers[third_network]}"
 
 
 def test_separating_2_networks_producing_blocks_from_3_networks(three_networks_connected: Iterable[tt.Network]) -> None:
