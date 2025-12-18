@@ -94,6 +94,7 @@ class RunnableNodeHandle(NodeHandleBase):
         time_control: TimeControl | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
         explicit_blocking: bool = False,
+        max_retries: int = 1,
     ) -> None:
         """
         Starts node synchronously. By default, program execution is blocked until node enters live mode (see `wait_for_live` parameter for details).
@@ -133,6 +134,8 @@ class RunnableNodeHandle(NodeHandleBase):
             Allows to change few properties of blockchain so it acts for example faster in certain ways to reduce duration
             of tests. If it is used once it is cached and will be used after restart and future runs for this
             instance of hived, even if it's not passed directly.
+        :param max_retries:
+            Number of times to retry node startup in case of transient errors.
         """
         return self.__implementation.run(
             load_snapshot_from=load_snapshot_from,
@@ -147,6 +150,7 @@ class RunnableNodeHandle(NodeHandleBase):
             time_control=time_control,
             alternate_chain_specs=alternate_chain_specs,
             explicit_blocking=explicit_blocking,
+            max_retries=max_retries,
         )
 
     def restart(
@@ -154,6 +158,8 @@ class RunnableNodeHandle(NodeHandleBase):
         wait_for_live: bool = True,
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
         time_control: TimeControl | None = None,
+        alternate_chain_specs: AlternateChainSpecs | None = None,
+        max_retries: int = 1,
     ) -> None:
         """
         Stops node and immediately starts it again. Whole restart is performed synchronously.
@@ -167,8 +173,18 @@ class RunnableNodeHandle(NodeHandleBase):
             is reached, `TimeoutError` exception is thrown. Expressed in seconds.
         :param time_control:
             See parameter ``time_control`` in :func:`run`.
+        :param alternate_chain_specs:
+            See parameter ``alternate_chain_specs`` in :func:`run`.
+        :param max_retries:
+            See parameter ``max_retries`` in :func:`run`.
         """
-        return self.__implementation.restart(wait_for_live=wait_for_live, timeout=timeout, time_control=time_control)
+        return self.__implementation.restart(
+            wait_for_live=wait_for_live,
+            timeout=timeout,
+            time_control=time_control,
+            alternate_chain_specs=alternate_chain_specs,
+            max_retries=max_retries,
+        )
 
     def set_cleanup_policy(self, policy: CleanupPolicy) -> None:
         """

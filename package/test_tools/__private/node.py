@@ -9,7 +9,7 @@ from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING, cast, overload
 
-from beekeepy.exceptions import CommunicationError
+from beekeepy.exceptions import CommunicationError, FailedToStartExecutableError
 from beekeepy.handle.runnable import RunnableHandle
 from beekeepy.interfaces import AnyUrl, HttpUrl, P2PUrl, Stopwatch, WsUrl
 from beekeepy.settings import RunnableHandleSettings as Settings
@@ -316,7 +316,9 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                 local_environment_variables = environment_variables or dict(os.environ)
 
                 if isinstance(time_control, TimeControl):
-                    if isinstance(time_control, StartTimeControl) and time_control.is_start_time_equal_to("head_block_time"):
+                    if isinstance(time_control, StartTimeControl) and time_control.is_start_time_equal_to(
+                        "head_block_time"
+                    ):
                         assert (
                             self.block_log.path.exists()
                         ), "Block log directory does not exist. Block_log is necessary to use 'head_block_time' as time_control"
@@ -345,7 +347,9 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                 else:
                     self.logger.info(f"{log_message} and NOT waiting for live...")
 
-                exit_before_synchronization_final = bool(exit_before_synchronization) or bool(additional_arguments.exit_before_sync)
+                exit_before_synchronization_final = bool(exit_before_synchronization) or bool(
+                    additional_arguments.exit_before_sync
+                )
 
                 self._actions_before_run()
                 blocking = explicit_blocking or exit_before_synchronization_final or bool(exit_at_block)
@@ -374,14 +378,17 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                             stop_at_block=stop_at_block,
                             is_queen_active=("queen" in self.config.plugin),
                         )
-                    self.logger.info(f"Waiting for synchronization for {self.get_name()} took {sw.seconds_delta :.2f} seconds")
-                return
-            except (FailedToStartExecutableError, CommunicationError, TimeoutError) as e:
+                    self.logger.info(
+                        f"Waiting for synchronization for {self.get_name()} took {sw.seconds_delta :.2f} seconds"
+                    )
+            except (FailedToStartExecutableError, CommunicationError, TimeoutError):
                 if attempt == max_retries - 1:
-                    raise e
-                self.logger.warning(f"Node startup failed (attempt {attempt + 1}/{max_retries}): {e}, retrying...")
+                    raise
+                self.logger.warning(f"Node startup failed (attempt {attempt + 1}/{max_retries}), retrying...")
                 self.close()
                 time.sleep(1)
+            else:
+                return
 
         self.__log_run_summary()
 
