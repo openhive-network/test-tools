@@ -256,6 +256,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         time_control: TimeControl | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
         explicit_blocking: bool = False,
+        max_retries: int = 1,
     ) -> None:
         """
         Runs node.
@@ -270,109 +271,117 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                                       parameter.
         """
         # This pylint warning is right, but this refactor has low priority. Will be done later...
+        for attempt in range(max_retries):
+            try:
+                self.__validate_timeout(timeout)
+                process_startup_timeout: float | None = None
+                assert time_control is None or isinstance(
+                    time_control, TimeControl
+                ), "time_control can only be subclass of TimeControl class"
+                deadline = time.time() + timeout
 
-        self.__validate_timeout(timeout)
-        process_startup_timeout: float | None = None
-        assert time_control is None or isinstance(
-            time_control, TimeControl
-        ), "time_control can only be subclass of TimeControl class"
-        deadline = time.time() + timeout
+                self.__check_if_executable_is_built_in_supported_versions()
 
-        self.__check_if_executable_is_built_in_supported_versions()
+                if not self.__produced_files and self.directory.exists():
+                    shutil.rmtree(self.directory)
+                self.directory.mkdir(parents=True, exist_ok=True)
+                self.__enable_logging()
 
-        if not self.__produced_files and self.directory.exists():
-            shutil.rmtree(self.directory)
-        self.directory.mkdir(parents=True, exist_ok=True)
-        self.__enable_logging()
+                self.__set_unset_endpoints()
+                self.__assure_that_app_status_api_is_enabled()
+                parsed_arguments = self.__convert_to_node_arguments(arguments)
+                log_message = f"Running {self}"
 
-        self.__set_unset_endpoints()
-        self.__assure_that_app_status_api_is_enabled()
-        arguments = self.__convert_to_node_arguments(arguments)
-        log_message = f"Running {self}"
+                additional_arguments = parsed_arguments or self.arguments.copy()
+                if load_snapshot_from is not None:
+                    self.__handle_loading_snapshot(load_snapshot_from, additional_arguments)
+                    log_message += ", loading snapshot"
 
-        additional_arguments = arguments or self.arguments.copy()
-        if load_snapshot_from is not None:
-            self.__handle_loading_snapshot(load_snapshot_from, additional_arguments)
-            log_message += ", loading snapshot"
+                if exit_at_block is not None and stop_at_block is not None:
+                    raise RuntimeError("exit_at_block and stop_at_block can't be used together")
+                if stop_at_block is not None:
+                    additional_arguments.stop_at_block = stop_at_block
+                if exit_at_block is not None:
+                    additional_arguments.exit_at_block = exit_at_block
+                if alternate_chain_specs is not None or self.alternate_chain_specs is not None:
+                    if alternate_chain_specs is not None:  # write or override
+                        self.__alternate_chain_specs = alternate_chain_specs
+                    if self.__alternate_chain_specs is not None:
+                        destination = self.__alternate_chain_specs.export_to_file(self.directory).absolute()
+                        additional_arguments.alternate_chain_spec = destination
+                if replay_from is not None:
+                    self.__handle_replay(replay_from, additional_arguments)
+                    log_message += ", replaying"
 
-        if exit_at_block is not None and stop_at_block is not None:
-            raise RuntimeError("exit_at_block and stop_at_block can't be used together")
-        if stop_at_block is not None:
-            additional_arguments.stop_at_block = stop_at_block
-        if exit_at_block is not None:
-            additional_arguments.exit_at_block = exit_at_block
-        if alternate_chain_specs is not None or self.alternate_chain_specs is not None:
-            if alternate_chain_specs is not None:  # write or override
-                self.__alternate_chain_specs = alternate_chain_specs
-            if self.__alternate_chain_specs is not None:
-                destination = self.__alternate_chain_specs.export_to_file(self.directory).absolute()
-                additional_arguments.alternate_chain_spec = destination
-        if replay_from is not None:
-            self.__handle_replay(replay_from, additional_arguments)
-            log_message += ", replaying"
+                local_environment_variables = environment_variables or dict(os.environ)
 
-        environment_variables = environment_variables or dict(os.environ)
+                if isinstance(time_control, TimeControl):
+                    if isinstance(time_control, StartTimeControl) and time_control.is_start_time_equal_to("head_block_time"):
+                        assert (
+                            self.block_log.path.exists()
+                        ), "Block log directory does not exist. Block_log is necessary to use 'head_block_time' as time_control"
+                        assert (
+                            self.block_log.block_files
+                        ), "Could not find block log file(s). Block_log is necessary to use 'head_block_time' as time_control"
+                        time_control.apply_head_block_time(self.block_log.get_head_block_time())
 
-        if isinstance(time_control, TimeControl):
-            if isinstance(time_control, StartTimeControl) and time_control.is_start_time_equal_to("head_block_time"):
-                assert (
-                    self.block_log.path.exists()
-                ), "Block log directory does not exist. Block_log is necessary to use 'head_block_time' as time_control"
-                assert (
-                    self.block_log.block_files
-                ), "Could not find block log file(s). Block_log is necessary to use 'head_block_time' as time_control"
-                time_control.apply_head_block_time(self.block_log.get_head_block_time())
+                    time_control_str = time_control.as_string()
+                    self.logger.info(f"Setting FAKE_TIME for {self.get_name()} as: `{time_control_str}`")
+                    local_environment_variables.update(configure_fake_time(self._logger, time_control_str))
 
-            time_control_str = time_control.as_string()
-            self.logger.info(f"Setting FAKE_TIME for {self.get_name()} as: `{time_control_str}`")
-            environment_variables.update(configure_fake_time(self._logger, time_control_str))
+                if exit_at_block is not None or exit_before_synchronization or additional_arguments.exit_before_sync:
+                    if wait_for_live is not None:
+                        raise RuntimeError("wait_for_live can't be used with exit_before_synchronization")
 
-        if exit_at_block is not None or exit_before_synchronization or additional_arguments.exit_before_sync:
-            if wait_for_live is not None:
-                raise RuntimeError("wait_for_live can't be used with exit_before_synchronization")
+                    wait_for_live = False
 
-            wait_for_live = False
+                    if exit_before_synchronization:
+                        additional_arguments.exit_before_sync = True
 
-            if exit_before_synchronization:
-                additional_arguments.exit_before_sync = True
+                    self.logger.info(f"{log_message} and waiting for close...")
+                elif wait_for_live is None or wait_for_live is True:
+                    wait_for_live = True
+                    self.logger.info(f"{log_message} and waiting for live...")
+                else:
+                    self.logger.info(f"{log_message} and NOT waiting for live...")
 
-            self.logger.info(f"{log_message} and waiting for close...")
-        elif wait_for_live is None or wait_for_live is True:
-            wait_for_live = True
-            self.logger.info(f"{log_message} and waiting for live...")
-        else:
-            self.logger.info(f"{log_message} and NOT waiting for live...")
+                exit_before_synchronization_final = bool(exit_before_synchronization) or bool(additional_arguments.exit_before_sync)
 
-        exit_before_synchronization = bool(exit_before_synchronization) or bool(additional_arguments.exit_before_sync)
+                self._actions_before_run()
+                blocking = explicit_blocking or exit_before_synchronization_final or bool(exit_at_block)
+                if blocking:
+                    process_startup_timeout = math.inf
+                with Stopwatch() as sw:
+                    self.__run_process(
+                        blocking=blocking,
+                        with_arguments=additional_arguments,
+                        with_environment_variables=local_environment_variables,
+                        process_startup_timeout=process_startup_timeout,
+                    )
+                self.logger.info(f"Waiting for process start of {self.get_name()} took {sw.seconds_delta :.2f} seconds")
 
-        self._actions_before_run()
-        blocking = explicit_blocking or exit_before_synchronization or bool(exit_at_block)
-        if blocking:
-            process_startup_timeout = math.inf
-        with Stopwatch() as sw:
-            self.__run_process(
-                blocking=blocking,
-                with_arguments=additional_arguments,
-                with_environment_variables=environment_variables,
-                process_startup_timeout=process_startup_timeout,
-            )
-        self.logger.info(f"Waiting for process start of {self.get_name()} took {sw.seconds_delta :.2f} seconds")
+                if replay_from is not None and not blocking:
+                    self.__wait_for_replay_finish()
 
-        if replay_from is not None and not blocking:
-            self.__wait_for_replay_finish()
+                self.__produced_files = True
 
-        self.__produced_files = True
-
-        if not blocking:
-            self.logger.info("Waiting for synchronization...")
-            with Stopwatch() as sw:
-                self.__wait_for_synchronization(
-                    deadline=deadline,
-                    wait_for_live=wait_for_live,
-                    stop_at_block=stop_at_block,
-                    is_queen_active=("queen" in self.config.plugin),
-                )
-            self.logger.info(f"Waiting for synchronization for {self.get_name()} took {sw.seconds_delta :.2f} seconds")
+                if not blocking:
+                    self.logger.info("Waiting for synchronization...")
+                    with Stopwatch() as sw:
+                        self.__wait_for_synchronization(
+                            deadline=deadline,
+                            wait_for_live=wait_for_live,
+                            stop_at_block=stop_at_block,
+                            is_queen_active=("queen" in self.config.plugin),
+                        )
+                    self.logger.info(f"Waiting for synchronization for {self.get_name()} took {sw.seconds_delta :.2f} seconds")
+                return
+            except (FailedToStartExecutableError, CommunicationError, TimeoutError) as e:
+                if attempt == max_retries - 1:
+                    raise e
+                self.logger.warning(f"Node startup failed (attempt {attempt + 1}/{max_retries}): {e}, retrying...")
+                self.close()
+                time.sleep(1)
 
         self.__log_run_summary()
 
@@ -553,6 +562,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
         time_control: TimeControl | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
+        max_retries: int = 1,
     ) -> None:
         self.close()
         self.run(
@@ -560,6 +570,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
             timeout=timeout,
             time_control=time_control,
             alternate_chain_specs=alternate_chain_specs,
+            max_retries=max_retries,
         )
 
     def __remove_files(self) -> None:
