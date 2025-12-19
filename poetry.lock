@@ -441,14 +441,33 @@ hpack = ">=4.0,<5"
 hyperframe = ">=6.0,<7"
 
 [[package]]
-name = "hiveio-beekeepy"
-version = "1.28.1.dev2+8d14ac8"
-description = "All in one package for beekeeper interaction via Python interface."
+name = "hiveio-api"
+version = "1.28.2.dev134+f4f78bb51"
+description = "Hive JSON-RPC API client package with lazy-loaded submodules for all Hive APIs"
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "hiveio_beekeepy-1.28.1.dev2+8d14ac8-py3-none-any.whl", hash = "sha256:992dfcdb5dec50a0899afb357321ee81799d0933e81939826abf356c223a2239"},
+    {file = "hiveio_api-1.28.2.dev134+f4f78bb51-py3-none-any.whl", hash = "sha256:88ff51b6248965446e6e211bc05af6eedf3e329762289a9e7fd21ffe7852b156"},
+]
+
+[package.dependencies]
+hiveio-beekeepy = "1.28.2"
+
+[package.source]
+type = "legacy"
+url = "https://gitlab.syncad.com/api/v4/projects/419/packages/pypi/simple"
+reference = "gitlab-wax"
+
+[[package]]
+name = "hiveio-beekeepy"
+version = "1.28.2"
+description = "All in one package for beekeeper interaction via Python interface."
+optional = false
+python-versions = "<4.0,>=3.12"
+groups = ["main"]
+files = [
+    {file = "hiveio_beekeepy-1.28.2-py3-none-any.whl", hash = "sha256:b3840a288850af495c64c46b5bc1d07e539b3506f8ee924552835b6bdf863362"},
 ]
 
 [package.dependencies]
@@ -458,68 +477,6 @@ loguru = "0.7.2"
 psutil = "7.0.0"
 python-dateutil = "2.8.2"
 requests = "2.32.3"
-
-[package.source]
-type = "legacy"
-url = "https://gitlab.syncad.com/api/v4/projects/434/packages/pypi/simple"
-reference = "gitlab-beekeepy"
-
-[[package]]
-name = "hiveio-database-api"
-version = "1.28.2.dev34+02dd6ba54"
-description = ""
-optional = false
-python-versions = ">=3.12,<4.0"
-groups = ["main"]
-files = [
-    {file = "hiveio_database_api-1.28.2.dev34+02dd6ba54-py3-none-any.whl", hash = "sha256:dd5c89474cea445843ca1e7b2a9d0d5e82e55c6384cccf30c9f88de897f51337"},
-]
-
-[package.dependencies]
-hiveio-beekeepy = "1.28.1.dev2+8d14ac8"
-
-[package.source]
-type = "legacy"
-url = "https://gitlab.syncad.com/api/v4/projects/198/packages/pypi/simple"
-reference = "gitlab-api-packages"
-
-[[package]]
-name = "hiveio-network-broadcast-api"
-version = "1.28.2.dev34+02dd6ba54"
-description = ""
-optional = false
-python-versions = ">=3.12,<4.0"
-groups = ["main"]
-files = [
-    {file = "hiveio_network_broadcast_api-1.28.2.dev34+02dd6ba54-py3-none-any.whl", hash = "sha256:f14cacdc582e64dc6335ba0e290d21e8a5ab6fdda9012a2cf3d83a9e84724c0c"},
-]
-
-[package.dependencies]
-hiveio-beekeepy = "1.28.1.dev2+8d14ac8"
-
-[package.source]
-type = "legacy"
-url = "https://gitlab.syncad.com/api/v4/projects/198/packages/pypi/simple"
-reference = "gitlab-api-packages"
-
-[[package]]
-name = "hiveio-rc-api"
-version = "1.28.2.dev34+02dd6ba54"
-description = ""
-optional = false
-python-versions = ">=3.12,<4.0"
-groups = ["main"]
-files = [
-    {file = "hiveio_rc_api-1.28.2.dev34+02dd6ba54-py3-none-any.whl", hash = "sha256:98d6e51d0efbde733476d74aec15d15146b955b6176012c3e9bcfb36466b452b"},
-]
-
-[package.dependencies]
-hiveio-beekeepy = "1.28.1.dev2+8d14ac8"
-
-[package.source]
-type = "legacy"
-url = "https://gitlab.syncad.com/api/v4/projects/198/packages/pypi/simple"
-reference = "gitlab-api-packages"
 
 [[package]]
 name = "hiveio-schemas"
@@ -537,19 +494,17 @@ msgspec = "0.18.6"
 
 [[package]]
 name = "hiveio-wax"
-version = "1.28.4rc1.dev31+b3cc32af"
+version = "1.28.4rc1.dev54+e721006c"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "hiveio_wax-1.28.4rc1.dev31+b3cc32af-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:891f3691846d7cb711fbfd75e0b17173c3f52a25ef5958f6ebef0084196289cc"},
+    {file = "hiveio_wax-1.28.4rc1.dev54+e721006c-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:3afa8c78a9afa78130454dd8408656dd70999a3ac40b7bd76b791ec1475382b8"},
 ]
 
 [package.dependencies]
-hiveio-database-api = "1.28.2.dev34+02dd6ba54"
-hiveio-network-broadcast-api = "1.28.2.dev34+02dd6ba54"
-hiveio-rc-api = "1.28.2.dev34+02dd6ba54"
+hiveio-api = "1.28.2.dev134+f4f78bb51"
 httpx = {version = "0.23.3", extras = ["http2"]}
 loguru = "0.7.2"
 protobuf = "4.24.4"
@@ -1542,4 +1497,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "2367216de7169ef8890b72c6ef23da1d17ad3808738835fad81fb5c4ab373135"
+content-hash = "27fa1c74ad60eeb2dfa21c948608d2c9ec49c4fb8b4169c8fc6563435b5664c4"
