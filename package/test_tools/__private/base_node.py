@@ -25,6 +25,7 @@ class BaseNode(UserHandleImplementation, HivedTemplate[Settings]):
                 period_between_retries=timedelta(seconds=0.5),
                 max_retries=8,
                 overseer=StrictOverseer,
+                propagate_sigint=False,
             ),
         )
 
