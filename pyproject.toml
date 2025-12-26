@@ -27,7 +27,7 @@ python = ">=3.14,<4"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 loguru = "0.7.2"
-hiveio-wax = { git = "https://gitlab.syncad.com/hive/wax.git", branch = "feature/python-3.14", subdirectory = "python" }
+hiveio-wax = ">=1.28.4"
 
 
 [tool.poetry.group.dev.dependencies]
