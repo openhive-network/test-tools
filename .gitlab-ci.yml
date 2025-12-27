@@ -12,9 +12,9 @@ variables:
   TXT_CLEAR: "\e[0m"
 
   # Override Python image to use Python 3.14
-  # uses registry.gitlab.syncad.com/hive/hive/ci-base-image:ubuntu24.04-py3.14-1
+  # uses registry.gitlab.syncad.com/hive/common-ci-configuration/ci-base-image:ubuntu24.04-py3.14-1
   PYTHON_IMAGE_TAG: ":ubuntu24.04-py3.14-1"
-  PYTHON_IMAGE: "registry.gitlab.syncad.com/hive/hive/ci-base-image${PYTHON_IMAGE_TAG}"
+  PYTHON_IMAGE: "registry.gitlab.syncad.com/hive/common-ci-configuration/ci-base-image${PYTHON_IMAGE_TAG}"
 
 
 include:
