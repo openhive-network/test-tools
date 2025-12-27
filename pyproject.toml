@@ -28,11 +28,11 @@ python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 msgspec = "^0.20.0"
 loguru = "0.7.2"
-# Use latest wax that has updated dependency chain (msgspec 0.20.0)
-hiveio-wax = {version = ">=1.28.4rc1.dev100", allow-prereleases = true}
-# Force newer beekeepy/schemas to get msgspec 0.20.0 (not 0.18.6)
-hiveio-beekeepy = {version = ">=1.28.4.dev0", allow-prereleases = true}
-hiveio-schemas = {version = ">=1.28.1.dev0", allow-prereleases = true}
+# For Python 3.14: Pin exact beekeepy/schemas versions that use msgspec 0.20.0
+# These override the transitive dependencies from wax
+hiveio-wax = {version = ">=1.28.4rc1.dev60", allow-prereleases = true}
+hiveio-beekeepy = {version = ">=1.28.4.dev7", allow-prereleases = true}
+hiveio-schemas = {version = ">=1.28.1.dev3", allow-prereleases = true}
 
 
 [tool.poetry.group.dev.dependencies]
