@@ -26,6 +26,7 @@ packages = [
 python = ">=3.14,<4"
 python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
+msgspec = "^0.20.0"
 loguru = "0.7.2"
 hiveio-wax = {version = ">=1.28.4rc1.dev0", allow-prereleases = true}
 
