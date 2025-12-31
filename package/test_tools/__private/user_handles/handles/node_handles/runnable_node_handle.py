@@ -156,10 +156,10 @@ class RunnableNodeHandle(NodeHandleBase):
     def restart(
         self,
         wait_for_live: bool = True,
-        timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
+        timeout: float | None = None,
         time_control: TimeControl | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
-        max_retries: int = 1,
+        max_retries: int | None = None,
     ) -> None:
         """
         Stops node and immediately starts it again. Whole restart is performed synchronously.
@@ -170,13 +170,13 @@ class RunnableNodeHandle(NodeHandleBase):
 
         :param wait_for_live: Blocks program execution until node starts to generate or receive blocks.
         :param timeout: If `wait_for_live` is set to True, this parameter sets how long waiting can take. When timeout
-            is reached, `TimeoutError` exception is thrown. Expressed in seconds.
+            is reached, `TimeoutError` exception is thrown. Expressed in seconds. If None, inherits from last run().
         :param time_control:
             See parameter ``time_control`` in :func:`run`.
         :param alternate_chain_specs:
             See parameter ``alternate_chain_specs`` in :func:`run`.
         :param max_retries:
-            See parameter ``max_retries`` in :func:`run`.
+            See parameter ``max_retries`` in :func:`run`. If None, inherits from last run().
         """
         return self.__implementation.restart(
             wait_for_live=wait_for_live,

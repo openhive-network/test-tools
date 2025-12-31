@@ -67,6 +67,10 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
 
         self.__wallets: list[Wallet] = []
 
+        # Store last run parameters for restart() to inherit
+        self._last_timeout: float = self.DEFAULT_WAIT_FOR_LIVE_TIMEOUT
+        self._last_max_retries: int = 1
+
         self.__is_testnet: bool | None = None
 
     @property
@@ -270,6 +274,10 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                                       is already defined, its value will be overwritten with one provided by this
                                       parameter.
         """
+        # Store parameters for restart() to inherit
+        self._last_timeout = timeout
+        self._last_max_retries = max_retries
+
         # This pylint warning is right, but this refactor has low priority. Will be done later...
         for attempt in range(max_retries):
             try:
@@ -566,18 +574,18 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
     def restart(
         self,
         wait_for_live: bool = True,
-        timeout: float = DEFAULT_WAIT_FOR_LIVE_TIMEOUT,
+        timeout: float | None = None,
         time_control: TimeControl | None = None,
         alternate_chain_specs: AlternateChainSpecs | None = None,
-        max_retries: int = 1,
+        max_retries: int | None = None,
     ) -> None:
         self.close()
         self.run(
             wait_for_live=wait_for_live,
-            timeout=timeout,
+            timeout=timeout if timeout is not None else self._last_timeout,
             time_control=time_control,
             alternate_chain_specs=alternate_chain_specs,
-            max_retries=max_retries,
+            max_retries=max_retries if max_retries is not None else self._last_max_retries,
         )
 
     def __remove_files(self) -> None:
