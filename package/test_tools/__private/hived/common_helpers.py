@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from schemas.apis.database_api import GetDynamicGlobalProperties
+from database_api.database_api_description import GetDynamicGlobalPropertiesResponse as GetDynamicGlobalProperties
 
 if TYPE_CHECKING:
     from datetime import datetime
     from typing import TypeAlias
 
-    from schemas.apis.database_api import GetVersion
+    from database_api.database_api_description import GetVersionResponse as GetVersion
     from schemas.fields.basic import AccountName
 
 

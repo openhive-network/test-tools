@@ -96,7 +96,7 @@ if TYPE_CHECKING:
     from beekeepy import UnlockedWallet
     from database_api.database_api_description import GetTransactionHexResponse
 
-    import schemas.apis.database_api.fundaments_of_reponses as fundaments_database_api
+    from database_api.database_api_description import OwnerAuth as OwnerHistoriesFundament
     from schemas.apis.block_api.fundaments_of_responses import Hf26Block
     from schemas.apis.wallet_bridge_api.response_schemas import (
         FindProposals,
@@ -1453,7 +1453,7 @@ class Api:
     @warn_if_only_result_set()
     def get_owner_history(
         self, account: AccountNameApiType, as_list: bool = False, only_result: bool | None = None  # noqa: ARG002
-    ) -> HiveList[fundaments_database_api.OwnerHistoriesFundament] | GetOwnerHistory:
+    ) -> HiveList[OwnerHistoriesFundament] | GetOwnerHistory:
         """
         Retrieves the owner history for a given account.
 
