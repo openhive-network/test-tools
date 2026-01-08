@@ -6,6 +6,7 @@ import os
 import shutil
 import time
 from contextlib import suppress
+from datetime import timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, cast, overload
 
@@ -363,6 +364,13 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                 blocking = explicit_blocking or exit_before_synchronization_final or bool(exit_at_block)
                 if blocking:
                     process_startup_timeout = math.inf
+                elif replay_from is not None:
+                    # When replaying, P2P port only becomes available after replay completes,
+                    # so we need a longer timeout for beekeepy's port detection.
+                    # Must update settings.initialization_timeout because beekeepy's
+                    # _wait_for_app_to_start() uses settings directly, not the timeout parameter.
+                    with self.update_settings() as settings:
+                        settings.initialization_timeout = timedelta(seconds=timeout)
                 with Stopwatch() as sw:
                     self.__run_process(
                         blocking=blocking,
