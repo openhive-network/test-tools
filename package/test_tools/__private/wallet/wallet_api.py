@@ -94,7 +94,9 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from beekeepy import UnlockedWallet
-    from database_api.database_api_description import GetTransactionHexResponse, OwnerAuth as OwnerHistoriesFundament
+    from database_api.database_api_description import GetTransactionHexResponse
+    from database_api.database_api_description import OwnerAuth as OwnerHistoriesFundament
+
     from schemas.apis.block_api.fundaments_of_responses import Hf26Block
     from schemas.apis.wallet_bridge_api.response_schemas import (
         FindProposals,
