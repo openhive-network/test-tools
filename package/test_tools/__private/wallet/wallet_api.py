@@ -1462,7 +1462,7 @@ class Api:
         """
         owner_history = self.__wallet._force_connected_node.api.wallet_bridge.get_owner_history(account)
         if as_list:
-            return owner_history.owner_auths
+            return owner_history.owner_auths  # type: ignore[return-value]
         return owner_history
 
     @require_unlocked_wallet

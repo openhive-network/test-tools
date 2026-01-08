@@ -52,4 +52,4 @@ class InitNode(WitnessNode):
 
     def __log_vest_price_from_network(self) -> None:
         dgpo = self.api.wallet_bridge.get_dynamic_global_properties()
-        self.logger.info(f"new vests price (real): {VestPrice.from_dgpo(dgpo)}")
+        self.logger.info(f"new vests price (real): {VestPrice.from_dgpo(dgpo)}")  # type: ignore[arg-type]

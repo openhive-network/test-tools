@@ -9,7 +9,6 @@ from test_tools.__private.base_node import BaseNode
 from test_tools.__private.node import Node
 from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.user_handles.handle import Handle
-from wax.helpy._interfaces.time import Time
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -48,7 +47,7 @@ class NodeHandleBase(Handle):
 
     def get_head_block_time(self) -> datetime:
         """Returns head block time."""
-        return Time.parse(self.__implementation.get_head_block_time())
+        return self.__implementation.get_head_block_time()
 
     def get_current_witness(self) -> str:
         """Returns current witness."""
