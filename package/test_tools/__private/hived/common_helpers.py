@@ -9,7 +9,6 @@ if TYPE_CHECKING:
     from typing import TypeAlias
 
     from database_api.database_api_description import GetVersionResponse as GetVersion
-
     from schemas.fields.basic import AccountName
 
 
