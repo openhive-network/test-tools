@@ -2041,7 +2041,7 @@ class Api:
         transaction_hex: GetTransactionHexResponse = (
             self.__wallet._force_connected_node.api.database.get_transaction_hex(trx=tx)
         )
-        return transaction_hex.hex
+        return transaction_hex.hex_
 
     @warn_if_only_result_set()
     def set_password(self, password: str, only_result: bool | None = None) -> None:  # noqa: ARG002
