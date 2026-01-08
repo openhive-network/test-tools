@@ -30,7 +30,7 @@ msgspec = "^0.20.0"
 loguru = "0.7.2"
 # For Python 3.14: Pin exact beekeepy/schemas versions that use msgspec 0.20.0
 # These override the transitive dependencies from wax
-hiveio-wax = {version = ">=1.28.4rc1.dev60", allow-prereleases = true}
+hiveio-wax = {version = ">=1.28.4rc1.dev66", allow-prereleases = true}
 hiveio-beekeepy = {version = ">=1.28.4.dev7", allow-prereleases = true}
 hiveio-schemas = {version = ">=1.28.1.dev3", allow-prereleases = true}
 hiveio-database-api = {version = ">=1.28.2.dev332", allow-prereleases = true}
