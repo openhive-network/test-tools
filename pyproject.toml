@@ -33,7 +33,7 @@ loguru = "0.7.2"
 hiveio-wax = {version = ">=1.28.4rc1.dev66", allow-prereleases = true}
 hiveio-beekeepy = {version = ">=1.28.4.dev7", allow-prereleases = true}
 hiveio-schemas = {version = ">=1.28.1.dev3", allow-prereleases = true}
-hiveio-database-api = {version = ">=1.28.2.dev333", allow-prereleases = true}
+hiveio-database-api = {version = ">=1.28.2.dev332", allow-prereleases = true}
 
 
 [tool.poetry.group.dev.dependencies]
