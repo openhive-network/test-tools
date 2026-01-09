@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from database_api.database_api_description import GetDynamicGlobalPropertiesResponse as GetDynamicGlobalProperties
 
 if TYPE_CHECKING:
-    from datetime import datetime
     from typing import TypeAlias
 
     from database_api.database_api_description import GetVersionResponse as GetVersion
@@ -24,9 +24,8 @@ class HiveHandleCommonHelpers:
     def _get_head_block_time(self, dynamic_global_properties: GetDynamicGlobalPropertiesT) -> datetime:
         time_value = dynamic_global_properties.time
         if isinstance(time_value, str):
-            from datetime import datetime
             return datetime.fromisoformat(time_value.replace("Z", "+00:00"))
-        return time_value  # type: ignore[return-value]
+        return time_value
 
     def _get_current_witness(self, dynamic_global_properties: GetDynamicGlobalPropertiesT) -> AccountName:
         return dynamic_global_properties.current_witness

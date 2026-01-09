@@ -25,7 +25,7 @@ class VestPrice:
 
     @classmethod
     def from_dgpo(cls, dgpo: GetDynamicGlobalProperties) -> VestPrice:
-        return cls(quote=dgpo.total_vesting_shares, base=dgpo.total_vesting_fund_hive)
+        return cls(quote=dgpo.total_vesting_shares, base=dgpo.total_vesting_fund_hive)  # type: ignore[arg-type]
 
     def as_nai(self) -> dict[str, dict[str, AssetNaiAmount | str]]:
         return {"quote": self.quote.as_nai(), "base": self.base.as_nai()}

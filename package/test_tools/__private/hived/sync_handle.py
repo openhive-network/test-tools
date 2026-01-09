@@ -26,7 +26,7 @@ class HivedTemplate(
         return self._hived_target_service_name()
 
     def get_dynamic_global_properties(self) -> HiveHandleCommonHelpers.GetDynamicGlobalPropertiesT:
-        return self.api.database.get_dynamic_global_properties()  # type: ignore[return-value]
+        return self.api.database.get_dynamic_global_properties()  # type: ignore[no-any-return]
 
     def get_last_block_number(self) -> int:
         return self._get_last_block_number(self.get_dynamic_global_properties())
