@@ -43,6 +43,8 @@ __all__ = [
     "InitNode",
     "InitialVesting",
     "Network",
+    "NodeArguments",
+    "NodeConfig",
     "OffsetTimeControl",
     "OldWallet",
     "PrivateKey",
@@ -51,12 +53,9 @@ __all__ = [
     "RemoteNode",
     "SpeedUpRateTimeControl",
     "StartTimeControl",
-    "wax_wrapper",
     "Time",
     "TimeFormats",
     "Wallet",
-    "NodeArguments",
-    "NodeConfig",
     "WitnessNode",
     "cleanup_policy",
     "constants",
@@ -64,9 +63,10 @@ __all__ = [
     "exceptions",
     "logger",
     "paths_to_executables",
+    "wax_wrapper",
 ]
 
 if TYPE_CHECKING:
-    from test_tools.__private.type_annotations.any_node import AnyNode  # noqa: TCH004
+    from test_tools.__private.type_annotations.any_node import AnyNode  # noqa: TC004
 
     __all__ = [*__all__, "AnyNode", "Snapshot"]  # noqa: PLE0604

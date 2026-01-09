@@ -7,6 +7,7 @@ from schemas.fields.compound import Price
 
 if TYPE_CHECKING:
     from database_api.database_api_description import GetDynamicGlobalPropertiesResponse as GetDynamicGlobalProperties
+
     from schemas.fields.assets._base import AssetNaiAmount
     from wax.helpy import Hf26Asset
 

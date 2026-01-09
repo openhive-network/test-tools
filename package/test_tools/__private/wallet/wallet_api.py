@@ -94,7 +94,9 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from beekeepy import UnlockedWallet
-    from database_api.database_api_description import GetTransactionHexResponse, OwnerAuth as OwnerHistoriesFundament
+    from database_api.database_api_description import GetTransactionHexResponse
+    from database_api.database_api_description import OwnerAuth as OwnerHistoriesFundament
+
     from schemas.apis.block_api.fundaments_of_responses import Hf26Block
     from schemas.apis.wallet_bridge_api.response_schemas import (
         FindProposals,
@@ -882,7 +884,7 @@ class Api:
             required_auths=[],
             required_posting_auths=[from_],
             id_="rc",
-            json_=cast(JsonString, HF26RepresentationDelegateRcOperation(value=delegate_rc_operation).json()),
+            json_=cast("JsonString", HF26RepresentationDelegateRcOperation(value=delegate_rc_operation).json()),
         )
         return self.__send_one_op(
             operation=operation,
@@ -1254,7 +1256,7 @@ class Api:
             required_auths=[],
             required_posting_auths=[follower],
             id_="follow",
-            json_=cast(JsonString, HF26RepresentationFollowOperation(value=follow_operation).json()),
+            json_=cast("JsonString", HF26RepresentationFollowOperation(value=follow_operation).json()),
         )
         return self.__send_one_op(
             operation=operation,
