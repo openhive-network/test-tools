@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003
+from datetime import datetime  # noqa: TCH003
 
 from beekeepy.handle.remote import AbstractSyncApi, ApiArgumentSerialization
 

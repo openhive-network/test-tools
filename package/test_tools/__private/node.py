@@ -529,13 +529,13 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
             )
 
     def get_p2p_endpoint(self) -> P2PUrl:
-        return cast("P2PUrl", self.__wait_for_endpoint(endpoint_t=P2PUrl, get_endpoint=lambda s: s.webservers.P2P))
+        return cast(P2PUrl, self.__wait_for_endpoint(endpoint_t=P2PUrl, get_endpoint=lambda s: s.webservers.P2P))
 
     def get_http_endpoint(self) -> HttpUrl:
         return self.http_endpoint
 
     def get_ws_endpoint(self) -> WsUrl:
-        return cast("WsUrl", self.__wait_for_endpoint(endpoint_t=WsUrl, get_endpoint=lambda s: s.webservers.WS))
+        return cast(WsUrl, self.__wait_for_endpoint(endpoint_t=WsUrl, get_endpoint=lambda s: s.webservers.WS))
 
     def __wait_for_endpoint(
         self, get_endpoint: Callable[[GetAppStatus], WebserverItem | None], endpoint_t: type[AnyUrl]

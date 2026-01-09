@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from schemas._preconfigured_base_model import PreconfiguredBaseModel
-from schemas.fields.version import HiveVersionFromExecutable  # noqa: TC001
+from schemas.fields.version import HiveVersionFromExecutable  # noqa: TCH001
 from test_tools.__private.executable_info import ExecutableInfo
 from test_tools.__private.process.node_arguments import NodeArguments
 from test_tools.__private.process.node_config import NodeConfig

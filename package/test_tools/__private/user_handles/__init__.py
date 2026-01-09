@@ -18,15 +18,15 @@ from test_tools.__private.user_handles.implementation import Implementation
 
 __all__ = [
     "ApiNodeHandle",
+    "context",
     "FullApiNodeHandle",
     "Implementation",
     "InitNodeHandle",
     "NetworkHandle",
     "NodeHandleBase",
-    "OldWalletHandle",
     "RawNodeHandle",
     "RemoteNodeHandle",
     "WalletHandle",
+    "OldWalletHandle",
     "WitnessNodeHandle",
-    "context",
 ]
