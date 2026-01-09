@@ -884,7 +884,7 @@ class Api:
             required_auths=[],
             required_posting_auths=[from_],
             id_="rc",
-            json_=cast("JsonString", HF26RepresentationDelegateRcOperation(value=delegate_rc_operation).json()),
+            json_=cast(JsonString, HF26RepresentationDelegateRcOperation(value=delegate_rc_operation).json()),
         )
         return self.__send_one_op(
             operation=operation,
@@ -1256,7 +1256,7 @@ class Api:
             required_auths=[],
             required_posting_auths=[follower],
             id_="follow",
-            json_=cast("JsonString", HF26RepresentationFollowOperation(value=follow_operation).json()),
+            json_=cast(JsonString, HF26RepresentationFollowOperation(value=follow_operation).json()),
         )
         return self.__send_one_op(
             operation=operation,
