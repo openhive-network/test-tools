@@ -364,13 +364,13 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                 blocking = explicit_blocking or exit_before_synchronization_final or bool(exit_at_block)
                 if blocking:
                     process_startup_timeout = math.inf
-                elif replay_from is not None:
-                    # When replaying, P2P port only becomes available after replay completes,
-                    # so we need a longer timeout for beekeepy's port detection.
-                    # Must update settings.initialization_timeout because beekeepy's
-                    # _wait_for_app_to_start() uses settings directly, not the timeout parameter.
+                elif replay_from is not None or load_snapshot_from is not None:
+                    # When replaying or loading snapshot, P2P port only becomes available after
+                    # replay/snapshot-load completes, so we need a longer timeout for beekeepy's
+                    # port detection. Cap at 60 seconds which is plenty for snapshot loading.
+                    # For replay, P2P detection happens during replay but 60s should suffice.
                     with self.update_settings() as settings:
-                        settings.initialization_timeout = timedelta(seconds=timeout)
+                        settings.initialization_timeout = timedelta(seconds=min(timeout, 60))
                 with Stopwatch() as sw:
                     self.__run_process(
                         blocking=blocking,
