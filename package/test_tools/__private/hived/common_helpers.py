@@ -23,7 +23,10 @@ class HiveHandleCommonHelpers:
         return dynamic_global_properties.last_irreversible_block_num
 
     def _get_head_block_time(self, dynamic_global_properties: GetDynamicGlobalPropertiesT) -> datetime:
-        return datetime.fromisoformat(dynamic_global_properties.time)
+        time_str = dynamic_global_properties.time
+        # Strip timezone info to get offset-naive datetime for consistent comparisons
+        time_str = time_str.replace("+00:00", "").replace("Z", "")
+        return datetime.fromisoformat(time_str)
 
     def _get_current_witness(self, dynamic_global_properties: GetDynamicGlobalPropertiesT) -> AccountName:
         return dynamic_global_properties.current_witness
