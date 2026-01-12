@@ -769,8 +769,12 @@ class Api:
                 amount_to_sell=amount_to_sell,
                 min_to_receive=min_to_receive,
                 fill_or_kill=fill_or_kill,
-                expiration=self.__wallet._force_connected_node.api.database.get_dynamic_global_properties().time
-                + timedelta(seconds=expiration),
+                expiration=HiveDateTime(
+                    datetime.fromisoformat(
+                        self.__wallet._force_connected_node.api.database.get_dynamic_global_properties().time
+                    )
+                    + timedelta(seconds=expiration)
+                ),
             ),
             broadcast=broadcast,
         )
@@ -2093,7 +2097,7 @@ class Api:
         :return: The serialized transaction.
         """
         transaction_hex = self.__wallet._force_connected_node.api.database.get_transaction_hex(trx=tx)
-        return transaction_hex.hex_
+        return transaction_hex.hex
 
     @warn_if_only_result_set()
     def set_password(self, password: str, only_result: bool | None = None) -> None:  # noqa: ARG002

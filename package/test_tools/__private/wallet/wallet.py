@@ -12,6 +12,7 @@ from beekeepy.settings import InterfaceSettings as Settings
 
 from schemas.fields.basic import PublicKey
 from schemas.fields.hex import Hex
+from schemas.fields.hive_datetime import HiveDateTime
 from schemas.fields.hive_int import HiveInt
 from test_tools.__private import exceptions
 from test_tools.__private.account import Account
@@ -311,7 +312,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         return SimpleTransaction(
             ref_block_num=HiveInt(ref_block_num),
             ref_block_prefix=HiveInt(ref_block_prefix),
-            expiration=gdpo.time + self._transaction_expiration_offset,
+            expiration=HiveDateTime(datetime.fromisoformat(gdpo.time) + self._transaction_expiration_offset),
             extensions=[],
             signatures=[],
             operations=[],

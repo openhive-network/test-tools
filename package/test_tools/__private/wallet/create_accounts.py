@@ -12,6 +12,7 @@ from loguru import logger
 from schemas.fields.assets import AssetHive
 from schemas.fields.assets._base import AssetNaiAmount
 from schemas.fields.compound import Authority
+from schemas.fields.hive_datetime import HiveDateTime
 from schemas.fields.hive_int import HiveInt
 from schemas.operations.account_create_operation import AccountCreateOperation
 from test_tools.__private.account import Account
@@ -61,7 +62,7 @@ def generate_transaction_template(node: RemoteNode) -> SimpleTransaction:
     return SimpleTransaction(
         ref_block_num=HiveInt(ref_block_num),
         ref_block_prefix=HiveInt(ref_block_prefix),
-        expiration=gdpo.time + timedelta(seconds=1800),
+        expiration=HiveDateTime(datetime.fromisoformat(gdpo.time) + timedelta(seconds=1800)),
         extensions=[],
         signatures=[],
         operations=[],
