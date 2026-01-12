@@ -44,7 +44,8 @@ if TYPE_CHECKING:
 
 
 def get_authority(key: PublicKey | str) -> Authority:
-    return Authority(weight_threshold=1, account_auths=[], key_auths=[[key, 1]])
+    # Using list instead of tuple for key_auths to match JSON deserialization from database_api
+    return Authority(weight_threshold=1, account_auths=[], key_auths=[[key, 1]])  # type: ignore[list-item]
 
 
 def generate_transaction_template(node: RemoteNode) -> SimpleTransaction:
