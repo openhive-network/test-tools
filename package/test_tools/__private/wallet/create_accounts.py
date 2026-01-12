@@ -44,7 +44,7 @@ if TYPE_CHECKING:
 
 
 def get_authority(key: PublicKey | str) -> Authority:
-    return Authority(weight_threshold=1, account_auths=[], key_auths=[(key, 1)])
+    return Authority(weight_threshold=1, account_auths=[], key_auths=[[key, 1]])
 
 
 def generate_transaction_template(node: RemoteNode) -> SimpleTransaction:
