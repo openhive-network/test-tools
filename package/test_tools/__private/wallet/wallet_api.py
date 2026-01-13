@@ -770,10 +770,8 @@ class Api:
                 min_to_receive=min_to_receive,
                 fill_or_kill=fill_or_kill,
                 expiration=HiveDateTime(
-                    datetime.fromisoformat(
-                        self.__wallet._force_connected_node.api.database.get_dynamic_global_properties().time
-                    )
-                    + timedelta(seconds=expiration)
+                    self.__wallet._force_connected_node.api.database.get_dynamic_global_properties().time
+                    + timedelta(seconds=expiration)  # type: ignore[operator]
                 ),
             ),
             broadcast=broadcast,
@@ -1156,12 +1154,16 @@ class Api:
                 hbd_amount=hbd_amount,
                 hive_amount=hive_amount,
                 fee=fee,
-                ratification_deadline=ratification_deadline
-                if isinstance(ratification_deadline, HiveDateTime)
-                else HiveDateTime(ratification_deadline),
-                escrow_expiration=escrow_expiration
-                if isinstance(escrow_expiration, HiveDateTime)
-                else HiveDateTime(escrow_expiration),
+                ratification_deadline=(
+                    ratification_deadline
+                    if isinstance(ratification_deadline, HiveDateTime)
+                    else HiveDateTime(ratification_deadline)
+                ),
+                escrow_expiration=(
+                    escrow_expiration
+                    if isinstance(escrow_expiration, HiveDateTime)
+                    else HiveDateTime(escrow_expiration)
+                ),
                 json_meta=json_meta,
             ),
             broadcast=broadcast,

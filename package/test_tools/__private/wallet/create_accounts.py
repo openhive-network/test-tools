@@ -63,7 +63,7 @@ def generate_transaction_template(node: RemoteNode) -> SimpleTransaction:
     return SimpleTransaction(
         ref_block_num=HiveInt(ref_block_num),
         ref_block_prefix=HiveInt(ref_block_prefix),
-        expiration=HiveDateTime(datetime.fromisoformat(gdpo.time) + timedelta(seconds=1800)),
+        expiration=HiveDateTime(gdpo.time + timedelta(seconds=1800)),  # type: ignore[operator]
         extensions=[],
         signatures=[],
         operations=[],

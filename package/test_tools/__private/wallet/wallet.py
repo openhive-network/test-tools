@@ -312,7 +312,7 @@ class Wallet(UserHandleImplementation, ScopedObject):
         return SimpleTransaction(
             ref_block_num=HiveInt(ref_block_num),
             ref_block_prefix=HiveInt(ref_block_prefix),
-            expiration=HiveDateTime(datetime.fromisoformat(gdpo.time) + self._transaction_expiration_offset),
+            expiration=HiveDateTime(gdpo.time + self._transaction_expiration_offset),  # type: ignore[operator]
             extensions=[],
             signatures=[],
             operations=[],
