@@ -356,6 +356,69 @@ def test_update_account(wallet: tt.Wallet) -> None:
     wallet.api.update_account("alice", "{}", key, key, key, key)
 
 
+def test_update_account_with_only_memo(wallet: tt.Wallet) -> None:
+    wallet.create_account("alice", hives=tt.Asset.Test(1000), vests=tt.Asset.Test(1000000), hbds=tt.Asset.Tbd(1000))
+    wallet.api.transfer_to_vesting("initminer", "alice", tt.Asset.Test(500))
+    new_memo_key = tt.Account("new-memo").public_key
+    wallet.api.update_account("alice", memo=new_memo_key)
+
+
+def test_update_account_with_only_json_meta(wallet: tt.Wallet) -> None:
+    wallet.create_account("alice", hives=tt.Asset.Test(1000), vests=tt.Asset.Test(1000000), hbds=tt.Asset.Tbd(1000))
+    wallet.api.transfer_to_vesting("initminer", "alice", tt.Asset.Test(500))
+    wallet.api.update_account("alice", json_meta='{"profile": "updated"}')
+
+
+def test_update_account_with_only_posting(wallet: tt.Wallet) -> None:
+    wallet.create_account("alice", hives=tt.Asset.Test(1000), vests=tt.Asset.Test(1000000), hbds=tt.Asset.Tbd(1000))
+    wallet.api.transfer_to_vesting("initminer", "alice", tt.Asset.Test(500))
+    new_posting_key = tt.Account("new-posting").public_key
+    wallet.api.update_account("alice", posting=new_posting_key)
+
+
+@pytest.mark.parametrize(
+    ("json_meta", "owner", "active", "posting", "memo"),
+    [
+        ('{"test": 1}', True, False, False, False),
+        (None, True, True, False, False),
+        (None, False, False, True, True),
+        ('{"profile": "x"}', False, True, False, True),
+        (None, True, True, True, True),
+    ],
+    ids=[
+        "json_meta_and_owner",
+        "owner_and_active",
+        "posting_and_memo",
+        "json_meta_active_memo",
+        "all_authorities",
+    ],
+)
+def test_update_account_partial_params(
+    wallet: tt.Wallet,
+    json_meta: str | None,
+    owner: bool,
+    active: bool,
+    posting: bool,
+    memo: bool,
+) -> None:
+    wallet.create_account("alice", hives=tt.Asset.Test(1000), vests=tt.Asset.Test(1000000), hbds=tt.Asset.Tbd(1000))
+    wallet.api.transfer_to_vesting("initminer", "alice", tt.Asset.Test(500))
+
+    owner_key = tt.Account("owner-key").public_key if owner else None
+    active_key = tt.Account("active-key").public_key if active else None
+    posting_key = tt.Account("posting-key").public_key if posting else None
+    memo_key = tt.Account("memo-key").public_key if memo else None
+
+    wallet.api.update_account(
+        "alice",
+        json_meta=json_meta,
+        owner=owner_key,
+        active=active_key,
+        posting=posting_key,
+        memo=memo_key,
+    )
+
+
 def test_update_account_auth_account(wallet: tt.Wallet) -> None:
     wallet.create_account("alice")
 

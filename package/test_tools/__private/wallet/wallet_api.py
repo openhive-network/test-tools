@@ -2338,11 +2338,11 @@ class Api:
     def update_account(
         self,
         accountname: AccountNameApiType,
-        json_meta: str,
-        owner: PublicKeyApiType,
-        active: PublicKeyApiType,
-        posting: PublicKeyApiType,
-        memo: PublicKeyApiType,
+        json_meta: str | None = None,
+        owner: PublicKeyApiType | None = None,
+        active: PublicKeyApiType | None = None,
+        posting: PublicKeyApiType | None = None,
+        memo: PublicKeyApiType | None = None,
         broadcast: bool | None = None,
         only_result: bool | None = None,  # noqa: ARG002
     ) -> None | WalletResponseBase | WalletResponse:
@@ -2350,11 +2350,11 @@ class Api:
         Updates the account with new authority and metadata.
 
         :param accountname: The name of the account to update.
-        :param json_meta: The JSON metadata to update.
-        :param owner: The new owner key.
-        :param active: The new active key.
-        :param posting: The new posting key.
-        :param memo: The new memo key.
+        :param json_meta: The JSON metadata to update (optional).
+        :param owner: The new owner key (optional).
+        :param active: The new active key (optional).
+        :param posting: The new posting key (optional).
+        :param memo: The new memo key (optional).
         :param broadcast: Whether to broadcast the operation to the network.
         :param only_result: This argument is no longer active and should not be provided.
         :return: The response from the blockchain.
@@ -2363,9 +2363,9 @@ class Api:
             AccountUpdateOperation(
                 account=accountname,
                 json_metadata=json_meta,
-                owner=get_authority(owner),
-                active=get_authority(active),
-                posting=get_authority(posting),
+                owner=get_authority(owner) if owner is not None else None,
+                active=get_authority(active) if active is not None else None,
+                posting=get_authority(posting) if posting is not None else None,
                 memo_key=memo,
             ),
             broadcast=broadcast,
