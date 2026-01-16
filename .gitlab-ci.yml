@@ -2,6 +2,12 @@ stages:
   - static_code_analysis
   - tests
 
+workflow:
+  rules:
+    - if: '$CI_MERGE_REQUEST_IID'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH || $CI_COMMIT_TAG'
 
 variables:
   GIT_STRATEGY: clone
@@ -11,15 +17,16 @@ variables:
   TXT_BLUE: "\e[1;34m"
   TXT_CLEAR: "\e[0m"
 
-  # Override Python image to use Python 3.14
-  # uses registry.gitlab.syncad.com/hive/common-ci-configuration/ci-base-image:ubuntu24.04-py3.14-1
-  PYTHON_IMAGE_TAG: ":ubuntu24.04-py3.14-1"
-  PYTHON_IMAGE: "registry.gitlab.syncad.com/hive/common-ci-configuration/ci-base-image${PYTHON_IMAGE_TAG}"
+  PYTHON_IMAGE_312: "registry.gitlab.syncad.com/hive/hive/ci-base-image:ubuntu24.04-3"
+  PYTHON_IMAGE_314: "registry.gitlab.syncad.com/hive/hive/ci-base-image:ubuntu24.04-py3.14-1"
+
+  # Default Python image
+  PYTHON_IMAGE: $PYTHON_IMAGE_314
 
 
 include:
   - project: 'hive/common-ci-configuration'
-    ref: fccc10fc5c8b847d82ca7446c957caa49a7440f6
+    ref: 1f2247a35b7115a316cbb2283242ab4669928c69
     file: '/templates/python_projects.gitlab-ci.yml'
 
 
@@ -81,6 +88,18 @@ unit_tests_launch:
     - .project_develop_configuration_template
     - .regenerate_lock_before_script
   needs: []  # to start immediately, without waiting for previous stages
+  image: ${PYTHON_IMAGE}
+  parallel:
+    matrix:
+      - PYTHON_VERSION: ["3.12", "3.14"]
+  rules:
+    - if: $PYTHON_VERSION == "3.12"
+      variables:
+        PYTHON_IMAGE: "${PYTHON_IMAGE_312}"
+      allow_failure: true  # TODO: Remove when wax builds wheels for Python 3.12
+    - if: $PYTHON_VERSION == "3.14"
+      variables:
+        PYTHON_IMAGE: "${PYTHON_IMAGE_314}"
   script:
     - echo -e "${TXT_BLUE}Launch unit tests${TXT_CLEAR}" &&
       pytest -n auto -m "not requires_hived_executables" --junitxml=report.xml tests/unit_tests
