@@ -706,13 +706,14 @@ reference = "gitlab-schemas"
 
 [[package]]
 name = "hiveio-wax"
-version = "1.28.4rc1.dev86+b007c856"
+version = "1.28.4rc1.dev91+61b0797e"
 description = ""
 optional = false
 python-versions = ">=3.12,<4"
 groups = ["main"]
 files = [
-    {file = "hiveio_wax-1.28.4rc1.dev86+b007c856-cp314-cp314-manylinux_2_39_x86_64.whl", hash = "sha256:6f7b3c0b226f9a448f83ca4d79ea9e4580d759d8b573eb07a9547b115f902e1e"},
+    {file = "hiveio_wax-1.28.4rc1.dev91+61b0797e-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:d38037f4662c85cc6b3360dd6e14f2e4e03a485144afcfe93f31482ac4c2244d"},
+    {file = "hiveio_wax-1.28.4rc1.dev91+61b0797e-cp314-cp314-manylinux_2_39_x86_64.whl", hash = "sha256:b8b80c6606878643616cdb1dc57860abc2fda633d508f7314b11a7bd185dd2b8"},
 ]
 
 [package.dependencies]
@@ -1880,4 +1881,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4"
-content-hash = "603add44ecc465f25a28c210c07a18cb2768a089c45e027ec7821d5d62381122"
+content-hash = "26a954622d89abec31138dc525fe9865467f59300521379fd4c6626943d48fb1"
