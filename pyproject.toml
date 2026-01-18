@@ -28,7 +28,7 @@ python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 msgspec = "^0.20.0"
 loguru = "0.7.2"
-hiveio-wax = ">=1.28.4rc1.dev60"
+hiveio-wax = ">=1.28.4rc1.dev91"  # First version with Python 3.12 (cp312) wheels
 hiveio-beekeepy = ">=1.28.4.dev7"
 hiveio-schemas = ">=1.28.1.dev3"
 
