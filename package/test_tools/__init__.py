@@ -32,6 +32,8 @@ from test_tools.__private.user_handles import context
 from wax.helpy import Hf26Asset as Asset
 from wax.helpy import OffsetTimeControl, SpeedUpRateTimeControl, StartTimeControl, Time, TimeFormats
 
+__version__ = "0.0.0"
+
 __all__ = [
     "Account",
     "AlternateChainSpecs",

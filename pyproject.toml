@@ -1,6 +1,9 @@
 [build-system]
-requires = ["poetry-core==1.1.0"]
-build-backend = "poetry.core.masonry.api"
+requires = [
+    "poetry-core>=1.7.0",
+    "poetry-dynamic-versioning>=1.0.0,<2.0.0",
+]
+build-backend = "poetry_dynamic_versioning.backend"
 
 
 [tool.poetry]
@@ -42,6 +45,25 @@ mypy = "1.11.2"
 ruff = "0.6.5"
 pytest = "8.3.5"
 pytest-xdist = "3.6.1"
+
+
+[tool.poetry-dynamic-versioning]
+enable = true
+pattern = '''v?(?P<base>\d+\.\d+\.\d+)\-?(?:(?P<stage>[a-zA-Z0-9]+)(?P<revision>\d+))?$'''
+
+format-jinja = """
+    {%- set dirty_postfix = '.dirty' if dirty else '' -%}
+    {%- if distance == 0 and not dirty -%}
+        {{ serialize_pep440(base, stage, revision) }}
+    {%- elif revision is not none -%}
+        {{ serialize_pep440(base, stage, revision + 1, dev=distance, metadata=[commit]) }}{{ dirty_postfix }}
+    {%- else -%}
+        {{ serialize_pep440(bump_version(base), stage, revision, dev=distance, metadata=[commit]) }}{{ dirty_postfix }}
+    {%- endif -%}
+"""
+
+[tool.poetry-dynamic-versioning.substitution]
+files = ["package/test_tools/__init__.py"]
 
 
 [tool.black]

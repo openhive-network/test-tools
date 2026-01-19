@@ -1,6 +1,8 @@
 stages:
   - static_code_analysis
   - tests
+  - build
+  - deploy
 
 workflow:
   rules:
@@ -129,3 +131,32 @@ test_hived_handle:
       junit: $CI_PROJECT_DIR/report.xml
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| TESTS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| BUILD |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+build_wheel:
+  stage: build
+  extends:
+    - .build_wheel_template
+
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| BUILD |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| DEPLOY |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+deploy_wheel_to_gitlab:
+  stage: deploy
+  extends: .deploy_wheel_to_gitlab_template
+  needs:
+    - job: pre_commit_checks
+    - job: unit_tests_launch
+    - job: test_hived_handle
+    - job: build_wheel
+      artifacts: true
+  rules:
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+      when: on_success
+    - when: manual
+
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| DEPLOY |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
