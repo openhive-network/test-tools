@@ -39,44 +39,27 @@ default:
     - public-runner-docker
 
 
-# Override before_script to regenerate poetry.lock for Python 3.14 compatibility
-.regenerate_lock_before_script:
-  before_script:
-    - echo "Using Python project directory - ${PYPROJECT_DIR}"
-    - poetry -C "${PYPROJECT_DIR}" env use python3
-    - source $(poetry -C "${PYPROJECT_DIR}" env info --path)/bin/activate
-    - python3 -V
-    - poetry -C "${PYPROJECT_DIR}" -V
-    - pip list
-    - poetry -C "${PYPROJECT_DIR}" lock --no-update 2>/dev/null || poetry -C "${PYPROJECT_DIR}" lock
-    - poetry -C "${PYPROJECT_DIR}" install
-    - pip list
-
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| STATIC CODE ANALYSIS |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 pre_commit_checks:
   stage: static_code_analysis
   extends:
     - .pre_commit_checks_template
-    - .regenerate_lock_before_script
 
 lint_code_with_ruff:
   stage: static_code_analysis
   extends:
     - .lint_code_with_ruff_template
-    - .regenerate_lock_before_script
 
 formatting_with_black_check:
   stage: static_code_analysis
   extends:
     - .formatting_with_black_check_template
-    - .regenerate_lock_before_script
 
 type_check_with_mypy:
   stage: static_code_analysis
   extends:
     - .type_check_with_mypy_template
-    - .regenerate_lock_before_script
 
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<| STATIC CODE ANALYSIS |<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -88,7 +71,6 @@ unit_tests_launch:
   stage: tests
   extends:
     - .project_develop_configuration_template
-    - .regenerate_lock_before_script
   needs: []  # to start immediately, without waiting for previous stages
   image: ${PYTHON_IMAGE}
   parallel:
@@ -115,7 +97,6 @@ test_hived_handle:
       unit_tests_launch
   extends:
     - .project_develop_configuration_template
-    - .regenerate_lock_before_script
   variables:
     HIVED_HTTP_ENDPOINT: "https://api.hive.blog/"
   script:
