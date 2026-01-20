@@ -96,7 +96,6 @@ unit_tests_launch:
     - if: $PYTHON_VERSION == "3.12"
       variables:
         PYTHON_IMAGE: "${PYTHON_IMAGE_312}"
-      allow_failure: true  # TODO: Remove when wax builds wheels for Python 3.12
     - if: $PYTHON_VERSION == "3.14"
       variables:
         PYTHON_IMAGE: "${PYTHON_IMAGE_314}"
