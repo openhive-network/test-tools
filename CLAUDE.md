@@ -237,3 +237,13 @@ When tests are flaky (especially network/timing-related):
 - **loguru**: Logging
 
 Private GitLab package sources configured in pyproject.toml for Hive ecosystem packages.
+
+## Dependency Management (Poetry)
+
+- **Dependency versions are specified in `pyproject.toml` and locked in `poetry.lock`**
+- **Always use `poetry lock`** (without additional flags like `--regenerate`)
+- **Always run `poetry lock` after changing `pyproject.toml`**
+- **The `poetry.lock` file must be in the repository** - never add it to `.gitignore`
+- **Never delete `poetry.lock`** - it ensures reproducible builds
+- **Never edit `poetry.lock` manually** - always use poetry commands
+- **Don't upgrade dependencies on your own** - only upgrade when explicitly requested
