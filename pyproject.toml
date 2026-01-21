@@ -29,7 +29,7 @@ abstractcp = "0.9.9"
 msgspec = "^0.20.0"
 loguru = "0.7.2"
 hiveio-wax = "==1.28.4rc1.dev91+61b0797e"  # Pin to version with both cp312 and cp314 wheels
-hiveio-beekeepy = ">=1.28.4.dev7"
+hiveio-beekeepy = "==1.28.4.dev16+83e3a3c"  # Pin to version with Python 3.14 threading fix (schemas 3bf30d2)
 hiveio-schemas = ">=1.28.1.dev3"
 
 
