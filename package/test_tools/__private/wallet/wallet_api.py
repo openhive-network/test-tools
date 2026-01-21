@@ -1440,7 +1440,9 @@ class Api:
         return self.__wallet._force_connected_node.api.wallet_bridge.get_feed_history()
 
     @warn_if_only_result_set()
-    def get_account_metadata(self, account: AccountNameApiType, only_result: bool | None = None) -> GetAccountMetadata:  # noqa: ARG002
+    def get_account_metadata(
+        self, account: AccountNameApiType, only_result: bool | None = None  # noqa: ARG002
+    ) -> GetAccountMetadata:
         """
         Retrieves the metadata for a given account.
 
