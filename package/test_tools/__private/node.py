@@ -27,7 +27,7 @@ from test_tools.__private.scope import ScopedObject, context
 from test_tools.__private.snapshot import Snapshot
 from test_tools.__private.user_handles.get_implementation import get_implementation
 from test_tools.__private.utilities.fake_time import configure_fake_time
-from wax.helpy import StartTimeControl, TimeControl
+from wax.helpy import SpeedUpRateTimeControl, StartTimeControl, TimeControl
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -339,6 +339,13 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                     time_control_str = time_control.as_string()
                     self.logger.info(f"Setting FAKE_TIME for {self.get_name()} as: `{time_control_str}`")
                     local_environment_variables.update(configure_fake_time(self._logger, time_control_str))
+
+                    # When using SpeedUpRateTimeControl, the accelerated fake time can cause a race
+                    # condition where the node never reaches "live sync" because fc::time_point::now()
+                    # advances faster than blocks can be produced. Force live sync to bypass this.
+                    if isinstance(time_control, SpeedUpRateTimeControl):
+                        additional_arguments.force_live_sync = True
+                        self.logger.info("Enabling --force-live-sync due to SpeedUpRateTimeControl usage")
 
                 if exit_at_block is not None or exit_before_synchronization or additional_arguments.exit_before_sync:
                     if wait_for_live is not None:

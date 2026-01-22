@@ -32,6 +32,7 @@ class NodeArguments(Arguments):
     exit_at_block: int | None = None
     exit_before_sync: bool | None = None
     flush_state_interval: int | None = None
+    force_live_sync: bool | None = None
     force_replay: bool | None = None
     generate_completions: bool | None = None
     list_plugins: bool | None = None
