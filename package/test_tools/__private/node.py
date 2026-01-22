@@ -72,6 +72,9 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         self._last_timeout: float = self.DEFAULT_WAIT_FOR_LIVE_TIMEOUT
         self._last_max_retries: int = 1
 
+        # Store time speedup rate for wallet transaction expiration adjustment
+        self._time_speedup_rate: float = 1.0
+
         self.__is_testnet: bool | None = None
 
     @property
@@ -343,9 +346,13 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                     # When using SpeedUpRateTimeControl, the accelerated fake time can cause a race
                     # condition where the node never reaches "live sync" because fc::time_point::now()
                     # advances faster than blocks can be produced. Force live sync to bypass this.
+                    # Also store the speedup rate so wallets can adjust transaction expiration times.
                     if isinstance(time_control, SpeedUpRateTimeControl):
                         additional_arguments.force_live_sync = True
-                        self.logger.info("Enabling --force-live-sync due to SpeedUpRateTimeControl usage")
+                        self._time_speedup_rate = time_control.speed_up_rate
+                        self.logger.info(
+                            f"Enabling --force-live-sync due to SpeedUpRateTimeControl (rate={time_control.speed_up_rate}x)"
+                        )
 
                 if exit_at_block is not None or exit_before_synchronization or additional_arguments.exit_before_sync:
                     if wait_for_live is not None:

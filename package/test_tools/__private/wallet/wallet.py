@@ -83,7 +83,12 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self.__beekeeper: Beekeeper | None = None
         self.__beekeeper_session: Session | None = None
         self._beekeeper_wallet: UnlockedWallet | None = None
-        self._transaction_expiration_offset = timedelta(seconds=30)
+        # Adjust transaction expiration based on node's time speedup rate.
+        # With time acceleration, transactions expire faster in virtual time,
+        # so we need proportionally longer expiration to maintain the same real-time window.
+        base_expiration_seconds = 30
+        speedup_rate = getattr(attach_to, "_time_speedup_rate", 1.0) if attach_to else 1.0
+        self._transaction_expiration_offset = timedelta(seconds=base_expiration_seconds * speedup_rate)
         self.__prepare_directory()
         self.run(preconfigure=preconfigure)
         if self.connected_node is not None:
