@@ -349,7 +349,8 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                     # Also store the speedup rate so wallets can adjust transaction expiration times.
                     if isinstance(time_control, SpeedUpRateTimeControl):
                         additional_arguments.force_live_sync = True
-                        self._time_speedup_rate = time_control.speed_up_rate
+                        if time_control.speed_up_rate is not None:
+                            self._time_speedup_rate = float(time_control.speed_up_rate)
                         self.logger.info(
                             f"Enabling --force-live-sync due to SpeedUpRateTimeControl (rate={time_control.speed_up_rate}x)"
                         )
