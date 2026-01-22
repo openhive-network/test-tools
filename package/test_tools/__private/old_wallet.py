@@ -580,6 +580,9 @@ class OldWallet(UserHandleImplementation, ScopedObject):
         def get_account_metadata(self, account, only_result: bool = True):
             return self.__send("get_account_metadata", account=account, only_result=only_result)
 
+        def find_account_metadata(self, accounts, only_result: bool = True):
+            return self.__send("find_account_metadata", accounts=accounts, only_result=only_result)
+
         def get_open_orders(self, accountname, only_result: bool = True):
             return self.__send("get_open_orders", accountname=accountname, only_result=only_result)
 

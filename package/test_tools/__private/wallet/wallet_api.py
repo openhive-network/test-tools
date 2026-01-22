@@ -131,7 +131,7 @@ if TYPE_CHECKING:
     from schemas.fields.hive_list import HiveList
     from schemas.fields.resolvables import AssetUnionAssetHiveAssetHbd
     from schemas.transaction import Transaction
-    from test_tools.__private.hived.api.metadata_api.models import GetAccountMetadata
+    from test_tools.__private.hived.api.metadata_api.models import FindAccountMetadata, GetAccountMetadata
     from test_tools.__private.hived.api.wallet_bridge_api.sync_api import WalletBridgeApi
     from test_tools.__private.node import Node
     from test_tools.__private.remote_node import RemoteNode
@@ -1451,6 +1451,19 @@ class Api:
         :return: The account metadata containing json_metadata and posting_json_metadata.
         """
         return self.__wallet._force_connected_node.api.metadata.get_account_metadata(account=account)
+
+    @warn_if_only_result_set()
+    def find_account_metadata(
+        self, accounts: list[AccountNameApiType], only_result: bool | None = None  # noqa: ARG002
+    ) -> FindAccountMetadata:
+        """
+        Retrieves the metadata for given accounts.
+
+        :param accounts: The list of account names.
+        :param only_result: This argument is no longer active and should not be provided.
+        :return: The account metadata containing json_metadata and posting_json_metadata for each account.
+        """
+        return self.__wallet._force_connected_node.api.metadata.find_account_metadata(accounts=accounts)
 
     @warn_if_only_result_set()
     def get_open_orders(
