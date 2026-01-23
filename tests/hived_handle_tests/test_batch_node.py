@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from test_tools.__private.hived.sync_handle import Hived
 
 
+@pytest.mark.skip  # TODO: any change in config.hpp guarantees that test will fail - it should not be here but in hived and it should use local node, not api.hive.blog
 def test_batch_node(sync_node: Hived) -> None:
     try:
         with sync_node.batch() as node:
