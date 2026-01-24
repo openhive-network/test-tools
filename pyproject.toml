@@ -38,7 +38,6 @@ hiveio-schemas = ">=1.28.1.dev14"
 
 
 [tool.poetry.group.dev.dependencies]
-black = "23.3.0"
 local-tools = { path = "tests/local-tools", develop = true }
 pre-commit = "2.21.0"
 mypy = "1.11.2"
@@ -64,10 +63,6 @@ format-jinja = """
 
 [tool.poetry-dynamic-versioning.substitution]
 files = ["package/test_tools/__init__.py"]
-
-
-[tool.black]
-line-length = 120
 
 
 [tool.ruff]
@@ -109,7 +104,7 @@ select = [
     "RUF",
 ]
 ignore = [
-    "E501", # line too long, handled by black
+    "E501", # line too long, handled by ruff format
     "D203", # 1 blank line required before class docstring; because we re using D211
     "D212", # Multi-line docstring summary should start at the first line; because we re using D213
     "D401", # first line should be in imperative mood
@@ -137,6 +132,9 @@ ignore = [
 "package/test_tools/__private/hived/api/**" = [
     "TCH001", # API response models cannot be placed in the type checking block
 ]
+
+[tool.ruff.format]
+quote-style = "preserve"
 
 [tool.ruff.lint.isort]
 known-first-party = ["helpy", "schemas", "wax"]

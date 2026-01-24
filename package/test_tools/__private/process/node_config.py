@@ -155,13 +155,11 @@ class NodeConfig(Config):
 
     @overload
     @classmethod
-    def _apply_quotation(cls, value: QuotedMarker | str | Path) -> str:
-        ...
+    def _apply_quotation(cls, value: QuotedMarker | str | Path) -> str: ...
 
     @overload
     @classmethod
-    def _apply_quotation(cls, value: list[str | Path]) -> list[str]:
-        ...
+    def _apply_quotation(cls, value: list[str | Path]) -> list[str]: ...
 
     @classmethod
     def _apply_quotation(cls, value: QuotedMarker | str | Path | list[str | Path]) -> str | list[str]:

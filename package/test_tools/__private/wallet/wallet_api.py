@@ -201,7 +201,9 @@ class Api:
     ) -> WalletResponseBase | WalletResponse | None:
         if self.__transaction_builder is not None:
             transaction = self.__wallet._prepare_and_send_transaction(
-                operations=self.__transaction_builder.operations, broadcast=broadcast, blocking=blocking  # type: ignore[arg-type]
+                operations=self.__transaction_builder.operations,
+                broadcast=broadcast,
+                blocking=blocking,  # type: ignore[arg-type]
             )
             self.__transaction_builder = None
             return transaction
@@ -1163,7 +1165,9 @@ class Api:
 
     @warn_if_only_result_set()
     def estimate_hive_collateral(
-        self, hbd_amount_to_get: AssetHbd, only_result: bool | None = None  # noqa: ARG002
+        self,
+        hbd_amount_to_get: AssetHbd,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> AssetHive:
         """
         Estimate hive collateral.
@@ -1189,7 +1193,10 @@ class Api:
 
     @warn_if_only_result_set()
     def find_proposals(
-        self, proposal_ids: list[int], as_list: bool = False, only_result: bool | None = None  # noqa: ARG002
+        self,
+        proposal_ids: list[int],
+        as_list: bool = False,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> FindProposals | HiveList[Proposal]:
         """
         Finds proposals by their IDs.
@@ -1206,7 +1213,9 @@ class Api:
 
     @warn_if_only_result_set()
     def find_rc_accounts(
-        self, accounts: list[AccountNameApiType], only_result: bool | None = None  # noqa: ARG002
+        self,
+        accounts: list[AccountNameApiType],
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> FindRcAccounts:
         """
         Finds RC (Resource Credit) accounts.
@@ -1219,7 +1228,9 @@ class Api:
 
     @warn_if_only_result_set()
     def find_recurrent_transfers(
-        self, from_: AccountNameApiType, only_result: bool | None = None  # noqa: ARG002
+        self,
+        from_: AccountNameApiType,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> FindRecurrentTransfers:
         """
         Finds recurrent transfers for a given account.
@@ -1264,7 +1275,9 @@ class Api:
 
     @warn_if_only_result_set()
     def get_account(
-        self, account_name: AccountNameApiType, only_result: bool | None = None  # noqa: ARG002
+        self,
+        account_name: AccountNameApiType,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> GetAccount:
         """
         Retrieves account information for a given account name.
@@ -1280,7 +1293,11 @@ class Api:
 
     @warn_if_only_result_set()
     def get_account_history(
-        self, account: AccountNameApiType, from_: int, limit: int, only_result: bool | None = None  # noqa: ARG002
+        self,
+        account: AccountNameApiType,
+        from_: int,
+        limit: int,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> GetAccountHistory:
         """
         Retrieves the account history for a given account.
@@ -1295,7 +1312,9 @@ class Api:
 
     @warn_if_only_result_set()
     def get_accounts(
-        self, account_names: list[AccountNameApiType], only_result: bool | None = None  # noqa: ARG002
+        self,
+        account_names: list[AccountNameApiType],
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> GetAccounts:
         """
         Retrieves information for a list of accounts.
@@ -1308,7 +1327,10 @@ class Api:
 
     @warn_if_only_result_set()
     def get_active_witnesses(
-        self, include_future: bool, only_witnesses: bool = False, only_result: bool | None = None  # noqa: ARG002
+        self,
+        include_future: bool,
+        only_witnesses: bool = False,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> Annotated[list[AccountName], Meta(min_length=1, max_length=21)] | GetActiveWitnesses:
         """
         Retrieves the list of active witnesses.
@@ -1325,7 +1347,10 @@ class Api:
 
     @warn_if_only_result_set()
     def get_block(
-        self, num: int, only_block: bool = False, only_result: bool | None = None  # noqa: ARG002
+        self,
+        num: int,
+        only_block: bool = False,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> GetBlock | Hf26Block:
         """
         Retrieves information about a specific block.
@@ -1343,7 +1368,9 @@ class Api:
 
     @warn_if_only_result_set()
     def get_collateralized_conversion_requests(
-        self, owner: AccountNameApiType, only_result: bool | None = None  # noqa: ARG002
+        self,
+        owner: AccountNameApiType,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> GetCollateralizedConversionRequests:
         """
         Retrieves the list of collateralized conversion requests for a given account.
@@ -1356,7 +1383,9 @@ class Api:
 
     @warn_if_only_result_set()
     def get_conversion_requests(
-        self, owner: AccountNameApiType, only_result: bool | None = None  # noqa: ARG002
+        self,
+        owner: AccountNameApiType,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> GetConversionRequests:
         """
         Retrieves the list of conversion requests for a given account.
@@ -1411,7 +1440,9 @@ class Api:
 
     @warn_if_only_result_set()
     def get_open_orders(
-        self, accountname: AccountNameApiType, only_result: bool | None = None  # noqa: ARG002
+        self,
+        accountname: AccountNameApiType,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> GetOpenOrders:
         """
         Retrieves the open orders for a given account.
@@ -1424,7 +1455,10 @@ class Api:
 
     @warn_if_only_result_set()
     def get_ops_in_block(
-        self, block_num: int, only_virtual: bool, only_result: bool | None = None  # noqa: ARG002
+        self,
+        block_num: int,
+        only_virtual: bool,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> GetOpsInBlock:
         """
         Retrieves the operations in a specific block.
@@ -1451,7 +1485,10 @@ class Api:
 
     @warn_if_only_result_set()
     def get_owner_history(
-        self, account: AccountNameApiType, as_list: bool = False, only_result: bool | None = None  # noqa: ARG002
+        self,
+        account: AccountNameApiType,
+        as_list: bool = False,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> HiveList[fundaments_database_api.OwnerHistoriesFundament] | GetOwnerHistory:
         """
         Retrieves the owner history for a given account.
@@ -1469,7 +1506,11 @@ class Api:
     @require_unlocked_wallet
     @warn_if_only_result_set()
     def get_private_key_from_password(
-        self, account: AccountNameApiType, role: str, password: str, only_result: bool | None = None  # noqa: ARG002
+        self,
+        account: AccountNameApiType,
+        role: str,
+        password: str,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> list[str]:
         """
         Generates a private key from a given password.
@@ -1485,7 +1526,9 @@ class Api:
 
     @warn_if_only_result_set()
     def get_prototype_operation(
-        self, operation_type: str, only_result: bool | None = None  # noqa: ARG002
+        self,
+        operation_type: str,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> None | dict[str, Any]:
         """
         Retrieves a prototype operation.
@@ -1530,7 +1573,9 @@ class Api:
 
     @warn_if_only_result_set()
     def get_witness(
-        self, owner_account: AccountNameApiType, only_result: bool | None = None  # noqa: ARG002
+        self,
+        owner_account: AccountNameApiType,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> GetWitness:
         """
         Retrieves information about a witness.
@@ -1618,7 +1663,10 @@ class Api:
 
     @warn_if_only_result_set()
     def list_accounts(
-        self, lowerbound: str, limit: int, only_result: bool | None = None  # noqa: ARG002
+        self,
+        lowerbound: str,
+        limit: int,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> ListAccounts:
         """
         Lists accounts based on a lower bound and a limit.
@@ -1706,7 +1754,10 @@ class Api:
 
     @warn_if_only_result_set()
     def list_rc_accounts(
-        self, account: AccountNameApiType, limit: int, only_result: bool | None = None  # noqa: ARG002
+        self,
+        account: AccountNameApiType,
+        limit: int,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> ListRcAccounts:
         """
         Lists RC accounts based on specified criteria.
@@ -1740,7 +1791,11 @@ class Api:
 
     @warn_if_only_result_set()
     def list_witnesses(
-        self, lowerbound: str, limit: int, only_names: bool = False, only_result: bool | None = None  # noqa: ARG002
+        self,
+        lowerbound: str,
+        limit: int,
+        only_names: bool = False,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> list[AccountName] | ListWitnesses:
         """
         Lists witnesses based on specified criteria.

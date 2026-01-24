@@ -331,12 +331,8 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
                     if isinstance(time_control, StartTimeControl) and time_control.is_start_time_equal_to(
                         "head_block_time"
                     ):
-                        assert (
-                            self.block_log.path.exists()
-                        ), "Block log directory does not exist. Block_log is necessary to use 'head_block_time' as time_control"
-                        assert (
-                            self.block_log.block_files
-                        ), "Could not find block log file(s). Block_log is necessary to use 'head_block_time' as time_control"
+                        assert self.block_log.path.exists(), "Block log directory does not exist. Block_log is necessary to use 'head_block_time' as time_control"
+                        assert self.block_log.block_files, "Could not find block log file(s). Block_log is necessary to use 'head_block_time' as time_control"
                         time_control.apply_head_block_time(self.block_log.get_head_block_time())
 
                     time_control_str = time_control.as_string()
@@ -720,8 +716,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         message: str,
         timeout: float,
         previous_required: bool = False,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @overload
     def __wait_for_status(
@@ -731,8 +726,7 @@ class Node(RunnableHandle[NodeProcess, NodeConfig, NodeArguments, Settings], Bas
         message: str,
         deadline: float,
         previous_required: bool = False,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def __wait_for_status(
         self,

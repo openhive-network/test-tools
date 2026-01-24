@@ -41,7 +41,7 @@ pytest tests/functional_tests/network_tests/test_network_startup.py::test_networ
 ### Code Quality
 ```bash
 # Format code
-black .
+ruff format .
 
 # Lint with ruff
 ruff check --fix .
@@ -200,7 +200,7 @@ response = tx.get_response()
 
 ## Code Style
 
-- **Formatting**: black (line-length: 120)
+- **Formatting**: ruff format (line-length: 120)
 - **Linting**: ruff with extensive ruleset (see pyproject.toml)
 - **Type checking**: mypy in strict mode
 - **Required import**: All files must have `from __future__ import annotations` (enforced by ruff)
@@ -213,7 +213,7 @@ Pipeline runs on GitLab (`.gitlab-ci.yml`):
 **Static Analysis Stage**:
 - pre_commit_checks
 - lint_code_with_ruff
-- formatting_with_black_check
+- formatting_with_ruff_check
 - type_check_with_mypy
 
 **Tests Stage**:

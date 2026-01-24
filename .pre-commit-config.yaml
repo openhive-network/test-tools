@@ -22,11 +22,8 @@ repos:
       - id: ruff
         name: linting code with Ruff
         args: [ "--fix" ]
-  - repo: https://github.com/psf/black
-    rev: 23.3.0
-    hooks:
-      - id: black
-        name: format code using black
+      - id: ruff-format
+        name: format code using Ruff
   - repo: local
     hooks:
     - id: mypy

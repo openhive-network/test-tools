@@ -270,14 +270,12 @@ class BlockLog:
     @overload
     def get_head_block_time(
         self, serialize: Literal[True], serialize_format: TimeFormats | str = TimeFormats.DEFAULT_FORMAT
-    ) -> str:
-        ...
+    ) -> str: ...
 
     @overload
     def get_head_block_time(
         self, serialize: Literal[False] = False, serialize_format: TimeFormats | str = TimeFormats.DEFAULT_FORMAT
-    ) -> datetime:
-        ...
+    ) -> datetime: ...
 
     def get_head_block_time(
         self, serialize: bool = False, serialize_format: TimeFormats | str = TimeFormats.DEFAULT_FORMAT
