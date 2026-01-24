@@ -201,9 +201,9 @@ class Api:
     ) -> WalletResponseBase | WalletResponse | None:
         if self.__transaction_builder is not None:
             transaction = self.__wallet._prepare_and_send_transaction(
-                operations=self.__transaction_builder.operations,
+                operations=self.__transaction_builder.operations,  # type: ignore[arg-type]
                 broadcast=broadcast,
-                blocking=blocking,  # type: ignore[arg-type]
+                blocking=blocking,
             )
             self.__transaction_builder = None
             return transaction
