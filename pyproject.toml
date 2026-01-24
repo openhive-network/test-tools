@@ -33,8 +33,8 @@ abstractcp = "0.9.9"
 msgspec = "^0.20.0"
 loguru = "0.7.2"
 hiveio-wax = "==1.28.4rc1.dev124+72cfe8ea"  # Pin to version with both cp312 and cp314 wheels
-hiveio-beekeepy = "==1.28.4.dev24+dd092e5"  # Pin to version with Python 3.14 threading fix (schemas 3bf30d2)
-hiveio-schemas = ">=1.28.1.dev14"
+hiveio-beekeepy = "==1.28.4.dev26+ab43fc0"  # Python 3.14 threading fix + flexible schemas constraint
+hiveio-schemas = ">=1.28.1.dev17"  # Contains HIVE_ACTIVE_CHALLENGE_* and other config fields
 
 
 [tool.poetry.group.dev.dependencies]
