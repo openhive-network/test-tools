@@ -8,7 +8,7 @@ build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.poetry]
 requires-poetry = "2.1.3"
-name = "test-tools"
+name = "hiveio-test-tools"
 version = "0.0.0"
 description = "Tools for testing hive software"
 authors = ["Piotr Batko <pbatko@syncad.com>"]
