@@ -1441,7 +1441,9 @@ class Api:
 
     @warn_if_only_result_set()
     def get_account_metadata(
-        self, account: AccountNameApiType, only_result: bool | None = None  # noqa: ARG002
+        self,
+        account: AccountNameApiType,
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> GetAccountMetadata:
         """
         Retrieves the metadata for a given account.
@@ -1454,7 +1456,9 @@ class Api:
 
     @warn_if_only_result_set()
     def find_account_metadata(
-        self, accounts: list[AccountNameApiType], only_result: bool | None = None  # noqa: ARG002
+        self,
+        accounts: list[AccountNameApiType],
+        only_result: bool | None = None,  # noqa: ARG002
     ) -> FindAccountMetadata:
         """
         Retrieves the metadata for given accounts.
