@@ -17,7 +17,7 @@ repository = "https://gitlab.syncad.com/hive/test-tools"
 source = [
     { name = "PyPI", priority = "primary" },
     { name = "gitlab-schemas", url = "https://gitlab.syncad.com/api/v4/projects/362/packages/pypi/simple", priority = "supplemental" },
-    { name = "gitlab-beekeepy", url = "https://gitlab.syncad.com/api/v4/projects/434/packages/pypi/simple", priority = "supplemental" },
+    { name = "gitlab-beekeepy", url = "https://gitlab.syncad.com/api/v4/projects/558/packages/pypi/simple", priority = "supplemental" },
     { name = "gitlab-wax", url = "https://gitlab.syncad.com/api/v4/projects/419/packages/pypi/simple", priority = "supplemental" },
     { name = "gitlab-api-packages", url = "https://gitlab.syncad.com/api/v4/projects/198/packages/pypi/simple", priority = "supplemental" },
 ]
@@ -32,8 +32,8 @@ python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 msgspec = "^0.20.0"
 loguru = "0.7.2"
-hiveio-wax = "==1.28.4rc1.dev144+a5381775"
-hiveio-beekeepy = "==1.28.4.dev24+dd092e5"  # Pin to version with Python 3.14 threading fix (schemas 3bf30d2)
+hiveio-wax = "==1.28.4rc1.dev150+c95dfe89"
+hiveio-beekeepy = "==1.0.1.dev27+c16c766"
 hiveio-schemas = ">=1.28.1.dev14"
 
 
