@@ -543,13 +543,13 @@ hyperframe = ">=6.1,<7"
 
 [[package]]
 name = "hiveio-api"
-version = "1.28.2.dev450+404cf8d35"
+version = "1.28.2.dev518+ef2c1ee9c"
 description = "Hive JSON-RPC API client package with lazy-loaded submodules for all Hive APIs"
 optional = false
 python-versions = ">=3.12,<4"
 groups = ["main"]
 files = [
-    {file = "hiveio_api-1.28.2.dev450+404cf8d35-py3-none-any.whl", hash = "sha256:62d865f004dca2ed5586f9c0ab3ba644e800160b284b5b1bec263374d987fda7"},
+    {file = "hiveio_api-1.28.2.dev518+ef2c1ee9c-py3-none-any.whl", hash = "sha256:2b6bd8583a5c124baa2919680d593a2f63103750e6cf9abbee01ba4d0bc14de9"},
 ]
 
 [package.dependencies]
@@ -605,18 +605,18 @@ reference = "gitlab-schemas"
 
 [[package]]
 name = "hiveio-wax"
-version = "1.28.4rc1.dev124+72cfe8ea"
+version = "1.28.4rc1.dev144+a5381775"
 description = ""
 optional = false
 python-versions = ">=3.12,<4"
 groups = ["main"]
 files = [
-    {file = "hiveio_wax-1.28.4rc1.dev124+72cfe8ea-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:6992435441c7cfdcffa68d75a3be47a6283729ca8ee5a08edd1fd8a1ffa0a50c"},
-    {file = "hiveio_wax-1.28.4rc1.dev124+72cfe8ea-cp314-cp314-manylinux_2_39_x86_64.whl", hash = "sha256:b097fbcb5262ac6237aa3cb45368dbce509a0c80b0ebbb9fc8ce82021586f2ae"},
+    {file = "hiveio_wax-1.28.4rc1.dev144+a5381775-cp312-cp312-manylinux_2_39_x86_64.whl", hash = "sha256:de2ad65e13c76e46bd9bd1e26d6cd966e59bf4c18628df7b731f4b264c4dae16"},
+    {file = "hiveio_wax-1.28.4rc1.dev144+a5381775-cp314-cp314-manylinux_2_39_x86_64.whl", hash = "sha256:d0cd5715a3861b699862dc473be6a7fb7e8b59b7106b2661043ee1b46db44f18"},
 ]
 
 [package.dependencies]
-hiveio-api = ">=1.28.2.dev450,<2.0.0"
+hiveio-api = ">=1.28.2.dev518,<2.0.0"
 httpx = {version = "0.23.3", extras = ["http2"]}
 loguru = "0.7.2"
 protobuf = "6.33.0"
@@ -1760,4 +1760,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4"
-content-hash = "0579344cad9d1cd0901f25b59fd0614fe55334437713534a159ec07557567c99"
+content-hash = "d437ff72ac2d04333e5dac0a66db23acdaa8c715f290aa3b162f2eb4c7a325f8"
