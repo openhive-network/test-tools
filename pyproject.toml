@@ -28,7 +28,7 @@ python-dateutil = ">=2.8.2"
 abstractcp = ">=0.9.9"
 msgspec = ">=0.20.0"
 loguru = ">=0.7.2"
-hiveio-wax = ">=1.28.4rc0"
+hiveio-wax = "==2.0.1.post20260212113915"
 hiveio-beekeepy = ">=1.28.5"
 hiveio-schemas = ">=1.28.1"
 

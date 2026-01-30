@@ -404,12 +404,12 @@ class Wallet(UserHandleImplementation, ScopedObject):
         self,
         transaction: SimpleTransaction,
         keys_to_sign_with: list[PublicKey],
-        retrived_authorities: dict[bytes, wax_authorities],
+        retrived_authorities: dict[str, wax_authorities],
     ) -> list[str] | list[Any]:
-        def retrieve_witness_key(wittnes_name: bytes) -> bytes:
-            get_witness = self._force_connected_node.api.wallet_bridge.get_witness(wittnes_name.decode())
+        def retrieve_witness_key(wittnes_name: str) -> str:
+            get_witness = self._force_connected_node.api.wallet_bridge.get_witness(wittnes_name)
             assert get_witness is not None
-            return get_witness.signing_key.encode()
+            return get_witness.signing_key
 
         return minimize_required_signatures(
             transaction, self.__get_chain_id(), keys_to_sign_with, retrived_authorities, retrieve_witness_key
@@ -417,14 +417,12 @@ class Wallet(UserHandleImplementation, ScopedObject):
 
     def import_required_keys(
         self, transaction: SimpleTransaction
-    ) -> tuple[list[PublicKey], dict[bytes, wax_authorities]]:
-        retrived_authorities: dict[bytes, wax_authorities] = {}
+    ) -> tuple[list[PublicKey], dict[str, wax_authorities]]:
+        retrived_authorities: dict[str, wax_authorities] = {}
 
-        def retrieve_authorities(account_names: list[bytes]) -> dict[bytes, wax_authorities]:
-            accounts = self._force_connected_node.api.wallet_bridge.get_accounts(
-                [account_name.decode() for account_name in account_names]
-            )
-            retrived_authoritity = {acc.name.encode(): to_wax_authorities(acc) for acc in accounts}
+        def retrieve_authorities(account_names: list[str]) -> dict[str, wax_authorities]:
+            accounts = self._force_connected_node.api.wallet_bridge.get_accounts(account_names)
+            retrived_authoritity = {acc.name: to_wax_authorities(acc) for acc in accounts}
             retrived_authorities.update(retrived_authoritity)
             return retrived_authoritity
 
