@@ -32,7 +32,7 @@ python-dateutil = "2.8.2"
 abstractcp = "0.9.9"
 msgspec = "^0.20.0"
 loguru = "0.7.2"
-hiveio-wax = "==1.28.4rc1.dev150+c95dfe89"
+hiveio-wax = "==1.28.4rc1.dev160+84acaf2b"  # Cython 3.1.3 upgrade
 hiveio-beekeepy = "==1.0.1.dev27+c16c766"
 hiveio-schemas = ">=1.28.1.dev14"
 
