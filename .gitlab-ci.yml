@@ -19,20 +19,17 @@ variables:
   TXT_BLUE: "\e[1;34m"
   TXT_CLEAR: "\e[0m"
 
-  PYTHON_IMAGE_312: "registry.gitlab.syncad.com/hive/hive/ci-base-image:ubuntu24.04-3"
-  PYTHON_IMAGE_314: "registry.gitlab.syncad.com/hive/hive/ci-base-image:ubuntu24.04-py3.14-1"
-
-  # Default Python image
-  PYTHON_IMAGE: $PYTHON_IMAGE_314
+  CI_BASE_IMAGE_TAG: ":2fc9d83726a4fddc681c2b30fbd67701316ba85a"
+  CI_BASE_IMAGE: "registry.gitlab.syncad.com/hive/common-ci-configuration/ci-base-image${CI_BASE_IMAGE_TAG}"
 
 
 include:
   - project: 'hive/common-ci-configuration'
-    ref: 1f2247a35b7115a316cbb2283242ab4669928c69
+    ref: 2fc9d83726a4fddc681c2b30fbd67701316ba85a
     file: '/templates/python_projects.gitlab-ci.yml'
 
 
-image: "${PYTHON_IMAGE}"
+image: "${CI_BASE_IMAGE}"
 
 default:
   tags:
@@ -75,17 +72,9 @@ unit_tests_launch:
   extends:
     - .project_develop_configuration_template
   needs: []  # to start immediately, without waiting for previous stages
-  image: ${PYTHON_IMAGE}
   parallel:
     matrix:
       - PYTHON_VERSION: ["3.12", "3.14"]
-  rules:
-    - if: $PYTHON_VERSION == "3.12"
-      variables:
-        PYTHON_IMAGE: "${PYTHON_IMAGE_312}"
-    - if: $PYTHON_VERSION == "3.14"
-      variables:
-        PYTHON_IMAGE: "${PYTHON_IMAGE_314}"
   script:
     - echo -e "${TXT_BLUE}Launch unit tests${TXT_CLEAR}" &&
       pytest -n auto -m "not requires_hived_executables" --junitxml=report.xml tests/unit_tests
