@@ -9,8 +9,6 @@ from schemas.fields.hive_int import HiveInt
 from wax import create_wax_foundation
 from wax._private.result_tools import (
     expose_result_as_python_string,
-    to_cpp_string,
-    to_python_string,
     validate_wax_result,
 )
 from wax.cpp_python_bridge import calculate_legacy_sig_digest as wax_calculate_legacy_sig_digest
@@ -72,10 +70,10 @@ def to_wax_authority(account_authority: Authority) -> wax_authority:
 
     """
 
-    def list_to_dict(list_: list[Any]) -> dict[bytes, int]:
-        result: dict[bytes, int] = {}
+    def list_to_dict(list_: list[Any]) -> dict[str, int]:
+        result: dict[str, int] = {}
         for i in list_:
-            result[i[0].encode()] = i[1]
+            result[i[0]] = i[1]
         return result
 
     return wax_authority(
@@ -106,13 +104,13 @@ def to_wax_authorities(account_authorities: AccountSchema) -> wax_authorities:
 
 
 def calculate_public_key(wif: str) -> str:
-    result = wax_calculate_public_key(to_cpp_string(wif))
+    result = wax_calculate_public_key(wif)
     validate_wax_result(result)
     return expose_result_as_python_string(result)
 
 
 def get_tapos_data(head_block_id: str) -> python_ref_block_data:
-    return wax_get_tapos_data(to_cpp_string(head_block_id))
+    return wax_get_tapos_data(head_block_id)
 
 
 def validate_transaction(transaction: Transaction) -> None:
@@ -128,7 +126,7 @@ def validate_transaction(transaction: Transaction) -> None:
     WaxValidationError: If the transaction is invalid.
 
     """
-    result = wax_validate_transaction(to_cpp_string(transaction.json()))
+    result = wax_validate_transaction(transaction.json())
     validate_wax_result(result)
 
 
@@ -149,7 +147,7 @@ def calculate_transaction_id(transaction: Transaction) -> str:
     WaxValidationError: If the transaction id could not be calculated.
 
     """
-    result = wax_calculate_transaction_id(to_cpp_string(transaction.json()))
+    result = wax_calculate_transaction_id(transaction.json())
     validate_wax_result(result)
     return expose_result_as_python_string(result)
 
@@ -171,7 +169,7 @@ def calculate_legacy_transaction_id(transaction: Transaction) -> str:
     WaxValidationError: If the transaction id could not be calculated.
 
     """
-    result = wax_calculate_legacy_transaction_id(to_cpp_string(transaction.json()))
+    result = wax_calculate_legacy_transaction_id(transaction.json())
     validate_wax_result(result)
     return expose_result_as_python_string(result)
 
@@ -194,7 +192,7 @@ def calculate_sig_digest(transaction: Transaction, chain_id: str) -> str:
     WaxValidationError: If the signature digest could not be calculated.
 
     """
-    result = wax_calculate_sig_digest(to_cpp_string(transaction.json()), to_cpp_string(chain_id))
+    result = wax_calculate_sig_digest(transaction.json(), chain_id)
     validate_wax_result(result)
     return expose_result_as_python_string(result)
 
@@ -217,24 +215,21 @@ def calculate_legacy_sig_digest(transaction: Transaction, chain_id: str) -> str:
     WaxValidationError: If the sig digest could not be calculated.
 
     """
-    result = wax_calculate_legacy_sig_digest(to_cpp_string(transaction.json()), to_cpp_string(chain_id))
+    result = wax_calculate_legacy_sig_digest(transaction.json(), chain_id)
     validate_wax_result(result)
     return expose_result_as_python_string(result)
 
 
 def get_hive_protocol_config(chain_id: str) -> dict[str, str]:
-    return {
-        to_python_string(key): to_python_string(value)
-        for key, value in wax_get_hive_protocol_config(to_cpp_string(chain_id)).items()
-    }
+    return dict(wax_get_hive_protocol_config(chain_id).items())
 
 
 def minimize_required_signatures(
     transaction: Transaction,
     chain_id: str,
     available_keys: list[PublicKey],
-    retrived_authorities: dict[bytes, wax_authorities],
-    get_witness_key: Callable[[bytes], bytes],
+    retrived_authorities: dict[str, wax_authorities],
+    get_witness_key: Callable[[str], str],
 ) -> list[str]:
     """
     Minimize the required signatures for the given transaction.
@@ -253,19 +248,19 @@ def minimize_required_signatures(
 
     """
     result = wax_minimize_required_signatures(
-        to_cpp_string(transaction.json()),
+        transaction.json(),
         minimize_required_signatures_data=python_minimize_required_signatures_data(
-            chain_id=to_cpp_string(chain_id),
-            available_keys=[to_cpp_string(key) for key in available_keys],
+            chain_id=chain_id,
+            available_keys=[str(key) for key in available_keys],
             authorities_map=retrived_authorities,
             get_witness_key=get_witness_key,
         ),
     )
-    return [to_python_string(signature) for signature in result]
+    return list(result)
 
 
 def collect_signing_keys(
-    transaction: Transaction, retrieve_authorities: Callable[[list[bytes]], dict[bytes, wax_authorities]]
+    transaction: Transaction, retrieve_authorities: Callable[[list[str]], dict[str, wax_authorities]]
 ) -> list[str]:
     """
     Collect the signing keys for the given transaction.
@@ -280,10 +275,7 @@ def collect_signing_keys(
     The collected signing keys.
 
     """
-    return [
-        to_python_string(key)
-        for key in wax_collect_signing_keys(to_cpp_string(transaction.json()), retrieve_authorities)
-    ]
+    return list(wax_collect_signing_keys(transaction.json(), retrieve_authorities))
 
 
 def estimate_hive_collateral(
@@ -321,8 +313,8 @@ def generate_password_based_private_key(account: AccountNameApiType, role: str, 
     """Generate a password based private key for the given account and role."""
     wax_result = wax_generate_password_based_private_key(account, role, password)
     return WaxPrivateKeyData(
-        wif_private_key=to_python_string(wax_result.wif_private_key),
-        associated_public_key=to_python_string(wax_result.associated_public_key),
+        wif_private_key=wax_result.wif_private_key,
+        associated_public_key=wax_result.associated_public_key,
     )
 
 
@@ -333,17 +325,13 @@ def suggest_brain_key() -> IBrainKeyData:
 
 
 def decode_encrypted_memo(encoded_memo: str) -> WaxEncryptedMemo:
-    wax_result = wax_decode_encrypted_memo(to_cpp_string(encoded_memo))
+    wax_result = wax_decode_encrypted_memo(encoded_memo)
     return WaxEncryptedMemo(
-        main_encryption_key=to_python_string(wax_result.main_encryption_key),
-        other_encryption_key=to_python_string(wax_result.other_encryption_key),
-        encrypted_content=to_python_string(wax_result.encrypted_content),
+        main_encryption_key=wax_result.main_encryption_key,
+        other_encryption_key=wax_result.other_encryption_key,
+        encrypted_content=wax_result.encrypted_content,
     )
 
 
 def encode_encrypted_memo(encrypted_content: str, main_encryption_key: str, other_encryption_key: str = "") -> str:
-    return to_python_string(
-        wax_encode_encrypted_memo(
-            to_cpp_string(encrypted_content), to_cpp_string(main_encryption_key), to_cpp_string(other_encryption_key)
-        )
-    )
+    return wax_encode_encrypted_memo(encrypted_content, main_encryption_key, other_encryption_key)
