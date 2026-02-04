@@ -15,8 +15,7 @@ authors = ["Piotr Batko <pbatko@syncad.com>"]
 readme = "readme.md"
 repository = "https://gitlab.syncad.com/hive/test-tools"
 source = [
-    { name = "PyPI", priority = "primary" },
-    { name = "gitlab-hive", url = "https://gitlab.syncad.com/api/v4/groups/136/-/packages/pypi/simple", priority = "supplemental" },
+    { name = "gitlab-hive", url = "https://gitlab.syncad.com/api/v4/groups/136/-/packages/pypi/simple", priority = "primary" },
 ]
 packages = [
     { include = "test_tools", from = "package" },
