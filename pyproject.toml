@@ -33,11 +33,13 @@ hiveio-beekeepy = ">=1.28.5"
 hiveio-schemas = ">=1.28.1"
 
 
+[tool.poetry.group.static-analysis.dependencies]
+mypy = ">=1.11.2"
+pre-commit = ">=2.21.0"
+ruff = ">=0.6.5"
+
 [tool.poetry.group.dev.dependencies]
 local-tools = { path = "tests/local-tools", develop = true }
-pre-commit = ">=2.21.0"
-mypy = ">=1.11.2"
-ruff = ">=0.6.5"
 pytest = ">=8.3.5"
 pytest-xdist = ">=3.6.1"
 
