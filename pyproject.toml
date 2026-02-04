@@ -16,10 +16,7 @@ readme = "readme.md"
 repository = "https://gitlab.syncad.com/hive/test-tools"
 source = [
     { name = "PyPI", priority = "primary" },
-    { name = "gitlab-schemas", url = "https://gitlab.syncad.com/api/v4/projects/362/packages/pypi/simple", priority = "supplemental" },
-    { name = "gitlab-beekeepy", url = "https://gitlab.syncad.com/api/v4/projects/558/packages/pypi/simple", priority = "supplemental" },
-    { name = "gitlab-wax", url = "https://gitlab.syncad.com/api/v4/projects/419/packages/pypi/simple", priority = "supplemental" },
-    { name = "gitlab-api-packages", url = "https://gitlab.syncad.com/api/v4/projects/198/packages/pypi/simple", priority = "supplemental" },
+    { name = "gitlab-hive", url = "https://gitlab.syncad.com/api/v4/groups/136/-/packages/pypi/simple", priority = "supplemental" },
 ]
 packages = [
     { include = "test_tools", from = "package" },

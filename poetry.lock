@@ -550,6 +550,7 @@ python-versions = ">=3.12,<4"
 groups = ["main"]
 files = [
     {file = "hiveio_api-1.28.2.dev536+93c29df29-py3-none-any.whl", hash = "sha256:906391ff577cbfe9df05fe572fbd4249c836f16bc035ab3518e0c60fdaf34f17"},
+    {file = "hiveio_api-1.28.2.dev536+93c29df29-py3-none-any.whl", hash = "sha256:f72d27af1880a6e55b3ad370f54b48f9f1c2a0811e9b70221fcbb0af6b2825da"},
 ]
 
 [package.dependencies]
@@ -557,8 +558,8 @@ hiveio-beekeepy = "1.28.5.post20260202151849"
 
 [package.source]
 type = "legacy"
-url = "https://gitlab.syncad.com/api/v4/projects/419/packages/pypi/simple"
-reference = "gitlab-wax"
+url = "https://gitlab.syncad.com/api/v4/groups/136/-/packages/pypi/simple"
+reference = "gitlab-hive"
 
 [[package]]
 name = "hiveio-beekeepy"
@@ -581,8 +582,8 @@ requests = ">=2.32.3"
 
 [package.source]
 type = "legacy"
-url = "https://gitlab.syncad.com/api/v4/projects/558/packages/pypi/simple"
-reference = "gitlab-beekeepy"
+url = "https://gitlab.syncad.com/api/v4/groups/136/-/packages/pypi/simple"
+reference = "gitlab-hive"
 
 [[package]]
 name = "hiveio-schemas"
@@ -600,8 +601,8 @@ msgspec = "0.20.0"
 
 [package.source]
 type = "legacy"
-url = "https://gitlab.syncad.com/api/v4/projects/362/packages/pypi/simple"
-reference = "gitlab-schemas"
+url = "https://gitlab.syncad.com/api/v4/groups/136/-/packages/pypi/simple"
+reference = "gitlab-hive"
 
 [[package]]
 name = "hiveio-wax"
@@ -627,8 +628,8 @@ typing-extensions = ">=4.0.0"
 
 [package.source]
 type = "legacy"
-url = "https://gitlab.syncad.com/api/v4/projects/419/packages/pypi/simple"
-reference = "gitlab-wax"
+url = "https://gitlab.syncad.com/api/v4/groups/136/-/packages/pypi/simple"
+reference = "gitlab-hive"
 
 [[package]]
 name = "hpack"
@@ -1761,4 +1762,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4"
-content-hash = "46a5205e296f1463f7abd3c5870e4ef9345d80ca59ea179f84df4ac742aaf646"
+content-hash = "117e7b97b8087a7f48cfd6105ebd9cb66f630793d808decf07b3b25a429c2f32"
