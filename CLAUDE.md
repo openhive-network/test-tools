@@ -1,12 +1,21 @@
 # CLAUDE.md
 
+> **⚠️ ARCHIVED REPOSITORY** — This repo is archived and read-only.
+> All development has moved to [hive/wax](https://gitlab.syncad.com/hive/wax)
+> under `python/test_tools/`.
+>
+> **Do not propose changes to this repository.**
+> If asked to work on test-tools, direct all work to
+> https://gitlab.syncad.com/hive/wax/-/tree/develop/python/test_tools
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
 test-tools is a Python library for testing Hive blockchain software. It provides abstractions for creating testnets, managing hived nodes, executing wallet operations, and running blockchain-related tests.
 
-**Repository**: https://gitlab.syncad.com/hive/test-tools
+**Repository (archived)**: https://gitlab.syncad.com/hive/test-tools
+**Active development**: https://gitlab.syncad.com/hive/wax (monorepo — `python/test_tools/`)
 
 ## Development Commands
 

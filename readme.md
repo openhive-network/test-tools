@@ -1,3 +1,20 @@
+> [!WARNING]
+> ## ⚠️ This repository has been archived
+>
+> The standalone `test-tools` repository is no longer actively maintained.
+> All ongoing and future development has moved to the **[hive/wax](https://gitlab.syncad.com/hive/wax)** monorepo:
+>
+> **https://gitlab.syncad.com/hive/wax/-/tree/develop/python/test_tools**
+>
+> The `wax` repository now operates as a monorepo, containing, building and deploying both packages:
+> - `hiveio-wax`
+> - `hiveio-test-tools`
+>
+> Please update your references and workflows accordingly.
+> Any new features, fixes, or improvements will be delivered exclusively through `hive/wax`.
+
+---
+
 ## Installation
 
 To use TestTools you have to install them and specify location of hive executables. Whole process is described below.
